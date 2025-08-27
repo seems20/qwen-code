@@ -15,7 +15,7 @@ import { MessageType } from '../types.js';
 
 export const docsCommand: SlashCommand = {
   name: 'docs',
-  description: '在浏览器中打开完整的 Qwen Code 文档',
+  description: '在浏览器中打开完整的 RDMind 文档',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext): Promise<void> => {
     const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
