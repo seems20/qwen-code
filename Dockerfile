@@ -1,5 +1,5 @@
 # Build stage
-FROM docker.io/library/node:20-slim AS builder
+FROM artifactory.devops.xiaohongshu.com/dockerhub/library/node:20-slim AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
