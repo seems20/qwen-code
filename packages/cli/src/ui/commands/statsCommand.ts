@@ -42,7 +42,7 @@ export const statsCommand: SlashCommand = {
   subCommands: [
     {
       name: 'model',
-      description: '显示模型特定的使用统计信息。',
+      description: '显示模型特定的使用统计信息',
       kind: CommandKind.BUILT_IN,
       action: (context: CommandContext) => {
         context.ui.addItem(
@@ -55,7 +55,7 @@ export const statsCommand: SlashCommand = {
     },
     {
       name: 'tools',
-      description: '显示工具特定的使用统计信息。',
+      description: '显示工具特定的使用统计信息',
       kind: CommandKind.BUILT_IN,
       action: (context: CommandContext) => {
         context.ui.addItem(

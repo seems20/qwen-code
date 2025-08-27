@@ -21,12 +21,12 @@ import {
 
 export const memoryCommand: SlashCommand = {
   name: 'memory',
-  description: '与记忆功能交互。',
+  description: '与记忆功能交互',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'show',
-      description: '显示当前记忆中的内容。',
+      description: '显示当前记忆中的内容',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         const memoryContent = context.services.config?.getUserMemory() || '';
@@ -48,7 +48,7 @@ export const memoryCommand: SlashCommand = {
       subCommands: [
         {
           name: '--project',
-          description: '向记忆中添加内容',
+          description: '显示项目记忆',
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
             try {
@@ -83,7 +83,7 @@ export const memoryCommand: SlashCommand = {
         },
         {
           name: '--global',
-          description: '从源头刷新记忆',
+          description: '显示全局记忆',
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
             try {
@@ -125,7 +125,7 @@ export const memoryCommand: SlashCommand = {
     {
       name: 'add',
       description:
-        '向内存添加内容。使用 --global 添加到全局内存或 --project 添加到项目内存。',
+        '向记忆中添加内容。使用 --global 添加到全局记忆或 --project 添加到项目记忆',
       kind: CommandKind.BUILT_IN,
       action: (context, args): SlashCommandActionReturn | void => {
         if (!args || args.trim() === '') {
@@ -188,7 +188,7 @@ export const memoryCommand: SlashCommand = {
       subCommands: [
         {
           name: '--project',
-          description: '向项目级内存添加内容。',
+          description: '向项目记忆添加内容',
           kind: CommandKind.BUILT_IN,
           action: (context, args): SlashCommandActionReturn | void => {
             if (!args || args.trim() === '') {
@@ -216,7 +216,7 @@ export const memoryCommand: SlashCommand = {
         },
         {
           name: '--global',
-          description: '向全局内存添加内容。',
+          description: '向全局记忆添加内容',
           kind: CommandKind.BUILT_IN,
           action: (context, args): SlashCommandActionReturn | void => {
             if (!args || args.trim() === '') {
@@ -246,7 +246,7 @@ export const memoryCommand: SlashCommand = {
     },
     {
       name: 'refresh',
-      description: '从源刷新内存。',
+      description: '从源头刷新记忆',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         context.ui.addItem(
