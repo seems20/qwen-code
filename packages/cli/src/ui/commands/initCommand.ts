@@ -16,7 +16,7 @@ import { getCurrentGeminiMdFilename } from '@qwen-code/qwen-code-core';
 
 export const initCommand: SlashCommand = {
   name: 'init',
-  description: '分析项目并创建定制的 RDMind.md 文件。',
+  description: '分析项目并创建定制的 RDMind.md 文件',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,

@@ -10,7 +10,7 @@ import { CommandKind, SlashCommand } from './types.js';
 export const compressCommand: SlashCommand = {
   name: 'compress',
   altNames: ['summarize'],
-  description: '通过摘要替换来压缩上下文。',
+  description: '生成摘要来压缩上下文',
   kind: CommandKind.BUILT_IN,
   action: async (context) => {
     const { ui } = context;

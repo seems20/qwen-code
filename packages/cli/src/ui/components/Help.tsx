@@ -105,7 +105,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Alt+Left/Right
       </Text>{' '}
-      - 跳过输入中的单词
+      - 在输入框中按单词跳转
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
@@ -161,7 +161,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Up/Down
       </Text>{' '}
-      - 浏览提示历史记录
+      - 循环切换你的历史输入记录
     </Text>
     <Box height={1} />
     <Text color={Colors.Foreground}>

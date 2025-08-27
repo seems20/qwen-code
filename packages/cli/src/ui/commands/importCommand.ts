@@ -1948,7 +1948,7 @@ const rocketMqCommand: SlashCommand = {
  */
 export const importCommand: SlashCommand = {
   name: 'import',
-  description: '为当前工作区的Java项目规范导入中间件。',
+  description: '为工作区的Java项目导入中间件',
   kind: CommandKind.BUILT_IN,
   subCommands: [mysqlCommand, redisCommand, apolloCommand, rocketMqCommand],
   action: async (context: CommandContext, args: string): Promise<SlashCommandActionReturn | void> => {

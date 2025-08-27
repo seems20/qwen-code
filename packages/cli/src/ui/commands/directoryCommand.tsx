@@ -32,7 +32,7 @@ export const directoryCommand: SlashCommand = {
     {
       name: 'add',
       description:
-        '将目录添加到工作空间。使用逗号分隔多个路径',
+        '将目录添加到工作空间，使用逗号分隔多个路径',
       kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext, args: string) => {
         const {

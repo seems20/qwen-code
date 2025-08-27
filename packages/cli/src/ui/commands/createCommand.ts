@@ -400,7 +400,7 @@ const javaFlsCommand: SlashCommand = {
  */
 const javaCommand: SlashCommand = {
   name: 'java',
-  description: '创建Java项目脚手架',
+  description: '创建项目脚手架',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaSnsCommand, javaFlsCommand],
   action: async (context: CommandContext, args: string): Promise<SlashCommandActionReturn | void> => {

@@ -15,7 +15,7 @@ import {
 export const statsCommand: SlashCommand = {
   name: 'stats',
   altNames: ['usage'],
-  description: '检查会话统计信息。用法: /stats [model|tools]',
+  description: '查看会话统计信息，可选择 model 或 tools',
   kind: CommandKind.BUILT_IN,
   action: (context: CommandContext) => {
     const now = new Date();

@@ -21,12 +21,12 @@ import {
 
 export const memoryCommand: SlashCommand = {
   name: 'memory',
-  description: '与内存交互的命令。',
+  description: '与记忆功能交互。',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'show',
-      description: '显示当前内存内容。',
+      description: '显示当前记忆中的内容。',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         const memoryContent = context.services.config?.getUserMemory() || '';
@@ -48,7 +48,7 @@ export const memoryCommand: SlashCommand = {
       subCommands: [
         {
           name: '--project',
-          description: '显示项目级内存内容。',
+          description: '向记忆中添加内容',
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
             try {
@@ -83,7 +83,7 @@ export const memoryCommand: SlashCommand = {
         },
         {
           name: '--global',
-          description: '显示全局内存内容。',
+          description: '从源头刷新记忆',
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
             try {

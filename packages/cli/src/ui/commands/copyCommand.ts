@@ -13,7 +13,7 @@ import {
 
 export const copyCommand: SlashCommand = {
   name: 'copy',
-  description: '将最后的结果或代码片段复制到剪贴板',
+  description: '复制最后的结果或代码片段到剪贴板',
   kind: CommandKind.BUILT_IN,
   action: async (context, _args): Promise<SlashCommandActionReturn | void> => {
     const chat = await context.services.config?.getGeminiClient()?.getChat();

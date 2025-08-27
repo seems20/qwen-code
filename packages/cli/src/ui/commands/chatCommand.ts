@@ -272,7 +272,7 @@ const deleteCommand: SlashCommand = {
 
 export const chatCommand: SlashCommand = {
   name: 'chat',
-  description: '管理对话历史记录。',
+  description: '管理对话历史',
   kind: CommandKind.BUILT_IN,
   subCommands: [listCommand, saveCommand, resumeCommand, deleteCommand],
 };
