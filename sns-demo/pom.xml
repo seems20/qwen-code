@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.xiaohongshu.sns</groupId>
+    <artifactId>sns-demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>sns-demo</name>
+
+
+    <properties>
+        <java.version>11</java.version>
+        <root-pom.version>3.3.0-MONTHLY-SNAPSHOT</root-pom.version>
+    </properties>
+
+    <modules>
+        <module>sns-demo-app</module>
+        <module>sns-demo-domain</module>
+        <module>sns-demo-infrastructure</module>
+        <module>sns-demo-common</module>
+        <module>sns-demo-start</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.xiaohongshu</groupId>
+                <artifactId>infra-root-pom</artifactId>
+                <version>${root-pom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Project modules -->
+            <dependency>
+                <groupId>com.xiaohongshu.sns</groupId>
+                <artifactId>sns-demo-start</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiaohongshu.sns</groupId>
+                <artifactId>sns-demo-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiaohongshu.sns</groupId>
+                <artifactId>sns-demo-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiaohongshu.sns</groupId>
+                <artifactId>sns-demo-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiaohongshu.sns</groupId>
+                <artifactId>sns-demo-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- Project modules End -->
+            <dependency>
+                <groupId>com.xiaohongshu</groupId>
+                <artifactId>infra-redconf-client-all</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>red-apollo-client</artifactId>
+                <version>1.5.5.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiaohongshu</groupId>
+                <artifactId>apollo-client-helper</artifactId>
+                <version>1.0.6</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>nexus snapshot repository</name>
+            <url>https://artifactory.devops.xiaohongshu.com/artifactory/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <name>nexus repository</name>
+            <url>https://artifactory.devops.xiaohongshu.com/artifactory/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+</project>
