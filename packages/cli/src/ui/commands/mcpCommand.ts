@@ -315,7 +315,7 @@ const getMcpStatus = async (
 
 const authCommand: SlashCommand = {
   name: 'auth',
-  description: 'Authenticate with an OAuth-enabled MCP server',
+  description: '向支持 OAuth 的 MCP 服务器进行认证',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -447,7 +447,7 @@ const authCommand: SlashCommand = {
 
 const listCommand: SlashCommand = {
   name: 'list',
-  description: 'List configured MCP servers and tools',
+  description: '列出已配置的 MCP 服务器和工具',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, args: string) => {
     const lowerCaseArgs = args.toLowerCase().split(/\s+/).filter(Boolean);
@@ -472,7 +472,7 @@ const listCommand: SlashCommand = {
 
 const refreshCommand: SlashCommand = {
   name: 'refresh',
-  description: 'Refresh the list of MCP servers and tools',
+  description: '刷新 MCP 服务器和工具列表',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -521,7 +521,7 @@ const refreshCommand: SlashCommand = {
 export const mcpCommand: SlashCommand = {
   name: 'mcp',
   description:
-    'list configured MCP servers and tools, or authenticate with OAuth-enabled servers',
+    '列出已配置的 MCP 服务器和工具，或使用支持 OAuth 的服务器进行身份验证',
   kind: CommandKind.BUILT_IN,
   subCommands: [listCommand, authCommand, refreshCommand],
   // Default action when no subcommand is provided

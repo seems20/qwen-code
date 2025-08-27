@@ -442,7 +442,7 @@ const javaCommand: SlashCommand = {
 
 export const createCommand: SlashCommand = {
   name: 'create',
-  description: '从模板生成Java项目脚手架。支持的业务模块：sns, fls',
+  description: '创建Java项目脚手架。支持的业务模块：sns, fls',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaCommand],
   action: async (

@@ -11,7 +11,7 @@ import { MessageType, type HistoryItemAbout } from '../types.js';
 
 export const aboutCommand: SlashCommand = {
   name: 'about',
-  description: 'show version info',
+  description: '显示版本信息',
   kind: CommandKind.BUILT_IN,
   action: async (context) => {
     const osVersion = process.platform;

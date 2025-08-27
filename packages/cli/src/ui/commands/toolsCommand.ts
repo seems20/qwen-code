@@ -13,7 +13,7 @@ import { MessageType } from '../types.js';
 
 export const toolsCommand: SlashCommand = {
   name: 'tools',
-  description: 'list available Qwen Codetools',
+  description: '列出可用的 Qwen Code 工具',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, args?: string): Promise<void> => {
     const subCommand = args?.trim();

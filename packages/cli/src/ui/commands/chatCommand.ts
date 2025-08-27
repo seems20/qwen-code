@@ -62,7 +62,7 @@ const getSavedChatTags = async (
 
 const listCommand: SlashCommand = {
   name: 'list',
-  description: 'List saved conversation checkpoints',
+  description: '列出已保存的对话检查点',
   kind: CommandKind.BUILT_IN,
   action: async (context): Promise<MessageActionReturn> => {
     const chatDetails = await getSavedChatTags(context, false);
@@ -98,7 +98,7 @@ const listCommand: SlashCommand = {
 const saveCommand: SlashCommand = {
   name: 'save',
   description:
-    'Save the current conversation as a checkpoint. Usage: /chat save <tag>',
+    '将当前对话保存为检查点。用法: /chat save <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args): Promise<SlashCommandActionReturn | void> => {
     const tag = args.trim();
@@ -163,7 +163,7 @@ const resumeCommand: SlashCommand = {
   name: 'resume',
   altNames: ['load'],
   description:
-    'Resume a conversation from a checkpoint. Usage: /chat resume <tag>',
+    '从检查点恢复对话。用法: /chat resume <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args) => {
     const tag = args.trim();
@@ -232,7 +232,7 @@ const resumeCommand: SlashCommand = {
 
 const deleteCommand: SlashCommand = {
   name: 'delete',
-  description: 'Delete a conversation checkpoint. Usage: /chat delete <tag>',
+  description: '删除对话检查点。用法: /chat delete <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args): Promise<MessageActionReturn> => {
     const tag = args.trim();
@@ -272,7 +272,7 @@ const deleteCommand: SlashCommand = {
 
 export const chatCommand: SlashCommand = {
   name: 'chat',
-  description: 'Manage conversation history.',
+  description: '管理对话历史记录。',
   kind: CommandKind.BUILT_IN,
   subCommands: [listCommand, saveCommand, resumeCommand, deleteCommand],
 };

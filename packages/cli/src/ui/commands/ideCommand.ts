@@ -124,7 +124,7 @@ export const ideCommand = (config: Config | null): SlashCommand | null => {
   if (!currentIDE || !ideClient.getDetectedIdeDisplayName()) {
     return {
       name: 'ide',
-      description: 'manage IDE integration',
+      description: '管理 IDE 集成',
       kind: CommandKind.BUILT_IN,
       action: (): SlashCommandActionReturn =>
         ({
@@ -141,14 +141,14 @@ export const ideCommand = (config: Config | null): SlashCommand | null => {
 
   const ideSlashCommand: SlashCommand = {
     name: 'ide',
-    description: 'manage IDE integration',
+    description: '管理 IDE 集成',
     kind: CommandKind.BUILT_IN,
     subCommands: [],
   };
 
   const statusCommand: SlashCommand = {
     name: 'status',
-    description: 'check status of IDE integration',
+    description: '检查 IDE 集成状态',
     kind: CommandKind.BUILT_IN,
     action: async (): Promise<SlashCommandActionReturn> => {
       const { messageType, content } =
@@ -203,7 +203,7 @@ export const ideCommand = (config: Config | null): SlashCommand | null => {
 
   const enableCommand: SlashCommand = {
     name: 'enable',
-    description: 'enable IDE integration',
+    description: '启用 IDE 集成',
     kind: CommandKind.BUILT_IN,
     action: async (context: CommandContext) => {
       context.services.settings.setValue(SettingScope.User, 'ideMode', true);
@@ -221,7 +221,7 @@ export const ideCommand = (config: Config | null): SlashCommand | null => {
 
   const disableCommand: SlashCommand = {
     name: 'disable',
-    description: 'disable IDE integration',
+    description: '禁用 IDE 集成',
     kind: CommandKind.BUILT_IN,
     action: async (context: CommandContext) => {
       context.services.settings.setValue(SettingScope.User, 'ideMode', false);

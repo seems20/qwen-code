@@ -8,7 +8,7 @@ import { CommandKind, SlashCommand } from './types.js';
 
 export const vimCommand: SlashCommand = {
   name: 'vim',
-  description: 'toggle vim mode on/off',
+  description: '切换 vim 模式开关',
   kind: CommandKind.BUILT_IN,
   action: async (context, _args) => {
     const newVimState = await context.ui.toggleVimEnabled();

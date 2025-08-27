@@ -26,13 +26,13 @@ export function expandHomeDir(p: string): string {
 export const directoryCommand: SlashCommand = {
   name: 'directory',
   altNames: ['dir'],
-  description: 'Manage workspace directories',
+  description: '管理工作区目录',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'add',
       description:
-        'Add directories to the workspace. Use comma to separate multiple paths',
+        '将目录添加到工作空间。使用逗号分隔多个路径',
       kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext, args: string) => {
         const {
@@ -147,7 +147,7 @@ export const directoryCommand: SlashCommand = {
     },
     {
       name: 'show',
-      description: 'Show all directories in the workspace',
+      description: '显示工作空间中的所有目录',
       kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext) => {
         const {

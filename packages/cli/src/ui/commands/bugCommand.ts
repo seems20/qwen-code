@@ -18,7 +18,7 @@ import { getCliVersion } from '../../utils/version.js';
 
 export const bugCommand: SlashCommand = {
   name: 'bug',
-  description: 'submit a bug report',
+  description: '提交错误报告',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, args?: string): Promise<void> => {
     const bugDescription = (args || '').trim();

@@ -149,7 +149,7 @@ export const restoreCommand = (config: Config | null): SlashCommand | null => {
   return {
     name: 'restore',
     description:
-      'Restore a tool call. This will reset the conversation and file history to the state it was in when the tool call was suggested',
+      '恢复工具调用。这将重置对话和文件历史到工具调用建议时的状态',
     kind: CommandKind.BUILT_IN,
     action: restoreAction,
     completion,

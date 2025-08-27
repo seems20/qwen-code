@@ -15,7 +15,7 @@ import {
 export const statsCommand: SlashCommand = {
   name: 'stats',
   altNames: ['usage'],
-  description: 'check session stats. Usage: /stats [model|tools]',
+  description: '检查会话统计信息。用法: /stats [model|tools]',
   kind: CommandKind.BUILT_IN,
   action: (context: CommandContext) => {
     const now = new Date();
@@ -42,7 +42,7 @@ export const statsCommand: SlashCommand = {
   subCommands: [
     {
       name: 'model',
-      description: 'Show model-specific usage statistics.',
+      description: '显示模型特定的使用统计信息。',
       kind: CommandKind.BUILT_IN,
       action: (context: CommandContext) => {
         context.ui.addItem(
@@ -55,7 +55,7 @@ export const statsCommand: SlashCommand = {
     },
     {
       name: 'tools',
-      description: 'Show tool-specific usage statistics.',
+      description: '显示工具特定的使用统计信息。',
       kind: CommandKind.BUILT_IN,
       action: (context: CommandContext) => {
         context.ui.addItem(

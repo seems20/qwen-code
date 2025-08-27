@@ -21,12 +21,12 @@ import {
 
 export const memoryCommand: SlashCommand = {
   name: 'memory',
-  description: 'Commands for interacting with memory.',
+  description: '与内存交互的命令。',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'show',
-      description: 'Show the current memory contents.',
+      description: '显示当前内存内容。',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         const memoryContent = context.services.config?.getUserMemory() || '';
@@ -48,7 +48,7 @@ export const memoryCommand: SlashCommand = {
       subCommands: [
         {
           name: '--project',
-          description: 'Show project-level memory contents.',
+          description: '显示项目级内存内容。',
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
             try {
@@ -83,7 +83,7 @@ export const memoryCommand: SlashCommand = {
         },
         {
           name: '--global',
-          description: 'Show global memory contents.',
+          description: '显示全局内存内容。',
           kind: CommandKind.BUILT_IN,
           action: async (context) => {
             try {
@@ -125,7 +125,7 @@ export const memoryCommand: SlashCommand = {
     {
       name: 'add',
       description:
-        'Add content to the memory. Use --global for global memory or --project for project memory.',
+        '向内存添加内容。使用 --global 添加到全局内存或 --project 添加到项目内存。',
       kind: CommandKind.BUILT_IN,
       action: (context, args): SlashCommandActionReturn | void => {
         if (!args || args.trim() === '') {
@@ -188,7 +188,7 @@ export const memoryCommand: SlashCommand = {
       subCommands: [
         {
           name: '--project',
-          description: 'Add content to project-level memory.',
+          description: '向项目级内存添加内容。',
           kind: CommandKind.BUILT_IN,
           action: (context, args): SlashCommandActionReturn | void => {
             if (!args || args.trim() === '') {
@@ -216,7 +216,7 @@ export const memoryCommand: SlashCommand = {
         },
         {
           name: '--global',
-          description: 'Add content to global memory.',
+          description: '向全局内存添加内容。',
           kind: CommandKind.BUILT_IN,
           action: (context, args): SlashCommandActionReturn | void => {
             if (!args || args.trim() === '') {
@@ -246,7 +246,7 @@ export const memoryCommand: SlashCommand = {
     },
     {
       name: 'refresh',
-      description: 'Refresh the memory from the source.',
+      description: '从源刷新内存。',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         context.ui.addItem(
