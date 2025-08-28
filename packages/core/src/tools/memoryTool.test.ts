@@ -89,7 +89,7 @@ describe('MemoryTool', () => {
     let testFilePath: string;
 
     beforeEach(() => {
-      testFilePath = path.join(os.homedir(), '.qwen', DEFAULT_CONTEXT_FILENAME);
+      testFilePath = path.join(os.homedir(), '.rdmind', DEFAULT_CONTEXT_FILENAME);
     });
 
     it('should create section and save a fact if file does not exist', async () => {
@@ -210,7 +210,7 @@ describe('MemoryTool', () => {
       // Use getCurrentGeminiMdFilename for the default expectation before any setGeminiMdFilename calls in a test
       const expectedFilePath = path.join(
         os.homedir(),
-        '.qwen',
+        '.rdmind',
         getCurrentGeminiMdFilename(), // This will be DEFAULT_CONTEXT_FILENAME unless changed by a test
       );
 
@@ -330,11 +330,11 @@ describe('MemoryTool', () => {
       expect(result).not.toBe(false);
 
       if (result && result.type === 'edit') {
-        const expectedPath = path.join('~', '.qwen', 'RDMind.md');
+        const expectedPath = path.join('~', '.rdmind', 'RDMind.md');
         expect(result.title).toBe(
           `Confirm Memory Save: ${expectedPath} (global)`,
         );
-        expect(result.fileName).toContain(path.join('mock', 'home', '.qwen'));
+        expect(result.fileName).toContain(path.join('mock', 'home', '.rdmind'));
         expect(result.fileName).toContain('RDMind.md');
         expect(result.fileDiff).toContain('Index: RDMind.md');
         expect(result.fileDiff).toContain('+## Qwen Added Memories');
@@ -372,7 +372,7 @@ describe('MemoryTool', () => {
       const params = { fact: 'Test fact', scope: 'global' as const };
       const memoryFilePath = path.join(
         os.homedir(),
-        '.qwen',
+        '.rdmind',
         getCurrentGeminiMdFilename(),
       );
 
@@ -409,7 +409,7 @@ describe('MemoryTool', () => {
       const params = { fact: 'Test fact', scope: 'global' as const };
       const memoryFilePath = path.join(
         os.homedir(),
-        '.qwen',
+        '.rdmind',
         getCurrentGeminiMdFilename(),
       );
 
@@ -464,7 +464,7 @@ describe('MemoryTool', () => {
       const params = { fact: 'Test fact', scope: 'global' as const };
       const memoryFilePath = path.join(
         os.homedir(),
-        '.qwen',
+        '.rdmind',
         getCurrentGeminiMdFilename(),
       );
 
@@ -501,7 +501,7 @@ describe('MemoryTool', () => {
       expect(result).not.toBe(false);
 
       if (result && result.type === 'edit') {
-        const expectedPath = path.join('~', '.qwen', 'RDMind.md');
+        const expectedPath = path.join('~', '.rdmind', 'RDMind.md');
         expect(result.title).toBe(
           `Confirm Memory Save: ${expectedPath} (global)`,
         );
@@ -544,7 +544,7 @@ describe('MemoryTool', () => {
       expect(result).not.toBe(false);
 
       if (result && result.type === 'edit') {
-        const globalPath = path.join('~', '.qwen', 'RDMind.md');
+        const globalPath = path.join('~', '.rdmind', 'RDMind.md');
         const projectPath = path.join(process.cwd(), 'RDMind.md');
 
         expect(result.fileDiff).toContain(`Global: ${globalPath}`);
@@ -567,7 +567,7 @@ describe('MemoryTool', () => {
       const invocation = memoryTool.build(params);
       const description = invocation.getDescription();
 
-      const expectedPath = path.join('~', '.qwen', 'RDMind.md');
+      const expectedPath = path.join('~', '.rdmind', 'RDMind.md');
       expect(description).toBe(`${expectedPath} (global)`);
     });
 
@@ -585,7 +585,7 @@ describe('MemoryTool', () => {
       const invocation = memoryTool.build(params);
       const description = invocation.getDescription();
 
-      const globalPath = path.join('~', '.qwen', 'RDMind.md');
+      const globalPath = path.join('~', '.rdmind', 'RDMind.md');
       const projectPath = path.join(process.cwd(), 'RDMind.md');
       expect(description).toBe(
         `CHOOSE: ${globalPath} (global) OR ${projectPath} (project)`,

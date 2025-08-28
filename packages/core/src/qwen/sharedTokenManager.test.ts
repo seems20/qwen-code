@@ -175,7 +175,7 @@ describe('SharedTokenManager', () => {
     mockPath.dirname.mockImplementation((filePath) => {
       // Handle undefined/null input gracefully
       if (!filePath || typeof filePath !== 'string') {
-        return '/home/user/.qwen'; // Return the expected directory path
+        return '/home/user/.rdmind'; // Return the expected directory path
       }
       const parts = filePath.split('/');
       const result = parts.slice(0, -1).join('/');

@@ -329,7 +329,7 @@ export async function loadHierarchicalGeminiMemory(
 }
 
 /**
- * 初始化全局记忆，将bundle/RDMind.md文件内容复制到~/.qwen/RDMind.md
+ * 初始化全局记忆，将bundle/RDMind.md文件内容复制到~/.rdmind/RDMind.md
  */
 async function initializeGlobalMemory(): Promise<void> {
   try {
@@ -367,7 +367,7 @@ async function initializeGlobalMemory(): Promise<void> {
       return;
     }
 
-    // 全局记忆文件路径：~/.qwen/RDMind.md
+    // 全局记忆文件路径：~/.rdmind/RDMind.md
     const globalMemoryPath = path.join(homedir(), QWEN_DIR, 'RDMind.md');
 
     // 确保全局记忆目录存在

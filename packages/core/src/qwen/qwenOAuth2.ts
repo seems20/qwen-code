@@ -32,7 +32,7 @@ const QWEN_OAUTH_SCOPE = 'openid profile email model.completion';
 const QWEN_OAUTH_GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:device_code';
 
 // File System Configuration
-const QWEN_DIR = '.qwen';
+const QWEN_DIR = '.rdmind';
 const QWEN_CREDENTIAL_FILENAME = 'oauth_creds.json';
 
 // Token Configuration

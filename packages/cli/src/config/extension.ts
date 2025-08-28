@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-export const EXTENSIONS_DIRECTORY_NAME = path.join('.qwen', 'extensions');
+export const EXTENSIONS_DIRECTORY_NAME = path.join('.rdmind', 'extensions');
 export const EXTENSIONS_CONFIG_FILENAME = 'qwen-extension.json';
 export const EXTENSIONS_CONFIG_FILENAME_OLD = 'gemini-extension.json';
 
