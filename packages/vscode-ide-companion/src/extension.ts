@@ -35,7 +35,7 @@ function updateWorkspacePath(context: vscode.ExtensionContext) {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-  logger = vscode.window.createOutputChannel('Qwen Code Companion');
+  logger = vscode.window.createOutputChannel('RDMind Companion');
   log = createLogger(context, logger);
   log('Extension activated');
 
@@ -79,12 +79,12 @@ export async function activate(context: vscode.ExtensionContext) {
   if (!context.globalState.get(INFO_MESSAGE_SHOWN_KEY)) {
     void vscode.window
       .showInformationMessage(
-        'Qwen Code Companion extension successfully installed. Please restart your terminal to enable full IDE integration.',
-        'Run Qwen Code',
+        'RDMind Companion extension successfully installed. Please restart your terminal to enable full IDE integration.',
+        'Run RDMind',
       )
       .then(
         (selection) => {
-          if (selection === 'Run Qwen Code') {
+          if (selection === 'Run RDMind') {
             void vscode.commands.executeCommand('qwen-code.runQwenCode');
           }
         },
@@ -101,7 +101,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand('qwen-code.runQwenCode', () => {
       const qwenCmd = 'qwen';
-      const terminal = vscode.window.createTerminal(`Qwen Code`);
+      const terminal = vscode.window.createTerminal(`RDMind`);
       terminal.show();
       terminal.sendText(qwenCmd);
     }),

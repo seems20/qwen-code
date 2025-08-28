@@ -25,6 +25,6 @@ describe('editorCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(editorCommand.name).toBe('editor');
-    expect(editorCommand.description).toBe('set external editor preference');
+    expect(editorCommand.description).toBe('设置外部编辑器偏好');
   });
 });

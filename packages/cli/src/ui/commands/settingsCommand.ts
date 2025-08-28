@@ -8,7 +8,7 @@ import { CommandKind, OpenDialogActionReturn, SlashCommand } from './types.js';
 
 export const settingsCommand: SlashCommand = {
   name: 'settings',
-  description: '查看和编辑 Qwen Code 设置',
+  description: '查看和编辑 RDMind 设置',
   kind: CommandKind.BUILT_IN,
   action: (_context, _args): OpenDialogActionReturn => ({
     type: 'dialog',

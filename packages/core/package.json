@@ -1,7 +1,7 @@
 {
   "name": "@qwen-code/qwen-code-core",
   "version": "0.0.9",
-  "description": "Qwen Code Core",
+  "description": "RDMind Core",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/QwenLM/qwen-code.git"

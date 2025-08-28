@@ -30,7 +30,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
           <Text bold color={Colors.AccentPurple}>
             RDMind.md
           </Text>{' '}
-          files to customize your interactions with Qwen Code.
+          files to customize your interactions with RDMind.
         </Text>
       )}
       <Text color={Colors.Foreground}>

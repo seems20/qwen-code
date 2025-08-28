@@ -13,7 +13,7 @@ import { MessageType } from '../types.js';
 
 export const toolsCommand: SlashCommand = {
   name: 'tools',
-  description: '列出可用的 Qwen Code 工具',
+  description: '列出可用的 RDMind 工具',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, args?: string): Promise<void> => {
     const subCommand = args?.trim();
@@ -40,7 +40,7 @@ export const toolsCommand: SlashCommand = {
     // Filter out MCP tools by checking for the absence of a serverName property
     const geminiTools = tools.filter((tool) => !('serverName' in tool));
 
-    let message = 'Available Qwen Code tools:\n\n';
+    let message = 'Available RDMind tools:\n\n';
 
     if (geminiTools.length > 0) {
       geminiTools.forEach((tool) => {

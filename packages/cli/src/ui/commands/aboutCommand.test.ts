@@ -58,7 +58,7 @@ describe('aboutCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(aboutCommand.name).toBe('about');
-    expect(aboutCommand.description).toBe('show version info');
+    expect(aboutCommand.description).toBe('显示版本信息');
   });
 
   it('should call addItem with all version info', async () => {

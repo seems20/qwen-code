@@ -365,7 +365,7 @@ describe('App UI', () => {
           latest: '1.1.0',
           current: '1.0.0',
         },
-        message: 'Qwen Code update available!',
+        message: 'RDMind update available!',
       };
       mockedCheckForUpdates.mockResolvedValue(info);
       const { spawn } = await import('node:child_process');

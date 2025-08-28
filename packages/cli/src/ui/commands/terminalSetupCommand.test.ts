@@ -18,7 +18,7 @@ describe('terminalSetupCommand', () => {
 
   it('should have correct metadata', () => {
     expect(terminalSetupCommand.name).toBe('terminal-setup');
-    expect(terminalSetupCommand.description).toContain('multiline input');
+    expect(terminalSetupCommand.description).toContain('多行输入');
     expect(terminalSetupCommand.kind).toBe('built-in');
   });
 
