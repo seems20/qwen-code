@@ -26,7 +26,7 @@ const qwenDarkColors: ColorsTheme = {
 };
 
 export const QwenDark: Theme = new Theme(
-  'Qwen Dark',
+  'RDMind Dark',
   'dark',
   {
     hljs: {
