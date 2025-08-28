@@ -35,7 +35,7 @@ describe('docsCommand', () => {
       throw new Error('docsCommand must have an action.');
     }
 
-    const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
+    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     await docsCommand.action(mockContext, '');
 
@@ -57,7 +57,7 @@ describe('docsCommand', () => {
 
     // Simulate a sandbox environment
     process.env.SANDBOX = 'gemini-sandbox';
-    const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
+    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     await docsCommand.action(mockContext, '');
 
@@ -80,7 +80,7 @@ describe('docsCommand', () => {
 
     // Simulate the specific 'sandbox-exec' environment
     process.env.SANDBOX = 'sandbox-exec';
-    const docsUrl = 'https://qwenlm.github.io/qwen-code-docs/en';
+    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     await docsCommand.action(mockContext, '');
 
