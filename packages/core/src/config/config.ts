@@ -27,6 +27,7 @@ import {
   setGeminiMdFilename,
   GEMINI_CONFIG_DIR as GEMINI_DIR,
 } from '../tools/memoryTool.js';
+import { TodoWriteTool } from '../tools/todoWrite.js';
 import { WebSearchTool } from '../tools/web-search.js';
 import { GeminiClient } from '../core/client.js';
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
@@ -43,12 +44,15 @@ import {
   DEFAULT_GEMINI_EMBEDDING_MODEL,
   DEFAULT_GEMINI_FLASH_MODEL,
 } from './models.js';
-import { QwenLogger } from '../telemetry/qwen-logger/qwen-logger.js';
 import { shouldAttemptBrowserLaunch } from '../utils/browser.js';
 import { MCPOAuthConfig } from '../mcp/oauth-provider.js';
 import { IdeClient } from '../ide/ide-client.js';
 import type { Content } from '@google/genai';
-import { logIdeConnection } from '../telemetry/loggers.js';
+import {
+  FileSystemService,
+  StandardFileSystemService,
+} from '../services/fileSystemService.js';
+import { logCliConfiguration, logIdeConnection } from '../telemetry/loggers.js';
 import { IdeConnectionEvent, IdeConnectionType } from '../telemetry/types.js';
 
 // Re-export OAuth config type
@@ -81,6 +85,7 @@ export interface TelemetrySettings {
   enabled?: boolean;
   target?: TelemetryTarget;
   otlpEndpoint?: string;
+  otlpProtocol?: 'grpc' | 'http';
   logPrompts?: boolean;
   outfile?: string;
 }
@@ -223,12 +228,15 @@ export interface ConfigParameters {
   chatCompression?: ChatCompressionSettings;
   interactive?: boolean;
   trustedFolder?: boolean;
+  shouldUseNodePtyShell?: boolean;
+  skipNextSpeakerCheck?: boolean;
 }
 
 export class Config {
   private toolRegistry!: ToolRegistry;
   private promptRegistry!: PromptRegistry;
-  private readonly sessionId: string;
+  private sessionId: string;
+  private fileSystemService: FileSystemService;
   private contentGeneratorConfig!: ContentGeneratorConfig;
   private readonly embeddingModel: string;
   private readonly sandbox: SandboxConfig | undefined;
@@ -303,12 +311,15 @@ export class Config {
   private readonly chatCompression: ChatCompressionSettings | undefined;
   private readonly interactive: boolean;
   private readonly trustedFolder: boolean | undefined;
+  private readonly shouldUseNodePtyShell: boolean;
+  private readonly skipNextSpeakerCheck: boolean;
   private initialized: boolean = false;
 
   constructor(params: ConfigParameters) {
     this.sessionId = params.sessionId;
     this.embeddingModel =
       params.embeddingModel ?? DEFAULT_GEMINI_EMBEDDING_MODEL;
+    this.fileSystemService = new StandardFileSystemService();
     this.sandbox = params.sandbox;
     this.targetDir = path.resolve(params.targetDir);
     this.workspaceContext = new WorkspaceContext(
@@ -333,6 +344,7 @@ export class Config {
       enabled: params.telemetry?.enabled ?? false,
       target: params.telemetry?.target ?? DEFAULT_TELEMETRY_TARGET,
       otlpEndpoint: params.telemetry?.otlpEndpoint ?? DEFAULT_OTLP_ENDPOINT,
+      otlpProtocol: params.telemetry?.otlpProtocol,
       logPrompts: params.telemetry?.logPrompts ?? true,
       outfile: params.telemetry?.outfile,
     };
@@ -380,6 +392,8 @@ export class Config {
     this.chatCompression = params.chatCompression;
     this.interactive = params.interactive ?? false;
     this.trustedFolder = params.trustedFolder;
+    this.shouldUseNodePtyShell = params.shouldUseNodePtyShell ?? false;
+    this.skipNextSpeakerCheck = params.skipNextSpeakerCheck ?? false;
 
     // Web search
     this.tavilyApiKey = params.tavilyApiKey;
@@ -392,13 +406,7 @@ export class Config {
       initializeTelemetry(this);
     }
 
-    if (this.getUsageStatisticsEnabled()) {
-      QwenLogger.getInstance(this)?.logStartSessionEvent(
-        new StartSessionEvent(this),
-      );
-    } else {
-      console.log('Data collection is disabled.');
-    }
+    logCliConfiguration(this, new StartSessionEvent(this));
   }
 
   /**
@@ -462,6 +470,10 @@ export class Config {
     return this.sessionId;
   }
 
+  setSessionId(sessionId: string): void {
+    this.sessionId = sessionId;
+  }
+
   shouldLoadMemoryFromIncludeDirectories(): boolean {
     return this.loadMemoryFromIncludeDirectories;
   }
@@ -518,7 +530,7 @@ export class Config {
 
   isRestrictiveSandbox(): boolean {
     const sandboxConfig = this.getSandbox();
-    const seatbeltProfile = process.env.SEATBELT_PROFILE;
+    const seatbeltProfile = process.env['SEATBELT_PROFILE'];
     return (
       !!sandboxConfig &&
       sandboxConfig.command === 'sandbox-exec' &&
@@ -539,8 +551,8 @@ export class Config {
     return this.workspaceContext;
   }
 
-  getToolRegistry(): Promise<ToolRegistry> {
-    return Promise.resolve(this.toolRegistry);
+  getToolRegistry(): ToolRegistry {
+    return this.toolRegistry;
   }
 
   getPromptRegistry(): PromptRegistry {
@@ -625,6 +637,10 @@ export class Config {
 
   getTelemetryOtlpEndpoint(): string {
     return this.telemetrySettings.otlpEndpoint ?? DEFAULT_OTLP_ENDPOINT;
+  }
+
+  getTelemetryOtlpProtocol(): 'grpc' | 'http' {
+    return this.telemetrySettings.otlpProtocol ?? 'grpc';
   }
 
   getTelemetryTarget(): TelemetryTarget {
@@ -805,12 +821,34 @@ export class Config {
     return this.systemPromptMappings;
   }
 
+  /**
+   * Get the current FileSystemService
+   */
+  getFileSystemService(): FileSystemService {
+    return this.fileSystemService;
+  }
+
+  /**
+   * Set a custom FileSystemService
+   */
+  setFileSystemService(fileSystemService: FileSystemService): void {
+    this.fileSystemService = fileSystemService;
+  }
+
   getChatCompression(): ChatCompressionSettings | undefined {
     return this.chatCompression;
   }
 
   isInteractive(): boolean {
     return this.interactive;
+  }
+
+  getShouldUseNodePtyShell(): boolean {
+    return this.shouldUseNodePtyShell;
+  }
+
+  getSkipNextSpeakerCheck(): boolean {
+    return this.skipNextSpeakerCheck;
   }
 
   async getGitService(): Promise<GitService> {
@@ -867,6 +905,7 @@ export class Config {
     registerCoreTool(ReadManyFilesTool, this);
     registerCoreTool(ShellTool, this);
     registerCoreTool(MemoryTool);
+    registerCoreTool(TodoWriteTool, this);
     // Conditionally register web search tool only if Tavily API key is set
     if (this.getTavilyApiKey()) {
       registerCoreTool(WebSearchTool, this);

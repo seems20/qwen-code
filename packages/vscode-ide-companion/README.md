@@ -1,6 +1,6 @@
 # RDMind Companion
 
-The RDMind Companion extension seamlessly integrates [RDMind](https://github.com/QwenLM/qwen-code) into your IDE.
+The RDMind Companion extension seamlessly integrates [Qwen Code](https://github.com/QwenLM/qwen-code). This extension is compatible with both VS Code and VS Code forks.
 
 # Features
 

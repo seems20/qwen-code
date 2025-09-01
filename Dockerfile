@@ -26,7 +26,7 @@ RUN npm ci \
   && npm pack -w @qwen-code/qwen-code-core --pack-destination ./packages/core/dist
 
 # Runtime stage
-FROM docker.io/library/node:20-slim
+FROM artifactory.devops.xiaohongshu.com/dockerhub/library/node:20-slim
 
 ARG SANDBOX_NAME="qwen-code-sandbox"
 ARG CLI_VERSION_ARG

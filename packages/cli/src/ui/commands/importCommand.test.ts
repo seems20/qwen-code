@@ -121,7 +121,7 @@ describe('importCommand', () => {
       vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
       vi.mocked(fs.readdir).mockResolvedValue([]);
 
-      const result = await importCommand.action!(mockContext, 'mysql test-project');
+      await importCommand.action!(mockContext, 'mysql test-project');
 
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -162,7 +162,7 @@ describe('importCommand', () => {
       vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
       vi.mocked(fs.readdir).mockResolvedValue([]);
 
-      const result = await importCommand.action!(mockContext, 'mysql test-project');
+      await importCommand.action!(mockContext, 'mysql test-project');
 
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -197,7 +197,7 @@ describe('importCommand', () => {
       vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
       vi.mocked(fs.readdir).mockResolvedValue([]);
 
-      const result = await importCommand.action!(mockContext, 'mysql sns-circle');
+      await importCommand.action!(mockContext, 'mysql sns-circle');
 
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({

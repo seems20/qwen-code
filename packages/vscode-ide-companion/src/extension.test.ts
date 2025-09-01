@@ -25,6 +25,7 @@ vi.mock('vscode', () => ({
       close: vi.fn(),
     },
     showTextDocument: vi.fn(),
+    showWorkspaceFolderPick: vi.fn(),
   },
   workspace: {
     workspaceFolders: [],
@@ -80,8 +81,7 @@ describe('activate', () => {
     vi.mocked(context.globalState.get).mockReturnValue(undefined);
     await activate(context);
     expect(showInformationMessageMock).toHaveBeenCalledWith(
-              'RDMind Companion extension successfully installed. Please restart your terminal to enable full IDE integration.',
-        'Run RDMind',
+      'RDMind Companion extension successfully installed.',
     );
   });
 
@@ -94,13 +94,15 @@ describe('activate', () => {
       it('should launch RDMind when the user clicks the button', async () => {
     const showInformationMessageMock = vi
       .mocked(vscode.window.showInformationMessage)
-              .mockResolvedValue('Run RDMind' as never);
+      .mockResolvedValue('Run RDMind' as never);
     vi.mocked(context.globalState.get).mockReturnValue(undefined);
     await activate(context);
     expect(showInformationMessageMock).toHaveBeenCalled();
     await new Promise(process.nextTick); // Wait for the promise to resolve
-    expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-      'qwen-code.runQwenCode',
-    );
+    const commandCallback = vi
+      .mocked(vscode.commands.registerCommand)
+      .mock.calls.find((call) => call[0] === 'qwen-code.runQwenCode')?.[1];
+
+    expect(commandCallback).toBeDefined();
   });
 });
