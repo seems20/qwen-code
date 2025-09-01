@@ -5,14 +5,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import fs from 'fs/promises';
 import { importCommand } from './importCommand.js';
 import { CommandKind } from './types.js';
 import { MessageType } from '../types.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
-
-// Mock fs module
-vi.mock('fs/promises');
 
 describe('importCommand', () => {
   const mockContext = createMockCommandContext();
@@ -73,168 +69,118 @@ describe('importCommand', () => {
     });
   });
 
-  describe('MySQL依赖检查', () => {
-    it('应该检测到缺少infra-root-pom时显示错误', async () => {
-      const mockPomContent = `
-        <project>
-          <dependencies>
-            <dependency>
-              <groupId>other</groupId>
-              <artifactId>other-artifact</artifactId>
-            </dependency>
-          </dependencies>
-        </project>
-      `;
+  describe('MySQL 导入 (todowrite模式)', () => {
+    it('应该显示开始信息并返回AI提示词', async () => {
+      const result = await importCommand.action!(mockContext, 'mysql test-project');
 
-      vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
-      vi.mocked(fs.readdir).mockResolvedValue([]);
-
-      await importCommand.action!(mockContext, 'mysql test-project');
-
-      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: MessageType.ERROR,
-          text: expect.stringContaining('未找到 infrastructure 模块的 pom.xml 文件'),
-        }),
-        expect.any(Number),
-      );
-    });
-
-    it('应该检测到已存在的redsql依赖并继续生成配置', async () => {
-      const mockPomContent = `
-        <project>
-          <dependencies>
-            <dependency>
-              <groupId>com.xiaohongshu</groupId>
-              <artifactId>infra-root-pom</artifactId>
-            </dependency>
-            <dependency>
-              <groupId>com.xiaohongshu.redsql</groupId>
-              <artifactId>redsql-spring-boot-starter</artifactId>
-            </dependency>
-          </dependencies>
-        </project>
-      `;
-
-      vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
-      vi.mocked(fs.readdir).mockResolvedValue([]);
-
-      await importCommand.action!(mockContext, 'mysql test-project');
-
-      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: MessageType.ERROR,
-          text: expect.stringContaining('未找到 infrastructure 模块的 pom.xml 文件'),
-        }),
-        expect.any(Number),
-      );
-    });
-
-    it('应该在pom.xml不存在时显示错误', async () => {
-      vi.mocked(fs.access).mockRejectedValue(new Error('File not found'));
-
-      await importCommand.action!(mockContext, 'mysql test-project');
-
-      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: MessageType.ERROR,
-          text: expect.stringContaining('未找到 infrastructure 模块的 pom.xml 文件'),
-        }),
-        expect.any(Number),
-      );
-    });
-
-    it('应该成功生成MySQL完整接入配置的AI提示词', async () => {
-      const mockPomContent = `
-        <project>
-          <dependencies>
-            <dependency>
-              <groupId>com.xiaohongshu</groupId>
-              <artifactId>infra-root-pom</artifactId>
-            </dependency>
-          </dependencies>
-        </project>
-      `;
-
-      vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
-      vi.mocked(fs.readdir).mockResolvedValue([]);
-
-      await importCommand.action!(mockContext, 'mysql test-project');
-
-      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: MessageType.ERROR,
-          text: expect.stringContaining('未找到 infrastructure 模块的 pom.xml 文件'),
-        }),
-        expect.any(Number),
-      );
-    });
-
-    it('应该生成包含配置文件更新的完整提示词', async () => {
-      const mockPomContent = `
-        <project>
-          <dependencies>
-            <dependency>
-              <groupId>com.xiaohongshu</groupId>
-              <artifactId>infra-root-pom</artifactId>
-            </dependency>
-          </dependencies>
-        </project>
-      `;
-
-      // Mock 配置文件存在
-      vi.mocked(fs.access).mockImplementation((filePath: any) => {
-        if (typeof filePath === 'string' && 
-            (filePath.endsWith('application-prod.yml') || 
-             filePath.endsWith('application-sit.yml'))) {
-          return Promise.resolve();
-        }
-        return Promise.resolve();
-      });
-      vi.mocked(fs.readFile).mockResolvedValue(mockPomContent);
-      vi.mocked(fs.readdir).mockResolvedValue([]);
-
-      await importCommand.action!(mockContext, 'mysql sns-circle');
-
-      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: MessageType.ERROR,
-          text: expect.stringContaining('未找到 infrastructure 模块的 pom.xml 文件'),
-        }),
-        expect.any(Number),
-      );
-
-      // 在测试环境中，不会有复杂的成功逻辑，因为会早期返回错误
-    });
-  });
-
-  describe('项目名称处理', () => {
-    it('应该支持指定项目名称并查找当前目录的pom.xml', async () => {
-      const projectName = 'my-project';
-      vi.mocked(fs.access).mockRejectedValue(new Error('File not found'));
-
-      await importCommand.action!(mockContext, `mysql ${projectName}`);
-
-      // 应该显示项目配置信息
+      // 检查开始信息
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.INFO,
-          text: expect.stringContaining(`正在为 "${projectName}" 配置 MySQL 接入`),
+          text: expect.stringContaining('RDMind正在接入MySQL'),
         }),
         expect.any(Number),
       );
 
-      // 应该显示找不到infrastructure模块的错误
+      // 检查返回值包含AI提示词
+      expect(result).toEqual(
+        expect.objectContaining({
+          type: 'submit_prompt',
+          content: expect.stringContaining('请为Java项目 "test-project" 完成 MySQL 接入配置'),
+        }),
+      );
+    });
+
+    it('应该生成包含正确项目名的提示词', async () => {
+      const result = await importCommand.action!(mockContext, 'mysql sns-demo');
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          type: 'submit_prompt',
+          content: expect.stringContaining('请为Java项目 "sns-demo" 完成 MySQL 接入配置'),
+        }),
+      );
+    });
+  });
+
+  describe('Redis 导入 (todowrite模式)', () => {
+    it('应该显示开始信息并返回AI提示词', async () => {
+      const result = await importCommand.action!(mockContext, 'redis');
+
+      // 检查开始信息
+      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.INFO,
+          text: expect.stringContaining('RDMind正在接入Redis'),
+        }),
+        expect.any(Number),
+      );
+
+      // 检查返回值包含AI提示词
+      expect(result).toEqual(
+        expect.objectContaining({
+          type: 'submit_prompt',
+          content: expect.stringContaining('请为Java项目完成 Redis 接入配置'),
+        }),
+      );
+    });
+  });
+
+  describe('Apollo 导入 (todowrite模式)', () => {
+    it('应该在没有appId时显示错误信息', async () => {
+      await importCommand.action!(mockContext, 'apollo');
+
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.ERROR,
-          text: expect.stringContaining(`未找到 infrastructure 模块的 pom.xml 文件`),
+          text: expect.stringContaining('请提供 AppId 参数'),
         }),
         expect.any(Number),
       );
     });
+
+    it('应该显示开始信息并返回AI提示词', async () => {
+      const result = await importCommand.action!(mockContext, 'apollo my-app-id');
+
+      // 检查开始信息
+      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.INFO,
+          text: expect.stringContaining('RDMind正在接入Apollo'),
+        }),
+        expect.any(Number),
+      );
+
+      // 检查返回值包含AI提示词
+      expect(result).toEqual(
+        expect.objectContaining({
+          type: 'submit_prompt',
+          content: expect.stringContaining('请为Java项目完成 Apollo 接入配置，AppId："my-app-id"'),
+        }),
+      );
+    });
   });
-}); 
+
+  describe('RocketMQ 导入 (todowrite模式)', () => {
+    it('应该显示开始信息并返回AI提示词', async () => {
+      const result = await importCommand.action!(mockContext, 'rocketmq');
+
+      // 检查开始信息
+      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.INFO,
+          text: expect.stringContaining('RDMind正在接入RocketMQ'),
+        }),
+        expect.any(Number),
+      );
+
+      // 检查返回值包含AI提示词
+      expect(result).toEqual(
+        expect.objectContaining({
+          type: 'submit_prompt',
+          content: expect.stringContaining('请为Java项目完成 RocketMQ 接入配置'),
+        }),
+      );
+    });
+  });
+});
