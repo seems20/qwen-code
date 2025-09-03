@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext) {
       }
 
       if (selectedFolder) {
-        const qwenCmd = 'qwen';
+        const qwenCmd = 'rdmind';
         const terminal = vscode.window.createTerminal({
           name: `RDMind (${selectedFolder.name})`,
           cwd: selectedFolder.uri.fsPath,
