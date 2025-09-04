@@ -118,79 +118,79 @@ async function addMcpServer(
   if (isExistingServer) {
     console.log(`MCP server "${name}" updated in ${scope} settings.`);
   } else {
-    console.log(
-      `MCP server "${name}" added to ${scope} settings. (${transport})`,
-    );
+      console.log(
+    `MCP server "${name}" added to ${scope} settings. (${transport})`,
+  );
   }
 }
 
 export const addCommand: CommandModule = {
   command: 'add <name> <commandOrUrl> [args...]',
-  describe: 'Add a server',
+  describe: '添加 MCP 服务',
   builder: (yargs) =>
     yargs
-      .usage('Usage: gemini mcp add [options] <name> <commandOrUrl> [args...]')
+      .usage('使用方法: gemini mcp add [options] <name> <commandOrUrl> [args...]')
       .parserConfiguration({
         'unknown-options-as-args': true, // Pass unknown options as server args
         'populate--': true, // Populate server args after -- separator
       })
       .positional('name', {
-        describe: 'Name of the server',
+        describe: 'MCP 服务名称',
         type: 'string',
         demandOption: true,
       })
       .positional('commandOrUrl', {
-        describe: 'Command (stdio) or URL (sse, http)',
+        describe: '命令（stdio）或 URL（sse, http）',
         type: 'string',
         demandOption: true,
       })
       .option('scope', {
         alias: 's',
-        describe: 'Configuration scope (user or project)',
+        describe: '配置范围（user 或 project）',
         type: 'string',
         default: 'project',
         choices: ['user', 'project'],
       })
       .option('transport', {
         alias: 't',
-        describe: 'Transport type (stdio, sse, http)',
+        describe: '传输类型（stdio, sse, http）',
         type: 'string',
         default: 'stdio',
         choices: ['stdio', 'sse', 'http'],
       })
       .option('env', {
         alias: 'e',
-        describe: 'Set environment variables (e.g. -e KEY=value)',
+        describe: '设置环境变量（例如 -e KEY=value）',
         type: 'array',
         string: true,
       })
       .option('header', {
         alias: 'H',
         describe:
-          'Set HTTP headers for SSE and HTTP transports (e.g. -H "X-Api-Key: abc123" -H "Authorization: Bearer abc123")',
+          '为 SSE 和 HTTP 传输设置 HTTP 头（例如 -H "X-Api-Key: abc123" -H "Authorization: Bearer abc123"）',
         type: 'array',
         string: true,
       })
       .option('timeout', {
-        describe: 'Set connection timeout in milliseconds',
+        describe: '设置连接超时时间（毫秒）',
         type: 'number',
       })
       .option('trust', {
         describe:
-          'Trust the server (bypass all tool call confirmation prompts)',
+          '信任服务器（绕过所有工具调用确认提示）',
         type: 'boolean',
       })
       .option('description', {
-        describe: 'Set the description for the server',
+        describe: '设置服务器描述',
         type: 'string',
       })
       .option('include-tools', {
-        describe: 'A comma-separated list of tools to include',
+        describe: '要包含的工具列表（逗号分隔）',
         type: 'array',
         string: true,
       })
       .option('exclude-tools', {
-        describe: 'A comma-separated list of tools to exclude',
+        describe: '要排除的工具列表（逗号分隔）',
         type: 'array',
         string: true,
       })

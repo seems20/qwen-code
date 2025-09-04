@@ -12,7 +12,7 @@ import yargs from 'yargs';
 describe('mcp command', () => {
   it('should have correct command definition', () => {
     expect(mcpCommand.command).toBe('mcp');
-    expect(mcpCommand.describe).toBe('Manage MCP servers');
+    expect(mcpCommand.describe).toBe('管理 MCP 服务');
     expect(typeof mcpCommand.builder).toBe('function');
     expect(typeof mcpCommand.handler).toBe('function');
   });
@@ -49,7 +49,7 @@ describe('mcp command', () => {
 
     expect(mockYargs.demandCommand).toHaveBeenCalledWith(
       1,
-      'You need at least one command before continuing.',
+      '继续之前需要至少一个命令。',
     );
   });
 });

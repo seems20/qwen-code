@@ -98,7 +98,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Cannot use both --prompt (-p) and --prompt-interactive (-i) together',
+        '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)',
       ),
     );
 
@@ -128,7 +128,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Cannot use both --prompt (-p) and --prompt-interactive (-i) together',
+        '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)',
       ),
     );
 
@@ -183,7 +183,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.',
+        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代。',
       ),
     );
 
@@ -206,7 +206,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.',
+        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代。',
       ),
     );
 

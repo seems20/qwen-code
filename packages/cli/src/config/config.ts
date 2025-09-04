@@ -87,154 +87,154 @@ export async function parseArguments(): Promise<CliArgs> {
   const yargsInstance = yargs(hideBin(process.argv))
     // Set locale to English for consistent output, especially in tests
     .locale('en')
-    .scriptName('qwen')
+    .scriptName('rdmind')
     .usage(
-      'Usage: qwen [options] [command]\n\nRDMind - Launch an interactive CLI, use -p/--prompt for non-interactive mode',
+      '使用方法: rdmind [选项] [命令]\n\nRDMind - 启动交互式 CLI，使用 -p/--prompt 进入非交互模式',
     )
-    .command('$0', 'Launch RDMind', (yargsInstance) =>
+    .command('$0', '启动 RDMind', (yargsInstance) =>
       yargsInstance
         .option('model', {
           alias: 'm',
           type: 'string',
-          description: `Model`,
+          description: `模型`,
           default: process.env['GEMINI_MODEL'],
         })
         .option('prompt', {
           alias: 'p',
           type: 'string',
-          description: 'Prompt. Appended to input on stdin (if any).',
+          description: '提示词。附加到标准输入',
         })
         .option('prompt-interactive', {
           alias: 'i',
           type: 'string',
           description:
-            'Execute the provided prompt and continue in interactive mode',
+            '根据提供的提示词执行并继续交互模式',
         })
         .option('sandbox', {
           alias: 's',
           type: 'boolean',
-          description: 'Run in sandbox?',
+          description: '在沙盒中运行？',
         })
         .option('sandbox-image', {
           type: 'string',
-          description: 'Sandbox image URI.',
+          description: '沙盒镜像 URI',
         })
         .option('debug', {
           alias: 'd',
           type: 'boolean',
-          description: 'Run in debug mode?',
+          description: '在调试模式下运行？',
           default: false,
         })
         .option('all-files', {
           alias: ['a'],
           type: 'boolean',
-          description: 'Include ALL files in context?',
+          description: '在上下文中包含所有文件？',
           default: false,
         })
         .option('all_files', {
           type: 'boolean',
-          description: 'Include ALL files in context?',
+          description: '在上下文中包含所有文件？',
           default: false,
         })
         .deprecateOption(
           'all_files',
-          'Use --all-files instead. We will be removing --all_files in the coming weeks.',
+          '请使用 --all-files 替代。将在未来删除 --all_files 选项。',
         )
         .option('show-memory-usage', {
           type: 'boolean',
-          description: 'Show memory usage in status bar',
+          description: '在状态栏显示内存使用情况',
           default: false,
         })
         .option('show_memory_usage', {
           type: 'boolean',
-          description: 'Show memory usage in status bar',
+          description: '在状态栏显示内存使用情况',
           default: false,
         })
         .deprecateOption(
           'show_memory_usage',
-          'Use --show-memory-usage instead. We will be removing --show_memory_usage in the coming weeks.',
+          '请使用 --show-memory-usage 替代。将在未来几周内删除 --show_memory_usage 选项。',
         )
         .option('yolo', {
           alias: 'y',
           type: 'boolean',
           description:
-            'Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?',
+            '自动接受所有操作（YOLO 模式）？',
           default: false,
         })
         .option('approval-mode', {
           type: 'string',
           choices: ['default', 'auto_edit', 'yolo'],
           description:
-            'Set the approval mode: default (prompt for approval), auto_edit (auto-approve edit tools), yolo (auto-approve all tools)',
+            '设置审批模式：default（提示确认）、auto_edit（自动批准编辑工具）、yolo（自动批准所有工具）',
         })
         .option('telemetry', {
           type: 'boolean',
           description:
-            'Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.',
+            '启用遥测？此标志专门控制是否发送遥测数据。其他 --telemetry-* 标志设置特定值但不会独立启用遥测。',
         })
         .option('telemetry-target', {
           type: 'string',
           choices: ['local', 'gcp'],
           description:
-            'Set the telemetry target (local or gcp). Overrides settings files.',
+            '设置遥测目标（local 或 gcp）。覆盖设置文件。',
         })
         .option('telemetry-otlp-endpoint', {
           type: 'string',
           description:
-            'Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.',
+            '设置遥测的 OTLP 端点。覆盖环境变量和设置文件。',
         })
         .option('telemetry-otlp-protocol', {
           type: 'string',
           choices: ['grpc', 'http'],
           description:
-            'Set the OTLP protocol for telemetry (grpc or http). Overrides settings files.',
+            '设置遥测的 OTLP 协议（grpc 或 http）。覆盖设置文件。',
         })
         .option('telemetry-log-prompts', {
           type: 'boolean',
           description:
-            'Enable or disable logging of user prompts for telemetry. Overrides settings files.',
+            '启用或禁用遥测中用户提示词的日志记录。覆盖设置文件。',
         })
         .option('telemetry-outfile', {
           type: 'string',
-          description: 'Redirect all telemetry output to the specified file.',
+          description: '将所有遥测输出重定向到指定文件。',
         })
         .option('checkpointing', {
           alias: 'c',
           type: 'boolean',
-          description: 'Enables checkpointing of file edits',
+          description: '启用文件编辑的检查点功能',
           default: false,
         })
         .option('experimental-acp', {
           type: 'boolean',
-          description: 'Starts the agent in ACP mode',
+          description: '在 ACP 模式下启动代理',
         })
         .option('allowed-mcp-server-names', {
           type: 'array',
           string: true,
-          description: 'Allowed MCP server names',
+          description: '允许的 MCP 服务器名称',
         })
         .option('extensions', {
           alias: 'e',
           type: 'array',
           string: true,
           description:
-            'A list of extensions to use. If not provided, all extensions are used.',
+            '要使用的扩展列表。如果未提供，将使用所有扩展。',
         })
         .option('list-extensions', {
           alias: 'l',
           type: 'boolean',
-          description: 'List all available extensions and exit.',
+          description: '列出所有可用扩展并退出。',
         })
         .option('proxy', {
           type: 'string',
           description:
-            'Proxy for qwen client, like schema://user:password@host:port',
+            '客户端代理，格式如 schema://user:password@host:port',
         })
         .option('include-directories', {
           type: 'array',
           string: true,
           description:
-            'Additional directories to include in the workspace (comma-separated or multiple --include-directories)',
+            '要包含工作区中的额外目录（逗号分隔或多个 --include-directories）',
           coerce: (dirs: string[]) =>
             // Handle comma-separated values
             dirs.flatMap((dir) => dir.split(',').map((d) => d.trim())),
@@ -242,30 +242,30 @@ export async function parseArguments(): Promise<CliArgs> {
         .option('openai-logging', {
           type: 'boolean',
           description:
-            'Enable logging of OpenAI API calls for debugging and analysis',
+            '启用 OpenAI API 调用日志记录以进行调试和分析',
         })
         .option('openai-api-key', {
           type: 'string',
-          description: 'OpenAI API key to use for authentication',
+          description: '用于身份验证的 OpenAI API 密钥',
         })
         .option('openai-base-url', {
           type: 'string',
-          description: 'OpenAI base URL (for custom endpoints)',
+          description: 'OpenAI 基础 URL（用于自定义端点）',
         })
         .option('tavily-api-key', {
           type: 'string',
-          description: 'Tavily API key for web search functionality',
+          description: '用于网络搜索功能的 Tavily API 密钥',
         })
 
         .check((argv) => {
           if (argv.prompt && argv['promptInteractive']) {
             throw new Error(
-              'Cannot use both --prompt (-p) and --prompt-interactive (-i) together',
+              '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)',
             );
           }
           if (argv.yolo && argv['approvalMode']) {
             throw new Error(
-              'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.',
+              '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代。',
             );
           }
           return true;

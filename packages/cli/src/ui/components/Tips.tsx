@@ -17,12 +17,12 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
   const geminiMdFileCount = config.getGeminiMdFileCount();
   return (
     <Box flexDirection="column">
-      <Text color={Colors.Foreground}>Tips for getting started:</Text>
+      <Text color={Colors.Foreground}>入门小贴士:</Text>
       <Text color={Colors.Foreground}>
-        1. Ask questions, edit files, or run commands.
+        1. 直接提问、编辑文件，或者执行命令。
       </Text>
       <Text color={Colors.Foreground}>
-        2. Be specific for the best results.
+        2. 尽量描述清楚需求，获得更准确的结果。
       </Text>
       {geminiMdFileCount === 0 && (
         <Text color={Colors.Foreground}>
@@ -30,15 +30,15 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
           <Text bold color={Colors.AccentPurple}>
             RDMind.md
           </Text>{' '}
-          files to customize your interactions with RDMind.
+          来自定义你与 RDMind 的交互方式。
         </Text>
       )}
       <Text color={Colors.Foreground}>
         {geminiMdFileCount === 0 ? '4.' : '3.'}{' '}
         <Text bold color={Colors.AccentPurple}>
-          /help
+          输入 /help
         </Text>{' '}
-        for more information.
+        获取更多使用帮助。
       </Text>
     </Box>
   );

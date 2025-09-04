@@ -36,18 +36,18 @@ async function removeMcpServer(
 
 export const removeCommand: CommandModule = {
   command: 'remove <name>',
-  describe: 'Remove a server',
+  describe: '移除 MCP 服务',
   builder: (yargs) =>
     yargs
-      .usage('Usage: gemini mcp remove [options] <name>')
+      .usage('使用方法: gemini mcp remove [options] <name>')
       .positional('name', {
-        describe: 'Name of the server',
+        describe: 'MCP 服务名称',
         type: 'string',
         demandOption: true,
       })
       .option('scope', {
         alias: 's',
-        describe: 'Configuration scope (user or project)',
+        describe: '配置范围（user 或 project）',
         type: 'string',
         default: 'project',
         choices: ['user', 'project'],

@@ -24,7 +24,7 @@ const homeDirectoryCheck: WarningCheck = {
       ]);
 
       if (workspaceRealPath === homeRealPath) {
-        return 'You are running RDMind in your home directory. It is recommended to run in a project-specific directory.';
+        return '正在主目录中运行 RDMind。建议在特定的项目目录中运行。';
       }
       return null;
     } catch (_err: unknown) {

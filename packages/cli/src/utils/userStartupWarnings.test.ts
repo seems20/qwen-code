@@ -39,7 +39,7 @@ describe('getUserStartupWarnings', () => {
     it('should return a warning when running in home directory', async () => {
       const warnings = await getUserStartupWarnings(homeDir);
       expect(warnings).toContainEqual(
-        expect.stringContaining('home directory'),
+        expect.stringContaining('主目录'),
       );
     });
 

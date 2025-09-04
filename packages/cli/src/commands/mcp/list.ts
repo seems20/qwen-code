@@ -132,7 +132,7 @@ export async function listMcpServers(): Promise<void> {
 
 export const listCommand: CommandModule = {
   command: 'list',
-  describe: 'List all configured MCP servers',
+  describe: '列出所有已配置的 MCP 服务',
   handler: async () => {
     await listMcpServers();
   },

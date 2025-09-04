@@ -12,13 +12,13 @@ import { listCommand } from './mcp/list.js';
 
 export const mcpCommand: CommandModule = {
   command: 'mcp',
-  describe: 'Manage MCP servers',
+  describe: '管理 MCP 服务',
   builder: (yargs: Argv) =>
     yargs
       .command(addCommand)
       .command(removeCommand)
       .command(listCommand)
-      .demandCommand(1, 'You need at least one command before continuing.')
+      .demandCommand(1, '继续之前需要至少一个命令。')
       .version(false),
   handler: () => {
     // yargs will automatically show help if no subcommand is provided
