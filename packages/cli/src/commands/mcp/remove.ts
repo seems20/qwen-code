@@ -39,7 +39,7 @@ export const removeCommand: CommandModule = {
   describe: '移除 MCP 服务',
   builder: (yargs) =>
     yargs
-      .usage('使用方法: gemini mcp remove [options] <name>')
+      .usage('使用方法: rdmind mcp remove [options] <name>')
       .positional('name', {
         describe: 'MCP 服务名称',
         type: 'string',

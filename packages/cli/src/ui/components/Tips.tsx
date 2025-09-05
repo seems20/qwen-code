@@ -17,7 +17,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
   const geminiMdFileCount = config.getGeminiMdFileCount();
   return (
     <Box flexDirection="column">
-      <Text color={Colors.Foreground}>入门小贴士:</Text>
+      <Text color={Colors.Foreground}>使用指南:</Text>
       <Text color={Colors.Foreground}>
         1. 直接提问、编辑文件，或者执行命令。
       </Text>

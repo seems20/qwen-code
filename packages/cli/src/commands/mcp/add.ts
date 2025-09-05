@@ -118,9 +118,9 @@ async function addMcpServer(
   if (isExistingServer) {
     console.log(`MCP server "${name}" updated in ${scope} settings.`);
   } else {
-      console.log(
-    `MCP server "${name}" added to ${scope} settings. (${transport})`,
-  );
+    console.log(
+      `MCP server "${name}" added to ${scope} settings. (${transport})`,
+    );
   }
 }
 
@@ -129,7 +129,7 @@ export const addCommand: CommandModule = {
   describe: '添加 MCP 服务',
   builder: (yargs) =>
     yargs
-      .usage('使用方法: gemini mcp add [options] <name> <commandOrUrl> [args...]')
+      .usage('使用方法: rdmind mcp add [options] <name> <commandOrUrl> [args...]')
       .parserConfiguration({
         'unknown-options-as-args': true, // Pass unknown options as server args
         'populate--': true, // Populate server args after -- separator
@@ -140,13 +140,13 @@ export const addCommand: CommandModule = {
         demandOption: true,
       })
       .positional('commandOrUrl', {
-        describe: '命令（stdio）或 URL（sse, http）',
+        describe: 'Command (stdio) or URL (sse, http)',
         type: 'string',
         demandOption: true,
       })
       .option('scope', {
         alias: 's',
-        describe: '配置范围（user 或 project）',
+        describe: '配置范围（user or project）',
         type: 'string',
         default: 'project',
         choices: ['user', 'project'],
@@ -181,7 +181,7 @@ export const addCommand: CommandModule = {
         type: 'boolean',
       })
       .option('description', {
-        describe: '设置服务器描述',
+        describe: '设置 MCP 服务描述',
         type: 'string',
       })
       .option('include-tools', {

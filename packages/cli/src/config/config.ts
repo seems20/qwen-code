@@ -102,7 +102,7 @@ export async function parseArguments(): Promise<CliArgs> {
         .option('prompt', {
           alias: 'p',
           type: 'string',
-          description: '提示词。附加到标准输入',
+          description: '提示词',
         })
         .option('prompt-interactive', {
           alias: 'i',
@@ -142,12 +142,12 @@ export async function parseArguments(): Promise<CliArgs> {
         )
         .option('show-memory-usage', {
           type: 'boolean',
-          description: '在状态栏显示内存使用情况',
+          description: '在状态栏显示使用情况',
           default: false,
         })
         .option('show_memory_usage', {
           type: 'boolean',
-          description: '在状态栏显示内存使用情况',
+          description: '在状态栏显示使用情况',
           default: false,
         })
         .deprecateOption(
@@ -614,7 +614,7 @@ export async function loadCliConfig(
       respectGitIgnore: settings.fileFiltering?.respectGitIgnore,
       respectGeminiIgnore: settings.fileFiltering?.respectGeminiIgnore,
       enableRecursiveFileSearch:
-        settings.fileFiltering?.enableRecursiveFileSearch,
+      settings.fileFiltering?.enableRecursiveFileSearch,
     },
     checkpointing: argv.checkpointing || settings.checkpointing?.enabled,
     proxy:
