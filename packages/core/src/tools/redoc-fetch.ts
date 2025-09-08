@@ -18,7 +18,7 @@ import { Config, ApprovalMode } from '../config/config.js';
 import { getResponseText } from '../utils/generateContentResponseUtilities.js';
 
 const REDOC_API_TIMEOUT_MS = 10000;
-const REDOC_API_URL = 'https://athena-next.devops.beta.xiaohongshu.com/api/media/query/redoc';
+const REDOC_API_URL = 'https://athena-next.devops.xiaohongshu.com/api/media/query/redoc';
 const REDOC_URL_PATTERN = /^https:\/\/docs\.xiaohongshu\.com\/doc\/([a-f0-9]+)$/;
 
 /**
