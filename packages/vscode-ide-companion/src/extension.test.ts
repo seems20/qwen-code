@@ -91,7 +91,7 @@ describe('activate', () => {
     expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
   });
 
-      it('should launch RDMind when the user clicks the button', async () => {
+  it('should launch RDMind when the user clicks the button', async () => {
     const showInformationMessageMock = vi
       .mocked(vscode.window.showInformationMessage)
       .mockResolvedValue('Run RDMind' as never);

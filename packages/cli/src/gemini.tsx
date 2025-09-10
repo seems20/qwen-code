@@ -338,7 +338,9 @@ export async function main() {
 
 function setWindowTitle(title: string, settings: LoadedSettings) {
   if (!settings.merged.hideWindowTitle) {
-    const windowTitle = (process.env['CLI_TITLE'] || `RDMind - ${title}`).replace(
+    const windowTitle = (
+      process.env['CLI_TITLE'] || `RDMind - ${title}`
+    ).replace(
       // eslint-disable-next-line no-control-regex
       /[\x00-\x1F\x7F]/g,
       '',

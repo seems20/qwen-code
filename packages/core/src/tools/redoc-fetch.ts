@@ -18,8 +18,10 @@ import { Config, ApprovalMode } from '../config/config.js';
 import { getResponseText } from '../utils/generateContentResponseUtilities.js';
 
 const REDOC_API_TIMEOUT_MS = 10000;
-const REDOC_API_URL = 'https://athena-next.devops.xiaohongshu.com/api/media/query/redoc';
-const REDOC_URL_PATTERN = /^https:\/\/docs\.xiaohongshu\.com\/doc\/([a-f0-9]+)$/;
+const REDOC_API_URL =
+  'https://athena-next.devops.xiaohongshu.com/api/media/query/redoc';
+const REDOC_URL_PATTERN =
+  /^https:\/\/docs\.xiaohongshu\.com\/doc\/([a-f0-9]+)$/;
 
 /**
  * RedocFetch 工具的参数接口
@@ -68,17 +70,23 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
     return match ? match[1] : null;
   }
 
-  private async fetchRedocContent(docId: string, _signal: AbortSignal): Promise<string> {
+  private async fetchRedocContent(
+    docId: string,
+    _signal: AbortSignal,
+  ): Promise<string> {
     console.debug(`[RedocFetchTool] Fetching content for doc_id: ${docId}`);
-    
+
     const requestBody = {
-      doc_id: docId
+      doc_id: docId,
     };
 
     // 直接使用 fetch，因为 fetchWithTimeout 不接受 fetch 选项
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), REDOC_API_TIMEOUT_MS);
-    
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      REDOC_API_TIMEOUT_MS,
+    );
+
     try {
       const response = await fetch(REDOC_API_URL, {
         method: 'POST',
@@ -95,28 +103,32 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         throw new Error(errorMessage);
       }
 
-                const responseData: RedocApiResponse = await response.json();
-      
-            console.debug(`[RedocFetchTool] API 响应详情:`, {
+      const responseData: RedocApiResponse = await response.json();
+
+      console.debug(`[RedocFetchTool] API 响应详情:`, {
         success: responseData.success,
         code: responseData.code,
         message: responseData.msg,
         title: responseData.data?.title,
-        contentLength: responseData.data?.content?.length || 0
+        contentLength: responseData.data?.content?.length || 0,
       });
-      
+
       // 检查API响应是否成功
       if (!responseData.success || responseData.code !== 0) {
         const errorMessage = `Redoc API returned error (code: ${responseData.code}): ${responseData.msg || 'Unknown error'}`;
         console.error(`[RedocFetchTool] ${errorMessage}`, responseData);
         throw new Error(errorMessage);
       }
-      
+
       if (!responseData.data?.content) {
-        throw new Error('Redoc API response does not contain content field in data');
+        throw new Error(
+          'Redoc API response does not contain content field in data',
+        );
       }
 
-      console.debug(`[RedocFetchTool] Successfully fetched content for doc_id: ${docId}, title: ${responseData.data.title}`);
+      console.debug(
+        `[RedocFetchTool] Successfully fetched content for doc_id: ${docId}, title: ${responseData.data.title}`,
+      );
       return responseData.data.content;
     } finally {
       clearTimeout(timeoutId);
@@ -154,7 +166,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
   async execute(signal: AbortSignal): Promise<ToolResult> {
     const docId = this.extractDocIdFromUrl(this.params.url);
-    
+
     if (!docId) {
       const errorMessage = `Invalid Redoc URL format: ${this.params.url}`;
       console.error(`[RedocFetchTool] ${errorMessage}`);
@@ -166,13 +178,13 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
     try {
       const content = await this.fetchRedocContent(docId, signal);
-      
+
       console.debug(
         `[RedocFetchTool] Processing content with prompt: "${this.params.prompt}"`,
       );
 
       const geminiClient = this.config.getGeminiClient();
-      
+
       // 尝试解析 content 字段，如果是 JSON 则进行格式化处理
       let processedContent = content;
       try {
@@ -185,7 +197,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         // 如果不是 JSON，直接使用原始内容
         processedContent = content;
       }
-      
+
       const fallbackPrompt = `用户请求如下："${this.params.prompt}"。
 
 我已经从 ${this.params.url} 获取了小红书 Redoc 文档内容。这是一个结构化的文档，包含了完整的内容信息。请仔细分析文档内容并回答用户的请求。
@@ -202,7 +214,7 @@ ${processedContent}
         {},
         signal,
       );
-      
+
       const resultText = getResponseText(result) || '';
 
       console.debug(
@@ -243,7 +255,8 @@ export class RedocFetchTool extends BaseDeclarativeTool<
       {
         properties: {
           url: {
-            description: '要获取内容的 Redoc 文档 URL（必须匹配 https://docs.xiaohongshu.com/doc/{doc_id} 格式）',
+            description:
+              '要获取内容的 Redoc 文档 URL（必须匹配 https://docs.xiaohongshu.com/doc/{doc_id} 格式）',
             type: 'string',
           },
           prompt: {
@@ -263,15 +276,15 @@ export class RedocFetchTool extends BaseDeclarativeTool<
     if (!params.url || params.url.trim() === '') {
       return "'url' 参数不能为空。";
     }
-    
+
     if (!REDOC_URL_PATTERN.test(params.url)) {
       return "'url' 必须是有效的 Redoc URL，格式为：https://docs.xiaohongshu.com/doc/{doc_id}";
     }
-    
+
     if (!params.prompt || params.prompt.trim() === '') {
       return "'prompt' 参数不能为空。";
     }
-    
+
     return null;
   }
 
@@ -280,4 +293,4 @@ export class RedocFetchTool extends BaseDeclarativeTool<
   ): ToolInvocation<RedocFetchToolParams, ToolResult> {
     return new RedocFetchToolInvocation(this.config, params);
   }
-} 
+}

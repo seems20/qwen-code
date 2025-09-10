@@ -99,8 +99,7 @@ const listCommand: SlashCommand = {
 
 const saveCommand: SlashCommand = {
   name: 'save',
-  description:
-    '将当前对话保存为检查点，用法: /chat save <tag>',
+  description: '将当前对话保存为检查点，用法: /chat save <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args): Promise<SlashCommandActionReturn | void> => {
     const tag = args.trim();
@@ -164,8 +163,7 @@ const saveCommand: SlashCommand = {
 const resumeCommand: SlashCommand = {
   name: 'resume',
   altNames: ['load'],
-  description:
-    '从检查点恢复对话，用法: /chat resume <tag>',
+  description: '从检查点恢复对话，用法: /chat resume <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args) => {
     const tag = args.trim();

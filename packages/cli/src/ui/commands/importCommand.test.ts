@@ -20,7 +20,9 @@ describe('importCommand', () => {
   describe('基本配置', () => {
     it('应该有正确的名称和描述', () => {
       expect(importCommand.name).toBe('import');
-      expect(importCommand.description).toContain('为工作区的Java项目导入中间件');
+      expect(importCommand.description).toContain(
+        '为工作区的Java项目导入中间件',
+      );
       expect(importCommand.kind).toBe(CommandKind.BUILT_IN);
     });
 
@@ -71,7 +73,10 @@ describe('importCommand', () => {
 
   describe('MySQL 导入 (todowrite模式)', () => {
     it('应该显示开始信息并返回AI提示词', async () => {
-      const result = await importCommand.action!(mockContext, 'mysql test-project');
+      const result = await importCommand.action!(
+        mockContext,
+        'mysql test-project',
+      );
 
       // 检查开始信息
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
@@ -86,7 +91,9 @@ describe('importCommand', () => {
       expect(result).toEqual(
         expect.objectContaining({
           type: 'submit_prompt',
-          content: expect.stringContaining('请为Java项目 "test-project" 完成 MySQL 接入配置'),
+          content: expect.stringContaining(
+            '请为Java项目 "test-project" 完成 MySQL 接入配置',
+          ),
         }),
       );
     });
@@ -97,7 +104,9 @@ describe('importCommand', () => {
       expect(result).toEqual(
         expect.objectContaining({
           type: 'submit_prompt',
-          content: expect.stringContaining('请为Java项目 "sns-demo" 完成 MySQL 接入配置'),
+          content: expect.stringContaining(
+            '请为Java项目 "sns-demo" 完成 MySQL 接入配置',
+          ),
         }),
       );
     });
@@ -140,7 +149,10 @@ describe('importCommand', () => {
     });
 
     it('应该显示开始信息并返回AI提示词', async () => {
-      const result = await importCommand.action!(mockContext, 'apollo my-app-id');
+      const result = await importCommand.action!(
+        mockContext,
+        'apollo my-app-id',
+      );
 
       // 检查开始信息
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
@@ -155,7 +167,9 @@ describe('importCommand', () => {
       expect(result).toEqual(
         expect.objectContaining({
           type: 'submit_prompt',
-          content: expect.stringContaining('请为Java项目完成 Apollo 接入配置，AppId："my-app-id"'),
+          content: expect.stringContaining(
+            '请为Java项目完成 Apollo 接入配置，AppId："my-app-id"',
+          ),
         }),
       );
     });
@@ -178,7 +192,9 @@ describe('importCommand', () => {
       expect(result).toEqual(
         expect.objectContaining({
           type: 'submit_prompt',
-          content: expect.stringContaining('请为Java项目完成 RocketMQ 接入配置'),
+          content: expect.stringContaining(
+            '请为Java项目完成 RocketMQ 接入配置',
+          ),
         }),
       );
     });

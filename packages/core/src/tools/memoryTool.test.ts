@@ -89,7 +89,11 @@ describe('MemoryTool', () => {
     let testFilePath: string;
 
     beforeEach(() => {
-      testFilePath = path.join(os.homedir(), '.rdmind', DEFAULT_CONTEXT_FILENAME);
+      testFilePath = path.join(
+        os.homedir(),
+        '.rdmind',
+        DEFAULT_CONTEXT_FILENAME,
+      );
     });
 
     it('should create section and save a fact if file does not exist', async () => {

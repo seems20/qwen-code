@@ -18,7 +18,8 @@ export const docsCommand: SlashCommand = {
   description: '在浏览器中打开完整的 RDMind 文档',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext): Promise<void> => {
-    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
+    const docsUrl =
+      'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     if (process.env['SANDBOX'] && process.env['SANDBOX'] !== 'sandbox-exec') {
       context.ui.addItem(

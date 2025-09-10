@@ -43,7 +43,10 @@ if (existsSync(defaultRDMind)) {
   try {
     copyFileSync(defaultRDMind, join(bundleDir, 'RDMind.md'));
   } catch (error) {
-    console.warn('Warning: Could not copy RDMind.md into bundle:', error.message);
+    console.warn(
+      'Warning: Could not copy RDMind.md into bundle:',
+      error.message,
+    );
   }
 }
 

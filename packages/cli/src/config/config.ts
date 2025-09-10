@@ -107,8 +107,7 @@ export async function parseArguments(): Promise<CliArgs> {
         .option('prompt-interactive', {
           alias: 'i',
           type: 'string',
-          description:
-            '根据提供的提示词执行并继续交互模式',
+          description: '根据提供的提示词执行并继续交互模式',
         })
         .option('sandbox', {
           alias: 's',
@@ -157,8 +156,7 @@ export async function parseArguments(): Promise<CliArgs> {
         .option('yolo', {
           alias: 'y',
           type: 'boolean',
-          description:
-            '自动接受所有操作（YOLO 模式）？',
+          description: '自动接受所有操作（YOLO 模式）？',
           default: false,
         })
         .option('approval-mode', {
@@ -175,24 +173,20 @@ export async function parseArguments(): Promise<CliArgs> {
         .option('telemetry-target', {
           type: 'string',
           choices: ['local', 'gcp'],
-          description:
-            '设置遥测目标（local 或 gcp）。覆盖设置文件。',
+          description: '设置遥测目标（local 或 gcp）。覆盖设置文件。',
         })
         .option('telemetry-otlp-endpoint', {
           type: 'string',
-          description:
-            '设置遥测的 OTLP 端点。覆盖环境变量和设置文件。',
+          description: '设置遥测的 OTLP 端点。覆盖环境变量和设置文件。',
         })
         .option('telemetry-otlp-protocol', {
           type: 'string',
           choices: ['grpc', 'http'],
-          description:
-            '设置遥测的 OTLP 协议（grpc 或 http）。覆盖设置文件。',
+          description: '设置遥测的 OTLP 协议（grpc 或 http）。覆盖设置文件。',
         })
         .option('telemetry-log-prompts', {
           type: 'boolean',
-          description:
-            '启用或禁用遥测中用户提示词的日志记录。覆盖设置文件。',
+          description: '启用或禁用遥测中用户提示词的日志记录。覆盖设置文件。',
         })
         .option('telemetry-outfile', {
           type: 'string',
@@ -217,8 +211,7 @@ export async function parseArguments(): Promise<CliArgs> {
           alias: 'e',
           type: 'array',
           string: true,
-          description:
-            '要使用的扩展列表。如果未提供，将使用所有扩展。',
+          description: '要使用的扩展列表。如果未提供，将使用所有扩展。',
         })
         .option('list-extensions', {
           alias: 'l',
@@ -227,8 +220,7 @@ export async function parseArguments(): Promise<CliArgs> {
         })
         .option('proxy', {
           type: 'string',
-          description:
-            '客户端代理，格式如 schema://user:password@host:port',
+          description: '客户端代理，格式如 schema://user:password@host:port',
         })
         .option('include-directories', {
           type: 'array',
@@ -241,8 +233,7 @@ export async function parseArguments(): Promise<CliArgs> {
         })
         .option('openai-logging', {
           type: 'boolean',
-          description:
-            '启用 OpenAI API 调用日志记录以进行调试和分析',
+          description: '启用 OpenAI API 调用日志记录以进行调试和分析',
         })
         .option('openai-api-key', {
           type: 'string',
@@ -388,7 +379,10 @@ async function initializeGlobalMemory(): Promise<void> {
     console.log(`已将RDMind规范文档从 ${sourcePath} 加载到全局记忆中`);
   } catch (error) {
     // 出现错误时静默处理，不影响正常启动
-    console.warn('加载全局记忆文件时出现错误:', error instanceof Error ? error.message : '未知错误');
+    console.warn(
+      '加载全局记忆文件时出现错误:',
+      error instanceof Error ? error.message : '未知错误',
+    );
   }
 }
 
@@ -614,7 +608,7 @@ export async function loadCliConfig(
       respectGitIgnore: settings.fileFiltering?.respectGitIgnore,
       respectGeminiIgnore: settings.fileFiltering?.respectGeminiIgnore,
       enableRecursiveFileSearch:
-      settings.fileFiltering?.enableRecursiveFileSearch,
+        settings.fileFiltering?.enableRecursiveFileSearch,
     },
     checkpointing: argv.checkpointing || settings.checkpointing?.enabled,
     proxy:

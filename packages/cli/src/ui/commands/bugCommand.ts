@@ -15,7 +15,7 @@ export const bugCommand: SlashCommand = {
   name: 'bug',
   description: '提交错误报告',
   kind: CommandKind.BUILT_IN,
-  action: async (context: CommandContext, args?: string): Promise<void> => {
+  action: async (context: CommandContext, _args?: string): Promise<void> => {
     context.ui.addItem(
       {
         type: MessageType.INFO,

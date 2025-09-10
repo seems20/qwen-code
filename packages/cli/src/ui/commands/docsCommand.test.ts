@@ -35,7 +35,8 @@ describe('docsCommand', () => {
       throw new Error('docsCommand must have an action.');
     }
 
-    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
+    const docsUrl =
+      'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     await docsCommand.action(mockContext, '');
 
@@ -57,7 +58,8 @@ describe('docsCommand', () => {
 
     // Simulate a sandbox environment
     vi.stubEnv('SANDBOX', 'gemini-sandbox');
-    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
+    const docsUrl =
+      'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     await docsCommand.action(mockContext, '');
 
@@ -80,7 +82,8 @@ describe('docsCommand', () => {
 
     // Simulate the specific 'sandbox-exec' environment
     vi.stubEnv('SANDBOX', 'sandbox-exec');
-    const docsUrl = 'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
+    const docsUrl =
+      'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
 
     await docsCommand.action(mockContext, '');
 

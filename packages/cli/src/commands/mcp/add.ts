@@ -129,7 +129,9 @@ export const addCommand: CommandModule = {
   describe: '添加 MCP 服务',
   builder: (yargs) =>
     yargs
-      .usage('使用方法: rdmind mcp add [options] <name> <commandOrUrl> [args...]')
+      .usage(
+        '使用方法: rdmind mcp add [options] <name> <commandOrUrl> [args...]',
+      )
       .parserConfiguration({
         'unknown-options-as-args': true, // Pass unknown options as server args
         'populate--': true, // Populate server args after -- separator
@@ -176,8 +178,7 @@ export const addCommand: CommandModule = {
         type: 'number',
       })
       .option('trust', {
-        describe:
-          '信任服务器（绕过所有工具调用确认提示）',
+        describe: '信任服务器（绕过所有工具调用确认提示）',
         type: 'boolean',
       })
       .option('description', {
