@@ -47,7 +47,7 @@ describe('rdconfigCommand', () => {
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         {
           type: MessageType.INFO,
-          text: "你的需求是:'', 我将按照小红书规范, 为你配置开发环境, 包括开发工具、开发语言、开发框架、开发库等",
+          text: "我将按照小红书规范, 为你配置开发环境, 包括开发工具、开发语言、开发框架、开发库等",
         },
         expect.any(Number),
       );
@@ -71,7 +71,7 @@ describe('rdconfigCommand', () => {
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         {
           type: MessageType.INFO,
-          text: `你的需求是:'${userPrompt}', 我将按照小红书规范, 为你配置开发环境, 包括开发工具、开发语言、开发框架、开发库等`,
+          text: `你的需求是:'${userPrompt}'`,
         },
         expect.any(Number),
       );
