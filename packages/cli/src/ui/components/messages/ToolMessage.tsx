@@ -79,7 +79,7 @@ const useResultDisplayRenderer = (
  */
 const TodoResultRenderer: React.FC<{ data: TodoResultDisplay }> = ({
   data,
-}) => <TodoDisplay todos={data.todos} />;
+}) => <TodoDisplay todos={data.todos} title={data.title} />;
 
 /**
  * Component to render string results (markdown or plain text)

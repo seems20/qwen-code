@@ -180,4 +180,27 @@ describe('<ToolMessage />', () => {
     // We can at least ensure it doesn't have the high emphasis indicator.
     expect(lowEmphasisFrame()).not.toContain('←');
   });
+
+  it('renders todo list results correctly', () => {
+    const todoResult = {
+      type: 'todo_list' as const,
+      todos: [
+        { id: '1', content: 'Task 1', status: 'pending' as const },
+        { id: '2', content: 'Task 2', status: 'completed' as const },
+      ],
+      title: 'My Todo List',
+    };
+
+    const { lastFrame } = renderWithContext(
+      <ToolMessage {...baseProps} resultDisplay={todoResult} />,
+      StreamingState.Idle,
+    );
+
+    const output = lastFrame();
+    // Should contain todo items but not the title (since title is now handled by the tool name)
+    expect(output).toContain('Task 1');
+    expect(output).toContain('Task 2');
+    expect(output).toContain('○'); // pending status icon
+    expect(output).toContain('●'); // completed status icon
+  });
 });

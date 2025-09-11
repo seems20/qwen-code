@@ -27,6 +27,7 @@ export interface TodoItem {
 
 export interface TodoWriteParams {
   todos: TodoItem[];
+  title?: string;
   modified_by_user?: boolean;
   modified_content?: string;
 }
@@ -60,6 +61,10 @@ const todoWriteToolSchemaData: FunctionDeclaration = {
         },
         description: 'The updated todo list',
       },
+      title: {
+        type: 'string',
+        description: 'Custom title for the todo list display',
+      },
     },
     required: ['todos'],
     $schema: 'http://json-schema.org/draft-07/schema#',
@@ -69,6 +74,8 @@ const todoWriteToolSchemaData: FunctionDeclaration = {
 const todoWriteToolDescription = `
 Use this tool to create and manage a structured task list for your current coding session. This helps you track progress, organize complex tasks, and demonstrate thoroughness to the user.
 It also helps the user understand the progress of the task and overall progress of their requests.
+
+You can customize the display title of the todo list by providing a 'title' parameter. If no title is provided, it will default to '流程Todo'.
 
 ## When to Use This Tool
 Use this tool proactively in these scenarios:
@@ -321,7 +328,7 @@ class TodoWriteToolInvocation extends BaseToolInvocation<
   }
 
   async execute(_signal: AbortSignal): Promise<ToolResult> {
-    const { todos, modified_by_user, modified_content } = this.params;
+    const { todos, modified_by_user, modified_content, title } = this.params;
     const sessionId = this.config.getSessionId();
 
     try {
@@ -342,12 +349,14 @@ class TodoWriteToolInvocation extends BaseToolInvocation<
       const todoResultDisplay = {
         type: 'todo_list' as const,
         todos: finalTodos,
+        title: title || '流程Todo',
       };
 
       return {
         llmContent: JSON.stringify({
           success: true,
           todos: finalTodos,
+          title: title || '流程Todo',
         }),
         returnDisplay: todoResultDisplay,
       };
@@ -407,11 +416,16 @@ export class TodoWriteTool extends BaseDeclarativeTool<
   constructor(private readonly config: Config) {
     super(
       TodoWriteTool.Name,
-      'Todo Write',
+      // 'Todo Write',
+      '流程Todo',
       todoWriteToolDescription,
       Kind.Think,
       todoWriteToolSchemaData.parametersJsonSchema as Record<string, unknown>,
     );
+  }
+
+  getDisplayName(params?: TodoWriteParams): string {
+    return params?.title || '流程Todo';
   }
 
   override validateToolParams(params: TodoWriteParams): string | null {

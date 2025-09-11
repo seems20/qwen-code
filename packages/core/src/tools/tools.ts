@@ -445,6 +445,7 @@ export interface TodoResultDisplay {
     content: string;
     status: 'pending' | 'in_progress' | 'completed';
   }>;
+  title?: string;
 }
 
 export interface ToolEditConfirmationDetails {

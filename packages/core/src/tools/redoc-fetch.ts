@@ -166,7 +166,6 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
   async execute(signal: AbortSignal): Promise<ToolResult> {
     const docId = this.extractDocIdFromUrl(this.params.url);
-
     if (!docId) {
       const errorMessage = `Invalid Redoc URL format: ${this.params.url}`;
       console.error(`[RedocFetchTool] ${errorMessage}`);
@@ -178,13 +177,11 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
     try {
       const content = await this.fetchRedocContent(docId, signal);
-
       console.debug(
         `[RedocFetchTool] Processing content with prompt: "${this.params.prompt}"`,
       );
 
       const geminiClient = this.config.getGeminiClient();
-
       // 尝试解析 content 字段，如果是 JSON 则进行格式化处理
       let processedContent = content;
       try {
@@ -197,7 +194,6 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         // 如果不是 JSON，直接使用原始内容
         processedContent = content;
       }
-
       const fallbackPrompt = `用户请求如下："${this.params.prompt}"。
 
 我已经从 ${this.params.url} 获取了小红书 Redoc 文档内容。这是一个结构化的文档，包含了完整的内容信息。请仔细分析文档内容并回答用户的请求。
@@ -214,7 +210,6 @@ ${processedContent}
         {},
         signal,
       );
-
       const resultText = getResponseText(result) || '';
 
       console.debug(

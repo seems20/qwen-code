@@ -143,6 +143,7 @@ describe('TodoWriteTool', () => {
       expect(result.llmContent).toContain('success');
       expect(result.returnDisplay).toEqual({
         type: 'todo_list',
+        title: '流程Todo',
         todos: [
           { id: '1', content: 'Task 1', status: 'pending' },
           { id: '2', content: 'Task 2', status: 'in_progress' },
@@ -180,6 +181,7 @@ describe('TodoWriteTool', () => {
       expect(result.llmContent).toContain('success');
       expect(result.returnDisplay).toEqual({
         type: 'todo_list',
+        title: '流程Todo',
         todos: [
           { id: '1', content: 'Updated Task', status: 'completed' },
           { id: '2', content: 'New Task', status: 'pending' },
@@ -225,6 +227,7 @@ describe('TodoWriteTool', () => {
       expect(result.llmContent).toContain('success');
       expect(result.returnDisplay).toEqual({
         type: 'todo_list',
+        title: '流程Todo',
         todos: [],
       });
       expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -242,7 +245,7 @@ describe('TodoWriteTool', () => {
     });
 
     it('should have correct display name', () => {
-      expect(tool.displayName).toBe('Todo Write');
+      expect(tool.displayName).toBe('流程Todo');
     });
 
     it('should have correct kind', () => {

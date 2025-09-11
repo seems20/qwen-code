@@ -648,6 +648,16 @@ export async function loadCliConfig(
     ]) as ConfigParameters['systemPromptMappings'],
     authType: settings.selectedAuthType,
     contentGenerator: settings.contentGenerator,
+    // contentGenerator: {
+    //   ...settings.contentGenerator,
+    //   samplingParams: {
+    //     temperature: 0.7,
+    //     top_p: 0.8,
+    //     top_k: 20,
+    //     repetition_penalty: 1.05,
+    //     ...settings.contentGenerator?.samplingParams,
+    //   },
+    // },
     cliVersion,
     tavilyApiKey:
       argv.tavilyApiKey ||

@@ -16,6 +16,7 @@ export interface TodoItem {
 
 interface TodoDisplayProps {
   todos: TodoItem[];
+  title?: string;
 }
 
 const STATUS_ICONS = {
@@ -24,7 +25,7 @@ const STATUS_ICONS = {
   completed: '●',
 } as const;
 
-export const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
+export const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos, title: _title }) => {
   if (!todos || todos.length === 0) {
     return null;
   }

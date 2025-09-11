@@ -35,7 +35,6 @@ describe('RedocFetchTool', () => {
 
     it('应该正确验证 URL 格式', () => {
       const tool = new RedocFetchTool(mockConfig);
-
       // 测试无效 URL
       const invalidResult = tool['validateToolParamValues']({
         url: 'https://example.com/doc/123',
@@ -56,7 +55,6 @@ describe('RedocFetchTool', () => {
   // 1. 真实的 API 调用（集成测试）
   // 2. 有效的文档 ID
   // 3. 网络连接
-  //
   // 建议的测试方式：
   // - 在开发环境中手动测试真实的 URL
   // - 使用 Postman/Apifox 验证 API 响应格式

@@ -242,13 +242,30 @@ export function mapToDisplay(
       };
 
       switch (trackedCall.status) {
-        case 'success':
+        case 'success': {
+          // Check if this is a todo_write tool and extract dynamic title
+          let finalDisplayName = displayName;
+          if (
+            trackedCall.tool.name === 'todo_write' &&
+            trackedCall.response.resultDisplay
+          ) {
+            const resultDisplay = trackedCall.response.resultDisplay as {
+              type: string;
+              title?: string;
+            };
+            if (resultDisplay.type === 'todo_list' && resultDisplay.title) {
+              finalDisplayName = resultDisplay.title;
+            }
+          }
+
           return {
             ...baseDisplayProperties,
+            name: finalDisplayName,
             status: mapCoreStatusToDisplayStatus(trackedCall.status),
             resultDisplay: trackedCall.response.resultDisplay,
             confirmationDetails: undefined,
           };
+        }
         case 'error':
           return {
             ...baseDisplayProperties,

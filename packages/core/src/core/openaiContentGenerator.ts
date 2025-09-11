@@ -128,15 +128,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
       'User-Agent': userAgent,
       ...(isOpenRouterProvider
         ? {
-            'HTTP-Referer': 'https://github.com/QwenLM/qwen-code.git',
-            'X-Title': 'Qwen Code',
-          }
+          'HTTP-Referer': 'https://github.com/QwenLM/qwen-code.git',
+          'X-Title': 'Qwen Code',
+        }
         : isDashScopeProvider
           ? {
-              'X-DashScope-CacheControl': 'enable',
-              'X-DashScope-UserAgent': userAgent,
-              'X-DashScope-AuthType': contentGeneratorConfig.authType,
-            }
+            'X-DashScope-CacheControl': 'enable',
+            'X-DashScope-UserAgent': userAgent,
+            'X-DashScope-AuthType': contentGeneratorConfig.authType,
+          }
           : {}),
     };
 
@@ -305,6 +305,28 @@ export class OpenAIContentGenerator implements ContentGenerator {
       false,
     );
 
+    // 调用大模型前的日志 - 只在debug模式下打印API调用入参
+    if (this.config.getDebugMode()) {
+      console.log('🚀 [LLM API] 调用入参:');
+      const cleanParams = {
+        model: createParams.model,
+        messages: createParams.messages,
+        temperature: createParams.temperature,
+        top_p: createParams.top_p,
+        top_k: (createParams as unknown as Record<string, unknown>)['top_k'],
+        repetition_penalty: (
+          createParams as unknown as Record<string, unknown>
+        )['repetition_penalty'],
+        max_tokens: (createParams as unknown as Record<string, unknown>)[
+          'max_tokens'
+          ],
+        tools: createParams.tools,
+        stream: createParams.stream,
+        stream_options: createParams.stream_options,
+      };
+      console.log(JSON.stringify(cleanParams, null, 2));
+    }
+
     try {
       const completion = (await this.client.chat.completions.create(
         createParams,
@@ -312,6 +334,20 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
       const response = this.convertToGeminiFormat(completion);
       const durationMs = Date.now() - startTime;
+
+      // 调用大模型成功后的日志
+      // console.log('✅ [LLM API] 大模型调用成功:', {
+      //   model: this.model,
+      //   promptId: userPromptId,
+      //   duration: `${durationMs}ms`,
+      //   responseId: response.responseId || 'unknown',
+      //   usage: response.usageMetadata ? {
+      //     promptTokens: response.usageMetadata.promptTokenCount,
+      //     completionTokens: response.usageMetadata.candidatesTokenCount,
+      //     totalTokens: response.usageMetadata.totalTokenCount,
+      //   } : null,
+      //   timestamp: new Date().toISOString(),
+      // });
 
       // Log API response event for UI telemetry
       const responseEvent = new ApiResponseEvent(
@@ -335,6 +371,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
       return response;
     } catch (error) {
       const durationMs = Date.now() - startTime;
+
+      // 调用大模型失败时的日志
+      // console.log('❌ [LLM API] 大模型调用失败:', {
+      //   model: this.model,
+      //   promptId: userPromptId,
+      //   duration: `${durationMs}ms`,
+      //   error: error instanceof Error ? error.message : String(error),
+      //   timestamp: new Date().toISOString(),
+      // });
 
       // Identify timeout errors specifically
       const isTimeoutError = this.isTimeoutError(error);
@@ -378,10 +423,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
       if (isTimeoutError) {
         throw new Error(
           `${errorMessage}\n\nTroubleshooting tips:\n` +
-            `- Reduce input length or complexity\n` +
-            `- Increase timeout in config: contentGenerator.timeout\n` +
-            `- Check network connectivity\n` +
-            `- Consider using streaming mode for long responses`,
+          `- Reduce input length or complexity\n` +
+          `- Increase timeout in config: contentGenerator.timeout\n` +
+          `- Check network connectivity\n` +
+          `- Consider using streaming mode for long responses`,
         );
       }
 
@@ -399,6 +444,28 @@ export class OpenAIContentGenerator implements ContentGenerator {
       userPromptId,
       true,
     );
+
+    // 调用大模型流式调用前的日志 - 只在debug模式下打印API调用入参
+    if (this.config.getDebugMode()) {
+      console.log('🌊 [LLM API] 流式调用入参:');
+      const cleanStreamParams = {
+        model: createParams.model,
+        messages: createParams.messages,
+        temperature: createParams.temperature,
+        top_p: createParams.top_p,
+        top_k: (createParams as unknown as Record<string, unknown>)['top_k'],
+        repetition_penalty: (
+          createParams as unknown as Record<string, unknown>
+        )['repetition_penalty'],
+        max_tokens: (createParams as unknown as Record<string, unknown>)[
+          'max_tokens'
+          ],
+        tools: createParams.tools,
+        stream: createParams.stream,
+        stream_options: createParams.stream_options,
+      };
+      console.log(JSON.stringify(cleanStreamParams, null, 2));
+    }
 
     try {
       const stream = (await this.client.chat.completions.create(
@@ -426,6 +493,21 @@ export class OpenAIContentGenerator implements ContentGenerator {
             .reverse()
             .find((r) => r.usageMetadata)?.usageMetadata;
 
+          // 流式调用大模型成功后的日志
+          // console.log('✅ [LLM API] 流式调用大模型成功:', {
+          //   model: this.model,
+          //   promptId: userPromptId,
+          //   duration: `${durationMs}ms`,
+          //   responseId: responses[responses.length - 1]?.responseId || 'unknown',
+          //   chunkCount: responses.length,
+          //   usage: finalUsageMetadata ? {
+          //     promptTokens: finalUsageMetadata.promptTokenCount,
+          //     completionTokens: finalUsageMetadata.candidatesTokenCount,
+          //     totalTokens: finalUsageMetadata.totalTokenCount,
+          //   } : null,
+          //   timestamp: new Date().toISOString(),
+          // });
+
           // Log API response event for UI telemetry
           const responseEvent = new ApiResponseEvent(
             responses[responses.length - 1]?.responseId || 'unknown',
@@ -450,6 +532,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
           }
         } catch (error) {
           const durationMs = Date.now() - startTime;
+
+          // 流式调用大模型失败时的日志
+          // console.log('❌ [LLM API] 流式调用大模型失败:', {
+          //   model: this.model,
+          //   promptId: userPromptId,
+          //   duration: `${durationMs}ms`,
+          //   error: error instanceof Error ? error.message : String(error),
+          //   timestamp: new Date().toISOString(),
+          // });
 
           // Identify timeout errors specifically for streaming
           const isTimeoutError = this.isTimeoutError(error);
@@ -488,10 +579,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
           if (isTimeoutError) {
             throw new Error(
               `${errorMessage}\n\nStreaming timeout troubleshooting:\n` +
-                `- Reduce input length or complexity\n` +
-                `- Increase timeout in config: contentGenerator.timeout\n` +
-                `- Check network stability for streaming connections\n` +
-                `- Consider using non-streaming mode for very long inputs`,
+              `- Reduce input length or complexity\n` +
+              `- Increase timeout in config: contentGenerator.timeout\n` +
+              `- Check network stability for streaming connections\n` +
+              `- Consider using non-streaming mode for very long inputs`,
             );
           }
 
@@ -536,10 +627,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
       if (isTimeoutError) {
         throw new Error(
           `${errorMessage}\n\nStreaming setup timeout troubleshooting:\n` +
-            `- Reduce input length or complexity\n` +
-            `- Increase timeout in config: contentGenerator.timeout\n` +
-            `- Check network connectivity and firewall settings\n` +
-            `- Consider using non-streaming mode for very long inputs`,
+          `- Reduce input length or complexity\n` +
+          `- Increase timeout in config: contentGenerator.timeout\n` +
+          `- Check network connectivity and firewall settings\n` +
+          `- Consider using non-streaming mode for very long inputs`,
         );
       }
 

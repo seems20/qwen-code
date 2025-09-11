@@ -557,6 +557,22 @@ export const SETTINGS_SCHEMA = {
         childKey: 'disableCacheControl',
         showInDialog: true,
       },
+      // samplingParams: {
+      //   type: 'object',
+      //   label: 'Sampling Parameters',
+      //   category: 'Content Generator',
+      //   requiresRestart: false,
+      //   default: {
+      //     temperature: 0.7,
+      //     top_p: 0.8,
+      //     top_k: 20,
+      //     repetition_penalty: 1.05,
+      //   },
+      //   description: 'Default sampling parameters for LLM API calls.',
+      //   parentKey: 'contentGenerator',
+      //   childKey: 'samplingParams',
+      //   showInDialog: true,
+      // },
     },
   },
   enableOpenAILogging: {
