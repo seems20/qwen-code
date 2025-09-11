@@ -111,7 +111,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Ctrl+C
       </Text>{' '}
-      - 退出应用程序
+      - Close dialogs, cancel requests, or quit application
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
@@ -155,7 +155,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Shift+Tab
       </Text>{' '}
-      - 切换自动接受编辑
+      - 自动接受编辑
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>

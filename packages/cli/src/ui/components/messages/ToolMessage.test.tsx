@@ -39,6 +39,19 @@ vi.mock('../../utils/MarkdownDisplay.js', () => ({
     return <Text>MockMarkdown:{text}</Text>;
   },
 }));
+vi.mock('../subagents/index.js', () => ({
+  AgentExecutionDisplay: function MockAgentExecutionDisplay({
+    data,
+  }: {
+    data: { subagentName: string; taskDescription: string };
+  }) {
+    return (
+      <Text>
+        🤖 {data.subagentName} • Task: {data.taskDescription}
+      </Text>
+    );
+  },
+}));
 
 // Helper to render with context
 const renderWithContext = (

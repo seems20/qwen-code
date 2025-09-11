@@ -26,9 +26,10 @@ import { initCommand } from '../ui/commands/initCommand.js';
 import { mcpCommand } from '../ui/commands/mcpCommand.js';
 import { memoryCommand } from '../ui/commands/memoryCommand.js';
 import { privacyCommand } from '../ui/commands/privacyCommand.js';
-import { quitCommand } from '../ui/commands/quitCommand.js';
+import { quitCommand, quitConfirmCommand } from '../ui/commands/quitCommand.js';
 import { restoreCommand } from '../ui/commands/restoreCommand.js';
 import { statsCommand } from '../ui/commands/statsCommand.js';
+import { summaryCommand } from '../ui/commands/summaryCommand.js';
 import { themeCommand } from '../ui/commands/themeCommand.js';
 import { toolsCommand } from '../ui/commands/toolsCommand.js';
 import { settingsCommand } from '../ui/commands/settingsCommand.js';
@@ -38,6 +39,7 @@ import { terminalSetupCommand } from '../ui/commands/terminalSetupCommand.js';
 import { importCommand } from '../ui/commands/importCommand.js';
 import { rdflowCommand } from '../ui/commands/rdflowCommand.js';
 import { rdconfigCommand } from '../ui/commands/rdconfigCommand.js';
+import { agentsCommand } from '../ui/commands/agentsCommand.js';
 
 /**
  * Loads the core, hard-coded slash commands that are an integral part
@@ -56,6 +58,7 @@ export class BuiltinCommandLoader implements ICommandLoader {
   async loadCommands(_signal: AbortSignal): Promise<SlashCommand[]> {
     const allDefinitions: Array<SlashCommand | null> = [
       aboutCommand,
+      agentsCommand,
       authCommand,
       bugCommand,
       chatCommand,
@@ -78,8 +81,10 @@ export class BuiltinCommandLoader implements ICommandLoader {
       memoryCommand,
       privacyCommand,
       quitCommand,
+      quitConfirmCommand,
       restoreCommand(this.config),
       statsCommand,
+      summaryCommand,
       themeCommand,
       toolsCommand,
       settingsCommand,

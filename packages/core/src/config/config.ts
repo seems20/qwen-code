@@ -29,6 +29,7 @@ import {
   GEMINI_CONFIG_DIR as GEMINI_DIR,
 } from '../tools/memoryTool.js';
 import { TodoWriteTool } from '../tools/todoWrite.js';
+import { TaskTool } from '../tools/task.js';
 import { WebSearchTool } from '../tools/web-search.js';
 import { GeminiClient } from '../core/client.js';
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
@@ -55,6 +56,7 @@ import {
 } from '../services/fileSystemService.js';
 import { logCliConfiguration, logIdeConnection } from '../telemetry/loggers.js';
 import { IdeConnectionEvent, IdeConnectionType } from '../telemetry/types.js';
+import { SubagentManager } from '../subagents/subagent-manager.js';
 
 // Re-export OAuth config type
 export type { MCPOAuthConfig };
@@ -237,6 +239,7 @@ export interface ConfigParameters {
 export class Config {
   private toolRegistry!: ToolRegistry;
   private promptRegistry!: PromptRegistry;
+  private subagentManager!: SubagentManager;
   private sessionId: string;
   private fileSystemService: FileSystemService;
   private contentGeneratorConfig!: ContentGeneratorConfig;
@@ -426,6 +429,7 @@ export class Config {
       await this.getGitService();
     }
     this.promptRegistry = new PromptRegistry();
+    this.subagentManager = new SubagentManager(this);
     this.toolRegistry = await this.createToolRegistry();
   }
 
@@ -866,6 +870,10 @@ export class Config {
     return this.gitService;
   }
 
+  getSubagentManager(): SubagentManager {
+    return this.subagentManager;
+  }
+
   async createToolRegistry(): Promise<ToolRegistry> {
     const registry = new ToolRegistry(this);
 
@@ -902,6 +910,7 @@ export class Config {
       }
     };
 
+    registerCoreTool(TaskTool, this);
     registerCoreTool(LSTool, this);
     registerCoreTool(ReadFileTool, this);
     registerCoreTool(GrepTool, this);
