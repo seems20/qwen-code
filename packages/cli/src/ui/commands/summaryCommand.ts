@@ -126,9 +126,9 @@ export const summaryCommand: SlashCommand = {
         },
       });
 
-      // Ensure .qwen directory exists
+      // Ensure .rdmind directory exists
       const projectRoot = config.getProjectRoot();
-      const qwenDir = path.join(projectRoot, '.qwen');
+      const qwenDir = path.join(projectRoot, '.rdmind');
       try {
         await fsPromises.mkdir(qwenDir, { recursive: true });
       } catch (_err) {

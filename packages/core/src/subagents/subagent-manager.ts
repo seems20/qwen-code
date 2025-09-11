@@ -31,7 +31,7 @@ import { SubAgentScope } from './subagent.js';
 import { Config } from '../config/config.js';
 import { BuiltinAgentRegistry } from './builtin-agents.js';
 
-const QWEN_CONFIG_DIR = '.qwen';
+const QWEN_CONFIG_DIR = '.rdmind';
 const AGENT_CONFIG_DIR = 'agents';
 
 /**
@@ -395,7 +395,7 @@ export class SubagentManager {
       const color = frontmatter['color'] as string | undefined;
 
       // Determine level from file path using robust, cross-platform check
-      // A project-level agent lives under <projectRoot>/.qwen/agents
+      // A project-level agent lives under <projectRoot>/.rdmind/agents
       const projectAgentsDir = path.join(
         this.config.getProjectRoot(),
         QWEN_CONFIG_DIR,

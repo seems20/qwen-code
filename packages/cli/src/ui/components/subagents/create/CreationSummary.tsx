@@ -235,8 +235,8 @@ export function CreationSummary({
           <Text color={theme.text.primary}>Location: </Text>
           <Text>
             {state.location === 'project'
-              ? 'Project Level (.qwen/agents/)'
-              : 'User Level (~/.qwen/agents/)'}
+              ? 'Project Level (.rdmind/agents/)'
+              : 'User Level (~/.rdmind/agents/)'}
           </Text>
         </Box>
 

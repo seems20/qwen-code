@@ -8,8 +8,8 @@ import { Content, FunctionDeclaration } from '@google/genai';
 
 /**
  * Represents the storage level for a subagent configuration.
- * - 'project': Stored in `.qwen/agents/` within the project directory
- * - 'user': Stored in `~/.qwen/agents/` in the user's home directory
+ * - 'project': Stored in `.rdmind/agents/` within the project directory
+ * - 'user': Stored in `~/.rdmind/agents/` in the user's home directory
  * - 'builtin': Built-in agents embedded in the codebase, always available
  */
 export type SubagentLevel = 'project' | 'user' | 'builtin';

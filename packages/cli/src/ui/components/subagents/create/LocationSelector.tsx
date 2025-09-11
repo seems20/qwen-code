@@ -15,11 +15,11 @@ interface LocationOption {
 
 const locationOptions: LocationOption[] = [
   {
-    label: 'Project Level (.qwen/agents/)',
+    label: 'Project Level (.rdmind/agents/)',
     value: 'project',
   },
   {
-    label: 'User Level (~/.qwen/agents/)',
+    label: 'User Level (~/.rdmind/agents/)',
     value: 'user',
   },
 ];

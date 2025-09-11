@@ -47,14 +47,14 @@ describe('TaskTool', () => {
       description: 'Specialized agent for searching and analyzing files',
       systemPrompt: 'You are a file search specialist.',
       level: 'project',
-      filePath: '/project/.qwen/agents/file-search.md',
+      filePath: '/project/.rdmind/agents/file-search.md',
     },
     {
       name: 'code-review',
       description: 'Agent for reviewing code quality and best practices',
       systemPrompt: 'You are a code review specialist.',
       level: 'user',
-      filePath: '/home/user/.qwen/agents/code-review.md',
+      filePath: '/home/user/.rdmind/agents/code-review.md',
     },
   ];
 
@@ -236,7 +236,7 @@ describe('TaskTool', () => {
           description: 'A test agent',
           systemPrompt: 'Test prompt',
           level: 'project',
-          filePath: '/project/.qwen/agents/test-agent.md',
+          filePath: '/project/.rdmind/agents/test-agent.md',
         },
       ];
 
