@@ -8,12 +8,12 @@ import { CommandKind, SlashCommand, OpenDialogActionReturn } from './types.js';
 
 export const agentsCommand: SlashCommand = {
   name: 'agents',
-  description: 'Manage subagents for specialized task delegation.',
+  description: '管理subagents完成特定任务',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'manage',
-      description: 'Manage existing subagents (view, edit, delete).',
+      description: '查看、编辑或删除现有subagents',
       kind: CommandKind.BUILT_IN,
       action: (): OpenDialogActionReturn => ({
         type: 'dialog',
@@ -22,7 +22,7 @@ export const agentsCommand: SlashCommand = {
     },
     {
       name: 'create',
-      description: 'Create a new subagent with guided setup.',
+      description: '引导式创建新subagent',
       kind: CommandKind.BUILT_IN,
       action: (): OpenDialogActionReturn => ({
         type: 'dialog',

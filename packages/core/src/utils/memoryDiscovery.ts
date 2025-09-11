@@ -149,7 +149,7 @@ async function getGeminiMdFilePathsInternalForEachDir(
     const isHomeDirectory = resolvedDir === resolvedHome;
 
     if (isHomeDirectory) {
-      // For home directory, only check for QWEN.md directly in the home directory
+      // For home directory, only check for RDMind.md directly in the home directory
       const homeContextPath = path.join(resolvedHome, geminiMdFilename);
       try {
         await fs.access(homeContextPath, fsSync.constants.R_OK);

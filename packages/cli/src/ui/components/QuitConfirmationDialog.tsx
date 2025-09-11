@@ -38,19 +38,19 @@ export const QuitConfirmationDialog: React.FC<QuitConfirmationDialogProps> = ({
 
   const options: Array<RadioSelectItem<QuitChoice>> = [
     {
-      label: 'Quit immediately (/quit)',
+      label: '立即退出 (/quit)',
       value: QuitChoice.QUIT,
     },
     {
-      label: 'Generate summary and quit (/summary)',
+      label: '生成总结摘要并退出 (/summary)',
       value: QuitChoice.SUMMARY_AND_QUIT,
     },
     {
-      label: 'Save conversation and quit (/chat save)',
+      label: '保存对话并退出 (/chat save)',
       value: QuitChoice.SAVE_AND_QUIT,
     },
     {
-      label: 'Cancel (stay in application)',
+      label: '取消（继续使用RDMind）',
       value: QuitChoice.CANCEL,
     },
   ];
@@ -65,7 +65,7 @@ export const QuitConfirmationDialog: React.FC<QuitConfirmationDialogProps> = ({
       marginLeft={1}
     >
       <Box flexDirection="column" marginBottom={1}>
-        <Text>What would you like to do before exiting?</Text>
+        <Text>退出前您希望执行什么操作？</Text>
       </Box>
 
       <RadioButtonSelect items={options} onSelect={onSelect} isFocused />

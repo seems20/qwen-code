@@ -19,10 +19,10 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
     <Box flexDirection="column">
       <Text color={Colors.Foreground}>使用指南:</Text>
       <Text color={Colors.Foreground}>
-        1. 直接提问、编辑文件，或者执行命令。
+        1. 按 / 使用命令，按 @ 提及文件
       </Text>
       <Text color={Colors.Foreground}>
-        2. 尽量描述清楚需求，获得更准确的结果。
+        2. 两次 Esc 清空输入框，Shift+Enter 换行
       </Text>
       {geminiMdFileCount === 0 && (
         <Text color={Colors.Foreground}>
@@ -38,7 +38,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
         <Text bold color={Colors.AccentPurple}>
           输入 /help
         </Text>{' '}
-        获取更多使用帮助。
+        获取帮助，Ctrl+C 退出RDMind
       </Text>
     </Box>
   );
