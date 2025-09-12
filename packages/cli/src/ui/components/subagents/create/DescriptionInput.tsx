@@ -137,14 +137,13 @@ export function DescriptionInput({
   });
 
   const placeholder =
-    'e.g., Expert code reviewer that reviews code based on best practices...';
+    '例如：精通代码审查的专家，会依据最佳实践对代码进行评审……';
 
   return (
     <Box flexDirection="column" gap={1}>
       <Box>
         <Text color={Colors.Gray}>
-          Describe what this subagent should do and when it should be used. (Be
-          comprehensive for best results)
+          请描述该subagent的作用及适用场景。（尽量详尽描述，以获得最佳效果）
         </Text>
       </Box>
 
@@ -154,7 +153,7 @@ export function DescriptionInput({
             <Spinner />
           </Box>
           <Text color={theme.text.accent}>
-            Generating subagent configuration...
+            生成 subagent 配置中...
           </Text>
         </Box>
       ) : (

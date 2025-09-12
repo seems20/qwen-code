@@ -10,13 +10,13 @@ import { WizardStepProps } from '../types.js';
 
 interface GenerationOption {
   label: string;
-  value: 'qwen' | 'manual';
+  value: 'rdmind' | 'manual';
 }
 
 const generationOptions: GenerationOption[] = [
   {
-    label: 'Generate with Qwen Code (Recommended)',
-    value: 'qwen',
+    label: 'Generate with RDMind (Recommended)',
+    value: 'rdmind',
   },
   {
     label: 'Manual Creation',
@@ -34,7 +34,7 @@ export function GenerationMethodSelector({
   onPrevious: _onPrevious,
 }: WizardStepProps) {
   const handleSelect = (selectedValue: string) => {
-    const method = selectedValue as 'qwen' | 'manual';
+    const method = selectedValue as 'rdmind' | 'manual';
     dispatch({ type: 'SET_GENERATION_METHOD', method });
     onNext();
   };

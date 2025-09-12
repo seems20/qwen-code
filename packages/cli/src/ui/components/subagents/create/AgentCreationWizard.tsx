@@ -85,23 +85,23 @@ export function AgentCreationWizard({
       const n = state.currentStep;
       switch (kind) {
         case 'LOCATION':
-          return `Step ${n}: Choose Location`;
+          return `Step ${n}: 选择存储层级`;
         case 'GEN_METHOD':
-          return `Step ${n}: Choose Generation Method`;
+          return `Step ${n}: 选择创建方法`;
         case 'LLM_DESC':
-          return `Step ${n}: Describe Your Subagent`;
+          return `Step ${n}: 描述你的 Subagent`;
         case 'MANUAL_NAME':
-          return `Step ${n}: Enter Subagent Name`;
+          return `Step ${n}: 输入 Subagent 名称`;
         case 'MANUAL_PROMPT':
-          return `Step ${n}: Enter System Prompt`;
+          return `Step ${n}: 输入系统提示词`;
         case 'MANUAL_DESC':
-          return `Step ${n}: Enter Description`;
+          return `Step ${n}: 输入描述`;
         case 'TOOLS':
-          return `Step ${n}: Select Tools`;
+          return `Step ${n}: 选择工具`;
         case 'COLOR':
-          return `Step ${n}: Choose Background Color`;
+          return `Step ${n}: 选择背景色`;
         case 'FINAL':
-          return `Step ${n}: Confirm and Save`;
+          return `Step ${n}: 验证并保存`;
         default:
           return 'Unknown Step';
       }
