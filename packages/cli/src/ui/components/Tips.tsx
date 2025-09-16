@@ -24,11 +24,11 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
       </Text>
       {geminiMdFileCount === 0 && (
         <Text color={Colors.Foreground}>
-          3. Create{' '}
+          3. 创建{' '}
           <Text bold color={Colors.AccentPurple}>
             RDMind.md
           </Text>{' '}
-          来自定义你与 RDMind 的交互方式。
+          来自定义你与 RDMind 的交互方式
         </Text>
       )}
       <Text color={Colors.Foreground}>

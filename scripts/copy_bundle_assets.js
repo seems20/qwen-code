@@ -37,19 +37,6 @@ for (const file of sbFiles) {
   copyFileSync(join(root, file), join(bundleDir, basename(file)));
 }
 
-// Copy CLI built-in RDMind.md to bundle root for single-file distribution to pick up
-const defaultRDMind = join(root, 'packages/cli/src/prompts/RDMind.md');
-if (existsSync(defaultRDMind)) {
-  try {
-    copyFileSync(defaultRDMind, join(bundleDir, 'RDMind.md'));
-  } catch (error) {
-    console.warn(
-      'Warning: Could not copy RDMind.md into bundle:',
-      error.message,
-    );
-  }
-}
-
 // Copy the sns-demo template to bundle/template
 const templateSrc = join(root, 'sns-demo');
 const templateDest = join(bundleDir, 'template');

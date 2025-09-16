@@ -5,10 +5,8 @@
  */
 
 import * as fs from 'fs';
-import * as fsp from 'fs/promises';
 import * as path from 'path';
 import { homedir } from 'node:os';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import process from 'node:process';
@@ -30,7 +28,6 @@ import {
   WriteFileTool,
   MCPServerConfig,
   ConfigParameters,
-  QWEN_DIR,
 } from '@qwen-code/qwen-code-core';
 import { Settings } from './settings.js';
 
@@ -327,65 +324,6 @@ export async function loadHierarchicalGeminiMemory(
   );
 }
 
-/**
- * 初始化全局记忆，将bundle/RDMind.md文件内容复制到~/.rdmind/RDMind.md
- */
-async function initializeGlobalMemory(): Promise<void> {
-  try {
-    const thisModuleDir = path.dirname(fileURLToPath(import.meta.url));
-    const candidatePaths = [
-      // Package install (copied by scripts/copy_files.js)
-      path.resolve(thisModuleDir, '../src/prompts/RDMind.md'),
-      // Bundled single-file distribution (copied by scripts/copy_bundle_assets.js)
-      path.resolve(thisModuleDir, 'RDMind.md'),
-      // Monorepo dev path (when running from ts-node or linked)
-      path.resolve(thisModuleDir, '../../packages/cli/src/prompts/RDMind.md'),
-      // Bundle path
-      path.resolve(process.cwd(), 'bundle', 'RDMind.md'),
-    ];
-
-    let sourceContent: string | null = null;
-    let sourcePath: string | null = null;
-
-    // 查找存在的RDMind.md文件
-    for (const candidatePath of candidatePaths) {
-      if (fs.existsSync(candidatePath)) {
-        try {
-          sourceContent = await fsp.readFile(candidatePath, 'utf-8');
-          sourcePath = candidatePath;
-          break;
-        } catch {
-          // 读取失败，继续尝试下一个路径
-          continue;
-        }
-      }
-    }
-
-    if (!sourceContent) {
-      // 没有找到RDMind.md文件，静默返回
-      return;
-    }
-
-    // 全局记忆文件路径：~/.rdmind/RDMind.md
-    const globalMemoryPath = path.join(homedir(), QWEN_DIR, 'RDMind.md');
-
-    // 确保全局记忆目录存在
-    const globalMemoryDir = path.dirname(globalMemoryPath);
-    await fsp.mkdir(globalMemoryDir, { recursive: true });
-
-    // 写入到全局记忆文件
-    await fsp.writeFile(globalMemoryPath, sourceContent, 'utf-8');
-
-    console.log(`已将RDMind规范文档从 ${sourcePath} 加载到全局记忆中`);
-  } catch (error) {
-    // 出现错误时静默处理，不影响正常启动
-    console.warn(
-      '加载全局记忆文件时出现错误:',
-      error instanceof Error ? error.message : '未知错误',
-    );
-  }
-}
-
 export async function loadCliConfig(
   settings: Settings,
   extensions: Extension[],
@@ -393,9 +331,6 @@ export async function loadCliConfig(
   argv: CliArgs,
   cwd: string = process.cwd(),
 ): Promise<Config> {
-  // 在加载配置之前先初始化全局记忆
-  await initializeGlobalMemory();
-
   const debugMode =
     argv.debug ||
     [process.env['DEBUG'], process.env['DEBUG_MODE']].some(
