@@ -1,6 +1,6 @@
 {
   "name": "@qwen-code/qwen-code",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.10"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.11"
   },
   "scripts": {
     "start": "node scripts/start.js",
