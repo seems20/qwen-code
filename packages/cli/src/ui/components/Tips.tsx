@@ -18,9 +18,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
   return (
     <Box flexDirection="column">
       <Text color={Colors.Foreground}>使用指南:</Text>
-      <Text color={Colors.Foreground}>
-        1. 按 / 使用命令，按 @ 提及文件
-      </Text>
+      <Text color={Colors.Foreground}>1. 按 / 使用命令，按 @ 提及文件</Text>
       <Text color={Colors.Foreground}>
         2. 两次 Esc 清空输入框，Shift+Enter 换行
       </Text>

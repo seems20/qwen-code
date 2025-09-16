@@ -16,8 +16,7 @@ import { HistoryItemSummary } from '../types.js';
 
 export const summaryCommand: SlashCommand = {
   name: 'summary',
-  description:
-    '生成项目摘要到.rdmind/PROJECT_SUMMARY.md',
+  description: '生成项目摘要到.rdmind/PROJECT_SUMMARY.md',
   kind: CommandKind.BUILT_IN,
   action: async (context): Promise<SlashCommandActionReturn> => {
     const { config } = context.services;

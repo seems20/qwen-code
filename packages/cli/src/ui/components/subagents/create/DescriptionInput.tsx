@@ -152,9 +152,7 @@ export function DescriptionInput({
           <Box marginRight={1}>
             <Spinner />
           </Box>
-          <Text color={theme.text.accent}>
-            生成 subagent 配置中...
-          </Text>
+          <Text color={theme.text.accent}>生成 subagent 配置中...</Text>
         </Box>
       ) : (
         <TextInput

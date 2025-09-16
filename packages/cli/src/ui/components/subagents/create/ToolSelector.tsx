@@ -200,9 +200,7 @@ export function ToolSelector({
       {currentCategory && (
         <Box flexDirection="column">
           {currentCategory.id === 'all' ? (
-            <Text color={Colors.Gray}>
-              选择所有工具，包括 MCP 工具
-            </Text>
+            <Text color={Colors.Gray}>选择所有工具，包括 MCP 工具</Text>
           ) : currentCategory.tools.length > 0 ? (
             <>
               <Text color={Colors.Gray}>Selected tools:</Text>
