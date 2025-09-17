@@ -3,19 +3,19 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
+import type {
+  ToolCallConfirmationDetails,
+  ToolInvocation,
+  ToolResult,
+} from './tools.js';
 import {
   BaseDeclarativeTool,
   BaseToolInvocation,
   Kind,
-  ToolCallConfirmationDetails,
   ToolConfirmationOutcome,
-  ToolInvocation,
-  ToolResult,
 } from './tools.js';
-
-import { Config, ApprovalMode } from '../config/config.js';
-import { getResponseText } from '../utils/generateContentResponseUtilities.js';
+import { ApprovalMode, type Config } from '@qwen-code/qwen-code-core';
+import { getResponseText } from '../utils/partUtils.js';
 
 const REDOC_API_TIMEOUT_MS = 10000;
 const REDOC_API_URL =
@@ -48,6 +48,7 @@ interface RedocApiResponse {
     content: string;
     title: string;
   };
+
   [key: string]: unknown;
 }
 

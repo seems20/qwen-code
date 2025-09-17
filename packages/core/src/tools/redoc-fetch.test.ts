@@ -6,7 +6,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { RedocFetchTool } from './redoc-fetch.js';
-import { Config } from '../config/config.js';
+import { type Config } from '@qwen-code/qwen-code-core';
 
 describe('RedocFetchTool', () => {
   const mockConfig = {

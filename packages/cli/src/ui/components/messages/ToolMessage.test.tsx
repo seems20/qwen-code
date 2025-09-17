@@ -6,10 +6,12 @@
 
 import React from 'react';
 import { render } from 'ink-testing-library';
-import { ToolMessage, ToolMessageProps } from './ToolMessage.js';
+import type { ToolMessageProps } from './ToolMessage.js';
+import { ToolMessage } from './ToolMessage.js';
 import { StreamingState, ToolCallStatus } from '../../types.js';
 import { Text } from 'ink';
 import { StreamingContext } from '../../contexts/StreamingContext.js';
+import type { Config } from '@qwen-code/qwen-code-core';
 
 // Mock child components or utilities if they are complex or have side effects
 vi.mock('../GeminiRespondingSpinner.js', () => ({
@@ -67,6 +69,8 @@ const renderWithContext = (
 };
 
 describe('<ToolMessage />', () => {
+  const mockConfig = {} as Config;
+
   const baseProps: ToolMessageProps = {
     callId: 'tool-123',
     name: 'test-tool',
@@ -76,6 +80,7 @@ describe('<ToolMessage />', () => {
     terminalWidth: 80,
     confirmationDetails: undefined,
     emphasis: 'medium',
+    config: mockConfig,
   };
 
   it('renders basic tool information', () => {
@@ -194,26 +199,34 @@ describe('<ToolMessage />', () => {
     expect(lowEmphasisFrame()).not.toContain('←');
   });
 
-  it('renders todo list results correctly', () => {
-    const todoResult = {
-      type: 'todo_list' as const,
-      todos: [
-        { id: '1', content: 'Task 1', status: 'pending' as const },
-        { id: '2', content: 'Task 2', status: 'completed' as const },
-      ],
-      title: 'My Todo List',
+  it('shows subagent execution display for task tool with proper result display', () => {
+    const subagentResultDisplay = {
+      type: 'task_execution' as const,
+      subagentName: 'file-search',
+      taskDescription: 'Search for files matching pattern',
+      taskPrompt: 'Search for files matching pattern',
+      status: 'running' as const,
+    };
+
+    const props: ToolMessageProps = {
+      name: 'task',
+      description: 'Delegate task to subagent',
+      resultDisplay: subagentResultDisplay,
+      status: ToolCallStatus.Executing,
+      terminalWidth: 80,
+      callId: 'test-call-id-2',
+      confirmationDetails: undefined,
+      config: mockConfig,
     };
 
     const { lastFrame } = renderWithContext(
-      <ToolMessage {...baseProps} resultDisplay={todoResult} />,
-      StreamingState.Idle,
+      <ToolMessage {...props} />,
+      StreamingState.Responding,
     );
 
     const output = lastFrame();
-    // Should contain todo items but not the title (since title is now handled by the tool name)
-    expect(output).toContain('Task 1');
-    expect(output).toContain('Task 2');
-    expect(output).toContain('○'); // pending status icon
-    expect(output).toContain('●'); // completed status icon
+    expect(output).toContain('🤖'); // Subagent execution display should show
+    expect(output).toContain('file-search'); // Actual subagent name
+    expect(output).toContain('Search for files matching pattern'); // Actual task description
   });
 });
