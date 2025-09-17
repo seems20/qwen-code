@@ -8,8 +8,9 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
+import { QWEN_DIR } from '../utils/paths.js';
 
-export const GEMINI_DIR = '.qwen';
+export const GEMINI_DIR = QWEN_DIR;
 export const GOOGLE_ACCOUNTS_FILENAME = 'google_accounts.json';
 const TMP_DIR_NAME = 'tmp';
 
@@ -23,7 +24,7 @@ export class Storage {
   static getGlobalGeminiDir(): string {
     const homeDir = os.homedir();
     if (!homeDir) {
-      return path.join(os.tmpdir(), '.qwen');
+      return path.join(os.tmpdir(), GEMINI_DIR);
     }
     return path.join(homeDir, GEMINI_DIR);
   }

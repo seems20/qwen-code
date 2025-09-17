@@ -20,7 +20,7 @@ import { recursivelyHydrateStrings } from './extensions/variables.js';
 export const EXTENSIONS_DIRECTORY_NAME = path.join('.rdmind', 'extensions');
 export const EXTENSIONS_CONFIG_FILENAME = 'qwen-extension.json';
 export const EXTENSIONS_CONFIG_FILENAME_OLD = 'gemini-extension.json';
-export const INSTALL_METADATA_FILENAME = '.qwen-extension-install.json';
+export const INSTALL_METADATA_FILENAME = '.rdmind-extension-install.json';
 
 export interface Extension {
   path: string;
@@ -453,7 +453,7 @@ export async function updateExtension(
   }
   if (!extension.installMetadata) {
     throw new Error(
-      `Extension cannot be updated because it is missing the .qwen-extension.install.json file. To update manually, uninstall and then reinstall the updated version.`,
+              `Extension cannot be updated because it is missing the .rdmind-extension.install.json file. To update manually, uninstall and then reinstall the updated version.`,
     );
   }
   const originalVersion = extension.config.version;

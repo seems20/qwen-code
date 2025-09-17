@@ -25,11 +25,11 @@ vi.mock('@qwen-code/qwen-code-core', () => ({
     DISCONNECTED: 'DISCONNECTED',
   },
   Storage: vi.fn().mockImplementation((_cwd: string) => ({
-    getGlobalSettingsPath: () => '/tmp/qwen/settings.json',
-    getWorkspaceSettingsPath: () => '/tmp/qwen/workspace-settings.json',
-    getProjectTempDir: () => '/test/home/.qwen/tmp/mocked_hash',
+    getGlobalSettingsPath: () => '/tmp/rdmind/settings.json',
+    getWorkspaceSettingsPath: () => '/tmp/rdmind/workspace-settings.json',
+    getProjectTempDir: () => '/test/home/.rdmind/tmp/mocked_hash',
   })),
-  GEMINI_CONFIG_DIR: '.qwen',
+  GEMINI_CONFIG_DIR: '.rdmind',
   getErrorMessage: (e: unknown) => (e instanceof Error ? e.message : String(e)),
 }));
 vi.mock('@modelcontextprotocol/sdk/client/index.js');
