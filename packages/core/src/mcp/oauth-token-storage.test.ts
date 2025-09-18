@@ -70,7 +70,7 @@ describe('MCPOAuthTokenStorage', () => {
       expect(tokens.size).toBe(1);
       expect(tokens.get('test-server')).toEqual(mockCredentials);
       expect(fs.readFile).toHaveBeenCalledWith(
-        path.join('/mock/home', '.qwen', 'mcp-oauth-tokens.json'),
+        path.join('/mock/home', '.rdmind', 'mcp-oauth-tokens.json'),
         'utf-8',
       );
     });
@@ -112,11 +112,11 @@ describe('MCPOAuthTokenStorage', () => {
         'https://token.url',
       );
 
-      expect(fs.mkdir).toHaveBeenCalledWith(path.join('/mock/home', '.qwen'), {
+      expect(fs.mkdir).toHaveBeenCalledWith(path.join('/mock/home', '.rdmind'), {
         recursive: true,
       });
       expect(fs.writeFile).toHaveBeenCalledWith(
-        path.join('/mock/home', '.qwen', 'mcp-oauth-tokens.json'),
+        path.join('/mock/home', '.rdmind', 'mcp-oauth-tokens.json'),
         expect.stringContaining('test-server'),
         { mode: 0o600 },
       );
@@ -216,7 +216,7 @@ describe('MCPOAuthTokenStorage', () => {
       await MCPOAuthTokenStorage.removeToken('test-server');
 
       expect(fs.unlink).toHaveBeenCalledWith(
-        path.join('/mock/home', '.qwen', 'mcp-oauth-tokens.json'),
+        path.join('/mock/home', '.rdmind', 'mcp-oauth-tokens.json'),
       );
       expect(fs.writeFile).not.toHaveBeenCalled();
     });
@@ -297,7 +297,7 @@ describe('MCPOAuthTokenStorage', () => {
       await MCPOAuthTokenStorage.clearAllTokens();
 
       expect(fs.unlink).toHaveBeenCalledWith(
-        path.join('/mock/home', '.qwen', 'mcp-oauth-tokens.json'),
+        path.join('/mock/home', '.rdmind', 'mcp-oauth-tokens.json'),
       );
     });
 

@@ -49,7 +49,7 @@ vi.mock('child_process', async (importOriginal) => {
   };
 });
 
-const EXTENSIONS_DIRECTORY_NAME = path.join('.qwen', 'extensions');
+const EXTENSIONS_DIRECTORY_NAME = path.join('.rdmind', 'extensions');
 
 describe('loadExtensions', () => {
   let tempWorkspaceDir: string;
@@ -149,7 +149,7 @@ describe('loadExtensions', () => {
     createExtension(workspaceExtensionsDir, 'ext1', '1.0.0');
     createExtension(workspaceExtensionsDir, 'ext2', '2.0.0');
 
-    const settingsDir = path.join(tempWorkspaceDir, '.qwen');
+    const settingsDir = path.join(tempWorkspaceDir, '.rdmind');
     fs.mkdirSync(settingsDir, { recursive: true });
     fs.writeFileSync(
       path.join(settingsDir, 'settings.json'),
@@ -283,7 +283,7 @@ describe('installExtension', () => {
       path.join(os.tmpdir(), 'qwen-code-test-home-'),
     );
     vi.mocked(os.homedir).mockReturnValue(tempHomeDir);
-    userExtensionsDir = path.join(tempHomeDir, '.qwen', 'extensions');
+    userExtensionsDir = path.join(tempHomeDir, '.rdmind', 'extensions');
     // Clean up before each test
     fs.rmSync(userExtensionsDir, { recursive: true, force: true });
     fs.mkdirSync(userExtensionsDir, { recursive: true });
@@ -383,7 +383,7 @@ describe('uninstallExtension', () => {
       path.join(os.tmpdir(), 'qwen-code-test-home-'),
     );
     vi.mocked(os.homedir).mockReturnValue(tempHomeDir);
-    userExtensionsDir = path.join(tempHomeDir, '.qwen', 'extensions');
+    userExtensionsDir = path.join(tempHomeDir, '.rdmind', 'extensions');
     // Clean up before each test
     fs.rmSync(userExtensionsDir, { recursive: true, force: true });
     fs.mkdirSync(userExtensionsDir, { recursive: true });
@@ -470,7 +470,7 @@ describe('performWorkspaceExtensionMigration', () => {
 
     expect(failed).toEqual([]);
 
-    const userExtensionsDir = path.join(tempHomeDir, '.qwen', 'extensions');
+    const userExtensionsDir = path.join(tempHomeDir, '.rdmind', 'extensions');
     const userExt1Path = path.join(userExtensionsDir, 'ext1');
     const extensions = loadExtensions(tempWorkspaceDir);
 
@@ -541,7 +541,7 @@ describe('updateExtension', () => {
       path.join(os.tmpdir(), 'qwen-code-test-home-'),
     );
     vi.mocked(os.homedir).mockReturnValue(tempHomeDir);
-    userExtensionsDir = path.join(tempHomeDir, '.qwen', 'extensions');
+    userExtensionsDir = path.join(tempHomeDir, '.rdmind', 'extensions');
     // Clean up before each test
     fs.rmSync(userExtensionsDir, { recursive: true, force: true });
     fs.mkdirSync(userExtensionsDir, { recursive: true });
@@ -670,7 +670,7 @@ describe('enableExtension', () => {
     tempHomeDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'qwen-code-test-home-'),
     );
-    userExtensionsDir = path.join(tempHomeDir, '.qwen', 'extensions');
+    userExtensionsDir = path.join(tempHomeDir, '.rdmind', 'extensions');
     vi.mocked(os.homedir).mockReturnValue(tempHomeDir);
     vi.spyOn(process, 'cwd').mockReturnValue(tempWorkspaceDir);
   });

@@ -28,12 +28,12 @@ vi.mock('fs', async (importOriginal) => {
 vi.mock('@qwen-code/qwen-code-core', () => {
   class Storage {
     getProjectTempDir(): string {
-      return path.join('/test/home/', '.qwen', 'tmp', 'mocked_hash');
+      return path.join('/test/home/', '.rdmind', 'tmp', 'mocked_hash');
     }
     getHistoryFilePath(): string {
       return path.join(
         '/test/home/',
-        '.qwen',
+        '.rdmind',
         'tmp',
         'mocked_hash',
         'shell_history',

@@ -357,7 +357,7 @@ export async function installExtension(
       );
     }
 
-    // ~/.qwen/extensions/{ExtensionConfig.name}.
+    // ~/.rdmind/extensions/{ExtensionConfig.name}.
     newExtensionName = newExtension.config.name;
     const extensionStorage = new ExtensionStorage(newExtensionName);
     const destinationPath = extensionStorage.getExtensionDir();
