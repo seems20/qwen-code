@@ -9,7 +9,7 @@ import { CommandKind, type SlashCommand } from './types.js';
 
 export const quitConfirmCommand: SlashCommand = {
   name: 'quit-confirm',
-  description: '显示退出确认提示',
+  description: '退出确认提示',
   kind: CommandKind.BUILT_IN,
   action: (context) => {
     const now = Date.now();
@@ -37,7 +37,7 @@ export const quitConfirmCommand: SlashCommand = {
 export const quitCommand: SlashCommand = {
   name: 'quit',
   altNames: ['exit'],
-  description: '退出命令行界面',
+  description: '退出 RDMind',
   kind: CommandKind.BUILT_IN,
   action: (context) => {
     const now = Date.now();

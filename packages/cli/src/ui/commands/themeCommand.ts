@@ -9,7 +9,7 @@ import { CommandKind } from './types.js';
 
 export const themeCommand: SlashCommand = {
   name: 'theme',
-  description: '更改主题',
+  description: '切换主题',
   kind: CommandKind.BUILT_IN,
   action: (_context, _args): OpenDialogActionReturn => ({
     type: 'dialog',

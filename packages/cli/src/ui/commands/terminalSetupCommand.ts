@@ -16,7 +16,7 @@ import { terminalSetup } from '../utils/terminalSetup.js';
  */
 export const terminalSetupCommand: SlashCommand = {
   name: 'terminal-setup',
-  description: '配置多行输入的终端快捷键绑定（VS Code、Cursor、Windsurf）',
+  description: '配置多行输入的终端快捷键',
   kind: CommandKind.BUILT_IN,
 
   action: async (): Promise<MessageActionReturn> => {

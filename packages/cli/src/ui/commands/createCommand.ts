@@ -481,7 +481,7 @@ const javaFlsCommand: SlashCommand = {
  */
 const javaCommand: SlashCommand = {
   name: 'java',
-  description: '创建Java项目脚手架',
+  description: 'Java 项目脚手架',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaSnsCommand, javaFlsCommand],
   action: async (
@@ -524,7 +524,7 @@ const javaCommand: SlashCommand = {
 
 export const createCommand: SlashCommand = {
   name: 'create',
-  description: '创建项目脚手架，支持的业务模块：sns, fls',
+  description: '创建项目脚手架',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaCommand],
   action: async (

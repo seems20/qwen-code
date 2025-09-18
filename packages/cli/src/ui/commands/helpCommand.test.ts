@@ -47,6 +47,6 @@ describe('helpCommand', () => {
   it('should have the correct command properties', () => {
     expect(helpCommand.name).toBe('help');
     expect(helpCommand.kind).toBe(CommandKind.BUILT_IN);
-    expect(helpCommand.description).toBe('获取 RDMind 帮助信息');
+    expect(helpCommand.description).toBe('获取 RDMind 使用帮助');
   });
 });

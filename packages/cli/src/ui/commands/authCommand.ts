@@ -9,7 +9,7 @@ import { CommandKind } from './types.js';
 
 export const authCommand: SlashCommand = {
   name: 'auth',
-  description: '更改认证方式',
+  description: '切换认证方式',
   kind: CommandKind.BUILT_IN,
   action: (_context, _args): OpenDialogActionReturn => ({
     type: 'dialog',

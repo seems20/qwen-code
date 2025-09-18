@@ -10,7 +10,7 @@ import { CommandKind } from './types.js';
 
 export const clearCommand: SlashCommand = {
   name: 'clear',
-  description: '清空屏幕和对话历史记录',
+  description: '清屏',
   kind: CommandKind.BUILT_IN,
   action: async (context, _args) => {
     const geminiClient = context.services.config?.getGeminiClient();

@@ -749,7 +749,7 @@ async function handleRocketMqImport(
  */
 const mysqlCommand: SlashCommand = {
   name: 'mysql',
-  description: '为Java项目接入MySQL中间件',
+  description: '导入 MySQL ',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -765,7 +765,7 @@ const mysqlCommand: SlashCommand = {
  */
 const apolloCommand: SlashCommand = {
   name: 'apollo',
-  description: '为Java项目接入Apollo配置中心',
+  description: '导入 Apollo ',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -781,7 +781,7 @@ const apolloCommand: SlashCommand = {
  */
 const redisCommand: SlashCommand = {
   name: 'redis',
-  description: '为Java项目接入Redis中间件',
+  description: '导入 Redis ',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -795,7 +795,7 @@ const redisCommand: SlashCommand = {
  */
 const rocketMqCommand: SlashCommand = {
   name: 'rocketmq',
-  description: '为Java项目接入RocketMQ消息中间件',
+  description: '导入 RocketMQ ',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -809,7 +809,7 @@ const rocketMqCommand: SlashCommand = {
  */
 export const importCommand: SlashCommand = {
   name: 'import',
-  description: '为工作区的Java项目导入中间件',
+  description: '为工作区的 Java 项目导入中间件',
   kind: CommandKind.BUILT_IN,
   subCommands: [mysqlCommand, redisCommand, apolloCommand, rocketMqCommand],
   action: async (

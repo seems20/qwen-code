@@ -13,7 +13,7 @@ import { MessageType } from '../types.js';
 
 export const toolsCommand: SlashCommand = {
   name: 'tools',
-  description: '列出可用的 RDMind 工具',
+  description: '列出 RDMind 可用工具',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, args?: string): Promise<void> => {
     const subCommand = args?.trim();

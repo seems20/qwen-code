@@ -46,7 +46,7 @@ describe('modelCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(modelCommand.name).toBe('model');
-    expect(modelCommand.description).toBe('Switch the model for this session');
+    expect(modelCommand.description).toBe('切换本次对话模型');
   });
 
   it('should return error when config is not available', async () => {

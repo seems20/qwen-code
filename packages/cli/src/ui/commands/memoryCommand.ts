@@ -18,12 +18,12 @@ import { CommandKind } from './types.js';
 
 export const memoryCommand: SlashCommand = {
   name: 'memory',
-  description: '与记忆功能交互',
+  description: '记忆功能',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'show',
-      description: '显示当前记忆中的内容',
+      description: '显示当前记忆',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         const memoryContent = context.services.config?.getUserMemory() || '';
@@ -122,7 +122,7 @@ export const memoryCommand: SlashCommand = {
     {
       name: 'add',
       description:
-        '向记忆中添加内容。使用 --global 添加到全局记忆或 --project 添加到项目记忆',
+        '向记忆中添加内容。--global 添加到全局记忆或 --project 添加到项目记忆',
       kind: CommandKind.BUILT_IN,
       action: (context, args): SlashCommandActionReturn | void => {
         if (!args || args.trim() === '') {
@@ -185,7 +185,7 @@ export const memoryCommand: SlashCommand = {
       subCommands: [
         {
           name: '--project',
-          description: '向项目记忆添加内容',
+          description: '添加项目记忆',
           kind: CommandKind.BUILT_IN,
           action: (context, args): SlashCommandActionReturn | void => {
             if (!args || args.trim() === '') {
@@ -213,7 +213,7 @@ export const memoryCommand: SlashCommand = {
         },
         {
           name: '--global',
-          description: '向全局记忆添加内容',
+          description: '添加全局记忆',
           kind: CommandKind.BUILT_IN,
           action: (context, args): SlashCommandActionReturn | void => {
             if (!args || args.trim() === '') {
@@ -243,7 +243,7 @@ export const memoryCommand: SlashCommand = {
     },
     {
       name: 'refresh',
-      description: '从源头刷新记忆',
+      description: '刷新记忆',
       kind: CommandKind.BUILT_IN,
       action: async (context) => {
         context.ui.addItem(

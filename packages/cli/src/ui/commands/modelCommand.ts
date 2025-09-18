@@ -35,7 +35,7 @@ function getAvailableModelsForAuthType(authType: AuthType): AvailableModel[] {
 
 export const modelCommand: SlashCommand = {
   name: 'model',
-  description: 'Switch the model for this session',
+  description: '切换本次对话模型',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,

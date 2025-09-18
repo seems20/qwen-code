@@ -13,7 +13,7 @@ import { MessageType } from '../types.js';
 
 export const extensionsCommand: SlashCommand = {
   name: 'extensions',
-  description: '列出活跃的扩展',
+  description: '列出扩展',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext): Promise<void> => {
     const activeExtensions = context.services.config

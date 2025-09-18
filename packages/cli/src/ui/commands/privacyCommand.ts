@@ -9,7 +9,7 @@ import { CommandKind } from './types.js';
 
 export const privacyCommand: SlashCommand = {
   name: 'privacy',
-  description: '显示隐私声明',
+  description: '隐私声明',
   kind: CommandKind.BUILT_IN,
   action: (): OpenDialogActionReturn => ({
     type: 'dialog',

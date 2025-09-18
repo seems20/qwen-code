@@ -12,12 +12,12 @@ import {
 
 export const agentsCommand: SlashCommand = {
   name: 'agents',
-  description: '管理subagents完成特定任务',
+  description: '子代理',
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'manage',
-      description: '查看、编辑或删除现有subagents',
+      description: '管理子代理',
       kind: CommandKind.BUILT_IN,
       action: (): OpenDialogActionReturn => ({
         type: 'dialog',
@@ -26,7 +26,7 @@ export const agentsCommand: SlashCommand = {
     },
     {
       name: 'create',
-      description: '引导式创建新subagent',
+      description: '创建子代理',
       kind: CommandKind.BUILT_IN,
       action: (): OpenDialogActionReturn => ({
         type: 'dialog',

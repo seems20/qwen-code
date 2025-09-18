@@ -101,13 +101,13 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Alt+Left/Right
       </Text>{' '}
-      - 在输入框中按单词跳转
+      - 在输入框中跳转
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
         Ctrl+C
       </Text>{' '}
-      - Close dialogs, cancel requests, or quit application
+      - 关闭对话框、取消请求或退出 RDMind
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
@@ -121,13 +121,13 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Ctrl+L
       </Text>{' '}
-      - 清空屏幕
+      - 清屏
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
         {process.platform === 'darwin' ? 'Ctrl+X / Meta+Enter' : 'Ctrl+X'}
       </Text>{' '}
-      - 在外部编辑器中打开输入
+      - 打开外部编辑器
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
@@ -139,7 +139,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Enter
       </Text>{' '}
-      - 发送消息
+      - 发送
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
@@ -151,13 +151,13 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Shift+Tab
       </Text>{' '}
-      - 自动接受编辑
+      - 默认接受编辑
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
         Up/Down
       </Text>{' '}
-      - 循环切换你的历史输入记录
+      - 切换
     </Text>
     <Box height={1} />
     <Text color={Colors.Foreground}>

@@ -29,6 +29,6 @@ describe('settingsCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(settingsCommand.name).toBe('settings');
-    expect(settingsCommand.description).toBe('查看和编辑 RDMind 设置');
+    expect(settingsCommand.description).toBe('RDMind 设置');
   });
 });

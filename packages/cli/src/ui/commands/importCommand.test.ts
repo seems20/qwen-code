@@ -21,7 +21,7 @@ describe('importCommand', () => {
     it('应该有正确的名称和描述', () => {
       expect(importCommand.name).toBe('import');
       expect(importCommand.description).toContain(
-        '为工作区的Java项目导入中间件',
+        '为工作区的 Java 项目导入中间件',
       );
       expect(importCommand.kind).toBe(CommandKind.BUILT_IN);
     });
