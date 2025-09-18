@@ -520,8 +520,7 @@ const refreshCommand: SlashCommand = {
 
 export const mcpCommand: SlashCommand = {
   name: 'mcp',
-  description:
-    '列出已配置的 MCP 服务和工具',
+  description: '列出已配置的 MCP 服务和工具',
   kind: CommandKind.BUILT_IN,
   subCommands: [listCommand, authCommand, refreshCommand],
   // Default action when no subcommand is provided

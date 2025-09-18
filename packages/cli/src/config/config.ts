@@ -150,8 +150,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         })
         .option('telemetry', {
           type: 'boolean',
-          description:
-            '启用遥测？控制是否发送遥测数据',
+          description: '启用遥测？控制是否发送遥测数据',
         })
         .option('telemetry-target', {
           type: 'string',

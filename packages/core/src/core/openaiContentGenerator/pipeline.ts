@@ -363,7 +363,7 @@ export class ContentGenerationPipeline {
           )['repetition_penalty'],
           max_tokens: (openaiRequest as unknown as Record<string, unknown>)[
             'max_tokens'
-            ],
+          ],
           tools: openaiRequest.tools,
           stream: openaiRequest.stream,
           stream_options: openaiRequest.stream_options,

@@ -111,7 +111,7 @@ function findImports(
       !isWhitespace(content[j]) &&
       content[j] !== '\n' &&
       content[j] !== '\r'
-      ) {
+    ) {
       j++;
     }
 
@@ -429,7 +429,10 @@ export function validateImportPath(
   );
 }
 
-function extractExtReferences(content: string, debugMode: boolean = false): string[] {
+function extractExtReferences(
+  content: string,
+  debugMode: boolean = false,
+): string[] {
   const references: string[] = [];
 
   // 更精确的正则表达式，避免匹配markdown链接语法
