@@ -20,7 +20,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
       <Text color={Colors.Foreground}>使用指南:</Text>
       <Text color={Colors.Foreground}>1. / 使用命令，@ 提及文件</Text>
       <Text color={Colors.Foreground}>
-        2. 两次 Esc 清空输入框，Shift+Enter 换行
+        2. 两次 Esc 清空输入框，Shift + Enter 换行
       </Text>
       {geminiMdFileCount === 0 && (
         <Text color={Colors.Foreground}>
@@ -28,7 +28,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
           <Text bold color={Colors.LightBlue}>
             RDMind.md
           </Text>{' '}
-          来自定义你与 RDMind 的交互方式
+          自定义你与 RDMind 的交互方式
         </Text>
       )}
       <Text color={Colors.Foreground}>
@@ -36,7 +36,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
         输入 <Text bold color={Colors.LightBlue}>
           /help
         </Text>{' '}
-        获取帮助，Ctrl+C 退出RDMind
+        获取帮助，Ctrl + C 退出RDMind
       </Text>
     </Box>
   );
