@@ -36,6 +36,7 @@ import { settingsCommand } from '../ui/commands/settingsCommand.js';
 import { vimCommand } from '../ui/commands/vimCommand.js';
 import { setupGithubCommand } from '../ui/commands/setupGithubCommand.js';
 import { terminalSetupCommand } from '../ui/commands/terminalSetupCommand.js';
+import { modelCommand } from '../ui/commands/modelCommand.js';
 import { importCommand } from '../ui/commands/importCommand.js';
 import { rdflowCommand } from '../ui/commands/rdflowCommand.js';
 import { rdconfigCommand } from '../ui/commands/rdconfigCommand.js';
@@ -79,6 +80,7 @@ export class BuiltinCommandLoader implements ICommandLoader {
       rdconfigCommand,
       mcpCommand,
       memoryCommand,
+      modelCommand,
       privacyCommand,
       quitCommand,
       quitConfirmCommand,
