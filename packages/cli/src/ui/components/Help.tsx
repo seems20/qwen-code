@@ -33,29 +33,25 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         @
       </Text>{' '}
-      来指定用于上下文的文件 (例如，{' '}
+      指定用于上下文的文件 (例如{' '}
       <Text bold color={Colors.AccentPurple}>
         @src/myFile.ts
       </Text>
-      ) 以定位特定的文件或文件夹。
+      )
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
         Shell 模式
       </Text>
-      : 通过{' '}
+      : 使用{' '}
       <Text bold color={Colors.AccentPurple}>
         !
       </Text>{' '}
-      执行 shell 命令 (例如，{' '}
+      执行 shell 命令 (例如{' '}
       <Text bold color={Colors.AccentPurple}>
         !npm run start
       </Text>
-      ) 或使用自然语言 (例如{' '}
-      <Text bold color={Colors.AccentPurple}>
-        启动服务器
-      </Text>
-      )。
+      )
     </Text>
 
     <Box height={1} />
