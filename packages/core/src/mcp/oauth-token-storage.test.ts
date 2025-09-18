@@ -112,9 +112,12 @@ describe('MCPOAuthTokenStorage', () => {
         'https://token.url',
       );
 
-      expect(fs.mkdir).toHaveBeenCalledWith(path.join('/mock/home', '.rdmind'), {
-        recursive: true,
-      });
+      expect(fs.mkdir).toHaveBeenCalledWith(
+        path.join('/mock/home', '.rdmind'),
+        {
+          recursive: true,
+        },
+      );
       expect(fs.writeFile).toHaveBeenCalledWith(
         path.join('/mock/home', '.rdmind', 'mcp-oauth-tokens.json'),
         expect.stringContaining('test-server'),

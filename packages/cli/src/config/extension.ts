@@ -453,7 +453,7 @@ export async function updateExtension(
   }
   if (!extension.installMetadata) {
     throw new Error(
-              `Extension cannot be updated because it is missing the .rdmind-extension.install.json file. To update manually, uninstall and then reinstall the updated version.`,
+      `Extension cannot be updated because it is missing the .rdmind-extension.install.json file. To update manually, uninstall and then reinstall the updated version.`,
     );
   }
   const originalVersion = extension.config.version;

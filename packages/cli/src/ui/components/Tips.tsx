@@ -32,8 +32,8 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
         </Text>
       )}
       <Text color={Colors.Foreground}>
-        {geminiMdFileCount === 0 ? '4.' : '3.'}{' '}
-        输入 <Text bold color={Colors.LightBlue}>
+        {geminiMdFileCount === 0 ? '4.' : '3.'} 输入{' '}
+        <Text bold color={Colors.LightBlue}>
           /help
         </Text>{' '}
         获取帮助，Ctrl + C 退出RDMind

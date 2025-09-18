@@ -45,7 +45,11 @@ describe('Storage – additional helpers', () => {
   });
 
   it('getMcpOAuthTokensPath returns ~/.rdmind/mcp-oauth-tokens.json', () => {
-    const expected = path.join(os.homedir(), '.rdmind', 'mcp-oauth-tokens.json');
+    const expected = path.join(
+      os.homedir(),
+      '.rdmind',
+      'mcp-oauth-tokens.json',
+    );
     expect(Storage.getMcpOAuthTokensPath()).toBe(expected);
   });
 });
