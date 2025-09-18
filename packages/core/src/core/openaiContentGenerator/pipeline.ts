@@ -349,6 +349,28 @@ export class ContentGenerationPipeline {
         isStreaming,
       );
 
+      // 调用大模型前的日志 - 只在debug模式下打印API调用入参
+      if (this.config.cliConfig.getDebugMode()) {
+        console.log('🚀 [LLM API] 调用入参:');
+        const cleanParams = {
+          model: openaiRequest.model,
+          messages: openaiRequest.messages,
+          temperature: openaiRequest.temperature,
+          top_p: openaiRequest.top_p,
+          top_k: (openaiRequest as unknown as Record<string, unknown>)['top_k'],
+          repetition_penalty: (
+            openaiRequest as unknown as Record<string, unknown>
+          )['repetition_penalty'],
+          max_tokens: (openaiRequest as unknown as Record<string, unknown>)[
+            'max_tokens'
+            ],
+          tools: openaiRequest.tools,
+          stream: openaiRequest.stream,
+          stream_options: openaiRequest.stream_options,
+        };
+        console.log(JSON.stringify(cleanParams, null, 2));
+      }
+
       const result = await executor(openaiRequest, context);
 
       context.duration = Date.now() - context.startTime;

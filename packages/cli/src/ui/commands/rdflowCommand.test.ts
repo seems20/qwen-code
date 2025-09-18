@@ -54,7 +54,7 @@ describe('rdflowCommand', () => {
 
       expect(result).toEqual({
         type: 'submit_prompt',
-        content: expect.stringContaining('# 角色：RDMind'),
+        content: expect.stringContaining('# RDMind - BMAD研发流程编排器'),
       });
     });
 
@@ -75,7 +75,7 @@ describe('rdflowCommand', () => {
 
       expect(result).toEqual({
         type: 'submit_prompt',
-        content: expect.stringContaining('# 角色：RDMind'),
+        content: expect.stringContaining('# RDMind - BMAD研发流程编排器'),
       });
     });
   });
@@ -118,12 +118,12 @@ describe('rdflowCommand', () => {
       }
       const content = result.content;
 
-      expect(content).toContain('# 角色：RDMind');
+      expect(content).toContain('# RDMind - BMAD研发流程编排器');
       expect(content).toContain('核心工作流');
-      expect(content).toContain('阶段 1: 理解需求');
-      expect(content).toContain('阶段 2: 技术方案');
-      expect(content).toContain('阶段 3: 代码编写');
-      expect(content).toContain('阶段 4: 质量测试');
+      expect(content).toContain('阶段1：理解需求');
+      expect(content).toContain('阶段2：技术方案');
+      expect(content).toContain('阶段5：代码编写');
+      expect(content).toContain('阶段6：代码评审');
     });
 
     it('应该包含工作流指令', async () => {
@@ -137,10 +137,10 @@ describe('rdflowCommand', () => {
       }
       const content = result.content;
 
-      expect(content).toContain('工作流遵从');
-      expect(content).toContain('阶段转换');
-      expect(content).toContain('状态更新指令');
-      expect(content).toContain('引导推进');
+      expect(content).toContain('严格按照TODO顺序执行');
+      expect(content).toContain('每个阶段都要激活对应的BMAD角色');
+      expect(content).toContain('必须等待用户明确确认');
+      expect(content).toContain('绝对禁止');
     });
 
     it('应该包含初始化指令', async () => {
@@ -154,9 +154,9 @@ describe('rdflowCommand', () => {
       }
       const content = result.content;
 
-      expect(content).toContain('# 初始化');
+      expect(content).toContain('### 初始化');
       expect(content).toContain('你好，我是 **RDMind**');
-      expect(content).toContain('四个阶段的开发流程');
+      expect(content).toContain('八个阶段来完成软件开发');
     });
   });
 });

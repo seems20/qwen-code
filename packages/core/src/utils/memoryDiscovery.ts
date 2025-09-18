@@ -80,6 +80,32 @@ async function findProjectRoot(startDir: string): Promise<string | null> {
   }
 }
 
+function getKnowledgeDirectoryPath(): string | null {
+  // 尝试多个可能的.knowledge目录路径
+  const candidatePaths = [
+    // 开发环境路径
+    path.resolve(__dirname, '../../../.knowledge'),
+    path.resolve(__dirname, '../../.knowledge'),
+    // 生产环境路径
+    path.resolve(__dirname, '../.knowledge'),
+    path.resolve(__dirname, './.knowledge'),
+  ];
+  for (const candidatePath of candidatePaths) {
+    try {
+      if (
+        fsSync.existsSync(candidatePath) &&
+        fsSync.statSync(candidatePath).isDirectory()
+      ) {
+        return candidatePath;
+      }
+    } catch {
+      // 路径不存在或不可访问，继续尝试下一个
+      continue;
+    }
+  }
+  return null; // 没有找到.knowledge目录
+}
+
 async function getGeminiMdFilePathsInternal(
   currentWorkingDirectory: string,
   includeDirectoriesToReadGemini: readonly string[],
@@ -128,6 +154,21 @@ async function getGeminiMdFilePathsInternal(
     }
   }
 
+  // 添加.knowledge目录（不包含.ext子目录）
+  const knowledgePath = getKnowledgeDirectoryPath();
+  if (knowledgePath) {
+    if (debugMode) {
+      console.log(
+        `[MEMORY-DISCOVERY] Adding knowledge directory: ${knowledgePath}`,
+      );
+    }
+    dirs.add(knowledgePath);
+  } else {
+    if (debugMode) {
+      console.log(`[MEMORY-DISCOVERY] No knowledge directory found`);
+    }
+  }
+
   const paths = pathsArrays.flat();
   return Array.from(new Set<string>(paths));
 }
@@ -167,6 +208,7 @@ async function getGeminiMdFilePathsInternalForEachDir(
     // Handle the case where we're in the home directory (dir is empty string or home path)
     const resolvedDir = dir ? path.resolve(dir) : resolvedHome;
     const isHomeDirectory = resolvedDir === resolvedHome;
+    const isKnowledgeDirectory = dir && dir.includes('.knowledge');
 
     if (isHomeDirectory) {
       // For home directory, only check for RDMind.md directly in the home directory
@@ -183,6 +225,17 @@ async function getGeminiMdFilePathsInternalForEachDir(
       } catch {
         // Not found, which is okay
       }
+    } else if (isKnowledgeDirectory) {
+      // Special handling for .knowledge directory
+      await processKnowledgeDirectory(
+        resolvedDir,
+        geminiMdFilename,
+        allPaths,
+        debugMode,
+        fileService,
+        fileFilteringOptions,
+        maxDirs,
+      );
     } else if (dir) {
       // FIX: Only perform the workspace search (upward and downward scans)
       // if a valid currentWorkingDirectory is provided and it's not the home directory.
@@ -260,68 +313,120 @@ async function getGeminiMdFilePathsInternalForEachDir(
   return finalPaths;
 }
 
+async function processKnowledgeDirectory(
+  knowledgeDir: string,
+  geminiMdFilename: string,
+  allPaths: Set<string>,
+  debugMode: boolean,
+  _fileService: FileDiscoveryService,
+  _fileFilteringOptions: FileFilteringOptions,
+  _maxDirs: number,
+): Promise<void> {
+  if (debugMode) {
+    logger.debug(`[KNOWLEDGE] Processing knowledge directory: ${knowledgeDir}`);
+  }
+  // 1. 加载.knowledge根目录下的所有.md文件（立即加载）
+  try {
+    const rootFiles = await fs.readdir(knowledgeDir);
+    for (const file of rootFiles) {
+      // 通用处理：加载所有.md文件，排除以.开头的隐藏文件
+      if (file.endsWith('.md') && !file.startsWith('.')) {
+        const filePath = path.join(knowledgeDir, file);
+        try {
+          await fs.access(filePath, fsSync.constants.R_OK);
+          allPaths.add(filePath);
+          if (debugMode) {
+            logger.debug(
+              `[KNOWLEDGE] Loaded knowledge root file: ${file} -> ${filePath}`,
+            );
+          }
+        } catch {
+          // 文件不可读，跳过
+        }
+      }
+    }
+  } catch (error) {
+    if (debugMode) {
+      logger.warn(`[KNOWLEDGE] Failed to read knowledge directory: ${error}`);
+    }
+  }
+  // 2. 不加载.ext目录（按需加载）
+  // .ext目录的内容将通过各个知识库文件的引用机制按需加载
+  if (debugMode) {
+    logger.debug(
+      `[KNOWLEDGE] Knowledge directory processing complete. Skipped .ext directory for lazy loading.`,
+    );
+  }
+}
+
 async function readGeminiMdFiles(
   filePaths: string[],
   debugMode: boolean,
   importFormat: 'flat' | 'tree' = 'tree',
 ): Promise<GeminiFileContent[]> {
-  // Process files in parallel with concurrency limit to prevent EMFILE errors
-  const CONCURRENT_LIMIT = 20; // Higher limit for file reads as they're typically faster
   const results: GeminiFileContent[] = [];
+  if (debugMode) {
+    console.log(`[FILE-READ] Starting to read ${filePaths.length} files`);
+  }
 
-  for (let i = 0; i < filePaths.length; i += CONCURRENT_LIMIT) {
-    const batch = filePaths.slice(i, i + CONCURRENT_LIMIT);
-    const batchPromises = batch.map(
-      async (filePath): Promise<GeminiFileContent> => {
-        try {
-          const content = await fs.readFile(filePath, 'utf-8');
+  for (const filePath of filePaths) {
+    if (debugMode) {
+      console.log(`[FILE-READ] Reading file: ${filePath}`);
+    }
 
-          // Process imports in the content
-          const processedResult = await processImports(
-            content,
-            path.dirname(filePath),
-            debugMode,
-            undefined,
-            undefined,
-            importFormat,
-          );
-          if (debugMode)
-            logger.debug(
-              `Successfully read and processed imports: ${filePath} (Length: ${processedResult.content.length})`,
-            );
-
-          return { filePath, content: processedResult.content };
-        } catch (error: unknown) {
-          const isTestEnv =
-            process.env['NODE_ENV'] === 'test' || process.env['VITEST'];
-          if (!isTestEnv) {
-            const message =
-              error instanceof Error ? error.message : String(error);
-            logger.warn(
-              `Warning: Could not read ${getAllGeminiMdFilenames()} file at ${filePath}. Error: ${message}`,
-            );
-          }
-          if (debugMode) logger.debug(`Failed to read: ${filePath}`);
-          return { filePath, content: null }; // Still include it with null content
-        }
-      },
-    );
-
-    const batchResults = await Promise.allSettled(batchPromises);
-
-    for (const result of batchResults) {
-      if (result.status === 'fulfilled') {
-        results.push(result.value);
-      } else {
-        // This case shouldn't happen since we catch all errors above,
-        // but handle it for completeness
-        const error = result.reason;
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`Unexpected error processing file: ${message}`);
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      if (debugMode) {
+        console.log(
+          `[FILE-READ] Successfully read file: ${filePath} (${content.length} chars)`,
+        );
       }
+
+      // Process imports in the content
+      if (debugMode) {
+        console.log(`[FILE-READ] Processing imports for: ${filePath}`);
+      }
+      const processedResult = await processImports(
+        content,
+        path.dirname(filePath),
+        debugMode,
+        undefined,
+        undefined,
+        importFormat,
+      );
+
+      results.push({ filePath, content: processedResult.content });
+      if (debugMode) {
+        console.log(
+          `[FILE-READ] Successfully processed imports for: ${filePath}`,
+        );
+      }
+
+      if (debugMode)
+        logger.debug(
+          `Successfully read and processed imports: ${filePath} (Length: ${processedResult.content.length})`,
+        );
+    } catch (error: unknown) {
+      if (debugMode) {
+        console.log(`[FILE-READ] Failed to read file: ${filePath}`, error);
+      }
+
+      const isTestEnv =
+        process.env['NODE_ENV'] === 'test' || process.env['VITEST'];
+      if (!isTestEnv) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.warn(
+          `Warning: Could not read ${getAllGeminiMdFilenames()} file at ${filePath}. Error: ${message}`,
+        );
+      }
+      results.push({ filePath, content: null }); // Still include it with null content
+      if (debugMode) logger.debug(`Failed to read: ${filePath}`);
     }
   }
 
+  if (debugMode) {
+    console.log(`[FILE-READ] Completed reading ${results.length} files`);
+  }
   return results;
 }
 

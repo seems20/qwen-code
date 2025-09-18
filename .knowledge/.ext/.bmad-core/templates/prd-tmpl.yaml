@@ -1,0 +1,203 @@
+# <!-- Powered by BMAD™ Core -->
+template:
+  id: prd-template-v2
+  name: 产品需求文档
+  version: 2.0
+  output:
+    format: markdown
+    filename: docs/prd.md
+    title: '{{project_name}} 产品需求文档 (PRD)'
+
+workflow:
+  mode: interactive
+  elicitation: advanced-elicitation
+
+sections:
+  - id: goals-context
+    title: 目标和背景
+    instruction: |
+      问问有没有项目brief文档。如果没有项目brief，强烈建议先用project-brief-tmpl建一个（它提供必要的基础：问题陈述、目标用户、成功指标、MVP范围、约束条件）。如果用户坚持不用brief就写PRD，在目标章节收集这些信息。如果有项目brief，review并用它来填充目标（期望结果的bullet列表）和背景（1-2段关于解决什么问题以及为什么），这样我们能确定PRD MVP的范围。无论如何这对确定需求都很关键。包含变更日志表格。
+    sections:
+      - id: goals
+        title: 目标
+        type: bullet-list
+        instruction: 一行期望结果的bullet列表，PRD成功后会交付的 - 用户和项目期望
+      - id: background
+        title: 背景
+        type: paragraphs
+        instruction: 1-2段简短总结背景，比如brief中学到的，不重复目标，解决什么问题以及为什么，当前情况或需求是什么
+      - id: changelog
+        title: 变更日志
+        type: table
+        columns: [Date, Version, Description, Author]
+        instruction: 跟踪文档版本和变更
+
+  - id: requirements
+    title: 需求
+    instruction: 在两个子章节下起草功能和非功能需求列表
+    elicit: true
+    sections:
+      - id: functional
+        title: 功能需求
+        type: numbered-list
+        prefix: FR
+        instruction: 每个需求都是一个bullet markdown和以FR开头的标识符序列
+        examples:
+          - 'FR6: Todo List使用AI检测并警告可能重复但措辞不同的todo项。'
+      - id: non-functional
+        title: 非功能需求
+        type: numbered-list
+        prefix: NFR
+        instruction: 每个需求都是一个bullet markdown和以NFR开头的标识符序列
+        examples:
+          - 'NFR1: AWS服务使用应尽量保持在免费额度内。'
+
+  - id: ui-goals
+    title: 用户界面设计目标
+    condition: PRD has UX/UI requirements
+    instruction: |
+      捕获高级UI/UX愿景来指导设计架构师并告知story创建。步骤：
+
+      1. 基于项目上下文用有根据的猜测预填充所有子章节
+      2. 向用户展示完整的渲染章节
+      3. 清楚告诉用户哪里做了假设
+      4. 对不清楚/缺失的元素或需要更多规格的领域问针对性问题
+      5. 这不是详细的UI规格 - 专注于产品愿景和用户目标
+    elicit: true
+    choices:
+      accessibility: [None, WCAG AA, WCAG AAA]
+      platforms: [Web Responsive, Mobile Only, Desktop Only, Cross-Platform]
+    sections:
+      - id: ux-vision
+        title: 整体UX愿景
+      - id: interaction-paradigms
+        title: 关键交互范式
+      - id: core-screens
+        title: 核心页面和视图
+        instruction: 从产品角度看，交付PRD价值和目标需要哪些最关键的页面或视图？这应该是概念性的高级别，用来驱动粗略的Epic或User Stories
+        examples:
+          - '登录页面'
+          - '主仪表板'
+          - '项目详情页'
+          - '设置页面'
+      - id: accessibility
+        title: '无障碍性: {None|WCAG AA|WCAG AAA|自定义需求}'
+      - id: branding
+        title: 品牌
+        instruction: 任何必须融入的已知品牌元素或风格指南？
+        examples:
+          - '复制1900年代早期黑白电影的外观和感觉，包括页面或状态转换时复制胶片损坏或投影机故障的动画效果。'
+          - '附上我们企业品牌的完整调色板和tokens。'
+      - id: target-platforms
+        title: '目标设备和平台: {Web响应式|仅移动端|仅桌面端|跨平台}'
+        examples:
+          - 'Web响应式，以及所有移动平台'
+          - '仅iPhone'
+          - 'ASCII Windows桌面'
+
+  - id: technical-assumptions
+    title: 技术假设
+    instruction: |
+      收集将指导架构师的技术决策。步骤：
+
+      1. 检查.bmad-core/data/technical-preferences.yaml或附加的technical-preferences文件是否存在 - 用它预填充选择
+      2. 询问用户：语言、框架、启动模板、库、API、部署目标
+      3. 对未知的，基于项目目标和MVP范围提供指导
+      4. 记录所有技术选择及理由（为什么这个选择适合项目）
+      5. 这些成为架构师的约束 - 要具体和完整
+    elicit: true
+    choices:
+      repository: [Monorepo, Polyrepo]
+      architecture: [Monolith, Microservices, Serverless]
+      testing: [Unit Only, Unit + Integration, Full Testing Pyramid]
+    sections:
+      - id: repository-structure
+        title: '仓库结构: {Monorepo|Polyrepo|Multi-repo}'
+      - id: service-architecture
+        title: 服务架构
+        instruction: '关键决策 - 记录高级服务架构（如，单体、微服务、Monorepo内的Serverless函数）。'
+      - id: testing-requirements
+        title: 测试需求
+        instruction: '关键决策 - 记录测试需求，仅单元测试、集成测试、e2e、手动测试、需要手动测试便利方法）。'
+      - id: additional-assumptions
+        title: 额外技术假设和请求
+        instruction: 在起草这个文档的整个过程中，如果提出或发现任何其他适合架构师的技术假设，在这里添加为额外的bullet项
+
+  - id: epic-list
+    title: Epic列表
+    instruction: |
+      展示所有epic的高级列表供用户批准。每个epic应该有标题和简短（1句话）的目标陈述。这让用户在深入细节前review整体结构。
+
+      关键：Epic必须按敏捷最佳实践逻辑顺序：
+
+      - 每个epic应该交付重要的、端到端的、完全可部署的可测试功能增量
+      - Epic 1必须建立基础项目基础设施（app设置、Git、CI/CD、核心服务），除非我们在现有app上添加新功能，同时也要交付初始功能，即使简单如健康检查路由或显示简单canary页面 - 记住这点当我们为第一个epic生成stories时！
+      - 每个后续epic基于之前epic的功能构建，交付部署时为用户或业务提供有形价值的主要功能块
+      - 不是每个项目都需要多个epic，epic需要交付价值。例如，完成的API可以交付价值，即使UI未完成并计划在单独的epic中。
+      - 倾向于更少的epic，但让用户知道你的理由，如果某些看起来太大或专注于不同事物，提供拆分选项。
+      - 横切关注点应该贯穿epic和stories，而不是最终的stories。例如，将日志框架作为epic的最后一个story，或作为项目的最终epic或story会很糟糕，因为我们从一开始就没有日志。
+    elicit: true
+    examples:
+      - 'Epic 1: 基础和核心基础设施：建立项目设置、认证和基本用户管理'
+      - 'Epic 2: 核心业务实体：创建和管理主要领域对象的CRUD操作'
+      - 'Epic 3: 用户工作流和交互：启用关键用户旅程和业务流程'
+      - 'Epic 4: 报告和分析：为用户提供洞察和数据可视化'
+
+  - id: epic-details
+    title: Epic {{epic_number}} {{epic_title}}
+    repeatable: true
+    instruction: |
+      epic列表批准后，将每个epic及其所有stories和验收标准作为一个完整的review单元展示。
+
+      为每个epic提供扩展目标（2-3句话描述所有stories将实现的目标和价值）。
+
+      关键Story排序需求：
+
+      - 每个epic内的Stories必须逻辑顺序
+      - 每个story应该是"垂直切片"，除了项目基础的早期使能stories外，交付完整功能
+      - 没有story应该依赖后续story或epic的工作
+      - 识别并记录任何直接先决条件stories
+      - 专注于"什么"和"为什么"而不是"如何"（将技术实现留给架构师），但要足够精确以支持story到story的逻辑顺序操作。
+      - 确保每个story交付明确的用户或业务价值，尽量避免使能器并将它们构建到交付价值的stories中。
+      - 为AI代理执行调整story大小：每个story必须可由单个AI代理在一个专注会话中完成，无上下文溢出
+      - 想想"初级开发者工作2-4小时" - stories必须小、专注和自包含
+      - 如果story看起来复杂，进一步分解，只要它能交付垂直切片
+    elicit: true
+    template: '{{epic_goal}}'
+    sections:
+      - id: story
+        title: Story {{epic_number}}.{{story_number}} {{story_title}}
+        repeatable: true
+        template: |
+          作为{{user_type}}，
+          我想要{{action}}，
+          以便{{benefit}}。
+        sections:
+          - id: acceptance-criteria
+            title: 验收标准
+            type: numbered-list
+            item_template: '{{criterion_number}}: {{criteria}}'
+            repeatable: true
+            instruction: |
+              定义清晰、全面和可测试的验收标准：
+
+              - 从功能角度精确定义"完成"意味着什么
+              - 明确无误并作为验证基础
+              - 包含PRD中的任何关键非功能需求
+              - 考虑后端/数据组件的本地可测试性
+              - 在适用时指定UI/UX需求和框架遵循
+              - 避免应该在其他stories或PRD章节中的横切关注点
+
+  - id: checklist-results
+    title: Checklist结果报告
+    instruction: 在运行checklist和起草提示之前，提供输出完整更新的PRD。如果输出，向用户确认你将继续运行checklist并生成报告。用户确认后，执行pm-checklist并在此章节中填充结果。
+
+  - id: next-steps
+    title: 下一步
+    sections:
+      - id: ux-expert-prompt
+        title: UX专家提示
+        instruction: 这个章节将包含UX专家的提示，保持简短和切题，以使用此文档作为输入启动创建架构模式。
+      - id: architect-prompt
+        title: 架构师提示
+        instruction: 这个章节将包含架构师的提示，保持简短和切题，以使用此文档作为输入启动创建架构模式。

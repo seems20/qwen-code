@@ -111,7 +111,7 @@ function findImports(
       !isWhitespace(content[j]) &&
       content[j] !== '\n' &&
       content[j] !== '\r'
-    ) {
+      ) {
       j++;
     }
 
@@ -228,6 +228,18 @@ export async function processImports(
       content,
       importTree: { path: importState.currentFile || 'unknown' },
     };
+  }
+
+  // 注意：不再自动加载.ext引用，而是让大模型通过工具按需读取
+  // 这里只记录发现到的引用，但不加载内容
+  if (debugMode) {
+    console.log(`[IMPORT] Processing imports for content from: ${basePath}`);
+  }
+  const extReferences = extractExtReferences(content, debugMode);
+  if (debugMode) {
+    console.log(
+      `[IMPORT] Found ${extReferences.length} .ext references (not auto-loading, use tools to read on-demand)`,
+    );
   }
 
   // --- FLAT FORMAT LOGIC ---
@@ -415,4 +427,56 @@ export function validateImportPath(
   return allowedDirectories.some((allowedDir) =>
     isSubpath(allowedDir, resolvedPath),
   );
+}
+
+function extractExtReferences(content: string, debugMode: boolean = false): string[] {
+  const references: string[] = [];
+
+  // 更精确的正则表达式，避免匹配markdown链接语法
+  // 匹配 .ext/{path} 但不匹配在markdown链接中的引用
+  const extPattern = /(?:^|[^\]()])(\.ext\/([^/\s\]]+(?:\/[^/\s\]]+)*))/gm;
+  let match;
+
+  while ((match = extPattern.exec(content)) !== null) {
+    const [fullMatch, , relativePath] = match;
+    const matchStart = match.index;
+    const matchEnd = matchStart + fullMatch.length;
+
+    // 检查匹配的前后文，确保不是markdown链接
+    const beforeMatch = content.substring(
+      Math.max(0, matchStart - 10),
+      matchStart,
+    );
+    const afterMatch = content.substring(
+      matchEnd,
+      Math.min(content.length, matchEnd + 10),
+    );
+
+    // 跳过markdown链接格式：[text](.ext/path) 或 [.ext/path](.ext/path)
+    if (beforeMatch.includes('[') && afterMatch.includes('](')) {
+      if (debugMode) {
+        console.log(`[EXT-REF] Skipped markdown link: ${relativePath}`);
+      }
+      continue;
+    }
+
+    // 跳过代码块中的引用
+    if (
+      fullMatch.includes('`') ||
+      beforeMatch.includes('`') ||
+      afterMatch.includes('`')
+    ) {
+      if (debugMode) {
+        console.log(`[EXT-REF] Skipped code block: ${relativePath}`);
+      }
+      continue;
+    }
+
+    references.push(relativePath);
+    if (debugMode) {
+      console.log(`[EXT-REF] Found .ext reference: ${relativePath}`);
+    }
+  }
+
+  return references;
 }

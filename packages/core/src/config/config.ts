@@ -43,6 +43,10 @@ import { RipGrepTool } from '../tools/ripGrep.js';
 import { ShellTool } from '../tools/shell.js';
 import { TaskTool } from '../tools/task.js';
 import { TodoWriteTool } from '../tools/todoWrite.js';
+import {
+  ReadKnowledgeExtTool,
+  ListKnowledgeExtTool,
+} from '../tools/read-knowledge-ext-tool.js';
 import { ToolRegistry } from '../tools/tool-registry.js';
 import type { AnyToolInvocation } from '../tools/tools.js';
 import { WebFetchTool } from '../tools/web-fetch.js';
@@ -997,6 +1001,8 @@ export class Config {
     registerCoreTool(ShellTool, this);
     registerCoreTool(MemoryTool);
     registerCoreTool(TodoWriteTool, this);
+    registerCoreTool(ReadKnowledgeExtTool);
+    registerCoreTool(ListKnowledgeExtTool);
     // Conditionally register web search tool only if Tavily API key is set
     if (this.getTavilyApiKey()) {
       registerCoreTool(WebSearchTool, this);

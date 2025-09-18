@@ -1,0 +1,198 @@
+# <!-- Powered by BMAD™ Core -->
+template:
+  id: trd-template-v1
+  name: 技术需求文档
+  version: 1.0
+  output:
+    format: markdown
+    filename: docs/trd.md
+    title: '{{project_name}} 技术需求文档 (TRD)'
+
+workflow:
+  mode: interactive
+  elicitation: advanced-elicitation
+
+sections:
+  - id: document-info
+    title: 文档信息
+    instruction: |
+      记录TRD文档的基本信息，包括基于的PRD文档、创建时间、版本等。
+    sections:
+      - id: source-prd
+        title: 基于的PRD文档
+        type: list
+        instruction: 列出作为输入的所有PRD文档路径和版本
+      - id: document-meta
+        title: 文档元信息
+        type: table
+        columns: [项目, 创建日期, 版本, 作者, 状态]
+        instruction: 记录文档的基本元信息
+      - id: changelog
+        title: 变更日志
+        type: table
+        columns: [Date, Version, Description, Author]
+        instruction: 跟踪文档版本和变更
+
+  - id: business-context
+    title: 业务背景
+    instruction: |
+      基于PRD文档提取和总结业务背景信息，确保技术团队理解业务目标。
+    sections:
+      - id: business-goals
+        title: 业务目标
+        type: bullet-list
+        instruction: 从PRD中提取的业务目标，转化为技术团队可理解的目标
+      - id: success-metrics
+        title: 成功指标
+        type: bullet-list
+        instruction: 从PRD中提取的成功指标，明确技术实现需要达到的量化目标
+      - id: business-constraints
+        title: 业务约束
+        type: bullet-list
+        instruction: 从PRD中识别的业务约束条件，如时间、预算、合规等
+
+  - id: functional-requirements
+    title: 功能需求分析
+    instruction: |
+      将PRD中的功能需求转化为详细的功能描述，包括用户操作、业务流程、系统行为等。
+    elicit: true
+    sections:
+      - id: user-stories
+        title: 用户故事细化
+        type: numbered-list
+        prefix: US
+        instruction: 从PRD中提取的用户故事，详细描述用户角色、操作步骤、期望结果
+        examples:
+          - 'US1: 用户注册 - 作为新用户，我想要通过邮箱注册账号，以便能够使用系统功能。详细流程：1)输入邮箱和密码 2)接收验证邮件 3)点击验证链接 4)完成注册'
+      - id: business-processes
+        title: 业务流程
+        type: numbered-list
+        prefix: BP
+        instruction: 从PRD中识别的核心业务流程，详细描述每个步骤和决策点
+        examples:
+          - 'BP1: 订单处理流程 - 1)用户选择商品 2)填写收货信息 3)选择支付方式 4)确认订单 5)支付处理 6)订单确认 7)发货通知'
+      - id: system-behaviors
+        title: 系统行为
+        type: numbered-list
+        prefix: SB
+        instruction: 从PRD中识别的系统自动处理行为，详细描述触发条件和处理逻辑
+        examples:
+          - 'SB1: 库存自动扣减 - 当用户成功下单时，系统自动扣减对应商品的库存数量，如果库存不足则提示用户'
+
+  - id: non-functional-requirements
+    title: 非功能需求分析
+    instruction: |
+      将PRD中的非功能需求转化为具体的业务要求和用户体验要求。
+    elicit: true
+    sections:
+      - id: user-experience-requirements
+        title: 用户体验需求
+        type: numbered-list
+        prefix: UX
+        instruction: 从PRD中提取的用户体验要求，包括界面响应、操作便捷性等
+        examples:
+          - 'UX1: 页面响应速度 - 用户操作后页面响应时间不超过2秒，避免用户等待焦虑'
+      - id: data-requirements
+        title: 数据需求
+        type: numbered-list
+        prefix: DR
+        instruction: 从PRD中识别的数据相关需求，包括数据存储、处理、展示等
+        examples:
+          - 'DR1: 用户数据管理 - 需要存储和管理用户基本信息、操作记录、偏好设置等数据'
+      - id: business-rules
+        title: 业务规则
+        type: numbered-list
+        prefix: BR
+        instruction: 从PRD中识别的业务规则和约束条件
+        examples:
+          - 'BR1: 用户权限管理 - 不同角色用户具有不同的功能访问权限，管理员可以管理所有功能'
+
+  - id: functional-specifications
+    title: 功能规格
+    instruction: |
+      基于PRD需求制定详细的功能规格，包括功能模块、操作流程、数据流等。
+    elicit: true
+    sections:
+      - id: feature-modules
+        title: 功能模块
+        type: numbered-list
+        prefix: FM
+        instruction: 基于功能需求识别的功能模块，详细描述每个模块的职责和边界
+        examples:
+          - 'FM1: 用户管理模块 - 负责用户注册、登录、个人信息管理、权限控制等功能'
+      - id: operation-flows
+        title: 操作流程
+        type: numbered-list
+        prefix: OF
+        instruction: 基于业务流程设计的详细操作流程，包括用户操作步骤和系统响应
+        examples:
+          - 'OF1: 用户注册流程 - 1)用户填写注册信息 2)系统验证信息格式 3)检查邮箱是否已存在 4)发送验证邮件 5)用户点击验证链接 6)系统激活账号'
+      - id: data-flows
+        title: 数据流
+        type: numbered-list
+        prefix: DF
+        instruction: 基于数据需求设计的数据流转过程，包括数据输入、处理、输出
+        examples:
+          - 'DF1: 用户数据流转 - 用户输入→数据验证→数据存储→数据展示→数据更新'
+      - id: integration-points
+        title: 集成点
+        type: numbered-list
+        prefix: IP
+        instruction: 基于集成需求识别的系统集成点，详细描述集成内容和数据交换
+        examples:
+          - 'IP1: 支付系统集成 - 需要与支付宝、微信支付等第三方支付平台集成，交换订单信息和支付结果'
+
+  - id: implementation-guidelines
+    title: 实现指导
+    instruction: |
+      为架构师和开发团队提供功能实现的指导建议。
+    sections:
+      - id: functional-priorities
+        title: 功能优先级
+        type: bullet-list
+        instruction: 基于业务价值确定的功能开发优先级
+      - id: business-logic-complexity
+        title: 业务逻辑复杂度
+        type: bullet-list
+        instruction: 识别复杂的业务逻辑和需要特别注意的实现点
+      - id: user-interaction-requirements
+        title: 用户交互要求
+        type: bullet-list
+        instruction: 基于用户体验需求确定的交互设计要求
+
+  - id: open-questions
+    title: 待确认事项
+    instruction: |
+      记录在分析PRD过程中发现的不确定或需要进一步确认的事项。
+    sections:
+      - id: business-clarifications
+        title: 业务澄清
+        type: numbered-list
+        prefix: BQ
+        instruction: 需要业务方进一步澄清的业务需求和规则
+        examples:
+          - 'BQ1: 用户权限管理是否需要支持角色继承？不同角色的具体权限边界是什么？'
+      - id: functional-details
+        title: 功能细节
+        type: numbered-list
+        prefix: FD
+        instruction: 需要进一步明确的功能实现细节
+        examples:
+          - 'FD1: 用户注册时的邮箱验证流程，如果用户没有收到验证邮件，应该如何处理？'
+      - id: business-rules
+        title: 业务规则
+        type: numbered-list
+        prefix: BR
+        instruction: 需要明确的业务规则和异常处理逻辑
+        examples:
+          - 'BR1: 订单取消的业务规则，在什么情况下允许取消？取消后的退款流程是什么？'
+
+  - id: next-steps
+    title: 下一步
+    sections:
+      - id: architect-handoff
+        title: 架构师交接
+        instruction: 为架构师提供的交接信息，包括需要技术设计的功能模块、数据流、集成点等
+      - id: development-planning
+        title: 开发规划
+        instruction: 为开发团队提供的功能开发规划建议，包括功能优先级和业务逻辑复杂度
