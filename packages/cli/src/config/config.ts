@@ -90,7 +90,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
     .locale('en')
     .scriptName('rdmind')
     .usage(
-      '使用方法: rdmind [选项] [命令]\n\nRDMind - 启动交互式 CLI，使用 -p/--prompt 进入非交互模式',
+      '使用方法: rdmind [options] [command]\n\nRDMind - 启动交互式 CLI，使用 -p/--prompt 进入非交互模式',
     )
     .command('$0', '启动 RDMind', (yargsInstance) =>
       yargsInstance
@@ -117,68 +117,68 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         })
         .option('sandbox-image', {
           type: 'string',
-          description: '沙盒镜像 URI',
+          description: '沙盒镜像',
         })
         .option('debug', {
           alias: 'd',
           type: 'boolean',
-          description: '在调试模式下运行？',
+          description: '调试模式？',
           default: false,
         })
         .option('all-files', {
           alias: ['a'],
           type: 'boolean',
-          description: '在上下文中包含所有文件？',
+          description: '上下文中包含所有文件？',
           default: false,
         })
         .option('show-memory-usage', {
           type: 'boolean',
-          description: '在状态栏显示使用情况',
+          description: '状态栏显示使用情况？',
           default: false,
         })
         .option('yolo', {
           alias: 'y',
           type: 'boolean',
-          description: '自动接受所有操作（YOLO 模式）？',
+          description: '默认接受所有操作（YOLO 模式）？',
           default: false,
         })
         .option('approval-mode', {
           type: 'string',
           choices: ['default', 'auto_edit', 'yolo'],
           description:
-            '设置审批模式：default（提示确认）、auto_edit（自动批准编辑工具）、yolo（自动批准所有工具）',
+            '审批模式：default（提示确认）、auto_edit（默认接受编辑）、yolo（默认接受所有工具）',
         })
         .option('telemetry', {
           type: 'boolean',
           description:
-            '启用遥测？此标志专门控制是否发送遥测数据。其他 --telemetry-* 标志设置特定值但不会独立启用遥测。',
+            '启用遥测？控制是否发送遥测数据',
         })
         .option('telemetry-target', {
           type: 'string',
           choices: ['local', 'gcp'],
-          description: '设置遥测目标（local 或 gcp）。覆盖设置文件。',
+          description: '设置遥测目标（local 或 gcp）。覆盖设置文件',
         })
         .option('telemetry-otlp-endpoint', {
           type: 'string',
-          description: '设置遥测的 OTLP 端点。覆盖环境变量和设置文件。',
+          description: '设置遥测的 OTLP 端点。覆盖环境变量和设置文件',
         })
         .option('telemetry-otlp-protocol', {
           type: 'string',
           choices: ['grpc', 'http'],
-          description: '设置遥测的 OTLP 协议（grpc 或 http）。覆盖设置文件。',
+          description: '设置遥测的 OTLP 协议（grpc 或 http）。覆盖设置文件',
         })
         .option('telemetry-log-prompts', {
           type: 'boolean',
-          description: '启用或禁用遥测中用户提示词的日志记录。覆盖设置文件。',
+          description: '启用或禁用遥测中用户提示词的日志记录。覆盖设置文件',
         })
         .option('telemetry-outfile', {
           type: 'string',
-          description: '将所有遥测输出重定向到指定文件。',
+          description: '将所有遥测输出重定向到指定文件',
         })
         .option('checkpointing', {
           alias: 'c',
           type: 'boolean',
-          description: '启用文件编辑的检查点功能',
+          description: '启用检查点功能',
           default: false,
         })
         .option('experimental-acp', {
@@ -188,23 +188,23 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('allowed-mcp-server-names', {
           type: 'array',
           string: true,
-          description: '允许的 MCP 服务器名称',
+          description: '允许的 MCP 服务名称',
         })
         .option('allowed-tools', {
           type: 'array',
           string: true,
-          description: 'Tools that are allowed to run without confirmation',
+          description: '无需确认即可运行的工具',
         })
         .option('extensions', {
           alias: 'e',
           type: 'array',
           string: true,
-          description: '要使用的扩展列表。如果未提供，将使用所有扩展。',
+          description: '要使用的扩展列表。未提供则使用所有扩展',
         })
         .option('list-extensions', {
           alias: 'l',
           type: 'boolean',
-          description: '列出所有可用扩展并退出。',
+          description: '列出所有可用扩展并退出',
         })
         .option('proxy', {
           type: 'string',
@@ -214,14 +214,14 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           type: 'array',
           string: true,
           description:
-            '要包含工作区中的额外目录（逗号分隔或多个 --include-directories）',
+            '工作区中的额外目录（逗号分隔或多个 --include-directories）',
           coerce: (dirs: string[]) =>
             // Handle comma-separated values
             dirs.flatMap((dir) => dir.split(',').map((d) => d.trim())),
         })
         .option('openai-logging', {
           type: 'boolean',
-          description: '启用 OpenAI API 调用日志记录以进行调试和分析',
+          description: '启用 OpenAI API 调用日志记录',
         })
         .option('openai-api-key', {
           type: 'string',
@@ -229,15 +229,15 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         })
         .option('openai-base-url', {
           type: 'string',
-          description: 'OpenAI 基础 URL（用于自定义端点）',
+          description: 'OpenAI base URL',
         })
         .option('tavily-api-key', {
           type: 'string',
-          description: '用于网络搜索功能的 Tavily API 密钥',
+          description: 'Tavily API 密钥',
         })
         .option('screen-reader', {
           type: 'boolean',
-          description: 'Enable screen reader mode for accessibility.',
+          description: '启用屏幕阅读器模式',
           default: false,
         })
         .check((argv) => {
