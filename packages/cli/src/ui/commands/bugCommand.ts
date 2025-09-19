@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import open from 'open';
 import {
   type CommandContext,
   type SlashCommand,
@@ -13,15 +14,30 @@ import { MessageType } from '../types.js';
 
 export const bugCommand: SlashCommand = {
   name: 'bug',
-  description: '提交错误报告',
+  description: '打开 RDMind 问题报告页面',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, _args?: string): Promise<void> => {
+    const issueUrl = 'https://code.devops.xiaohongshu.com/aikit/rdmind/-/issues';
+    
     context.ui.addItem(
       {
         type: MessageType.INFO,
-        text: '遇到bug或者反馈问题，请联系梦奇或冰雪，非常感谢',
+        text: `正在打开 RDMind 问题报告页面:\n${issueUrl}`,
       },
       Date.now(),
     );
+
+    try {
+      await open(issueUrl);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: `无法在浏览器中打开 URL: ${errorMessage}\n请手动访问: ${issueUrl}`,
+        },
+        Date.now(),
+      );
+    }
   },
 };
