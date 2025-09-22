@@ -80,21 +80,21 @@ const MIGRATION_MAP: Record<string, string> = {
 };
 
 export function getSystemSettingsPath(): string {
-  if (process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH']) {
-    return process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH'];
+  if (process.env['RDMIND_SYSTEM_SETTINGS_PATH']) {
+    return process.env['RDMIND_SYSTEM_SETTINGS_PATH'];
   }
   if (platform() === 'darwin') {
-    return '/Library/Application Support/QwenCode/settings.json';
+    return '/Library/Application Support/RDMind/settings.json';
   } else if (platform() === 'win32') {
-    return 'C:\\ProgramData\\qwen-code\\settings.json';
+    return 'C:\\ProgramData\\rdmind\\settings.json';
   } else {
-    return '/etc/qwen-code/settings.json';
+    return '/etc/rdmind/settings.json';
   }
 }
 
 export function getSystemDefaultsPath(): string {
-  if (process.env['QWEN_CODE_SYSTEM_DEFAULTS_PATH']) {
-    return process.env['QWEN_CODE_SYSTEM_DEFAULTS_PATH'];
+  if (process.env['RDMIND_SYSTEM_DEFAULTS_PATH']) {
+    return process.env['RDMIND_SYSTEM_DEFAULTS_PATH'];
   }
   return path.join(
     path.dirname(getSystemSettingsPath()),

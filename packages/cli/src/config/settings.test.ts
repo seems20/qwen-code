@@ -1811,17 +1811,17 @@ describe('Settings Loading and Merging', () => {
       delete process.env['TEST_PORT'];
     });
 
-    describe('when QWEN_CODE_SYSTEM_SETTINGS_PATH is set', () => {
-      const MOCK_ENV_SYSTEM_SETTINGS_PATH = '/mock/env/system/settings.json';
+      describe('when RDMIND_SYSTEM_SETTINGS_PATH is set', () => {
+    const MOCK_ENV_SYSTEM_SETTINGS_PATH = '/mock/env/system/settings.json';
 
-      beforeEach(() => {
-        process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH'] =
-          MOCK_ENV_SYSTEM_SETTINGS_PATH;
-      });
+    beforeEach(() => {
+      process.env['RDMIND_SYSTEM_SETTINGS_PATH'] =
+        MOCK_ENV_SYSTEM_SETTINGS_PATH;
+    });
 
-      afterEach(() => {
-        delete process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH'];
-      });
+    afterEach(() => {
+      delete process.env['RDMIND_SYSTEM_SETTINGS_PATH'];
+    });
 
       it('should load system settings from the path specified in the environment variable', () => {
         (mockFsExistsSync as Mock).mockImplementation(
