@@ -82,16 +82,16 @@ node_modules/
 
     it('should handle custom patterns file name', async () => {
       // No .git directory for this test
-          await createTestFile('.rdmindignore', 'temp/\n*.tmp');
+      await createTestFile('.rdmindignore', 'temp/\n*.tmp');
 
-    parser.loadPatterns('.rdmindignore');
+      parser.loadPatterns('.rdmindignore');
       expect(parser.getPatterns()).toEqual(['temp/', '*.tmp']);
       expect(parser.isIgnored(path.join('temp', 'file.txt'))).toBe(true);
       expect(parser.isIgnored(path.join('src', 'file.tmp'))).toBe(true);
     });
 
-      it('should initialize without errors when no .rdmindignore exists', () => {
-    expect(() => parser.loadPatterns('.rdmindignore')).not.toThrow();
+    it('should initialize without errors when no .rdmindignore exists', () => {
+      expect(() => parser.loadPatterns('.rdmindignore')).not.toThrow();
     });
   });
 

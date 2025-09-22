@@ -53,8 +53,8 @@ describe('FileDiscoveryService', () => {
       expect(service.shouldGitIgnoreFile('node_modules/foo.js')).toBe(false);
     });
 
-      it('should load .rdmindignore patterns even when not in a git repo', async () => {
-    await createTestFile('.rdmindignore', 'secrets.txt');
+    it('should load .rdmindignore patterns even when not in a git repo', async () => {
+      await createTestFile('.rdmindignore', 'secrets.txt');
       const service = new FileDiscoveryService(projectRoot);
 
       expect(service.shouldGeminiIgnoreFile('secrets.txt')).toBe(true);

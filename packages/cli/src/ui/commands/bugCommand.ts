@@ -17,8 +17,9 @@ export const bugCommand: SlashCommand = {
   description: '打开 RDMind 问题报告页面',
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, _args?: string): Promise<void> => {
-    const issueUrl = 'https://code.devops.xiaohongshu.com/aikit/rdmind/-/issues';
-    
+    const issueUrl =
+      'https://code.devops.xiaohongshu.com/aikit/rdmind/-/issues';
+
     context.ui.addItem(
       {
         type: MessageType.INFO,
@@ -30,7 +31,8 @@ export const bugCommand: SlashCommand = {
     try {
       await open(issueUrl);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       context.ui.addItem(
         {
           type: MessageType.ERROR,

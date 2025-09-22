@@ -29,7 +29,7 @@ describe('bugCommand', () => {
     await bugCommand.action(mockContext, 'A test bug');
 
     expect(mockOpen.default).toHaveBeenCalledWith(
-      'https://code.devops.xiaohongshu.com/aikit/rdmind/-/issues'
+      'https://code.devops.xiaohongshu.com/aikit/rdmind/-/issues',
     );
     expect(addItemSpy).toHaveBeenCalledWith(
       {

@@ -611,9 +611,9 @@ describe('handleAtCommand', () => {
       );
     });
   });
-          it('should process non-ignored files when .rdmindignore is present', async () => {
-      await createTestFile(
-        path.join(testRootDir, '.rdmindignore'),
+  it('should process non-ignored files when .rdmindignore is present', async () => {
+    await createTestFile(
+      path.join(testRootDir, '.rdmindignore'),
       'build/output.js',
     );
     const validFile = await createTestFile(
@@ -644,8 +644,8 @@ describe('handleAtCommand', () => {
   });
 
   it('should handle mixed gemini-ignored and valid files', async () => {
-          await createTestFile(
-        path.join(testRootDir, '.rdmindignore'),
+    await createTestFile(
+      path.join(testRootDir, '.rdmindignore'),
       'dist/bundle.js',
     );
     const validFile = await createTestFile(
