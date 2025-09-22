@@ -448,11 +448,11 @@ export const SETTINGS_SCHEMA = {
           },
           respectGeminiIgnore: {
             type: 'boolean',
-            label: 'Respect .qwenignore',
+                          label: 'Respect .rdmindignore',
             category: 'Context',
             requiresRestart: true,
             default: true,
-            description: 'Respect .qwenignore files when searching',
+                          description: 'Respect .rdmindignore files when searching',
             showInDialog: true,
           },
           enableRecursiveFileSearch: {

@@ -581,7 +581,7 @@ describe('handleAtCommand', () => {
   describe('gemini-ignore filtering', () => {
     it('should skip gemini-ignored files in @ commands', async () => {
       await createTestFile(
-        path.join(testRootDir, '.qwenignore'),
+        path.join(testRootDir, '.rdmindignore'),
         'build/output.js',
       );
       const geminiIgnoredFile = await createTestFile(
@@ -611,9 +611,9 @@ describe('handleAtCommand', () => {
       );
     });
   });
-  it('should process non-ignored files when .qwenignore is present', async () => {
-    await createTestFile(
-      path.join(testRootDir, '.qwenignore'),
+          it('should process non-ignored files when .rdmindignore is present', async () => {
+      await createTestFile(
+        path.join(testRootDir, '.rdmindignore'),
       'build/output.js',
     );
     const validFile = await createTestFile(
@@ -644,8 +644,8 @@ describe('handleAtCommand', () => {
   });
 
   it('should handle mixed gemini-ignored and valid files', async () => {
-    await createTestFile(
-      path.join(testRootDir, '.qwenignore'),
+          await createTestFile(
+        path.join(testRootDir, '.rdmindignore'),
       'dist/bundle.js',
     );
     const validFile = await createTestFile(

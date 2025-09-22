@@ -9,7 +9,7 @@ import { GitIgnoreParser } from '../utils/gitIgnoreParser.js';
 import { isGitRepository } from '../utils/gitUtils.js';
 import * as path from 'node:path';
 
-const GEMINI_IGNORE_FILE_NAME = '.qwenignore';
+const GEMINI_IGNORE_FILE_NAME = '.rdmindignore';
 
 export interface FilterFilesOptions {
   respectGitIgnore?: boolean;
@@ -104,7 +104,7 @@ export class FileDiscoveryService {
   }
 
   /**
-   * Returns loaded patterns from .qwenignore
+   * Returns loaded patterns from .rdmindignore
    */
   getGeminiIgnorePatterns(): string[] {
     return this.geminiIgnoreFilter?.getPatterns() ?? [];

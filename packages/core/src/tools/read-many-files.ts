@@ -67,7 +67,7 @@ export interface ReadManyFilesParams {
   useDefaultExcludes?: boolean;
 
   /**
-   * Whether to respect .gitignore and .qwenignore patterns (optional, defaults to true)
+   * Whether to respect .gitignore and .rdmindignore patterns (optional, defaults to true)
    */
   file_filtering_options?: {
     respect_git_ignore?: boolean;
@@ -151,13 +151,13 @@ ${finalExclusionPatternsForDescription
         : 'none specified'
     }`;
 
-    // Add a note if .qwenignore patterns contributed to the final list of exclusions
+    // Add a note if .rdmindignore patterns contributed to the final list of exclusions
     if (geminiIgnorePatterns.length > 0) {
       const geminiPatternsInEffect = geminiIgnorePatterns.filter((p) =>
         finalExclusionPatternsForDescription.includes(p),
       ).length;
       if (geminiPatternsInEffect > 0) {
-        excludeDesc += ` (includes ${geminiPatternsInEffect} from .qwenignore)`;
+        excludeDesc += ` (includes ${geminiPatternsInEffect} from .rdmindignore)`;
       }
     }
 
@@ -577,7 +577,7 @@ export class ReadManyFilesTool extends BaseDeclarativeTool<
         },
         file_filtering_options: {
           description:
-            'Whether to respect ignore patterns from .gitignore or .qwenignore',
+            'Whether to respect ignore patterns from .gitignore or .rdmindignore',
           type: 'object',
           properties: {
             respect_git_ignore: {
@@ -587,7 +587,7 @@ export class ReadManyFilesTool extends BaseDeclarativeTool<
             },
             respect_gemini_ignore: {
               description:
-                'Optional: Whether to respect .qwenignore patterns when listing files. Defaults to true.',
+                'Optional: Whether to respect .rdmindignore patterns when listing files. Defaults to true.',
               type: 'boolean',
             },
           },

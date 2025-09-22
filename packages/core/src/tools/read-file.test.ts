@@ -409,21 +409,21 @@ describe('ReadFileTool', () => {
       );
     });
 
-    describe('with .qwenignore', () => {
+    describe('with .rdmindignore', () => {
       beforeEach(async () => {
         await fsp.writeFile(
-          path.join(tempRootDir, '.qwenignore'),
+          path.join(tempRootDir, '.rdmindignore'),
           ['foo.*', 'ignored/'].join('\n'),
         );
       });
 
-      it('should throw error if path is ignored by a .qwenignore pattern', async () => {
+      it('should throw error if path is ignored by a .rdmindignore pattern', async () => {
         const ignoredFilePath = path.join(tempRootDir, 'foo.bar');
         await fsp.writeFile(ignoredFilePath, 'content', 'utf-8');
         const params: ReadFileToolParams = {
           absolute_path: ignoredFilePath,
         };
-        const expectedError = `File path '${ignoredFilePath}' is ignored by .qwenignore pattern(s).`;
+        const expectedError = `File path '${ignoredFilePath}' is ignored by .rdmindignore pattern(s).`;
         expect(() => tool.build(params)).toThrow(expectedError);
       });
 
@@ -435,7 +435,7 @@ describe('ReadFileTool', () => {
         const params: ReadFileToolParams = {
           absolute_path: ignoredFilePath,
         };
-        const expectedError = `File path '${ignoredFilePath}' is ignored by .qwenignore pattern(s).`;
+        const expectedError = `File path '${ignoredFilePath}' is ignored by .rdmindignore pattern(s).`;
         expect(() => tool.build(params)).toThrow(expectedError);
       });
 

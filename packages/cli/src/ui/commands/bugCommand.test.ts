@@ -23,7 +23,7 @@ describe('bugCommand', () => {
     const mockContext = createMockCommandContext();
     const addItemSpy = vi.spyOn(mockContext.ui, 'addItem');
     const mockOpen = await import('open');
-    vi.mocked(mockOpen.default).mockResolvedValue({} as any);
+    vi.mocked(mockOpen.default).mockResolvedValue({} as unknown);
 
     if (!bugCommand.action) throw new Error('Action is not defined');
     await bugCommand.action(mockContext, 'A test bug');
