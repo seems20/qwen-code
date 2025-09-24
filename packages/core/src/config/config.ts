@@ -33,6 +33,7 @@ import {
 import { logCliConfiguration, logIdeConnection } from '../telemetry/loggers.js';
 import { IdeConnectionEvent, IdeConnectionType } from '../telemetry/types.js';
 import { EditTool } from '../tools/edit.js';
+import { ExitPlanModeTool } from '../tools/exitPlanMode.js';
 import { GlobTool } from '../tools/glob.js';
 import { GrepTool } from '../tools/grep.js';
 import { LSTool } from '../tools/ls.js';
@@ -67,10 +68,13 @@ import { Logger, type ModelSwitchEvent } from '../core/logger.js';
 export type { AnyToolInvocation, MCPOAuthConfig };
 
 export enum ApprovalMode {
+  PLAN = 'plan',
   DEFAULT = 'default',
-  AUTO_EDIT = 'autoEdit',
+  AUTO_EDIT = 'auto-edit',
   YOLO = 'yolo',
 }
+
+export const APPROVAL_MODES = Object.values(ApprovalMode);
 
 export interface AccessibilitySettings {
   disableLoadingPhrases?: boolean;
@@ -705,7 +709,11 @@ export class Config {
   }
 
   setApprovalMode(mode: ApprovalMode): void {
-    if (this.isTrustedFolder() === false && mode !== ApprovalMode.DEFAULT) {
+    if (
+      this.isTrustedFolder() === false &&
+      mode !== ApprovalMode.DEFAULT &&
+      mode !== ApprovalMode.PLAN
+    ) {
       throw new Error(
         'Cannot enable privileged approval modes in an untrusted folder.',
       );
@@ -1048,12 +1056,13 @@ export class Config {
     registerCoreTool(GlobTool, this);
     registerCoreTool(EditTool, this);
     registerCoreTool(WriteFileTool, this);
-    registerCoreTool(WebFetchTool, this);
     registerCoreTool(RedocFetchTool, this);
     registerCoreTool(ReadManyFilesTool, this);
     registerCoreTool(ShellTool, this);
     registerCoreTool(MemoryTool);
     registerCoreTool(TodoWriteTool, this);
+    registerCoreTool(ExitPlanModeTool, this);
+    registerCoreTool(WebFetchTool, this);
     registerCoreTool(ReadKnowledgeExtTool);
     registerCoreTool(ListKnowledgeExtTool);
     // Conditionally register web search tool only if Tavily API key is set

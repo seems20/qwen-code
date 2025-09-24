@@ -151,7 +151,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={Colors.AccentPurple}>
         Shift+Tab
       </Text>{' '}
-      - 默认接受编辑
+      - 模式切换
     </Text>
     <Text color={Colors.Foreground}>
       <Text bold color={Colors.AccentPurple}>
