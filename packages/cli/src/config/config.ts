@@ -277,7 +277,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           type: 'string',
           choices: ['once', 'session', 'persist'],
           description:
-            'Default behavior when images are detected in input. Values: once (one-time switch), session (switch for entire session), persist (continue with current model). Overrides settings files.',
+            '检测到输入中包含图像时的默认行为。可选值：once（切换一次）、session（整个会话期间切换）、persist（继续使用当前模型）。会覆盖设置文件的配置',
           default: process.env['VLM_SWITCH_MODE'],
         })
         .check((argv) => {
@@ -288,7 +288,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           }
           if (argv.yolo && argv['approvalMode']) {
             throw new Error(
-              '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代。',
+              '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代',
             );
           }
           return true;

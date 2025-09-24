@@ -69,7 +69,7 @@ describe('approvalModeCommand', () => {
     expect(approvalModeCommand.name).toBe('approval-mode');
     expect(approvalModeCommand.kind).toBe(CommandKind.BUILT_IN);
     expect(approvalModeCommand.description).toBe(
-      'View or change the approval mode for tool usage',
+      '查看或切换工具使用的审批模式',
     );
   });
 
@@ -89,10 +89,10 @@ describe('approvalModeCommand', () => {
       'Current approval mode: default',
       '',
       'Available approval modes:',
-      '  - plan: Plan mode - Analyze only, do not modify files or execute commands',
-      '  - default: Default mode - Require approval for file edits or shell commands',
-      '  - auto-edit: Auto-edit mode - Automatically approve file edits',
-      '  - yolo: YOLO mode - Automatically approve all tools',
+      '  - plan: 计划模式 - 仅分析，不修改文件或执行命令',
+      '  - default: 默认模式 - 文件编辑或shell命令需要审批',
+      '  - auto-edit: 自动编辑模式 - 自动批准文件编辑',
+      '  - yolo: YOLO模式 - 自动批准所有工具',
       '',
       'Usage: /approval-mode <mode> [--session|--user|--project]',
     ].join('\n');

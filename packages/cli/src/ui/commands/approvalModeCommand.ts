@@ -52,13 +52,13 @@ const parseApprovalMode = (value: string | null): ApprovalMode | null => {
 const formatModeDescription = (mode: ApprovalMode): string => {
   switch (mode) {
     case ApprovalMode.PLAN:
-      return 'Plan mode - Analyze only, do not modify files or execute commands';
+      return '计划模式 - 仅分析，不修改文件或执行命令';
     case ApprovalMode.DEFAULT:
-      return 'Default mode - Require approval for file edits or shell commands';
+      return '默认模式 - 文件编辑或shell命令需要审批';
     case ApprovalMode.AUTO_EDIT:
-      return 'Auto-edit mode - Automatically approve file edits';
+      return '自动编辑模式 - 自动批准文件编辑';
     case ApprovalMode.YOLO:
-      return 'YOLO mode - Automatically approve all tools';
+      return 'YOLO模式 - 自动批准所有工具';
     default:
       return `${mode} mode`;
   }
@@ -193,7 +193,7 @@ const setApprovalModeWithScope = async (
 
 export const approvalModeCommand: SlashCommand = {
   name: 'approval-mode',
-  description: 'View or change the approval mode for tool usage',
+  description: '查看或切换工具使用的审批模式',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -280,7 +280,7 @@ export const approvalModeCommand: SlashCommand = {
     subCommands: [
       {
         name: '--session',
-        description: 'Apply to current session only (temporary)',
+        description: '仅应用于当前会话（临时）',
         kind: CommandKind.BUILT_IN,
         action: async (
           context: CommandContext,
@@ -298,7 +298,7 @@ export const approvalModeCommand: SlashCommand = {
       },
       {
         name: '--project',
-        description: 'Persist for this project/workspace',
+        description: '为此项目/工作区保持设置',
         kind: CommandKind.BUILT_IN,
         action: async (
           context: CommandContext,
@@ -316,7 +316,7 @@ export const approvalModeCommand: SlashCommand = {
       },
       {
         name: '--user',
-        description: 'Persist for this user on this machine',
+        description: '为当前用户保持设置',
         kind: CommandKind.BUILT_IN,
         action: async (
           context: CommandContext,
