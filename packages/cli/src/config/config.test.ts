@@ -228,7 +228,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代。',
+        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代',
       ),
     );
 
@@ -253,7 +253,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代。',
+        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代',
       ),
     );
 
