@@ -106,7 +106,7 @@ export class Storage {
   }
 
   getExtensionsConfigPath(): string {
-    return path.join(this.getExtensionsDir(), 'qwen-extension.json');
+    return path.join(this.getExtensionsDir(), 'rdmind-extension.json');
   }
 
   getHistoryFilePath(): string {

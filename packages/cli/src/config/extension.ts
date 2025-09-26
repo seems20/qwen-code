@@ -18,7 +18,7 @@ import { getErrorMessage } from '../utils/errors.js';
 import { recursivelyHydrateStrings } from './extensions/variables.js';
 
 export const EXTENSIONS_DIRECTORY_NAME = path.join('.rdmind', 'extensions');
-export const EXTENSIONS_CONFIG_FILENAME = 'qwen-extension.json';
+export const EXTENSIONS_CONFIG_FILENAME = 'rdmind-extension.json';
 export const EXTENSIONS_CONFIG_FILENAME_OLD = 'gemini-extension.json';
 export const INSTALL_METADATA_FILENAME = '.rdmind-extension-install.json';
 
@@ -71,7 +71,7 @@ export class ExtensionStorage {
   }
 
   static async createTmpDir(): Promise<string> {
-    return await fs.promises.mkdtemp(path.join(os.tmpdir(), 'qwen-extension'));
+    return await fs.promises.mkdtemp(path.join(os.tmpdir(), 'rdmind-extension'));
   }
 }
 
@@ -353,7 +353,7 @@ export async function installExtension(
     const newExtension = loadExtension(localSourcePath);
     if (!newExtension) {
       throw new Error(
-        `Invalid extension at ${installMetadata.source}. Please make sure it has a valid qwen-extension.json file.`,
+        `Invalid extension at ${installMetadata.source}. Please make sure it has a valid rdmind-extension.json file.`,
       );
     }
 
