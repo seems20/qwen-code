@@ -8,6 +8,7 @@ import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { homedir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { bfsFileSearch } from './bfsFileSearch.js';
 import {
   GEMINI_CONFIG_DIR,
@@ -17,6 +18,8 @@ import type { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { processImports } from './memoryImportProcessor.js';
 import type { FileFilteringOptions } from '../config/config.js';
 import { DEFAULT_MEMORY_FILE_FILTERING_OPTIONS } from '../config/config.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Simple console logger, similar to the one previously in CLI's config.ts
 // TODO: Integrate with a more robust server-side logger if available/appropriate.
