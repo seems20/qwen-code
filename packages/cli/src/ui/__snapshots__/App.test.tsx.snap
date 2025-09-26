@@ -10,7 +10,7 @@ exports[`App UI > should render correctly with the prompt input box 1`] = `
 `;
 
 exports[`App UI > should render the initial UI correctly 1`] = `
-" I'm Feeling Lucky (esc to cancel, 0s)
+" 冬瓜、黄瓜、西瓜、南瓜都能吃，什么瓜不能吃？ (esc to cancel, 0s)
 
 
 /test/dir                no sandbox (see /docs)                  model (100% context left)"

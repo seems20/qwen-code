@@ -1041,7 +1041,9 @@ describe('App UI', () => {
       );
       currentUnmount = unmount;
 
-      expect(lastFrame()).toContain("I'm Feeling Lucky (esc to cancel");
+      expect(lastFrame()).toContain(
+        '冬瓜、黄瓜、西瓜、南瓜都能吃，什么瓜不能吃？ (esc to cancel',
+      );
     });
 
     it('should display a message if NO_COLOR is set', async () => {
@@ -1056,7 +1058,9 @@ describe('App UI', () => {
       );
       currentUnmount = unmount;
 
-      expect(lastFrame()).toContain("I'm Feeling Lucky (esc to cancel");
+      expect(lastFrame()).toContain(
+        '冬瓜、黄瓜、西瓜、南瓜都能吃，什么瓜不能吃？ (esc to cancel',
+      );
       expect(lastFrame()).not.toContain('Select Theme');
     });
   });
