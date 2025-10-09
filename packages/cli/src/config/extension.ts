@@ -7,8 +7,8 @@
 import type {
   MCPServerConfig,
   GeminiCLIExtension,
-} from '@qwen-code/qwen-code-core';
-import { Storage } from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
+import { Storage } from '@rdmind/rdmind-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';

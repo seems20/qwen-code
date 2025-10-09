@@ -25,20 +25,20 @@ import type {
   ToolInvocation,
   AnyDeclarativeTool,
   AnyToolInvocation,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import {
   ToolConfirmationOutcome,
   ApprovalMode,
   Kind,
   BaseDeclarativeTool,
   BaseToolInvocation,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import type { HistoryItemWithoutId, HistoryItemToolGroup } from '../types.js';
 import { ToolCallStatus } from '../types.js';
 
 // Mocks
-vi.mock('@qwen-code/qwen-code-core', async () => {
-  const actual = await vi.importActual('@qwen-code/qwen-code-core');
+vi.mock('@rdmind/rdmind-core', async () => {
+  const actual = await vi.importActual('@rdmind/rdmind-core');
   return {
     ...actual,
     ToolRegistry: vi.fn(),

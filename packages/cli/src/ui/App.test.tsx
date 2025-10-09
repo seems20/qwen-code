@@ -11,12 +11,12 @@ import type {
   MCPServerConfig,
   SandboxConfig,
   ToolRegistry,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import {
   ApprovalMode,
   Config as ServerConfig,
   ideContext,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import { waitFor } from '@testing-library/react';
 import { EventEmitter } from 'node:events';
 import process from 'node:process';
@@ -125,10 +125,10 @@ interface MockServerConfig {
   getScreenReader: Mock<() => boolean>;
 }
 
-// Mock @qwen-code/qwen-code-core and its Config class
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
+// Mock @rdmind/rdmind-core and its Config class
+vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
   const actualCore =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+    await importOriginal<typeof import('@rdmind/rdmind-core')>();
   const ConfigClassMock = vi
     .fn()
     .mockImplementation((optionsPassedToConstructor) => {
@@ -302,7 +302,7 @@ vi.mock('../hooks/useTerminalSize.js', () => ({
 
 const mockedCheckForUpdates = vi.mocked(checkForUpdates);
 const { isGitRepository: mockedIsGitRepository } = vi.mocked(
-  await import('@qwen-code/qwen-code-core'),
+  await import('@rdmind/rdmind-core'),
 );
 
 vi.mock('node:child_process');
@@ -425,7 +425,7 @@ describe('App UI', () => {
       mockedIsGitRepository.mockResolvedValue(true);
       const info: UpdateObject = {
         update: {
-          name: '@qwen-code/qwen-code',
+          name: '@rdmind/rdmind',
           latest: '1.1.0',
           current: '1.0.0',
           type: 'major' as const,
@@ -454,7 +454,7 @@ describe('App UI', () => {
       mockedIsGitRepository.mockResolvedValue(false);
       const info: UpdateObject = {
         update: {
-          name: '@qwen-code/qwen-code',
+          name: '@rdmind/rdmind',
           latest: '1.1.0',
           current: '1.0.0',
           type: 'major' as const,
@@ -486,7 +486,7 @@ describe('App UI', () => {
       mockedIsGitRepository.mockResolvedValue(false);
       const info: UpdateObject = {
         update: {
-          name: '@qwen-code/qwen-code',
+          name: '@rdmind/rdmind',
           latest: '1.1.0',
           current: '1.0.0',
           type: 'major' as const,
@@ -518,7 +518,7 @@ describe('App UI', () => {
       mockedIsGitRepository.mockResolvedValue(false);
       const info: UpdateObject = {
         update: {
-          name: '@qwen-code/qwen-code',
+          name: '@rdmind/rdmind',
           latest: '1.1.0',
           current: '1.0.0',
           type: 'major' as const,
@@ -553,7 +553,7 @@ describe('App UI', () => {
       process.env['GEMINI_CLI_DISABLE_AUTOUPDATER'] = 'true';
       const info: UpdateObject = {
         update: {
-          name: '@qwen-code/qwen-code',
+          name: '@rdmind/rdmind',
           latest: '1.1.0',
           current: '1.0.0',
           type: 'major' as const,

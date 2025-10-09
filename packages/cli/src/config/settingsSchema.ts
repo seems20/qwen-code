@@ -10,7 +10,7 @@ import type {
   TelemetrySettings,
   AuthType,
   ChatCompressionSettings,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import type { CustomTheme } from '../ui/themes/theme.js';
 
 export interface SettingDefinition {

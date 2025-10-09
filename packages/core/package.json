@@ -1,5 +1,5 @@
 {
-  "name": "@qwen-code/qwen-code-core",
+  "name": "@rdmind/rdmind-core",
   "version": "0.0.14",
   "description": "RDMind Core",
   "type": "module",
@@ -15,6 +15,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@google/genai": "1.13.0",
     "@lvce-editor/ripgrep": "^1.6.0",
@@ -69,7 +72,7 @@
     "node-pty": "^1.0.0"
   },
   "devDependencies": {
-    "@qwen-code/qwen-code-test-utils": "file:../test-utils",
+    "@rdmind/rdmind-test-utils": "file:../test-utils",
     "@types/diff": "^7.0.2",
     "@types/dotenv": "^6.1.1",
     "@types/fast-levenshtein": "^0.0.4",

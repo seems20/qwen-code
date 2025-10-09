@@ -90,23 +90,23 @@ if (!argv.s) {
   execSync('npm run build --workspaces', { stdio: 'inherit' });
 }
 
-console.log('packing @qwen-code/qwen-code ...');
+console.log('packing @rdmind/rdmind ...');
 const cliPackageDir = join('packages', 'cli');
-rmSync(join(cliPackageDir, 'dist', 'qwen-code-*.tgz'), { force: true });
+rmSync(join(cliPackageDir, 'dist', 'rdmind-rdmind-*.tgz'), { force: true });
 execSync(
-  `npm pack -w @qwen-code/qwen-code --pack-destination ./packages/cli/dist`,
+  `npm pack -w @rdmind/rdmind --pack-destination ./packages/cli/dist`,
   {
     stdio: 'ignore',
   },
 );
 
-console.log('packing @qwen-code/qwen-code-core ...');
+console.log('packing @rdmind/rdmind-core ...');
 const corePackageDir = join('packages', 'core');
-rmSync(join(corePackageDir, 'dist', 'qwen-code-core-*.tgz'), {
+rmSync(join(corePackageDir, 'dist', 'rdmind-rdmind-core-*.tgz'), {
   force: true,
 });
 execSync(
-  `npm pack -w @qwen-code/qwen-code-core --pack-destination ./packages/core/dist`,
+  `npm pack -w @rdmind/rdmind-core --pack-destination ./packages/core/dist`,
   { stdio: 'ignore' },
 );
 
@@ -115,14 +115,14 @@ const packageVersion = JSON.parse(
 ).version;
 
 chmodSync(
-  join(cliPackageDir, 'dist', `qwen-code-qwen-code-${packageVersion}.tgz`),
+  join(cliPackageDir, 'dist', `rdmind-rdmind-${packageVersion}.tgz`),
   0o755,
 );
 chmodSync(
   join(
     corePackageDir,
     'dist',
-    `qwen-code-qwen-code-core-${packageVersion}.tgz`,
+    `rdmind-rdmind-core-${packageVersion}.tgz`,
   ),
   0o755,
 );

@@ -14,7 +14,7 @@ import {
   Kind,
   ToolConfirmationOutcome,
 } from './tools.js';
-import { ApprovalMode, type Config } from '@qwen-code/qwen-code-core';
+import { ApprovalMode, type Config } from '@rdmind/rdmind-core';
 import { getResponseText } from '../utils/partUtils.js';
 
 const REDOC_API_TIMEOUT_MS = 10000;

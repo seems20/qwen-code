@@ -9,7 +9,7 @@ import type {
   FileFilteringOptions,
   MCPServerConfig,
   TelemetryTarget,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import {
   ApprovalMode,
   Config,
@@ -23,7 +23,7 @@ import {
   setGeminiMdFilename as setServerGeminiMdFilename,
   ShellTool,
   WriteFileTool,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
 import * as path from 'node:path';

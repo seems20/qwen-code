@@ -25,7 +25,7 @@ vi.mock('fs', async (importOriginal) => {
     mkdirSync: vi.fn(),
   };
 });
-vi.mock('@qwen-code/qwen-code-core', () => {
+vi.mock('@rdmind/rdmind-core', () => {
   class Storage {
     getProjectTempDir(): string {
       return path.join('/test/home/', '.rdmind', 'tmp', 'mocked_hash');

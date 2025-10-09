@@ -1,5 +1,5 @@
 {
-  "name": "@qwen-code/qwen-code",
+  "name": "@rdmind/rdmind",
   "version": "0.0.14",
   "engines": {
     "node": ">=20.0.0"
@@ -53,6 +53,9 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/marked": "^5.0.2",
     "@types/mime-types": "^3.0.1",
