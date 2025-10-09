@@ -1,15 +1,9 @@
 {
-  "name": "qwen-code-vscode-ide-companion",
+  "name": "rdmind-vscode-ide-companion",
   "displayName": "RDMind Companion",
   "description": "Enable RDMind with direct access to your VS Code workspace.",
-  "version": "0.0.14",
-  "publisher": "qwenlm",
-  "icon": "assets/icon.png",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/QwenLM/qwen-code.git",
-    "directory": "packages/vscode-ide-companion"
-  },
+  "version": "0.0.1",
+  "publisher": "rdmind",
   "engines": {
     "vscode": "^1.99.0"
   },
