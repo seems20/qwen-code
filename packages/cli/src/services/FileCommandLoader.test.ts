@@ -58,8 +58,7 @@ vi.mock('./prompt-processors/argumentProcessor.js', async (importOriginal) => {
   };
 });
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...original,
     Storage: original.Storage,

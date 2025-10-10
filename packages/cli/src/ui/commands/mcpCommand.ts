@@ -139,9 +139,7 @@ const getMcpStatus = async (
     if (server?.oauth?.enabled) {
       needsAuthHint = true;
       try {
-        const { MCPOAuthTokenStorage } = await import(
-          '@rdmind/rdmind-core'
-        );
+        const { MCPOAuthTokenStorage } = await import('@rdmind/rdmind-core');
         const hasToken = await MCPOAuthTokenStorage.getToken(serverName);
         if (hasToken) {
           const isExpired = MCPOAuthTokenStorage.isTokenExpired(hasToken.token);

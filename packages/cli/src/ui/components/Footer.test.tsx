@@ -15,8 +15,7 @@ vi.mock('../hooks/useTerminalSize.js');
 const useTerminalSizeMock = vi.mocked(useTerminalSize.useTerminalSize);
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...original,
     shortenPath: (p: string, len: number) => {

@@ -7,10 +7,7 @@
 import type React from 'react';
 import { Box, Text } from 'ink';
 import { Colors } from '../colors.js';
-import {
-  type IdeContext,
-  type MCPServerConfig,
-} from '@rdmind/rdmind-core';
+import { type IdeContext, type MCPServerConfig } from '@rdmind/rdmind-core';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 

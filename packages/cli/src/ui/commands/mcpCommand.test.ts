@@ -20,8 +20,7 @@ import type { CallableTool } from '@google/genai';
 import { Type } from '@google/genai';
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...actual,
     getMCPServerStatus: vi.fn(),

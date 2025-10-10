@@ -5,10 +5,7 @@
  */
 
 import type { Config } from '@rdmind/rdmind-core';
-import {
-  getErrorMessage,
-  getMCPServerPrompts,
-} from '@rdmind/rdmind-core';
+import { getErrorMessage, getMCPServerPrompts } from '@rdmind/rdmind-core';
 import type {
   CommandContext,
   SlashCommand,

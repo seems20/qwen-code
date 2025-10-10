@@ -36,14 +36,14 @@ function getTemplatePath(): string {
     // 代码在 node_modules/@rdmind/rdmind/dist/src/ui/commands/
     // 模板在 node_modules/@rdmind/rdmind/template/
     path.join(__dirname, '..', '..', '..', '..', 'template'),
-    
+
     // 2. 开发环境：相对于工作区根目录的sns-demo
     path.join(process.cwd(), 'sns-demo'),
     path.join(__dirname, '..', '..', '..', '..', '..', '..', 'sns-demo'),
-    
+
     // 3. 开发环境：打包后的 bundle/template（如果使用了打包版本）
     path.join(__dirname, '..', '..', '..', '..', '..', 'bundle', 'template'),
-    
+
     // 4. 兼容：其他可能的路径
     path.join(__dirname, 'template'),
     path.join(__dirname, '..', 'template'),

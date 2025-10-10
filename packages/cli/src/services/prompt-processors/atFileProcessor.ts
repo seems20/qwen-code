@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  flatMapTextParts,
-  readPathFromWorkspace,
-} from '@rdmind/rdmind-core';
+import { flatMapTextParts, readPathFromWorkspace } from '@rdmind/rdmind-core';
 import type { CommandContext } from '../../ui/commands/types.js';
 import { MessageType } from '../../ui/types.js';
 import {

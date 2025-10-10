@@ -9,10 +9,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { Text } from 'ink';
 import { ToolGroupMessage } from './ToolGroupMessage.js';
 import { type IndividualToolCallDisplay, ToolCallStatus } from '../../types.js';
-import type {
-  Config,
-  ToolCallConfirmationDetails,
-} from '@rdmind/rdmind-core';
+import type { Config, ToolCallConfirmationDetails } from '@rdmind/rdmind-core';
 import { TOOL_STATUS } from '../../constants.js';
 
 // Mock child components to isolate ToolGroupMessage behavior

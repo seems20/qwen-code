@@ -93,12 +93,9 @@ if (!argv.s) {
 console.log('packing @rdmind/rdmind ...');
 const cliPackageDir = join('packages', 'cli');
 rmSync(join(cliPackageDir, 'dist', 'rdmind-rdmind-*.tgz'), { force: true });
-execSync(
-  `npm pack -w @rdmind/rdmind --pack-destination ./packages/cli/dist`,
-  {
-    stdio: 'ignore',
-  },
-);
+execSync(`npm pack -w @rdmind/rdmind --pack-destination ./packages/cli/dist`, {
+  stdio: 'ignore',
+});
 
 console.log('packing @rdmind/rdmind-core ...');
 const corePackageDir = join('packages', 'core');
@@ -119,11 +116,7 @@ chmodSync(
   0o755,
 );
 chmodSync(
-  join(
-    corePackageDir,
-    'dist',
-    `rdmind-rdmind-core-${packageVersion}.tgz`,
-  ),
+  join(corePackageDir, 'dist', `rdmind-rdmind-core-${packageVersion}.tgz`),
   0o755,
 );
 

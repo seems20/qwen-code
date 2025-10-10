@@ -7,10 +7,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EOL } from 'node:os';
 import { ToolConfirmationMessage } from './ToolConfirmationMessage.js';
-import type {
-  ToolCallConfirmationDetails,
-  Config,
-} from '@rdmind/rdmind-core';
+import type { ToolCallConfirmationDetails, Config } from '@rdmind/rdmind-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 
 describe('ToolConfirmationMessage', () => {

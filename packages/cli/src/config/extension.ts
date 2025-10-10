@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  MCPServerConfig,
-  GeminiCLIExtension,
-} from '@rdmind/rdmind-core';
+import type { MCPServerConfig, GeminiCLIExtension } from '@rdmind/rdmind-core';
 import { Storage } from '@rdmind/rdmind-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -71,7 +68,9 @@ export class ExtensionStorage {
   }
 
   static async createTmpDir(): Promise<string> {
-    return await fs.promises.mkdtemp(path.join(os.tmpdir(), 'rdmind-extension'));
+    return await fs.promises.mkdtemp(
+      path.join(os.tmpdir(), 'rdmind-extension'),
+    );
   }
 }
 
