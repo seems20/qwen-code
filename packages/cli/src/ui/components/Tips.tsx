@@ -17,6 +17,8 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
   const geminiMdFileCount = config.getGeminiMdFileCount();
   return (
     <Box flexDirection="column">
+      <Text color={Colors.Foreground}> - Inspired by Reder mind</Text>
+      <Text color={Colors.Foreground}> </Text>
       <Text color={Colors.Foreground}>使用指南:</Text>
       <Text color={Colors.Foreground}>1. / 使用命令，@ 提及文件</Text>
       <Text color={Colors.Foreground}>
