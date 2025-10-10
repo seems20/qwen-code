@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.3",
+  "version": "0.0.8",
   "description": "RDMind",
   "type": "module",
   "main": "dist/index.js",
@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit"
   },
   "files": [
-    "dist"
+    "dist",
+    "template"
   ],
   "publishConfig": {
     "access": "public"
@@ -29,7 +30,7 @@
   "dependencies": {
     "@google/genai": "1.9.0",
     "@iarna/toml": "^2.2.5",
-    "@rdmind/rdmind-core": "^0.0.3",
+    "@rdmind/rdmind-core": "^0.0.8",
     "@modelcontextprotocol/sdk": "^1.15.1",
     "@types/update-notifier": "^6.0.8",
     "command-exists": "^1.2.9",

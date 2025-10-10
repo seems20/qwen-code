@@ -13,6 +13,10 @@ import {
 import { MessageType } from '../types.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * 验证项目名称
@@ -28,21 +32,22 @@ function validateProjectName(name: string): boolean {
 function getTemplatePath(): string {
   // 尝试多个可能的模板位置
   const possiblePaths = [
-    // 1. 开发环境：相对于工作区根目录的sns-demo
+    // 1. npm 安装（workspaces 发布）：
+    // 代码在 node_modules/@rdmind/rdmind/dist/src/ui/commands/
+    // 模板在 node_modules/@rdmind/rdmind/template/
+    path.join(__dirname, '..', '..', '..', '..', 'template'),
+    
+    // 2. 开发环境：相对于工作区根目录的sns-demo
     path.join(process.cwd(), 'sns-demo'),
-
-    // 2. 开发环境：相对于包根目录的sns-demo
-    path.join(__dirname, '..', '..', '..', '..', 'sns-demo'),
-
-    // 3. 打包后：bundle目录中的template
+    path.join(__dirname, '..', '..', '..', '..', '..', '..', 'sns-demo'),
+    
+    // 3. 开发环境：打包后的 bundle/template（如果使用了打包版本）
+    path.join(__dirname, '..', '..', '..', '..', '..', 'bundle', 'template'),
+    
+    // 4. 兼容：其他可能的路径
     path.join(__dirname, 'template'),
     path.join(__dirname, '..', 'template'),
     path.join(__dirname, '..', '..', 'template'),
-
-    // 4. 全局安装：相对于可执行文件的template
-    path.join(path.dirname(process.argv[0]), 'template'),
-    path.join(path.dirname(process.argv[0]), '..', 'template'),
-    path.join(path.dirname(process.argv[0]), '..', 'lib', 'template'),
   ];
 
   for (const templatePath of possiblePaths) {
