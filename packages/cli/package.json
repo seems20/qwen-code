@@ -18,8 +18,13 @@
     "typecheck": "tsc --noEmit"
   },
   "files": [
-    "dist"
+    "dist",
+    "template",
+    ".knowledge"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "config": {
     "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.14"
   },

@@ -7,7 +7,11 @@
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 // 使用console进行日志记录
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * 读取.knowledge/.ext目录中的文件内容
@@ -152,11 +156,28 @@ export async function listKnowledgeExt(
  */
 function findKnowledgeDirectory(): string | null {
   const candidatePaths = [
+    // 1. 用户当前工作目录（用户自己的 .knowledge）
     path.resolve(process.cwd(), '.knowledge'),
+
+    // 2. npm 安装后：从 core 包找到 cli 包中的 .knowledge
+    // core 包位置: node_modules/@rdmind/rdmind/node_modules/@rdmind/rdmind-core/dist/src/tools/
+    // cli 包位置: node_modules/@rdmind/rdmind/.knowledge
+    // 从 __dirname (dist/src/tools) 回退到 cli 包根目录
+    path.resolve(__dirname, '../../../../../.knowledge'), // 从 core 包的 dist/src/tools 回退到 cli 包
+    path.resolve(__dirname, '../../../../../../.knowledge'), // 兼容不同的安装结构
+
+    // 3. npm 全局安装：从 core 包所在位置找到 rdmind 包
+    // 全局: /usr/local/lib/node_modules/@rdmind/rdmind/node_modules/@rdmind/rdmind-core/dist/src/tools
+    path.resolve(__dirname, '../../../../../../../@rdmind/rdmind/.knowledge'),
+
+    // 4. 开发环境：相对于项目根目录
+    path.resolve(__dirname, '../../../../../../../.knowledge'), // 从 packages/core/dist/src/tools 到项目根
+    path.resolve(__dirname, '../../../../../../.knowledge'),
+    path.resolve(__dirname, '../../../../../.knowledge'),
+    path.resolve(__dirname, '../../../../.knowledge'),
     path.resolve(__dirname, '../../../.knowledge'),
     path.resolve(__dirname, '../../.knowledge'),
     path.resolve(__dirname, '../.knowledge'),
-    path.resolve(__dirname, './.knowledge'),
   ];
 
   for (const candidatePath of candidatePaths) {
