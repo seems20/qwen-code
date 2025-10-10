@@ -17,7 +17,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { copyFileSync, existsSync, mkdirSync, cpSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
@@ -35,27 +35,6 @@ if (!existsSync(bundleDir)) {
 const sbFiles = glob.sync('packages/**/*.sb', { cwd: root });
 for (const file of sbFiles) {
   copyFileSync(join(root, file), join(bundleDir, basename(file)));
-}
-
-// Copy the sns-demo template to bundle/template
-const templateSrc = join(root, 'sns-demo');
-const templateDest = join(bundleDir, 'template');
-
-if (existsSync(templateSrc)) {
-  try {
-    // Remove existing template directory if it exists
-    if (existsSync(templateDest)) {
-      rmSync(templateDest, { recursive: true, force: true });
-    }
-
-    // Copy the template directory
-    cpSync(templateSrc, templateDest, { recursive: true });
-    console.log('Template copied to bundle/template/');
-  } catch (error) {
-    console.warn('Warning: Could not copy template directory:', error.message);
-  }
-} else {
-  console.warn('Warning: sns-demo template directory not found');
 }
 
 console.log('Assets copied to bundle/');
