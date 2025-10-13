@@ -83,7 +83,7 @@ export const SETTINGS_SCHEMA = {
         label: 'Disable Auto Update',
         category: 'General',
         requiresRestart: false,
-        default: true,
+        default: false,
         description: 'Disable automatic updates',
         showInDialog: true,
       },

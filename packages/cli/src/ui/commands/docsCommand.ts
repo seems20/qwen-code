@@ -19,7 +19,7 @@ export const docsCommand: SlashCommand = {
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext): Promise<void> => {
     const docsUrl =
-      'https://docs.xiaohongshu.com/doc/aabc27d182e66995c223aefcae3866cc';
+      'https://docs.xiaohongshu.com/doc/303358af972790a07f580f786a675b27';
 
     if (process.env['SANDBOX'] && process.env['SANDBOX'] !== 'sandbox-exec') {
       context.ui.addItem(
