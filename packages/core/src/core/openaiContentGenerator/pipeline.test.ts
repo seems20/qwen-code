@@ -78,9 +78,7 @@ describe('ContentGenerationPipeline', () => {
     } as unknown as ErrorHandler;
 
     // Mock configs
-    mockCliConfig = {
-      getDebugMode: vi.fn().mockReturnValue(false),
-    } as unknown as Config;
+    mockCliConfig = {} as Config;
     mockContentGeneratorConfig = {
       model: 'test-model',
       authType: 'openai' as AuthType,
