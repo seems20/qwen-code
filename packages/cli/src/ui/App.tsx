@@ -120,7 +120,6 @@ import type { UpdateObject } from './utils/updateCheck.js';
 import ansiEscapes from 'ansi-escapes';
 import { OverflowProvider } from './contexts/OverflowContext.js';
 import { ShowMoreLines } from './components/ShowMoreLines.js';
-import { PrivacyNotice } from './privacy/PrivacyNotice.js';
 import { useSettingsCommand } from './hooks/useSettingsCommand.js';
 import { SettingsDialog } from './components/SettingsDialog.js';
 import { setUpdateHandler } from '../utils/handleAutoUpdate.js';
@@ -243,7 +242,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
   const [ctrlDPressedOnce, setCtrlDPressedOnce] = useState(false);
   const ctrlDTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [constrainHeight, setConstrainHeight] = useState<boolean>(true);
-  const [showPrivacyNotice, setShowPrivacyNotice] = useState<boolean>(false);
   const [modelSwitchedFromQuotaError, setModelSwitchedFromQuotaError] =
     useState<boolean>(false);
   const [userTier, setUserTier] = useState<UserTierId | undefined>(undefined);
@@ -301,10 +299,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
       appEvents.off(AppEvent.LogError, logErrorHandler);
     };
   }, [handleNewMessage]);
-
-  const openPrivacyNotice = useCallback(() => {
-    setShowPrivacyNotice(true);
-  }, []);
 
   const handleEscapePromptChange = useCallback((showPrompt: boolean) => {
     setShowEscapePrompt(showPrompt);
@@ -725,7 +719,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
     openEditorDialog,
     toggleCorgiMode,
     setQuittingMessages,
-    openPrivacyNotice,
     openSettingsDialog,
     handleModelSelectionOpen,
     openSubagentCreateDialog,
@@ -808,8 +801,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
     isSettingsDialogOpen,
     closeSettingsDialog,
     isFolderTrustDialogOpen,
-    showPrivacyNotice,
-    setShowPrivacyNotice,
     showWelcomeBackDialog,
     handleWelcomeBackClose,
     quitConfirmationRequest,
@@ -1147,7 +1138,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
       !isModelSelectionDialogOpen &&
       !isVisionSwitchDialogOpen &&
       !isSubagentCreateDialogOpen &&
-      !showPrivacyNotice &&
       !showWelcomeBackDialog &&
       welcomeBackChoice !== 'restart' &&
       geminiClient?.isInitialized?.()
@@ -1163,7 +1153,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
     isThemeDialogOpen,
     isEditorDialogOpen,
     isSubagentCreateDialogOpen,
-    showPrivacyNotice,
     showWelcomeBackDialog,
     welcomeBackChoice,
     geminiClient,
@@ -1445,11 +1434,6 @@ const App = ({ config, settings, startupWarnings = [], version }: AppProps) => {
             />
           ) : isVisionSwitchDialogOpen ? (
             <ModelSwitchDialog onSelect={handleVisionSwitchSelect} />
-          ) : showPrivacyNotice ? (
-            <PrivacyNotice
-              onExit={() => setShowPrivacyNotice(false)}
-              config={config}
-            />
           ) : (
             <>
               <LoadingIndicator

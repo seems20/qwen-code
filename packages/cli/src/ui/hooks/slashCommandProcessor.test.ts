@@ -149,7 +149,6 @@ describe('useSlashCommandProcessor', () => {
         vi.fn(), // openEditorDialog
         vi.fn(), // toggleCorgiMode
         mockSetQuittingMessages,
-        vi.fn(), // openPrivacyNotice
         vi.fn(), // openSettingsDialog
         mockOpenModelSelectionDialog,
         vi.fn(), // openSubagentCreateDialog
@@ -920,7 +919,6 @@ describe('useSlashCommandProcessor', () => {
           vi.fn(), // openEditorDialog
           vi.fn(), // toggleCorgiMode
           mockSetQuittingMessages,
-          vi.fn(), // openPrivacyNotice
           vi.fn(), // openSettingsDialog
           vi.fn(), // openModelSelectionDialog
           vi.fn(), // openSubagentCreateDialog

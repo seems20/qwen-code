@@ -51,7 +51,6 @@ export const useSlashCommandProcessor = (
   openEditorDialog: () => void,
   toggleCorgiMode: () => void,
   setQuittingMessages: (message: HistoryItem[]) => void,
-  openPrivacyNotice: () => void,
   openSettingsDialog: () => void,
   openModelSelectionDialog: () => void,
   openSubagentCreateDialog: () => void,
@@ -399,9 +398,6 @@ export const useSlashCommandProcessor = (
                     case 'editor':
                       openEditorDialog();
                       return { type: 'handled' };
-                    case 'privacy':
-                      openPrivacyNotice();
-                      return { type: 'handled' };
                     case 'settings':
                       openSettingsDialog();
                       return { type: 'handled' };
@@ -657,7 +653,6 @@ export const useSlashCommandProcessor = (
       commandContext,
       addMessage,
       openThemeDialog,
-      openPrivacyNotice,
       openEditorDialog,
       setQuittingMessages,
       openSettingsDialog,

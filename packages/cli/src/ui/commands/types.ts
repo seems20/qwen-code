@@ -114,7 +114,6 @@ export interface OpenDialogActionReturn {
     | 'auth'
     | 'theme'
     | 'editor'
-    | 'privacy'
     | 'settings'
     | 'model'
     | 'subagent_create'
