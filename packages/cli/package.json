@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "RDMind",
   "type": "module",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
   "dependencies": {
     "@google/genai": "1.9.0",
     "@iarna/toml": "^2.2.5",
-    "@rdmind/rdmind-core": "^0.0.9",
+    "@rdmind/rdmind-core": "^0.0.11",
     "@modelcontextprotocol/sdk": "^1.15.1",
     "@types/update-notifier": "^6.0.8",
     "command-exists": "^1.2.9",
