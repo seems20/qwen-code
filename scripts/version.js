@@ -77,7 +77,15 @@ if (cliPackageJson.config?.sandboxImageUri) {
   writeJson(cliPackageJsonPath, cliPackageJson);
 }
 
-// 8. Run `npm install` to update package-lock.json.
+// 8. Update @rdmind/rdmind-core dependency version in CLI package
+const cliPackageJson2 = readJson(cliPackageJsonPath);
+if (cliPackageJson2.dependencies?.['@rdmind/rdmind-core']) {
+  cliPackageJson2.dependencies['@rdmind/rdmind-core'] = `^${newVersion}`;
+  console.log(`Updated @rdmind/rdmind-core dependency in cli package to ^${newVersion}`);
+  writeJson(cliPackageJsonPath, cliPackageJson2);
+}
+
+// 9. Run `npm install` to update package-lock.json.
 run('npm install');
 
 console.log(`Successfully bumped versions to v${newVersion}.`);
