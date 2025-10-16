@@ -34,61 +34,25 @@ function isGitRepository(cwd: string): boolean {
  * 读取技术方案模板
  */
 function readTemplate(): string {
-  // 尝试多个可能的模板位置
-  const possiblePaths = [
-    // 1. 开发环境：packages/cli/src/ui/commands/ -> packages/cli/templates/
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'templates',
-      'tech-design-template.md',
-    ),
-    // 2. npm 安装后：node_modules/@rdmind/rdmind/dist/src/ui/commands/ -> node_modules/@rdmind/rdmind/templates/
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'templates',
-      'tech-design-template.md',
-    ),
-    // 3. 打包后：dist/src/ui/commands/ -> templates/
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      '..',
-      'templates',
-      'tech-design-template.md',
-    ),
-    // 4. 相对于当前工作目录
-    path.join(
-      process.cwd(),
-      'node_modules',
-      '@rdmind',
-      'rdmind',
-      'templates',
-      'tech-design-template.md',
-    ),
-  ];
+  // npm 安装后：
+  // 代码在 node_modules/@rdmind/rdmind/dist/src/ui/commands/
+  // 模板在 node_modules/@rdmind/rdmind/templates/
+  const templatePath = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    '..',
+    'templates',
+    'tech-design-template.md',
+  );
 
-  for (const templatePath of possiblePaths) {
-    if (fs.existsSync(templatePath)) {
-      return fs.readFileSync(templatePath, 'utf-8');
-    }
+  if (fs.existsSync(templatePath)) {
+    return fs.readFileSync(templatePath, 'utf-8');
   }
 
-  // 如果找不到，提供详细的错误信息
-  const searchedPaths = possiblePaths
-    .map((p, i) => `${i + 1}. ${p}`)
-    .join('\n');
   throw new Error(
-    `技术方案模板文件未找到\n\n已搜索以下路径：\n${searchedPaths}\n\n当前工作目录：${process.cwd()}\n__dirname: ${__dirname}`,
+    `技术方案模板文件未找到\n\n期望路径：${templatePath}\n当前 __dirname: ${__dirname}`,
   );
 }
 
@@ -175,13 +139,13 @@ const solutionCommand: SlashCommand = {
     context.ui.addItem(
       {
         type: MessageType.INFO,
-        text: `📂 工作目录: ${cwd}\n📋 PRD URL: ${prdUrl}\n\n🤖 正在调用 AI 生成技术方案...\n\n💡 AI 将会：\n1. 使用 redoc_fetch 工具获取 PRD 文档内容\n2. 分析 PRD 需求和当前代码仓库\n3. 按照模板格式生成完整的技术方案文档\n4. 将文档保存到工作目录\n\n请耐心等待，这可能需要几分钟时间...`,
+        text: `工作目录: ${cwd}\nPRD URL: ${prdUrl}\n\n正在生成技术方案...\n\nRDMind将会：\n1. 使用 redoc_fetch 工具获取 PRD 文档内容\n2. 分析 PRD 需求和当前代码仓库\n3. 按照模板格式生成完整的技术方案文档\n4. 将文档保存到工作目录\n\n请耐心等待，这可能需要几分钟时间...`,
       },
       Date.now(),
     );
 
     // 构造给 AI 的提示词
-    const prompt = `你是一个技术方案专家，请帮我完成以下任务：
+    const prompt = `你是一个Java软件开发专家，完成以下任务：
 
 **任务目标：生成技术方案文档**
 
@@ -205,18 +169,17 @@ ${template}
 1. 仔细阅读 PRD 内容，深入理解需求
 2. 评审信息部分保留空白表格即可
 3. 背景部分：填写 PRD 链接和项目背景
-4. 需求分析部分：对应 PRD 的功能点，详细分析每个页面/模块的逻辑
-5. 详细设计部分必须包含：
-   - 技术实现方案（前端/后端）
+4. 需求分析部分：对应 PRD 的功能点，详细分析每个页面/模块的逻辑，重点关注服务端逻辑
+5. 详细设计部分须包含：
+   - 技术实现方案（后端）
    - 数据库表设计（如有数据变更）
    - 接口设计（API 路径、参数、返回值）
    - 关键技术点说明
    - 架构图/流程图（用 Mermaid 语法）
-6. 工作量评估要合理，按模块拆分
-7. 上线步骤要具体、可执行
+6. 模板中的五、六不用填写，保持原装
 
 **第四步：保存文档**
-生成文档后，请使用 write 工具将内容保存到：
+不需要展示文档生成过程，生成文档后，使用 write 工具将内容保存到：
 \`${cwd}/tech-solution-${new Date().toISOString().split('T')[0]}.md\`
 
 **重要提示：**
@@ -303,13 +266,13 @@ const planCommand: SlashCommand = {
     context.ui.addItem(
       {
         type: MessageType.INFO,
-        text: `📂 工作目录: ${cwd}\n 技术文档 URL: ${techDocUrl}\n\n 正在生成执行计划...\n\n RDMind 将会：\n1. 使用 redoc_fetch 工具获取技术文档内容\n2. 分析代码仓库结构和技术栈\n3. 生成详细的任务分解和执行计划\n4. 提供 AI Coding 使用指导\n5. 将文档保存到工作目录\n\n请耐心等待，这可能需要几分钟时间...`,
+        text: `工作目录: ${cwd}\n技术文档 URL: ${techDocUrl}\n\n正在生成执行计划...\n\nRDMind 将会：\n1. 使用 redoc_fetch 工具获取技术文档内容\n2. 分析代码仓库结构和技术栈\n3. 生成详细的任务分解和执行计划\n4. 提供 AI Coding 使用指导\n5. 将文档保存到工作目录\n\n请耐心等待，这可能需要几分钟时间...`,
       },
       Date.now(),
     );
 
     // 构造给 AI 的提示词
-    const prompt = `你是一个软件开发项目管理专家，请帮我完成以下任务：
+    const prompt = `你是一个Java软件开发专家，请帮我完成以下任务：
 
 **任务目标：生成执行计划文档**
 

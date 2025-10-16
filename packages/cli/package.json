@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.14-alpha.5",
+  "version": "0.0.14-alpha.8",
   "description": "RDMind",
   "type": "module",
   "main": "dist/index.js",
@@ -20,18 +20,19 @@
   "files": [
     "dist",
     "template",
+    "templates",
     ".knowledge"
   ],
   "publishConfig": {
     "access": "public"
   },
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.14-alpha.5"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.14-alpha.8"
   },
   "dependencies": {
     "@google/genai": "1.9.0",
     "@iarna/toml": "^2.2.5",
-    "@rdmind/rdmind-core": "^0.0.14-alpha.5",
+    "@rdmind/rdmind-core": "^0.0.14-alpha.8",
     "@modelcontextprotocol/sdk": "^1.15.1",
     "@types/update-notifier": "^6.0.8",
     "command-exists": "^1.2.9",
