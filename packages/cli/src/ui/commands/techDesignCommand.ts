@@ -25,7 +25,7 @@ function isGitRepository(cwd: string): boolean {
   try {
     const gitDir = path.join(cwd, '.git');
     return fs.existsSync(gitDir);
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
@@ -105,11 +105,11 @@ const solutionCommand: SlashCommand = {
     let template: string;
     try {
       template = readTemplate();
-    } catch (error) {
+    } catch (_error) {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: `❌ 读取模板失败: ${error}`,
+          text: `❌ 读取模板失败: ${_error}`,
         },
         Date.now(),
       );

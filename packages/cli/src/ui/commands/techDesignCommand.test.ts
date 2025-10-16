@@ -7,39 +7,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { techDesignCommand } from './techDesignCommand.js';
 import type { CommandContext } from './types.js';
-import { CommandKind, MessageType } from './types.js';
-import type { Config } from '@rdmind/rdmind-core';
+import { CommandKind } from './types.js';
+import { MessageType } from '../types.js';
+import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 
 describe('techDesignCommand', () => {
   let mockContext: CommandContext;
-  let mockConfig: Config;
 
   beforeEach(() => {
-    mockConfig = {} as Config;
-    mockContext = {
+    mockContext = createMockCommandContext({
       services: {
-        config: mockConfig,
-        settings: {} as any,
-        git: {} as any,
-        logger: {} as any,
+        config: {},
       },
       ui: {
         addItem: vi.fn(),
-        clear: vi.fn(),
-        loadHistory: vi.fn(),
-        setDebugMessage: vi.fn(),
-        pendingItem: null,
-        setPendingItem: vi.fn(),
-        toggleCorgiMode: vi.fn(),
-        toggleVimEnabled: vi.fn(),
-        setGeminiMdFileCount: vi.fn(),
-        reloadCommands: vi.fn(),
       },
-      session: {
-        stats: {} as any,
-        sessionShellAllowlist: new Set(),
-      },
-    };
+    } as unknown as CommandContext);
   });
 
   it('should be defined', () => {
