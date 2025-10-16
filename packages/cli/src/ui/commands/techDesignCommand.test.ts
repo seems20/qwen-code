@@ -69,4 +69,71 @@ describe('techDesignCommand', () => {
       expect.any(Number),
     );
   });
+
+  describe('solution subcommand', () => {
+    it('should validate Redoc URL format', async () => {
+      const solutionCommand = techDesignCommand.subCommands?.find(
+        (cmd) => cmd.name === 'solution',
+      );
+
+      // 测试无效的 URL
+      await solutionCommand?.action?.(
+        mockContext,
+        'https://www.google.com/search?q=test',
+      );
+
+      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.ERROR,
+          text: expect.stringContaining('不是有效的 Redoc 文档地址'),
+        }),
+        expect.any(Number),
+      );
+    });
+
+    it('should accept valid Redoc URL', async () => {
+      const solutionCommand = techDesignCommand.subCommands?.find(
+        (cmd) => cmd.name === 'solution',
+      );
+
+      // Mock config to avoid actual execution
+      mockContext.services.config = null;
+
+      await solutionCommand?.action?.(
+        mockContext,
+        'https://docs.xiaohongshu.com/doc/abc123def456',
+      );
+
+      // Should show error about config not loaded (not URL validation error)
+      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.ERROR,
+          text: expect.stringContaining('配置未加载'),
+        }),
+        expect.any(Number),
+      );
+    });
+  });
+
+  describe('plan subcommand', () => {
+    it('should validate Redoc URL format', async () => {
+      const planCommand = techDesignCommand.subCommands?.find(
+        (cmd) => cmd.name === 'plan',
+      );
+
+      // 测试无效的 URL
+      await planCommand?.action?.(
+        mockContext,
+        'https://www.google.com/search?q=test',
+      );
+
+      expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: MessageType.ERROR,
+          text: expect.stringContaining('不是有效的 Redoc 文档地址'),
+        }),
+        expect.any(Number),
+      );
+    });
+  });
 });

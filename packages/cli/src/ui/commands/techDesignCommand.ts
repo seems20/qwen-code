@@ -34,8 +34,9 @@ function isGitRepository(cwd: string): boolean {
  * 读取技术方案模板
  */
 function readTemplate(): string {
+  // 尝试多个可能的模板位置
   const possiblePaths = [
-    // 开发环境
+    // 1. 开发环境：packages/cli/src/ui/commands/ -> packages/cli/templates/
     path.join(
       __dirname,
       '..',
@@ -44,13 +45,33 @@ function readTemplate(): string {
       'templates',
       'tech-design-template.md',
     ),
-    // npm 安装后
+    // 2. npm 安装后：node_modules/@rdmind/rdmind/dist/src/ui/commands/ -> node_modules/@rdmind/rdmind/templates/
     path.join(
       __dirname,
       '..',
       '..',
       '..',
       '..',
+      'templates',
+      'tech-design-template.md',
+    ),
+    // 3. 打包后：dist/src/ui/commands/ -> templates/
+    path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      'templates',
+      'tech-design-template.md',
+    ),
+    // 4. 相对于当前工作目录
+    path.join(
+      process.cwd(),
+      'node_modules',
+      '@rdmind',
+      'rdmind',
       'templates',
       'tech-design-template.md',
     ),
@@ -62,7 +83,13 @@ function readTemplate(): string {
     }
   }
 
-  throw new Error('技术方案模板文件未找到');
+  // 如果找不到，提供详细的错误信息
+  const searchedPaths = possiblePaths
+    .map((p, i) => `${i + 1}. ${p}`)
+    .join('\n');
+  throw new Error(
+    `技术方案模板文件未找到\n\n已搜索以下路径：\n${searchedPaths}\n\n当前工作目录：${process.cwd()}\n__dirname: ${__dirname}`,
+  );
 }
 
 /**
@@ -110,6 +137,19 @@ const solutionCommand: SlashCommand = {
         {
           type: MessageType.ERROR,
           text: '❌ 请提供 PRD 文档的 URL\n\n使用方法：\n/tech-design solution <prd-url>\n\n示例：\n/tech-design solution https://docs.xiaohongshu.com/doc/abc123',
+        },
+        Date.now(),
+      );
+      return;
+    }
+
+    // 验证 Redoc URL 格式
+    const redocUrlPattern = /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
+    if (!redocUrlPattern.test(prdUrl)) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: `❌ 提供的 URL 不是有效的 Redoc 文档地址\n\nURL: ${prdUrl}\n\n✅ 正确的格式：\nhttps://docs.xiaohongshu.com/doc/{doc_id}\n\n说明：\n• doc_id 必须是 32 位十六进制字符串\n• 只支持小红书 Redoc 文档\n\n示例：\nhttps://docs.xiaohongshu.com/doc/abc123def456789012345678901234ab`,
         },
         Date.now(),
       );
@@ -245,6 +285,19 @@ const planCommand: SlashCommand = {
       return;
     }
 
+    // 验证 Redoc URL 格式
+    const redocUrlPattern = /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
+    if (!redocUrlPattern.test(techDocUrl)) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: `❌ 提供的 URL 不是有效的 Redoc 文档地址\n\nURL: ${techDocUrl}\n\n✅ 正确的格式：\nhttps://docs.xiaohongshu.com/doc/{doc_id}\n\n说明：\n• doc_id 必须是 32 位十六进制字符串\n• 只支持小红书 Redoc 文档\n\n示例：\nhttps://docs.xiaohongshu.com/doc/abc123def456789012345678901234ab`,
+        },
+        Date.now(),
+      );
+      return;
+    }
+
     context.ui.addItem(
       {
         type: MessageType.INFO,
@@ -284,11 +337,9 @@ const planCommand: SlashCommand = {
 - 说明模块间的依赖关系
 
 ## 三、开发任务分解
-将功能分解为具体的、可执行的任务，包括：
-- **前置任务**：环境准备、依赖安装等
+将功能分解为具体的、可执行的任务，关注技术方案中提到的实现细节，包括：
 - **核心任务**：主要功能开发，每个任务要具体、可衡量
 - **后续任务**：测试、优化、文档等
-- **任务依赖关系**：说明任务之间的依赖
 
 ## 四、编码规范
 基于当前代码仓库，明确：
@@ -296,7 +347,6 @@ const planCommand: SlashCommand = {
 - 命名约定（变量、函数、类、文件等）
 - 注释规范
 - 测试要求
-- Git commit 规范
 
 ## 五、AI Coding 指导
 提供使用 AI Coding 工具（如 RDMind）的具体指导：
@@ -308,21 +358,11 @@ const planCommand: SlashCommand = {
 
 ## 六、质量保证
 - 单元测试策略
-- 集成测试策略
-- 代码审查流程
 
-## 七、部署和发布
-- 部署环境说明
-- 发布流程
-- 回滚预案
-
-## 八、项目排期
-用表格形式列出各阶段任务、预估工作量和时间安排
-
-## 九、风险评估
+## 七、风险评估
 识别潜在风险和应对措施
 
-## 十、附录
+## 八、附录
 - 相关文档链接
 - 使用说明
 
