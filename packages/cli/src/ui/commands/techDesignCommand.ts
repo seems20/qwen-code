@@ -67,34 +67,7 @@ const solutionCommand: SlashCommand = {
     context: CommandContext,
     args: string,
   ): Promise<SlashCommandActionReturn | void> => {
-    const { config } = context.services;
-
-    if (!config) {
-      context.ui.addItem(
-        {
-          type: MessageType.ERROR,
-          text: '❌ 配置未加载',
-        },
-        Date.now(),
-      );
-      return;
-    }
-
-    const cwd = process.cwd();
-
-    // 检查是否在 git 仓库中
-    if (!isGitRepository(cwd)) {
-      context.ui.addItem(
-        {
-          type: MessageType.ERROR,
-          text: '❌ 当前目录不是 git 仓库，请在代码仓库目录下使用此命令。',
-        },
-        Date.now(),
-      );
-      return;
-    }
-
-    // 解析参数
+    // 1. 先验证参数
     const prdUrl = args.trim();
     if (!prdUrl) {
       context.ui.addItem(
@@ -107,7 +80,7 @@ const solutionCommand: SlashCommand = {
       return;
     }
 
-    // 验证 Redoc URL 格式
+    // 2. 验证 URL 格式
     const redocUrlPattern =
       /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
     if (!redocUrlPattern.test(prdUrl)) {
@@ -115,6 +88,32 @@ const solutionCommand: SlashCommand = {
         {
           type: MessageType.ERROR,
           text: `❌ 提供的 URL 不是有效的 Redoc 文档地址\n\nURL: ${prdUrl}\n\n✅ 正确的格式：\nhttps://docs.xiaohongshu.com/doc/{doc_id}\n\n说明：\n• doc_id 必须是 32 位十六进制字符串\n• 只支持小红书 Redoc 文档\n\n示例：\nhttps://docs.xiaohongshu.com/doc/abc123def456789012345678901234ab`,
+        },
+        Date.now(),
+      );
+      return;
+    }
+
+    // 3. 检查配置
+    const { config } = context.services;
+    if (!config) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: '❌ 配置未加载',
+        },
+        Date.now(),
+      );
+      return;
+    }
+
+    // 4. 检查是否在 git 仓库中
+    const cwd = process.cwd();
+    if (!isGitRepository(cwd)) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: '❌ 当前目录不是 git 仓库，请在代码仓库目录下使用此命令。',
         },
         Date.now(),
       );
@@ -209,34 +208,7 @@ const planCommand: SlashCommand = {
     context: CommandContext,
     args: string,
   ): Promise<SlashCommandActionReturn | void> => {
-    const { config } = context.services;
-
-    if (!config) {
-      context.ui.addItem(
-        {
-          type: MessageType.ERROR,
-          text: '❌ 配置未加载',
-        },
-        Date.now(),
-      );
-      return;
-    }
-
-    const cwd = process.cwd();
-
-    // 检查是否在 git 仓库中
-    if (!isGitRepository(cwd)) {
-      context.ui.addItem(
-        {
-          type: MessageType.ERROR,
-          text: '❌ 当前目录不是 git 仓库，请在代码仓库目录下使用此命令。',
-        },
-        Date.now(),
-      );
-      return;
-    }
-
-    // 解析参数
+    // 1. 先验证参数
     const techDocUrl = args.trim();
     if (!techDocUrl) {
       context.ui.addItem(
@@ -249,7 +221,7 @@ const planCommand: SlashCommand = {
       return;
     }
 
-    // 验证 Redoc URL 格式
+    // 2. 验证 URL 格式
     const redocUrlPattern =
       /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
     if (!redocUrlPattern.test(techDocUrl)) {
@@ -257,6 +229,32 @@ const planCommand: SlashCommand = {
         {
           type: MessageType.ERROR,
           text: `❌ 提供的 URL 不是有效的 Redoc 文档地址\n\nURL: ${techDocUrl}\n\n✅ 正确的格式：\nhttps://docs.xiaohongshu.com/doc/{doc_id}\n\n说明：\n• doc_id 必须是 32 位十六进制字符串\n• 只支持小红书 Redoc 文档\n\n示例：\nhttps://docs.xiaohongshu.com/doc/abc123def456789012345678901234ab`,
+        },
+        Date.now(),
+      );
+      return;
+    }
+
+    // 3. 检查配置
+    const { config } = context.services;
+    if (!config) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: '❌ 配置未加载',
+        },
+        Date.now(),
+      );
+      return;
+    }
+
+    // 4. 检查是否在 git 仓库中
+    const cwd = process.cwd();
+    if (!isGitRepository(cwd)) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: '❌ 当前目录不是 git 仓库，请在代码仓库目录下使用此命令。',
         },
         Date.now(),
       );
