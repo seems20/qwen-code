@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.14-alpha.9",
+  "version": "0.0.14-alpha.10",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.14-alpha.9"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.14-alpha.10"
   },
   "scripts": {
     "start": "node scripts/start.js",
