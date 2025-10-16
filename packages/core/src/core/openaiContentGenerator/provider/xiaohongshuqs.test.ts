@@ -12,11 +12,14 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
     it('should return true for Xiaohongshu base URL', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
-        baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
+        baseUrl:
+          'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
         apiKey: 'test-key',
       };
 
-      expect(XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config)).toBe(true);
+      expect(
+        XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config),
+      ).toBe(true);
     });
 
     it('should return true for any Xiaohongshu domain', () => {
@@ -26,7 +29,9 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
         apiKey: 'test-key',
       };
 
-      expect(XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config)).toBe(true);
+      expect(
+        XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config),
+      ).toBe(true);
     });
 
     it('should return false for non-Xiaohongshu URLs', () => {
@@ -36,7 +41,9 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
         apiKey: 'test-key',
       };
 
-      expect(XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config)).toBe(false);
+      expect(
+        XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config),
+      ).toBe(false);
     });
 
     it('should return false when baseUrl is undefined', () => {
@@ -45,7 +52,9 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
         apiKey: 'test-key',
       };
 
-      expect(XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config)).toBe(false);
+      expect(
+        XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config),
+      ).toBe(false);
     });
   });
 
@@ -53,11 +62,15 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
     it('should include User-Agent and Content-Type headers', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
-        baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
+        baseUrl:
+          'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
         apiKey: 'test-key',
       };
 
-      const provider = new XiaohongshuOpenAICompatibleProvider(config, mockConfig);
+      const provider = new XiaohongshuOpenAICompatibleProvider(
+        config,
+        mockConfig,
+      );
       const headers = provider.buildHeaders();
 
       expect(headers['User-Agent']).toContain('QwenCode/1.0.0');
@@ -69,11 +82,15 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
     it('should create OpenAI client with api-key header', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
-        baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
+        baseUrl:
+          'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
         apiKey: 'test-api-key',
       };
 
-      const provider = new XiaohongshuOpenAICompatibleProvider(config, mockConfig);
+      const provider = new XiaohongshuOpenAICompatibleProvider(
+        config,
+        mockConfig,
+      );
       const client = provider.buildClient();
 
       expect(client).toBeDefined();
@@ -86,12 +103,16 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
     it('should normalize model name to lowercase', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
-        baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
+        baseUrl:
+          'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
         apiKey: 'test-key',
       };
 
-      const provider = new XiaohongshuOpenAICompatibleProvider(config, mockConfig);
-      
+      const provider = new XiaohongshuOpenAICompatibleProvider(
+        config,
+        mockConfig,
+      );
+
       const request = {
         model: 'Qwen3-Coder-480B-A35B-Instruct',
         messages: [{ role: 'user' as const, content: 'Hello' }],
@@ -106,12 +127,16 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
     it('should preserve all other request parameters', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
-        baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
+        baseUrl:
+          'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
         apiKey: 'test-key',
       };
 
-      const provider = new XiaohongshuOpenAICompatibleProvider(config, mockConfig);
-      
+      const provider = new XiaohongshuOpenAICompatibleProvider(
+        config,
+        mockConfig,
+      );
+
       const request = {
         model: 'Test-Model',
         messages: [{ role: 'user' as const, content: 'Hello' }],
@@ -128,7 +153,9 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
       expect(result.model).toBe('test-model');
       expect(result.temperature).toBe(0.7);
       expect(result.top_p).toBe(0.8);
-      expect((result as any).extra_body).toEqual({
+      expect(
+        (result as typeof request & { extra_body?: unknown }).extra_body,
+      ).toEqual({
         top_k: 20,
         repetition_penalty: 1.05,
       });

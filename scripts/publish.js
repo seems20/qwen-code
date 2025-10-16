@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 
 /**
  * 发布脚本 - 自动化版本发布流程
- * 
+ *
  * 使用方法:
  * npm run publish <version>           # 发布正式版本，如: npm run publish 0.0.13
  * npm run publish <version> -- --tag alpha  # 发布 alpha 版本，如: npm run publish 0.0.13-alpha.0 -- --tag alpha
@@ -46,15 +46,19 @@ function getCurrentVersion() {
 // 解析命令行参数
 const args = process.argv.slice(2);
 const versionArg = args[0];
-const publishTag = args.includes('--tag') 
-  ? args[args.indexOf('--tag') + 1] 
+const publishTag = args.includes('--tag')
+  ? args[args.indexOf('--tag') + 1]
   : 'latest';
 
 if (!versionArg) {
   console.error('❌ 错误: 未指定版本号');
   console.error('\n使用方法:');
-  console.error('  npm run publish <version>              # 如: npm run publish 0.0.13');
-  console.error('  npm run publish <version> -- --tag alpha   # 如: npm run publish 0.0.13-alpha.0 -- --tag alpha');
+  console.error(
+    '  npm run publish <version>              # 如: npm run publish 0.0.13',
+  );
+  console.error(
+    '  npm run publish <version> -- --tag alpha   # 如: npm run publish 0.0.13-alpha.0 -- --tag alpha',
+  );
   console.error('  npm run publish patch                  # 自动递增补丁版本');
   console.error('  npm run publish minor                  # 自动递增次版本');
   console.error('  npm run publish major                  # 自动递增主版本');
@@ -97,9 +101,10 @@ console.log('\n═════════════════════�
 console.log(`📤 步骤 4/4: 发布到 npm (tag: ${publishTag})`);
 console.log('═══════════════════════════════════════════════════════════');
 
-const publishCommand = publishTag === 'latest' 
-  ? 'npm publish --workspaces'
-  : `npm publish --workspaces --tag ${publishTag}`;
+const publishCommand =
+  publishTag === 'latest'
+    ? 'npm publish --workspaces'
+    : `npm publish --workspaces --tag ${publishTag}`;
 
 run(publishCommand);
 
@@ -118,4 +123,3 @@ if (publishTag === 'latest') {
   console.log(`  npm install -g @rdmind/rdmind@${newVersion}`);
 }
 console.log('\n═══════════════════════════════════════════════════════════\n');
-

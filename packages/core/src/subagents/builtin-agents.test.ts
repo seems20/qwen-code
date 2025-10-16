@@ -36,7 +36,6 @@ describe('BuiltinAgentRegistry', () => {
       expect(generalAgent).toBeDefined();
       expect(generalAgent?.description).toContain('General-purpose agent');
     });
-
   });
 
   describe('getBuiltinAgent', () => {
@@ -50,7 +49,6 @@ describe('BuiltinAgentRegistry', () => {
         isBuiltin: true,
       });
     });
-
 
     it('should return null for invalid name', () => {
       expect(BuiltinAgentRegistry.getBuiltinAgent('invalid')).toBeNull();

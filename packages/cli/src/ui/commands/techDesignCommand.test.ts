@@ -34,8 +34,10 @@ describe('techDesignCommand', () => {
   it('should have subcommands', () => {
     expect(techDesignCommand.subCommands).toBeDefined();
     expect(techDesignCommand.subCommands?.length).toBe(2);
-    
-    const subCommandNames = techDesignCommand.subCommands?.map(cmd => cmd.name);
+
+    const subCommandNames = techDesignCommand.subCommands?.map(
+      (cmd) => cmd.name,
+    );
     expect(subCommandNames).toContain('solution');
     expect(subCommandNames).toContain('plan');
   });
@@ -46,7 +48,7 @@ describe('techDesignCommand', () => {
 
   it('should show help when no subcommand provided', async () => {
     await techDesignCommand.action?.(mockContext, '');
-    
+
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       expect.objectContaining({
         type: MessageType.INFO,
@@ -58,7 +60,7 @@ describe('techDesignCommand', () => {
 
   it('should show error for unknown subcommand', async () => {
     await techDesignCommand.action?.(mockContext, 'unknown arg');
-    
+
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       expect.objectContaining({
         type: MessageType.ERROR,
@@ -68,4 +70,3 @@ describe('techDesignCommand', () => {
     );
   });
 });
-

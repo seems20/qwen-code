@@ -33,7 +33,8 @@ export class XiaohongshuOpenAICompatibleProvider
       return false;
     }
     return (
-      baseUrl === 'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1' ||
+      baseUrl ===
+        'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1' ||
       baseUrl.includes('maas.devops.xiaohongshu.com')
     );
   }
@@ -55,7 +56,7 @@ export class XiaohongshuOpenAICompatibleProvider
       maxRetries = DEFAULT_MAX_RETRIES,
     } = this.contentGeneratorConfig;
     const defaultHeaders = this.buildHeaders();
-    
+
     // For Xiaohongshu, we need to use api-key header instead of Authorization: Bearer
     // We'll create a custom client that overrides the default authentication
     const client = new OpenAI({
@@ -79,7 +80,7 @@ export class XiaohongshuOpenAICompatibleProvider
     // For Xiaohongshu, we might need to normalize the model name to lowercase
     // as the service might expect lowercase model names
     const normalizedRequest = { ...request };
-    
+
     if (normalizedRequest.model) {
       // Convert model name to lowercase to match the service expectations
       normalizedRequest.model = normalizedRequest.model.toLowerCase();

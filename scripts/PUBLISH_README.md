@@ -3,6 +3,7 @@
 ## 概述
 
 `publish.js` 脚本自动化了版本发布的整个流程，包括：
+
 1. 更新所有包的版本号
 2. 清理旧的构建文件
 3. 构建项目
@@ -52,6 +53,7 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 ## 脚本流程详解
 
 ### 步骤 1: 更新版本号
+
 - 自动更新所有包的 `package.json` 版本号
 - 包括：root, cli, core, vscode-ide-companion, test-utils
 - 同步更新 CLI 包对 Core 包的依赖版本
@@ -59,11 +61,13 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 - 运行 `npm install` 更新 `package-lock.json`
 
 ### 步骤 2: 清理构建文件
+
 - 删除所有 `dist/` 目录
 - 删除 `bundle/` 目录
 - 清理所有临时文件
 
 ### 步骤 3: 构建项目
+
 - 生成 Git 提交信息
 - 运行 esbuild 打包
 - 复制资源文件（template, .knowledge 等）
@@ -71,6 +75,7 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 - 构建 VSCode 扩展
 
 ### 步骤 4: 发布到 npm
+
 - 使用 `npm publish --workspaces` 发布所有公开包
 - 自动跳过 private 包（test-utils）
 - 根据指定标签发布（latest/alpha/beta/nightly）
@@ -139,6 +144,7 @@ mkdir test-project && cd test-project
 **错误信息**: `Error: No version specified.`
 
 **解决方案**: 确保提供了有效的版本号参数
+
 ```bash
 npm run publish 0.0.13
 ```
@@ -147,7 +153,8 @@ npm run publish 0.0.13
 
 **错误信息**: `Command failed: npm run build`
 
-**解决方案**: 
+**解决方案**:
+
 1. 检查代码是否有编译错误
 2. 运行 `npm run clean` 清理后重试
 3. 检查 TypeScript 类型错误
@@ -157,6 +164,7 @@ npm run publish 0.0.13
 **错误信息**: `npm ERR! 403 Forbidden`
 
 **解决方案**:
+
 1. 确保已登录 npm: `npm login`
 2. 检查是否有 @rdmind scope 的发布权限
 3. 联系包的维护者添加权限
@@ -166,12 +174,14 @@ npm run publish 0.0.13
 **错误信息**: `npm ERR! 403 You cannot publish over the previously published versions`
 
 **解决方案**:
+
 1. 使用更高的版本号
 2. 或使用不同的标签（如 alpha）
 
 ### 问题 5: .knowledge 目录未包含
 
 **解决方案**:
+
 ```bash
 # 确保 .knowledge 目录已复制到 cli 包
 cp -r .knowledge packages/cli/
@@ -183,10 +193,12 @@ npm run publish <version>
 ## 自动更新机制
 
 ### Latest 标签（正式版本）
+
 - 用户运行 `npm update -g @rdmind/rdmind` 会自动更新到 latest 版本
 - 自动更新检查只检测 latest 标签的新版本
 
 ### Alpha 标签（测试版本）
+
 - 不会触发自动更新
 - 用户需要手动安装: `npm install -g @rdmind/rdmind@alpha`
 - 适合内部测试和提前体验新功能
@@ -232,4 +244,3 @@ npm publish --workspaces --tag alpha
 ## 联系方式
 
 如有问题，请联系项目维护者或在 GitHub 上提 issue。
-

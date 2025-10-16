@@ -81,7 +81,9 @@ if (cliPackageJson.config?.sandboxImageUri) {
 const cliPackageJson2 = readJson(cliPackageJsonPath);
 if (cliPackageJson2.dependencies?.['@rdmind/rdmind-core']) {
   cliPackageJson2.dependencies['@rdmind/rdmind-core'] = `^${newVersion}`;
-  console.log(`Updated @rdmind/rdmind-core dependency in cli package to ^${newVersion}`);
+  console.log(
+    `Updated @rdmind/rdmind-core dependency in cli package to ^${newVersion}`,
+  );
   writeJson(cliPackageJsonPath, cliPackageJson2);
 }
 

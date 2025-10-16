@@ -26,21 +26,25 @@
 根据 PRD 文档生成完整的技术方案文档。
 
 **命令格式：**
+
 ```
 /tech-design solution <prd-url>
 ```
 
 **简写：**
+
 ```
 /td s <prd-url>
 ```
 
 **示例：**
+
 ```
 /tech-design solution https://docs.xiaohongshu.com/doc/abc123def456
 ```
 
 **生成内容：**
+
 - 评审信息表格
 - 项目背景和 PRD 链接
 - 需求分析（对应 PRD 功能点）
@@ -56,21 +60,25 @@
 根据技术文档生成详细的执行计划和 AI Coding 指导。
 
 **命令格式：**
+
 ```
 /tech-design plan <tech-doc-url>
 ```
 
 **简写：**
+
 ```
 /td p <tech-doc-url>
 ```
 
 **示例：**
+
 ```
 /tech-design plan https://docs.xiaohongshu.com/doc/xyz789abc123
 ```
 
 **生成内容：**
+
 - 项目概述（背景、目标、技术栈）
 - 代码结构分析（目录结构、关键模块、依赖关系）
 - 开发任务分解（前置任务、核心任务、后续任务）
@@ -166,18 +174,21 @@ cd /path/to/your/project
 ```
 
 **解决方法：**
+
 - 进入正确的 git 仓库目录
 - 或者在当前目录初始化 git：`git init`
 
 ### 2. Redoc URL 格式
 
 支持的 URL 格式：
+
 - `https://docs.xiaohongshu.com/doc/{doc_id}`
 - doc_id 必须是 32 位十六进制字符串
 
 ### 3. AI 执行时间
 
 生成过程可能需要几分钟时间，取决于：
+
 - 文档内容的复杂度
 - 代码仓库的规模
 - AI 模型的响应速度
@@ -187,6 +198,7 @@ cd /path/to/your/project
 ### 4. 文档审查
 
 生成的文档是基于 AI 理解和分析的结果，建议：
+
 - ✅ 仔细审查生成的内容
 - ✅ 根据实际情况调整和完善
 - ✅ 补充 AI 可能遗漏的细节
@@ -195,6 +207,7 @@ cd /path/to/your/project
 ### 5. 文件冲突
 
 如果同一天多次生成文档，文件会被覆盖。建议：
+
 - 及时重命名重要的文档
 - 或者手动指定不同的文件名
 
@@ -215,6 +228,7 @@ cd /path/to/your/project
 ### 模板文件
 
 技术方案模板位于：
+
 - `packages/cli/templates/tech-design-template.md`
 
 执行计划采用动态模板，在 AI 提示词中定义。
@@ -224,6 +238,7 @@ cd /path/to/your/project
 ### Q1: 命令没有反应？
 
 **检查：**
+
 - 是否在 RDMind 交互式界面中？
 - 是否在 git 仓库目录下？
 - 是否提供了有效的 Redoc URL？
@@ -231,11 +246,13 @@ cd /path/to/your/project
 ### Q2: AI 生成的文档不完整？
 
 **原因可能：**
+
 - 源文档内容不够详细
 - 代码仓库结构复杂
 - AI 模型上下文限制
 
 **解决：**
+
 - 提供更详细的 PRD/技术文档
 - 手动补充遗漏的内容
 - 分多次生成不同部分
@@ -243,12 +260,14 @@ cd /path/to/your/project
 ### Q3: 如何自定义模板？
 
 **方法：**
+
 - 修改 `packages/cli/templates/tech-design-template.md`
 - 或者在 AI 提示词中调整要求
 
 ### Q4: 支持其他文档格式吗？
 
 当前只支持 Redoc 格式的文档。如需支持其他格式：
+
 - 可以手动复制文档内容
 - 直接提供给 AI 进行处理
 
@@ -259,6 +278,7 @@ cd /path/to/your/project
 - `plan` → `p`（子命令简写）
 
 **完整简写示例：**
+
 ```
 /td s <url>  # 生成技术方案
 /td p <url>  # 生成执行计划
@@ -274,4 +294,3 @@ cd /path/to/your/project
 ## 反馈和建议
 
 如遇到问题或有改进建议，请通过 `/bug` 命令提交反馈。
-

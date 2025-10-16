@@ -36,9 +36,24 @@ function isGitRepository(cwd: string): boolean {
 function readTemplate(): string {
   const possiblePaths = [
     // 开发环境
-    path.join(__dirname, '..', '..', '..', 'templates', 'tech-design-template.md'),
+    path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'templates',
+      'tech-design-template.md',
+    ),
     // npm 安装后
-    path.join(__dirname, '..', '..', '..', '..', 'templates', 'tech-design-template.md'),
+    path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'templates',
+      'tech-design-template.md',
+    ),
   ];
 
   for (const templatePath of possiblePaths) {
@@ -416,4 +431,3 @@ export const techDesignCommand: SlashCommand = {
     }
   },
 };
-
