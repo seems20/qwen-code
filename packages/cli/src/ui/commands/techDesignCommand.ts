@@ -144,7 +144,8 @@ const solutionCommand: SlashCommand = {
     }
 
     // 验证 Redoc URL 格式
-    const redocUrlPattern = /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
+    const redocUrlPattern =
+      /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
     if (!redocUrlPattern.test(prdUrl)) {
       context.ui.addItem(
         {
@@ -286,7 +287,8 @@ const planCommand: SlashCommand = {
     }
 
     // 验证 Redoc URL 格式
-    const redocUrlPattern = /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
+    const redocUrlPattern =
+      /^https:\/\/docs\.xiaohongshu\.com\/doc\/[a-f0-9]+$/;
     if (!redocUrlPattern.test(techDocUrl)) {
       context.ui.addItem(
         {
@@ -301,7 +303,7 @@ const planCommand: SlashCommand = {
     context.ui.addItem(
       {
         type: MessageType.INFO,
-        text: `📂 工作目录: ${cwd}\n📋 技术文档 URL: ${techDocUrl}\n\n🤖 正在调用 AI 生成执行计划...\n\n💡 AI 将会：\n1. 使用 redoc_fetch 工具获取技术文档内容\n2. 分析代码仓库结构和技术栈\n3. 生成详细的任务分解和执行计划\n4. 提供 AI Coding 使用指导\n5. 将文档保存到工作目录\n\n请耐心等待，这可能需要几分钟时间...`,
+        text: `📂 工作目录: ${cwd}\n 技术文档 URL: ${techDocUrl}\n\n 正在生成执行计划...\n\n RDMind 将会：\n1. 使用 redoc_fetch 工具获取技术文档内容\n2. 分析代码仓库结构和技术栈\n3. 生成详细的任务分解和执行计划\n4. 提供 AI Coding 使用指导\n5. 将文档保存到工作目录\n\n请耐心等待，这可能需要几分钟时间...`,
       },
       Date.now(),
     );
@@ -347,10 +349,9 @@ const planCommand: SlashCommand = {
 
 ## 三、开发任务分解
 
-**重要**：必须根据技术文档中的具体实现细节来分解任务！
+**重要**：以下内容只是参考，必须根据技术文档中的具体实现细节来分解任务！
 
 ### 3.1 数据层任务
-**先判断**：分析需求是否涉及数据库操作（数据持久化、查询等）
 
 **如果涉及数据库**，根据技术文档中的数据库设计列出具体任务：
 - [ ] 创建数据库表（列出每个表名）
@@ -373,8 +374,6 @@ const planCommand: SlashCommand = {
 **如果业务逻辑描述不清晰或缺失关键细节**：⚠️ 信息不足：业务逻辑细节不明确，需要补充 XXX
 
 ### 3.3 接口开发任务
-**先判断**：分析需求是否需要提供 API 接口
-
 **如果需要接口**，根据技术文档的接口设计列出具体任务：
 - [ ] 实现 API 接口（列出每个接口的完整路径、方法）
 - [ ] 请求参数校验
@@ -385,22 +384,17 @@ const planCommand: SlashCommand = {
 **如果不需要接口**：可跳过此部分或说明"本需求无需对外接口"
 
 ### 3.4 数据处理任务
-根据技术文档的数据格式，列出具体任务：
-- [ ] JSON 数据结构定义（基于文档中的示例）
-  - 示例：metrics_data 包含 creator_5w_fans, mindset_improvement_rate 等字段
-- [ ] 数据序列化/反序列化
-- [ ] 数据转换和映射
-
-**如果涉及复杂数据格式但文档不完整**：⚠️ 信息不足：数据格式定义不完整，需要补充字段说明
+根据技术文档列出具体任务
 
 ### 3.5 测试任务
 - [ ] 单元测试（针对关键业务逻辑）
 - [ ] 接口测试（使用实际数据格式）
-- [ ] 数据库操作测试
 
 ## 四、技术实现要点
 
-### 4.1 数据库操作要点
+以下内容只是参考，需要根据技术文档中的具体实现细节来填写。
+
+### 4.1 数据库
 基于技术文档的数据库设计：
 - 表结构创建语句（完整的 CREATE TABLE）
 - 索引使用建议
@@ -418,56 +412,27 @@ const planCommand: SlashCommand = {
 - 错误处理
 - 数据转换逻辑
 
-## 五、AI Coding 指导
-
-### 5.1 提供给 AI 的上下文
-在使用 AI Coding 工具时，应该提供：
-- 完整的数据库表结构
-- 数据格式示例（JSON 结构）
-- 接口定义
-- 相关的业务规则
-
-### 5.2 分阶段开发建议
-1. **第一阶段：数据层**
-   - 让 AI 根据表结构生成实体类和 DAO
-   - 提供完整的 CREATE TABLE 语句作为参考
-   
-2. **第二阶段：业务层**
-   - 根据数据格式实现业务逻辑
-   - 提供 JSON 数据示例
-   
-3. **第三阶段：接口层**
-   - 实现 API 接口
-   - 确保输入输出格式符合文档
-
-### 5.3 代码审查要点
-- 数据库字段是否与设计一致
-- JSON 数据结构是否完整
-- 索引是否正确创建
-- 数据类型是否匹配
-
-## 六、编码规范
+## 五、编码规范
 基于当前代码仓库，明确：
 - 代码风格规范
 - 命名约定（变量、函数、类、文件等）
 - 注释规范
 - 测试要求
 
-## 七、质量保证
+## 六、质量保证
 - 单元测试策略（针对核心业务逻辑）
-- 数据库操作测试（验证表结构和数据）
 - 接口测试（使用实际数据格式）
 
-## 八、风险评估
+## 七、风险评估
 识别潜在风险和应对措施
 
-## 九、附录
+## 八、附录
 - 相关文档链接
 - 技术文档 URL: ${techDocUrl}
 - 使用说明
 
 **第四步：保存文档**
-生成文档后，请使用 write 工具将内容保存到：
+不需要创建todo展示生成过程，生成文档后，使用 write 工具将内容保存到：
 \`${cwd}/execution-plan-${new Date().toISOString().split('T')[0]}.md\`
 
 **重要要求：**
@@ -479,19 +444,14 @@ const planCommand: SlashCommand = {
 
 2. **任务要具体可执行**：
    - 不要写"实现数据库操作"，要写"创建 activity_target_review 表"
-   - 不要写"处理 JSON 数据"，要写"实现 metrics_data JSON 字段的序列化，包含 creator_5w_fans 等字段"
    - 每个任务都要能直接指导 AI 编码工具
 
 3. **技术实现要点要详细**：
-   - 提供完整的表结构（包括字段类型、长度、索引）
-   - 列出 JSON 的所有字段和类型
-   - 说明数据类型的含义（如 data_type=1 表示系统数据）
 
 4. **⚠️ 信息不足时要明确指出**：
    - **先判断需求是否需要该部分**（如：是否需要数据库、是否需要接口等）
    - **只有当需要但文档未提供时**，才标注 "⚠️ 信息不足"
    - 说明缺少哪些信息，需要补充什么
-   - 如果需求本身不需要某个部分，说明"本需求无需 XXX"或直接跳过
    - 不要凭空猜测或编造信息
 
 5. **编码规范基于实际代码**：
