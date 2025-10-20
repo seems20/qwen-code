@@ -5,12 +5,17 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { directoryCommand, expandHomeDir } from './directoryCommand.js';
+import {
+  directoryCommand,
+  expandHomeDir,
+  resolveCompletionPaths,
+} from './directoryCommand.js';
 import type { Config, WorkspaceContext } from '@rdmind/rdmind-core';
 import type { CommandContext } from './types.js';
 import { MessageType } from '../types.js';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
 
 describe('directoryCommand', () => {
   let mockContext: CommandContext;
@@ -181,5 +186,75 @@ describe('directoryCommand', () => {
     expect(path.win32.normalize(result)).toBe(
       path.win32.normalize(expectedPath),
     );
+  });
+});
+
+describe('resolveCompletionPaths', () => {
+  const baseDir = path.resolve(__dirname, 'test-workspace');
+
+  // 构造虚拟目录结构
+  beforeAll(async () => {
+    // 清理并创建目录
+    await fs.rm(baseDir, { recursive: true, force: true });
+    await fs.mkdir(baseDir, { recursive: true });
+
+    // 创建目录结构
+    await fs.mkdir(path.join(baseDir, 'src'));
+    await fs.mkdir(path.join(baseDir, 'docs'));
+    await fs.mkdir(path.join(baseDir, 'test'));
+    await fs.mkdir(path.join(baseDir, 'src', 'components'));
+    await fs.mkdir(path.join(baseDir, 'src', 'utils'));
+
+    // 模拟 home 目录的子目录
+    const homeDir = os.homedir();
+    await fs.mkdir(path.join(homeDir, 'projects'), { recursive: true });
+  });
+
+  afterAll(async () => {
+    await fs.rm(baseDir, { recursive: true, force: true });
+  });
+
+  test('空输入返回当前目录的一级子目录', async () => {
+    const result = await resolveCompletionPaths('', baseDir);
+    expect(result).toEqual(expect.arrayContaining(['src/', 'docs/', 'test/']));
+  });
+
+  test('输入 . 返回当前目录的一级子目录', async () => {
+    const result = await resolveCompletionPaths('.', baseDir);
+    expect(result).toEqual(expect.arrayContaining(['src/', 'docs/', 'test/']));
+  });
+
+  test('输入 ./ 返回当前目录的一级子目录', async () => {
+    const result = await resolveCompletionPaths('./', baseDir);
+    expect(result).toEqual(expect.arrayContaining(['src/', 'docs/', 'test/']));
+  });
+
+  test('输入 ./s 匹配 s 开头的目录', async () => {
+    const result = await resolveCompletionPaths('./s', baseDir);
+    expect(result).toEqual(['src/']);
+  });
+
+  test('输入 ./src/ 返回 src 下的一级子目录', async () => {
+    const result = await resolveCompletionPaths('./src/', baseDir);
+    expect(result).toEqual(
+      expect.arrayContaining(['src/components/', 'src/utils/']),
+    );
+  });
+
+  test('输入 ~ 返回 home 下的目录', async () => {
+    const result = await resolveCompletionPaths('~/', baseDir);
+    // 至少包含我们刚创建的 projects/
+    expect(result).toContain('~/projects/');
+  });
+
+  test('输入 ~/p 匹配 home 下 p 开头目录', async () => {
+    const result = await resolveCompletionPaths('~/p', baseDir);
+    expect(result).toContain('~/projects/');
+  });
+
+  test('输入绝对路径返回对应目录的子目录', async () => {
+    const absPath = path.join(baseDir, '/src/');
+    const result = await resolveCompletionPaths(absPath, baseDir);
+    expect(result).toEqual([absPath + 'components/', absPath + 'utils/']);
   });
 });

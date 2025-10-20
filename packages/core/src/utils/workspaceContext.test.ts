@@ -97,6 +97,47 @@ describe('WorkspaceContext with real filesystem', () => {
     });
   });
 
+  describe('removing directories', () => {
+    it('should remove a directory that was previously added', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      workspaceContext.addDirectory(otherDir);
+      expect(workspaceContext.getDirectories()).toEqual([cwd, otherDir]);
+
+      workspaceContext.removeDirectory(otherDir);
+      expect(workspaceContext.getDirectories()).toEqual([cwd]);
+    });
+
+    it('should resolve relative paths to absolute when removing', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      const relativePath = path.relative(cwd, otherDir);
+      workspaceContext.addDirectory(relativePath, cwd);
+      expect(workspaceContext.getDirectories()).toEqual([cwd, otherDir]);
+
+      workspaceContext.removeDirectory(relativePath, cwd);
+      expect(workspaceContext.getDirectories()).toEqual([cwd]);
+    });
+
+    it('should not remove cwd if not explicitly removed', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      workspaceContext.removeDirectory(otherDir); // otherDir not in workspace yet, should not affect cwd
+      expect(workspaceContext.getDirectories()).toEqual([cwd]);
+    });
+
+    it('should handle symbolic links correctly when removing', () => {
+      const realDir = path.join(tempDir, 'real-remove');
+      fs.mkdirSync(realDir, { recursive: true });
+      const symlinkDir = path.join(tempDir, 'symlink-to-real-remove');
+      fs.symlinkSync(realDir, symlinkDir, 'dir');
+
+      const workspaceContext = new WorkspaceContext(cwd);
+      workspaceContext.addDirectory(symlinkDir);
+      expect(workspaceContext.getDirectories()).toEqual([cwd, realDir]);
+
+      workspaceContext.removeDirectory(symlinkDir);
+      expect(workspaceContext.getDirectories()).toEqual([cwd]);
+    });
+  });
+
   describe('path validation', () => {
     it('should accept paths within workspace directories', () => {
       const workspaceContext = new WorkspaceContext(cwd, [otherDir]);
@@ -357,6 +398,53 @@ describe('WorkspaceContext with real filesystem', () => {
         workspaceContext.addDirectory(otherDir);
       }).not.toThrow();
       expect(listener).toHaveBeenCalledOnce();
+    });
+
+    it('should call listener when removing a directory', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      workspaceContext.addDirectory(otherDir);
+      const listener = vi.fn();
+      workspaceContext.onDirectoriesChanged(listener);
+
+      workspaceContext.removeDirectory(otherDir);
+
+      expect(listener).toHaveBeenCalledOnce();
+    });
+
+    it('should not call listener when removing a directory not in workspace', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      const listener = vi.fn();
+      workspaceContext.onDirectoriesChanged(listener);
+
+      workspaceContext.removeDirectory(otherDir);
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('should call all listeners when removing a directory', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      workspaceContext.addDirectory(otherDir);
+      const listener1 = vi.fn();
+      const listener2 = vi.fn();
+      workspaceContext.onDirectoriesChanged(listener1);
+      workspaceContext.onDirectoriesChanged(listener2);
+
+      workspaceContext.removeDirectory(otherDir);
+
+      expect(listener1).toHaveBeenCalledOnce();
+      expect(listener2).toHaveBeenCalledOnce();
+    });
+
+    it('should allow unsubscribing a listener on removeDirectory', () => {
+      const workspaceContext = new WorkspaceContext(cwd);
+      workspaceContext.addDirectory(otherDir);
+      const listener = vi.fn();
+      const unsubscribe = workspaceContext.onDirectoriesChanged(listener);
+
+      unsubscribe();
+      workspaceContext.removeDirectory(otherDir);
+
+      expect(listener).not.toHaveBeenCalled();
     });
   });
 
