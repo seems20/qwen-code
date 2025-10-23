@@ -5,12 +5,13 @@
  */
 
 import { useCallback, useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
 import type { WizardStepProps } from '../types.js';
 import type { SubagentManager, SubagentConfig } from '@rdmind/rdmind-core';
 import { theme } from '../../../semantic-colors.js';
 import { shouldShowColor, getColorForDisplay } from '../utils.js';
 import { useLaunchEditor } from '../../../hooks/useLaunchEditor.js';
+import { useKeypress } from '../../../hooks/useKeypress.js';
 
 /**
  * Step 6: Final confirmation and actions.
@@ -189,19 +190,22 @@ export function CreationSummary({
   ]);
 
   // Handle keyboard input
-  useInput((input, key) => {
-    if (saveSuccess) return;
+  useKeypress(
+    (key) => {
+      if (saveSuccess) return;
 
-    if (key.return || input === 's') {
-      handleSave();
-      return;
-    }
+      if (key.name === 'return' || key.sequence === 's') {
+        handleSave();
+        return;
+      }
 
-    if (input === 'e') {
-      handleEdit();
-      return;
-    }
-  });
+      if (key.sequence === 'e') {
+        handleEdit();
+        return;
+      }
+    },
+    { isActive: true },
+  );
 
   if (saveSuccess) {
     return (

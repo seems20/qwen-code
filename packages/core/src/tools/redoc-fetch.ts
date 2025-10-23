@@ -16,6 +16,7 @@ import {
 } from './tools.js';
 import { ApprovalMode, type Config } from '@rdmind/rdmind-core';
 import { getResponseText } from '../utils/partUtils.js';
+import { DEFAULT_QWEN_MODEL } from '../config/models.js';
 
 const REDOC_API_TIMEOUT_MS = 10000;
 const REDOC_API_URL =
@@ -210,6 +211,7 @@ ${processedContent}
         [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
         {},
         signal,
+        this.config.getModel() || DEFAULT_QWEN_MODEL
       );
       const resultText = getResponseText(result) || '';
 
