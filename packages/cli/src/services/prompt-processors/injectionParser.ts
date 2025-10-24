@@ -5,28 +5,28 @@
  */
 
 /**
- * Represents a single detected injection site in a prompt string.
+ * 表示提示词中检测到的单个注入点
  */
 export interface Injection {
-  /** The content extracted from within the braces (e.g., the command or path), trimmed. */
+  /** 从大括号内提取的内容（例如，命令或路径），已去除空格 */
   content: string;
-  /** The starting index of the injection (inclusive, points to the start of the trigger). */
+  /** 注入的起始索引（包含，指向触发器的开始位置） */
   startIndex: number;
-  /** The ending index of the injection (exclusive, points after the closing '}'). */
+  /** 注入的结束索引（不包含最后的'}'） */
   endIndex: number;
 }
 
 /**
- * Iteratively parses a prompt string to extract injections (e.g., !{...} or @{...}),
- * correctly handling nested braces within the content.
+ * 迭代解析提示词以提取注入内容（例如，!{...} 或 @{...}），
+ * 正确处理内容中的嵌套大括号
  *
- * This parser relies on simple brace counting and does not support escaping.
+ * 此解析器依赖简单的大括号计数，不支持转义
  *
- * @param prompt The prompt string to parse.
- * @param trigger The opening trigger sequence (e.g., '!{', '@{').
- * @param contextName Optional context name (e.g., command name) for error messages.
- * @returns An array of extracted Injection objects.
- * @throws Error if an unclosed injection is found.
+ * @param prompt
+ * @param trigger 开始触发序列（例如，'!{'、'@{'）
+ * @param contextName 可选的上下文名称（例如，命令名称），用于错误消息
+ * @returns 提取的 Injection 对象数组
+ * @throws Error 如果发现未闭合的注入，则抛出错误
  */
 export function extractInjections(
   prompt: string,

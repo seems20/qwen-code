@@ -33,23 +33,22 @@ export class ConfirmationRequiredError extends Error {
 }
 
 /**
- * Represents a single detected shell injection site in the prompt,
- * after resolution of arguments. Extends the base Injection interface.
+ * 表示已解析的Shell注入点，包含解析后的命令
  */
 interface ResolvedShellInjection extends Injection {
-  /** The command after {{args}} has been escaped and substituted. */
+  /** 在 {{args}} 被转义和替换之后的命令。*/
   resolvedCommand?: string;
 }
 
 /**
- * Handles prompt interpolation, including shell command execution (`!{...}`)
- * and context-aware argument injection (`{{args}}`).
+ * 处理提示插值，包括 shell 命令执行（`!{...}`）
+ * 和上下文感知的参数注入（`{{args}}`
  *
- * This processor ensures that:
- * 1. `{{args}}` outside `!{...}` are replaced with raw input.
- * 2. `{{args}}` inside `!{...}` are replaced with shell-escaped input.
- * 3. Shell commands are executed securely after argument substitution.
- * 4. Parsing correctly handles nested braces.
+ * 此处理器确保:
+ * 1. `!{...}` 外部的 `{{args}}` 被替换为原始输入
+ * 2. `!{...}` 内部的 `{{args}}` 被替换为 shell 转义后的输入
+ * 3. Shell 命令在参数替换后安全执行
+ * 4. 解析正确处理嵌套的大括号
  */
 export class ShellProcessor implements IPromptProcessor {
   constructor(private readonly commandName: string) {}
