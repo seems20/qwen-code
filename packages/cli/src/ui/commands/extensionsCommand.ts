@@ -131,14 +131,14 @@ async function updateAction(context: CommandContext, args: string) {
 
 const listExtensionsCommand: SlashCommand = {
   name: 'list',
-  description: 'List active extensions',
+  description: '列出已安装的扩展',
   kind: CommandKind.BUILT_IN,
   action: listAction,
 };
 
 const updateExtensionsCommand: SlashCommand = {
   name: 'update',
-  description: 'Update extensions. Usage: update <extension-names>|--all',
+  description: '更新扩展。用法: update <extension-names>|--all',
   kind: CommandKind.BUILT_IN,
   action: updateAction,
   completion: async (context, partialArg) => {
@@ -158,7 +158,7 @@ const updateExtensionsCommand: SlashCommand = {
 
 export const extensionsCommand: SlashCommand = {
   name: 'extensions',
-  description: 'Manage extensions',
+  description: '管理扩展',
   kind: CommandKind.BUILT_IN,
   subCommands: [listExtensionsCommand, updateExtensionsCommand],
   action: (context, args) =>
