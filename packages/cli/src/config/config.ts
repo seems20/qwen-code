@@ -327,7 +327,6 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('screen-reader', {
           type: 'boolean',
           description: '启用 screen-reader',
-          default: false,
         })
         .option('vlm-switch-mode', {
           type: 'string',
@@ -377,13 +376,13 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
             : !!query;
 
           if (argv['prompt'] && hasPositionalQuery) {
-            return 'Cannot use both a positional prompt and the --prompt (-p) flag together';
+            return '不能同时使用位置参数提示词和 --prompt (-p) 标志';
           }
           if (argv['prompt'] && argv['promptInteractive']) {
-            return 'Cannot use both --prompt (-p) and --prompt-interactive (-i) together';
+            return '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)';
           }
           if (argv['yolo'] && argv['approvalMode']) {
-            return 'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.';
+            return '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代';
           }
           return true;
         }),

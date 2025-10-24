@@ -448,7 +448,7 @@ describe('ReadFileTool', () => {
       expect(result.returnDisplay).toBe('');
     });
 
-    describe('with .qwenignore', () => {
+    describe('with .rdmindignore', () => {
       beforeEach(async () => {
         await fsp.writeFile(
           path.join(tempRootDir, '.rdmindignore'),

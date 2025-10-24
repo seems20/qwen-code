@@ -36,16 +36,6 @@ vi.mock('../ui/commands/ideCommand.js', async () => {
 vi.mock('../ui/commands/restoreCommand.js', () => ({
   restoreCommand: vi.fn(),
 }));
-vi.mock('../ui/commands/permissionsCommand.js', async () => {
-  const { CommandKind } = await import('../ui/commands/types.js');
-  return {
-    permissionsCommand: {
-      name: 'permissions',
-      description: 'Permissions command',
-      kind: CommandKind.BUILT_IN,
-    },
-  };
-});
 
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { BuiltinCommandLoader } from './BuiltinCommandLoader.js';
@@ -162,21 +152,6 @@ describe('BuiltinCommandLoader', () => {
 
     const modelCmd = commands.find((c) => c.name === 'model');
     expect(modelCmd).toBeDefined();
-  });
-
-  it('should include permissions command when folder trust is enabled', async () => {
-    const loader = new BuiltinCommandLoader(mockConfig);
-    const commands = await loader.loadCommands(new AbortController().signal);
-    const permissionsCmd = commands.find((c) => c.name === 'permissions');
-    expect(permissionsCmd).toBeDefined();
-  });
-
-  it('should exclude permissions command when folder trust is disabled', async () => {
-    (mockConfig.getFolderTrust as Mock).mockReturnValue(false);
-    const loader = new BuiltinCommandLoader(mockConfig);
-    const commands = await loader.loadCommands(new AbortController().signal);
-    const permissionsCmd = commands.find((c) => c.name === 'permissions');
-    expect(permissionsCmd).toBeUndefined();
   });
 
   it('should always include modelCommand', async () => {

@@ -3232,7 +3232,7 @@ describe('parseArguments with positional prompt', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Cannot use both a positional prompt and the --prompt (-p) flag together',
+        '不能同时使用位置参数提示词和 --prompt (-p) 标志',
       ),
     );
 

@@ -12,7 +12,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { promises as fs } from 'node:fs';
 
-const QWEN_DIR = '.qwen';
+const QWEN_DIR = '.rdmind';
 const KEYCHAIN_SERVICE_NAME = 'qwen-code-oauth';
 const MAIN_ACCOUNT_KEY = 'main-account';
 

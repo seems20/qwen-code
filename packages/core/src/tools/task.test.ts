@@ -256,7 +256,7 @@ describe('TaskTool', () => {
           description: 'A brand new agent',
           systemPrompt: 'Do new things.',
           level: 'project',
-          filePath: '/project/.qwen/agents/new-agent.md',
+          filePath: '/project/.rdmind/agents/new-agent.md',
         },
       ];
 

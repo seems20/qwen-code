@@ -578,8 +578,8 @@ describe('handleAtCommand', () => {
     });
   });
 
-  describe('qwen-ignore filtering', () => {
-    it('should skip qwen-ignored files in @ commands', async () => {
+  describe('rdmind-ignore filtering', () => {
+    it('should skip rdmind-ignored files in @ commands', async () => {
       await createTestFile(
         path.join(testRootDir, '.rdmindignore'),
         'build/output.js',

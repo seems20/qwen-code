@@ -76,7 +76,7 @@ export interface GlobToolParams {
   respect_git_ignore?: boolean;
 
   /**
-   * Whether to respect .qwenignore patterns (optional, defaults to true)
+   * Whether to respect .rdmindignore patterns (optional, defaults to true)
    */
   respect_qwen_ignore?: boolean;
 }
@@ -196,7 +196,7 @@ class GlobToolInvocation extends BaseToolInvocation<
           message += ` (${gitIgnoredCount} files were git-ignored)`;
         }
         if (qwenIgnoredCount > 0) {
-          message += ` (${qwenIgnoredCount} files were qwen-ignored)`;
+          message += ` (${qwenIgnoredCount} files were rdmind-ignored)`;
         }
         return {
           llmContent: message,
@@ -231,7 +231,7 @@ class GlobToolInvocation extends BaseToolInvocation<
         resultMessage += ` (${gitIgnoredCount} additional files were git-ignored)`;
       }
       if (qwenIgnoredCount > 0) {
-        resultMessage += ` (${qwenIgnoredCount} additional files were qwen-ignored)`;
+        resultMessage += ` (${qwenIgnoredCount} additional files were rdmind-ignored)`;
       }
       resultMessage += `, sorted by modification time (newest first):\n${fileListDescription}`;
 
@@ -292,7 +292,7 @@ export class GlobTool extends BaseDeclarativeTool<GlobToolParams, ToolResult> {
           },
           respect_qwen_ignore: {
             description:
-              'Optional: Whether to respect .qwenignore patterns when finding files. Defaults to true.',
+              'Optional: Whether to respect .rdmindignore patterns when finding files. Defaults to true.',
             type: 'boolean',
           },
         },
