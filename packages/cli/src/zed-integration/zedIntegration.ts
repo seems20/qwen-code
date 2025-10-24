@@ -12,34 +12,50 @@ import type {
   GeminiChat,
   ToolCallConfirmationDetails,
   ToolResult,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import {
   AuthType,
   clearCachedCredentialFile,
   convertToFunctionResponse,
   DiscoveredMCPTool,
-  getErrorMessage,
-  getErrorStatus,
-  isNodeError,
-  isWithinRoot,
-  logToolCall,
-  MCPServerConfig,
   StreamEventType,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_MODEL_AUTO,
+  DEFAULT_GEMINI_FLASH_MODEL,
+  MCPServerConfig,
   ToolConfirmationOutcome,
-} from '@qwen-code/qwen-code-core';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { Readable, Writable } from 'node:stream';
-import { z } from 'zod';
-import type { LoadedSettings } from '../config/settings.js';
-import { SettingScope } from '../config/settings.js';
+  logToolCall,
+  getErrorStatus,
+  isWithinRoot,
+  isNodeError,
+} from '@rdmind/rdmind-core';
 import * as acp from './acp.js';
 import { AcpFileSystemService } from './fileSystemService.js';
-
+import { Readable, Writable } from 'node:stream';
+import type { LoadedSettings } from '../config/settings.js';
+import { SettingScope } from '../config/settings.js';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
+import { getErrorMessage } from '../utils/errors.js';
+import { ExtensionStorage, type Extension } from '../config/extension.js';
 import type { CliArgs } from '../config/config.js';
 import { loadCliConfig } from '../config/config.js';
-import type { Extension } from '../config/extension.js';
+import { ExtensionEnablementManager } from '../config/extensions/extensionEnablement.js';
+
+/**
+ * Resolves the model to use based on the current configuration.
+ *
+ * If the model is set to "auto", it will use the flash model if in fallback
+ * mode, otherwise it will use the default model.
+ */
+export function resolveModel(model: string, isInFallbackMode: boolean): string {
+  if (model === DEFAULT_GEMINI_MODEL_AUTO) {
+    return isInFallbackMode ? DEFAULT_GEMINI_FLASH_MODEL : DEFAULT_GEMINI_MODEL;
+  }
+  return model;
+}
 
 export async function runZedIntegration(
   config: Config,
@@ -81,22 +97,6 @@ class GeminiAgent {
   ): Promise<acp.InitializeResponse> {
     this.clientCapabilities = args.clientCapabilities;
     const authMethods = [
-      {
-        id: AuthType.LOGIN_WITH_GOOGLE,
-        name: 'Log in with Google',
-        description: null,
-      },
-      {
-        id: AuthType.USE_GEMINI,
-        name: 'Use Gemini API key',
-        description:
-          'Requires setting the `GEMINI_API_KEY` environment variable',
-      },
-      {
-        id: AuthType.USE_VERTEX_AI,
-        name: 'Vertex AI',
-        description: null,
-      },
       {
         id: AuthType.USE_OPENAI,
         name: 'Use OpenAI API key',
@@ -200,6 +200,10 @@ class GeminiAgent {
     const config = await loadCliConfig(
       settings,
       this.extensions,
+      new ExtensionEnablementManager(
+        ExtensionStorage.getUserExtensionsDir(),
+        this.argv.extensions,
+      ),
       sessionId,
       this.argv,
       cwd,
@@ -267,6 +271,7 @@ class Session {
 
       try {
         const responseStream = await chat.sendMessageStream(
+          resolveModel(this.config.getModel(), this.config.isInFallbackMode()),
           {
             message: nextMessage?.parts ?? [],
             config: {
@@ -365,6 +370,7 @@ class Session {
         function_name: fc.name ?? '',
         function_args: args,
         duration_ms: durationMs,
+        status: 'error',
         success: false,
         error: error.message,
         tool_type:
@@ -483,6 +489,7 @@ class Session {
         function_name: fc.name,
         function_args: args,
         duration_ms: durationMs,
+        status: 'success',
         success: true,
         prompt_id: promptId,
         tool_type:
@@ -893,14 +900,16 @@ function toToolCallContent(toolResult: ToolResult): acp.ToolCallContent | null {
         type: 'content',
         content: { type: 'text', text: planText },
       };
-    } else if ('fileDiff' in toolResult.returnDisplay) {
-      // Handle FileDiff
-      return {
-        type: 'diff',
-        path: toolResult.returnDisplay.fileName,
-        oldText: toolResult.returnDisplay.originalContent,
-        newText: toolResult.returnDisplay.newContent,
-      };
+    } else {
+      if ('fileName' in toolResult.returnDisplay) {
+        return {
+          type: 'diff',
+          path: toolResult.returnDisplay.fileName,
+          oldText: toolResult.returnDisplay.originalContent,
+          newText: toolResult.returnDisplay.newContent,
+        };
+      }
+      return null;
     }
   }
   return null;

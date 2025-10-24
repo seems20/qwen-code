@@ -6,7 +6,7 @@
 
 import type { ICommandLoader } from './types.js';
 import type { SlashCommand } from '../ui/commands/types.js';
-import type { Config } from '@qwen-code/qwen-code-core';
+import type { Config } from '@rdmind/rdmind-core';
 import { aboutCommand } from '../ui/commands/aboutCommand.js';
 import { agentsCommand } from '../ui/commands/agentsCommand.js';
 import { approvalModeCommand } from '../ui/commands/approvalModeCommand.js';
@@ -29,7 +29,6 @@ import { initCommand } from '../ui/commands/initCommand.js';
 import { mcpCommand } from '../ui/commands/mcpCommand.js';
 import { memoryCommand } from '../ui/commands/memoryCommand.js';
 import { modelCommand } from '../ui/commands/modelCommand.js';
-import { privacyCommand } from '../ui/commands/privacyCommand.js';
 import { quitCommand, quitConfirmCommand } from '../ui/commands/quitCommand.js';
 import { rdconfigCommand } from '../ui/commands/rdconfigCommand.js';
 import { rdflowCommand } from '../ui/commands/rdflowCommand.js';
@@ -37,11 +36,11 @@ import { restoreCommand } from '../ui/commands/restoreCommand.js';
 import { settingsCommand } from '../ui/commands/settingsCommand.js';
 import { statsCommand } from '../ui/commands/statsCommand.js';
 import { summaryCommand } from '../ui/commands/summaryCommand.js';
+import { techDesignCommand } from '../ui/commands/techDesignCommand.js';
 import { terminalSetupCommand } from '../ui/commands/terminalSetupCommand.js';
 import { themeCommand } from '../ui/commands/themeCommand.js';
 import { toolsCommand } from '../ui/commands/toolsCommand.js';
 import { vimCommand } from '../ui/commands/vimCommand.js';
-import { setupGithubCommand } from '../ui/commands/setupGithubCommand.js';
 
 /**
  * Loads the core, hard-coded slash commands that are an integral part
@@ -75,7 +74,7 @@ export class BuiltinCommandLoader implements ICommandLoader {
       editorCommand,
       extensionsCommand,
       helpCommand,
-      ideCommand(this.config),
+      await ideCommand(),
       importCommand,
       initCommand,
       rdflowCommand,
@@ -83,17 +82,16 @@ export class BuiltinCommandLoader implements ICommandLoader {
       mcpCommand,
       memoryCommand,
       modelCommand,
-      privacyCommand,
       quitCommand,
       quitConfirmCommand,
       restoreCommand(this.config),
       statsCommand,
       summaryCommand,
+      techDesignCommand,
       themeCommand,
       toolsCommand,
       settingsCommand,
       vimCommand,
-      setupGithubCommand,
       terminalSetupCommand,
     ];
 

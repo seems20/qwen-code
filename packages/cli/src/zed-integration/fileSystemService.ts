@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { FileSystemService } from '@qwen-code/qwen-code-core';
+import type { FileSystemService } from '@rdmind/rdmind-core';
 import type * as acp from './acp.js';
 
 /**
@@ -43,5 +43,8 @@ export class AcpFileSystemService implements FileSystemService {
       content,
       sessionId: this.sessionId,
     });
+  }
+  findFiles(fileName: string, searchPaths: readonly string[]): string[] {
+    return this.fallback.findFiles(fileName, searchPaths);
   }
 }

@@ -9,11 +9,10 @@ import { Box, Text } from 'ink';
 import Spinner from 'ink-spinner';
 import type { WizardStepProps, WizardAction } from '../types.js';
 import { sanitizeInput } from '../utils.js';
-import { type Config, subagentGenerator } from '@qwen-code/qwen-code-core';
+import { type Config, subagentGenerator } from '@rdmind/rdmind-core';
 import { useKeypress, type Key } from '../../../hooks/useKeypress.js';
 import { keyMatchers, Command } from '../../../keyMatchers.js';
 import { theme } from '../../../semantic-colors.js';
-import { Colors } from '../../../colors.js';
 import { TextInput } from '../../shared/TextInput.js';
 
 /**
@@ -52,7 +51,7 @@ export function DescriptionInput({
       try {
         const generated = await subagentGenerator(
           userDescription,
-          config.getGeminiClient(),
+          config,
           abortController.signal,
         );
 
@@ -142,7 +141,7 @@ export function DescriptionInput({
   return (
     <Box flexDirection="column" gap={1}>
       <Box>
-        <Text color={Colors.Gray}>
+        <Text color={theme.text.secondary}>
           请描述该subagent的作用及适用场景。（尽量详尽描述，以获得最佳效果）
         </Text>
       </Box>

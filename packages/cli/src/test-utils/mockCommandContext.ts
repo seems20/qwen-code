@@ -7,7 +7,7 @@
 import { vi } from 'vitest';
 import type { CommandContext } from '../ui/commands/types.js';
 import type { LoadedSettings } from '../config/settings.js';
-import type { GitService } from '@qwen-code/qwen-code-core';
+import type { GitService } from '@rdmind/rdmind-core';
 import type { SessionStatsState } from '../ui/contexts/SessionContext.js';
 
 // A utility type to make all properties of an object, and its nested objects, partial.
@@ -57,6 +57,8 @@ export const createMockCommandContext = (
       loadHistory: vi.fn(),
       toggleCorgiMode: vi.fn(),
       toggleVimEnabled: vi.fn(),
+      extensionsUpdateState: new Map(),
+      setExtensionsUpdateState: vi.fn(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
     session: {

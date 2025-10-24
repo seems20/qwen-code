@@ -15,11 +15,11 @@ import {
   getErrorMessage,
   loadServerHierarchicalMemory,
   type FileDiscoveryService,
-} from '@qwen-code/qwen-code-core';
+  type LoadServerHierarchicalMemoryResponse,
+} from '@rdmind/rdmind-core';
 
-vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
+vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...original,
     getErrorMessage: vi.fn((error: unknown) => {
@@ -225,6 +225,7 @@ describe('memoryCommand', () => {
           ignore: [],
           include: [],
         }),
+        getFolderTrust: () => false,
       };
 
       mockContext = createMockCommandContext({
@@ -243,7 +244,7 @@ describe('memoryCommand', () => {
     it('should display success message when memory is refreshed with content', async () => {
       if (!refreshCommand.action) throw new Error('Command has no action');
 
-      const refreshResult = {
+      const refreshResult: LoadServerHierarchicalMemoryResponse = {
         memoryContent: 'new memory content',
         fileCount: 2,
       };

@@ -11,7 +11,7 @@ import {
   CommandKind,
   type SlashCommandActionReturn,
 } from './types.js';
-import { getProjectSummaryPrompt } from '@qwen-code/qwen-code-core';
+import { getProjectSummaryPrompt } from '@rdmind/rdmind-core';
 import type { HistoryItemSummary } from '../types.js';
 
 export const summaryCommand: SlashCommand = {
@@ -99,6 +99,7 @@ export const summaryCommand: SlashCommand = {
         ],
         {},
         new AbortController().signal,
+        config.getModel(),
       );
 
       // Extract text from response

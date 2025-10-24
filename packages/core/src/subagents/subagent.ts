@@ -16,7 +16,6 @@ import type {
   ToolConfirmationOutcome,
   ToolCallConfirmationDetails,
 } from '../tools/tools.js';
-import { createContentGenerator } from '../core/contentGenerator.js';
 import { getEnvironmentContext } from '../utils/environmentContext.js';
 import type {
   Content,
@@ -55,6 +54,7 @@ import type { SubagentHooks } from './subagent-hooks.js';
 import { logSubagentExecution } from '../telemetry/loggers.js';
 import { SubagentExecutionEvent } from '../telemetry/types.js';
 import { TaskTool } from '../tools/task.js';
+import { DEFAULT_QWEN_MODEL } from '../config/models.js';
 
 /**
  * @fileoverview Defines the configuration interfaces for a subagent.
@@ -329,7 +329,10 @@ export class SubAgentScope {
       this.eventEmitter?.emit(SubAgentEventType.START, {
         subagentId: this.subagentId,
         name: this.name,
-        model: this.modelConfig.model,
+        model:
+          this.modelConfig.model ||
+          this.runtimeContext.getModel() ||
+          DEFAULT_QWEN_MODEL,
         tools: (this.toolConfig?.tools || ['*']).map((t) =>
           typeof t === 'string' ? t : t.name,
         ),
@@ -367,6 +370,9 @@ export class SubAgentScope {
         };
 
         const responseStream = await chat.sendMessageStream(
+          this.modelConfig.model ||
+            this.runtimeContext.getModel() ||
+            DEFAULT_QWEN_MODEL,
           messageParams,
           promptId,
         );
@@ -381,6 +387,7 @@ export class SubAgentScope {
         let roundText = '';
         let lastUsage: GenerateContentResponseUsageMetadata | undefined =
           undefined;
+        let currentResponseId: string | undefined = undefined;
         for await (const streamEvent of responseStream) {
           if (abortController.signal.aborted) {
             this.terminateMode = SubagentTerminateMode.CANCELLED;
@@ -395,6 +402,10 @@ export class SubAgentScope {
           // Handle chunk events
           if (streamEvent.type === 'chunk') {
             const resp = streamEvent.value;
+            // Track the response ID for tool call correlation
+            if (resp.responseId) {
+              currentResponseId = resp.responseId;
+            }
             if (resp.functionCalls) functionCalls.push(...resp.functionCalls);
             const content = resp.candidates?.[0]?.content;
             const parts = content?.parts || [];
@@ -455,6 +466,7 @@ export class SubAgentScope {
             abortController,
             promptId,
             turnCounter,
+            currentResponseId,
           );
         } else {
           // No tool calls — treat this as the model's final answer.
@@ -543,6 +555,7 @@ export class SubAgentScope {
    * @param {FunctionCall[]} functionCalls - An array of `FunctionCall` objects to process.
    * @param {ToolRegistry} toolRegistry - The tool registry to look up and execute tools.
    * @param {AbortController} abortController - An `AbortController` to signal cancellation of tool executions.
+   * @param {string} responseId - Optional API response ID for correlation with tool calls.
    * @returns {Promise<Content[]>} A promise that resolves to an array of `Content` parts representing the tool responses,
    *          which are then used to update the chat history.
    */
@@ -551,6 +564,7 @@ export class SubAgentScope {
     abortController: AbortController,
     promptId: string,
     currentRound: number,
+    responseId?: string,
   ): Promise<Content[]> {
     const toolResponseParts: Part[] = [];
 
@@ -704,6 +718,7 @@ export class SubAgentScope {
         args,
         isClientInitiated: true,
         prompt_id: promptId,
+        response_id: responseId,
       };
 
       const description = this.getToolDescription(toolName, args);
@@ -819,26 +834,15 @@ export class SubAgentScope {
         generationConfig.systemInstruction = systemInstruction;
       }
 
-      const contentGenerator = await createContentGenerator(
-        this.runtimeContext.getContentGeneratorConfig(),
-        this.runtimeContext,
-        this.runtimeContext.getSessionId(),
-      );
-
-      if (this.modelConfig.model) {
-        await this.runtimeContext.setModel(this.modelConfig.model);
-      }
-
       return new GeminiChat(
         this.runtimeContext,
-        contentGenerator,
         generationConfig,
         start_history,
       );
     } catch (error) {
       await reportError(
         error,
-        'Error initializing Gemini chat session.',
+        'Error initializing chat session.',
         start_history,
         'startChat',
       );

@@ -14,6 +14,7 @@ import {
   DashScopeOpenAICompatibleProvider,
   DeepSeekOpenAICompatibleProvider,
   OpenRouterOpenAICompatibleProvider,
+  XiaohongshuOpenAICompatibleProvider,
   type OpenAICompatibleProvider,
   DefaultOpenAICompatibleProvider,
 } from './provider/index.js';
@@ -26,6 +27,7 @@ export {
   DashScopeOpenAICompatibleProvider,
   DeepSeekOpenAICompatibleProvider,
   OpenRouterOpenAICompatibleProvider,
+  XiaohongshuOpenAICompatibleProvider,
 } from './provider/index.js';
 
 export { OpenAIContentConverter } from './converter.js';
@@ -65,6 +67,14 @@ export function determineProvider(
 
   if (DeepSeekOpenAICompatibleProvider.isDeepSeekProvider(config)) {
     return new DeepSeekOpenAICompatibleProvider(
+      contentGeneratorConfig,
+      cliConfig,
+    );
+  }
+
+  // Check for Xiaohongshu provider
+  if (XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config)) {
+    return new XiaohongshuOpenAICompatibleProvider(
       contentGeneratorConfig,
       cliConfig,
     );

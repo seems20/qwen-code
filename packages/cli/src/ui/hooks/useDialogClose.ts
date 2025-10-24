@@ -6,7 +6,7 @@
 
 import { useCallback } from 'react';
 import { SettingScope } from '../../config/settings.js';
-import type { AuthType } from '@qwen-code/qwen-code-core';
+import type { AuthType } from '@rdmind/rdmind-core';
 
 export interface DialogCloseOptions {
   // Theme dialog
@@ -31,10 +31,6 @@ export interface DialogCloseOptions {
 
   // Folder trust dialog
   isFolderTrustDialogOpen: boolean;
-
-  // Privacy notice
-  showPrivacyNotice: boolean;
-  setShowPrivacyNotice: (show: boolean) => void;
 
   // Welcome back dialog
   showWelcomeBackDialog: boolean;
@@ -61,16 +57,6 @@ export function useDialogClose(options: DialogCloseOptions) {
       return true;
     }
 
-    if (options.isAuthDialogOpen) {
-      // Mimic ESC behavior: only close if already authenticated (same as AuthDialog ESC logic)
-      if (options.selectedAuthType !== undefined) {
-        // Note: We don't await this since we want non-blocking behavior like ESC
-        void options.handleAuthSelect(undefined, SettingScope.User);
-      }
-      // Note: AuthDialog prevents ESC exit if not authenticated, we follow same logic
-      return true;
-    }
-
     if (options.isEditorDialogOpen) {
       // Mimic ESC behavior: call onExit() directly
       options.exitEditorDialog();
@@ -86,12 +72,6 @@ export function useDialogClose(options: DialogCloseOptions) {
     if (options.isFolderTrustDialogOpen) {
       // FolderTrustDialog doesn't expose close function, but ESC would prevent exit
       // We follow the same pattern - prevent exit behavior
-      return true;
-    }
-
-    if (options.showPrivacyNotice) {
-      // PrivacyNotice uses onExit callback
-      options.setShowPrivacyNotice(false);
       return true;
     }
 

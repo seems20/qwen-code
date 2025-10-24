@@ -59,6 +59,7 @@ describe('BuiltinAgentRegistry', () => {
   describe('isBuiltinAgent', () => {
     it('should return true for valid builtin agent names', () => {
       expect(BuiltinAgentRegistry.isBuiltinAgent('general-purpose')).toBe(true);
+      expect(BuiltinAgentRegistry.isBuiltinAgent('changelog')).toBe(true);
     });
 
     it('should return false for invalid names', () => {
@@ -73,6 +74,7 @@ describe('BuiltinAgentRegistry', () => {
 
       expect(names).toBeInstanceOf(Array);
       expect(names).toContain('general-purpose');
+      expect(names).toContain('changelog');
       expect(names.every((name) => typeof name === 'string')).toBe(true);
     });
   });

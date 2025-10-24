@@ -8,7 +8,7 @@ import {
   getErrorMessage,
   loadServerHierarchicalMemory,
   QWEN_DIR,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import path from 'node:path';
 import os from 'os';
 import fs from 'fs/promises';
@@ -266,6 +266,7 @@ export const memoryCommand: SlashCommand = {
                 config.getDebugMode(),
                 config.getFileService(),
                 config.getExtensionContextFilePaths(),
+                config.getFolderTrust(),
                 context.services.settings.merged.context?.importFormat ||
                   'tree', // Use setting or default to 'tree'
                 config.getFileFilteringOptions(),

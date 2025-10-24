@@ -41,11 +41,13 @@ const argv = yargs(hideBin(process.argv))
   .option('f', {
     alias: 'dockerfile',
     type: 'string',
+    default: 'Dockerfile',
     description: 'use <dockerfile> for custom image',
   })
   .option('i', {
     alias: 'image',
     type: 'string',
+    default: cliPkgJson.config.sandboxImageUri,
     description: 'use <image> name for custom image',
   })
   .option('output-file', {
@@ -62,7 +64,7 @@ try {
 } catch (e) {
   console.warn('ERROR: could not detect sandbox container command');
   console.error(e);
-  process.exit(1);
+  process.exit(process.env.CI ? 1 : 0);
 }
 
 if (sandboxCommand === 'sandbox-exec') {
@@ -74,12 +76,10 @@ if (sandboxCommand === 'sandbox-exec') {
 
 console.log(`using ${sandboxCommand} for sandboxing`);
 
-const baseImage = cliPkgJson.config.sandboxImageUri;
-const customImage = argv.i;
-const baseDockerfile = 'Dockerfile';
-const customDockerfile = argv.f;
+const image = argv.i;
+const dockerFile = argv.f;
 
-if (!baseImage?.length) {
+if (!image.length) {
   console.warn(
     'No default image tag specified in gemini-cli/packages/cli/package.json',
   );
@@ -90,23 +90,20 @@ if (!argv.s) {
   execSync('npm run build --workspaces', { stdio: 'inherit' });
 }
 
-console.log('packing @qwen-code/qwen-code ...');
+console.log('packing @rdmind/rdmind ...');
 const cliPackageDir = join('packages', 'cli');
-rmSync(join(cliPackageDir, 'dist', 'qwen-code-*.tgz'), { force: true });
-execSync(
-  `npm pack -w @qwen-code/qwen-code --pack-destination ./packages/cli/dist`,
-  {
-    stdio: 'ignore',
-  },
-);
+rmSync(join(cliPackageDir, 'dist', 'rdmind-rdmind-*.tgz'), { force: true });
+execSync(`npm pack -w @rdmind/rdmind --pack-destination ./packages/cli/dist`, {
+  stdio: 'ignore',
+});
 
-console.log('packing @qwen-code/qwen-code-core ...');
+console.log('packing @rdmind/rdmind-core ...');
 const corePackageDir = join('packages', 'core');
-rmSync(join(corePackageDir, 'dist', 'qwen-code-core-*.tgz'), {
+rmSync(join(corePackageDir, 'dist', 'rdmind-rdmind-core-*.tgz'), {
   force: true,
 });
 execSync(
-  `npm pack -w @qwen-code/qwen-code-core --pack-destination ./packages/core/dist`,
+  `npm pack -w @rdmind/rdmind-core --pack-destination ./packages/core/dist`,
   { stdio: 'ignore' },
 );
 
@@ -115,15 +112,11 @@ const packageVersion = JSON.parse(
 ).version;
 
 chmodSync(
-  join(cliPackageDir, 'dist', `qwen-code-qwen-code-${packageVersion}.tgz`),
+  join(cliPackageDir, 'dist', `rdmind-rdmind-${packageVersion}.tgz`),
   0o755,
 );
 chmodSync(
-  join(
-    corePackageDir,
-    'dist',
-    `qwen-code-qwen-code-core-${packageVersion}.tgz`,
-  ),
+  join(corePackageDir, 'dist', `rdmind-rdmind-core-${packageVersion}.tgz`),
   0o755,
 );
 
@@ -164,7 +157,7 @@ function buildImage(imageName, dockerfile) {
     execSync(
       `${sandboxCommand} build ${buildCommandArgs} ${
         process.env.BUILD_SANDBOX_FLAGS || ''
-      } --build-arg CLI_VERSION_ARG=${npmPackageVersion} -f "${dockerfile}" -t "${imageName}" .`,
+      } --build-arg CLI_VERSION_ARG=${npmPackageVersion} -f "${dockerfile}" -t "${finalImageName}" .`,
       { stdio: buildStdout, shell: shellToUse },
     );
     console.log(`built ${finalImageName}`);
@@ -191,12 +184,6 @@ function buildImage(imageName, dockerfile) {
   }
 }
 
-if (baseImage && baseDockerfile) {
-  buildImage(baseImage, baseDockerfile);
-}
-
-if (customDockerfile && customImage) {
-  buildImage(customImage, customDockerfile);
-}
+buildImage(image, dockerFile);
 
 execSync(`${sandboxCommand} image prune -f`, { stdio: 'ignore' });

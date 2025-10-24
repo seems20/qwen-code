@@ -10,7 +10,7 @@ import {
   AuthType,
   qwenOAuth2Events,
   QwenOAuth2Event,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 
 export interface DeviceAuthorizationInfo {
   verification_uri: string;

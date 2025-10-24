@@ -10,7 +10,7 @@ import { RadioButtonSelect } from '../../shared/RadioButtonSelect.js';
 import { MANAGEMENT_STEPS } from '../types.js';
 import { theme } from '../../../semantic-colors.js';
 import { useLaunchEditor } from '../../../hooks/useLaunchEditor.js';
-import { type SubagentConfig } from '@qwen-code/qwen-code-core';
+import { type SubagentConfig } from '@rdmind/rdmind-core';
 
 interface EditOption {
   id: string;
@@ -82,6 +82,7 @@ export function EditOptionsStep({
       <Box flexDirection="column">
         <RadioButtonSelect
           items={editOptions.map((option) => ({
+            key: option.id,
             label: option.label,
             value: option.id,
           }))}

@@ -78,6 +78,38 @@ export class WorkspaceContext {
     }
   }
 
+  /**
+   * Removes a directory from the workspace.
+   * @param directory The directory path to remove (can be relative or absolute)
+   * @param basePath Optional base path for resolving relative paths (defaults to cwd)
+   */
+  removeDirectory(directory: string, basePath: string = process.cwd()): void {
+    try {
+      const resolved = this.resolveAndValidateDir(directory, basePath);
+      if (process.cwd() === resolved) {
+        throw new Error(`Not allowed to remove current working directory`);
+      }
+      if (!this.directories.has(resolved)) {
+        return;
+      }
+      this.directories.delete(resolved);
+      this.notifyDirectoriesChanged();
+    } catch (err) {
+      console.warn(
+        `[WARN] Failed to remove directory: ${directory} (${err instanceof Error ? err.message : String(err)})`,
+      );
+      throw err;
+    }
+  }
+
+  /**
+   * Returns a list of all directories that are allowed to be removed.
+   */
+  getRemovableDirectories(): string[] {
+    const resolved = path.resolve(process.cwd());
+    return this.getDirectories().filter((d) => d !== resolved);
+  }
+
   private resolveAndValidateDir(
     directory: string,
     basePath: string = process.cwd(),

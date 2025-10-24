@@ -7,10 +7,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EOL } from 'node:os';
 import { ToolConfirmationMessage } from './ToolConfirmationMessage.js';
-import type {
-  ToolCallConfirmationDetails,
-  Config,
-} from '@qwen-code/qwen-code-core';
+import type { ToolCallConfirmationDetails, Config } from '@rdmind/rdmind-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 
 describe('ToolConfirmationMessage', () => {
@@ -153,24 +150,6 @@ describe('ToolConfirmationMessage', () => {
       it('should show "allow always" when folder is trusted', () => {
         const mockConfig = {
           isTrustedFolder: () => true,
-          getIdeMode: () => false,
-        } as unknown as Config;
-
-        const { lastFrame } = renderWithProviders(
-          <ToolConfirmationMessage
-            confirmationDetails={details}
-            config={mockConfig}
-            availableTerminalHeight={30}
-            terminalWidth={80}
-          />,
-        );
-
-        expect(lastFrame()).toContain(alwaysAllowText);
-      });
-
-      it('should show "allow always" when folder trust is undefined', () => {
-        const mockConfig = {
-          isTrustedFolder: () => undefined,
           getIdeMode: () => false,
         } as unknown as Config;
 

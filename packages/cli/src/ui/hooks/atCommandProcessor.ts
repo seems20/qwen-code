@@ -7,12 +7,12 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { PartListUnion, PartUnion } from '@google/genai';
-import type { AnyToolInvocation, Config } from '@qwen-code/qwen-code-core';
+import type { AnyToolInvocation, Config } from '@rdmind/rdmind-core';
 import {
   getErrorMessage,
   isNodeError,
   unescapePath,
-} from '@qwen-code/qwen-code-core';
+} from '@rdmind/rdmind-core';
 import type { HistoryItem, IndividualToolCallDisplay } from '../types.js';
 import { ToolCallStatus } from '../types.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
@@ -146,7 +146,7 @@ export async function handleAtCommand({
   const contentLabelsForDisplay: string[] = [];
   const ignoredByReason: Record<string, string[]> = {
     git: [],
-    gemini: [],
+    rdmind: [],
     both: [],
   };
 
@@ -202,25 +202,25 @@ export async function handleAtCommand({
       respectFileIgnore.respectGitIgnore &&
       fileDiscovery.shouldIgnoreFile(pathName, {
         respectGitIgnore: true,
-        respectGeminiIgnore: false,
+        respectQwenIgnore: false,
       });
-    const geminiIgnored =
-      respectFileIgnore.respectGeminiIgnore &&
+    const qwenIgnored =
+      respectFileIgnore.respectQwenIgnore &&
       fileDiscovery.shouldIgnoreFile(pathName, {
         respectGitIgnore: false,
-        respectGeminiIgnore: true,
+        respectQwenIgnore: true,
       });
 
-    if (gitIgnored || geminiIgnored) {
+    if (gitIgnored || qwenIgnored) {
       const reason =
-        gitIgnored && geminiIgnored ? 'both' : gitIgnored ? 'git' : 'gemini';
+        gitIgnored && qwenIgnored ? 'both' : gitIgnored ? 'git' : 'rdmind';
       ignoredByReason[reason].push(pathName);
       const reasonText =
         reason === 'both'
-          ? 'ignored by both git and gemini'
+          ? 'ignored by both git and rdmind'
           : reason === 'git'
             ? 'git-ignored'
-            : 'gemini-ignored';
+            : 'rdmind-ignored';
       onDebugMessage(`Path ${pathName} is ${reasonText} and will be skipped.`);
       continue;
     }
@@ -356,7 +356,7 @@ export async function handleAtCommand({
   // Inform user about ignored paths
   const totalIgnored =
     ignoredByReason['git'].length +
-    ignoredByReason['gemini'].length +
+    ignoredByReason['rdmind'].length +
     ignoredByReason['both'].length;
 
   if (totalIgnored > 0) {
@@ -364,8 +364,8 @@ export async function handleAtCommand({
     if (ignoredByReason['git'].length) {
       messages.push(`Git-ignored: ${ignoredByReason['git'].join(', ')}`);
     }
-    if (ignoredByReason['gemini'].length) {
-      messages.push(`Gemini-ignored: ${ignoredByReason['gemini'].join(', ')}`);
+    if (ignoredByReason['rdmind'].length) {
+      messages.push(`RDMind-ignored: ${ignoredByReason['rdmind'].join(', ')}`);
     }
     if (ignoredByReason['both'].length) {
       messages.push(`Ignored by both: ${ignoredByReason['both'].join(', ')}`);
@@ -399,7 +399,7 @@ export async function handleAtCommand({
     paths: pathSpecsToRead,
     file_filtering_options: {
       respect_git_ignore: respectFileIgnore.respectGitIgnore,
-      respect_gemini_ignore: respectFileIgnore.respectGeminiIgnore,
+      respect_qwen_ignore: respectFileIgnore.respectQwenIgnore,
     },
     // Use configuration setting
   };

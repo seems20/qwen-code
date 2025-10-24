@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { Box } from 'ink';
 import { RadioButtonSelect } from '../../shared/RadioButtonSelect.js';
 import { MANAGEMENT_STEPS } from '../types.js';
-import { type SubagentConfig } from '@qwen-code/qwen-code-core';
+import { type SubagentConfig } from '@rdmind/rdmind-core';
 
 interface ActionSelectionStepProps {
   selectedAgent: SubagentConfig | null;
@@ -27,10 +27,10 @@ export const ActionSelectionStep = ({
 
   // Filter actions based on whether the agent is built-in
   const allActions = [
-    { label: 'View Agent', value: 'view' as const },
-    { label: 'Edit Agent', value: 'edit' as const },
-    { label: 'Delete Agent', value: 'delete' as const },
-    { label: 'Back', value: 'back' as const },
+    { key: 'view', label: 'View Agent', value: 'view' as const },
+    { key: 'edit', label: 'Edit Agent', value: 'edit' as const },
+    { key: 'delete', label: 'Delete Agent', value: 'delete' as const },
+    { key: 'back', label: 'Back', value: 'back' as const },
   ];
 
   const actions = selectedAgent?.isBuiltin

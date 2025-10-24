@@ -6,7 +6,7 @@
 
 import { Box, Text } from 'ink';
 import { Colors } from '../colors.js';
-import { type ProjectSummaryInfo } from '@qwen-code/qwen-code-core';
+import { type ProjectSummaryInfo } from '@rdmind/rdmind-core';
 import {
   RadioButtonSelect,
   type RadioSelectItem,
@@ -35,10 +35,12 @@ export function WelcomeBackDialog({
 
   const options: Array<RadioSelectItem<'restart' | 'continue'>> = [
     {
+      key: 'restart',
       label: 'Start new chat session',
       value: 'restart',
     },
     {
+      key: 'continue',
       label: 'Continue previous conversation',
       value: 'continue',
     },

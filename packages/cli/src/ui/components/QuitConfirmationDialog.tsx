@@ -38,18 +38,22 @@ export const QuitConfirmationDialog: React.FC<QuitConfirmationDialogProps> = ({
 
   const options: Array<RadioSelectItem<QuitChoice>> = [
     {
+      key: 'quit',
       label: '立即退出 (/quit)',
       value: QuitChoice.QUIT,
     },
     {
+      key: 'summary-and-quit',
       label: '生成总结摘要并退出 (/summary)',
       value: QuitChoice.SUMMARY_AND_QUIT,
     },
     {
+      key: 'save-and-quit',
       label: '保存对话并退出 (/chat save)',
       value: QuitChoice.SAVE_AND_QUIT,
     },
     {
+      key: 'cancel',
       label: '取消（继续使用RDMind）',
       value: QuitChoice.CANCEL,
     },

@@ -4,12 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-
-const execAsync = promisify(exec);
+import { spawnAsync } from '@rdmind/rdmind-core';
 
 /**
  * Checks if the system clipboard contains an image (macOS only for now)
@@ -22,11 +19,10 @@ export async function clipboardHasImage(): Promise<boolean> {
 
   try {
     // Use osascript to check clipboard type
-    const { stdout } = await execAsync(
-      `osascript -e 'clipboard info' 2>/dev/null | grep -qE "«class PNGf»|TIFF picture|JPEG picture|GIF picture|«class JPEG»|«class TIFF»" && echo "true" || echo "false"`,
-      { shell: '/bin/bash' },
-    );
-    return stdout.trim() === 'true';
+    const { stdout } = await spawnAsync('osascript', ['-e', 'clipboard info']);
+    const imageRegex =
+      /«class PNGf»|TIFF picture|JPEG picture|GIF picture|«class JPEG»|«class TIFF»/;
+    return imageRegex.test(stdout);
   } catch {
     return false;
   }
@@ -48,7 +44,7 @@ export async function saveClipboardImage(
     // Create a temporary directory for clipboard images within the target directory
     // This avoids security restrictions on paths outside the target directory
     const baseDir = targetDir || process.cwd();
-    const tempDir = path.join(baseDir, '.gemini-clipboard');
+    const tempDir = path.join(baseDir, '.rdmind-clipboard');
     await fs.mkdir(tempDir, { recursive: true });
 
     // Generate a unique filename with timestamp
@@ -84,7 +80,7 @@ export async function saveClipboardImage(
         end try
       `;
 
-      const { stdout } = await execAsync(`osascript -e '${script}'`);
+      const { stdout } = await spawnAsync('osascript', ['-e', script]);
 
       if (stdout.trim() === 'success') {
         // Verify the file was created and has content
@@ -124,7 +120,7 @@ export async function cleanupOldClipboardImages(
 ): Promise<void> {
   try {
     const baseDir = targetDir || process.cwd();
-    const tempDir = path.join(baseDir, '.gemini-clipboard');
+    const tempDir = path.join(baseDir, '.rdmind-clipboard');
     const files = await fs.readdir(tempDir);
     const oneHourAgo = Date.now() - 60 * 60 * 1000;
 
