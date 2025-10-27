@@ -29,8 +29,7 @@ import { AuthState, MessageType } from '../types.js';
 
 // Mock the error checking functions from the core package to control test scenarios
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...original,
     isGenericQuotaExceededError: vi.fn(),

@@ -27,8 +27,7 @@ import type { LoadedSettings } from './config/settings.js';
 // Mock core modules
 vi.mock('./ui/hooks/atCommandProcessor.js');
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
 
   class MockChatRecordingService {
     initialize = vi.fn();

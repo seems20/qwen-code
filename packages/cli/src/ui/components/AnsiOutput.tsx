@@ -6,11 +6,7 @@
 
 import type React from 'react';
 import { Text } from 'ink';
-import type {
-  AnsiLine,
-  AnsiOutput,
-  AnsiToken,
-} from '@rdmind/rdmind-core';
+import type { AnsiLine, AnsiOutput, AnsiToken } from '@rdmind/rdmind-core';
 
 const DEFAULT_HEIGHT = 24;
 

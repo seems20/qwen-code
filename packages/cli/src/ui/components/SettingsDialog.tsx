@@ -900,8 +900,8 @@ export function SettingsDialog({
         </Text>
         {showRestartPrompt && (
           <Text color={theme.status.warning}>
-            To see changes, RDMind must be restarted. Press r to exit and
-            apply changes now.
+            To see changes, RDMind must be restarted. Press r to exit and apply
+            changes now.
           </Text>
         )}
       </Box>

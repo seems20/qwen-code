@@ -133,30 +133,25 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
     )
     .option('telemetry', {
       type: 'boolean',
-      description:
-        '启用遥测？控制是否发送遥测数据',
+      description: '启用遥测？控制是否发送遥测数据',
     })
     .option('telemetry-target', {
       type: 'string',
       choices: ['local', 'gcp'],
-      description:
-        '设置遥测目标',
+      description: '设置遥测目标',
     })
     .option('telemetry-otlp-endpoint', {
       type: 'string',
-      description:
-        '设置遥测的 OTLP 端点',
+      description: '设置遥测的 OTLP 端点',
     })
     .option('telemetry-otlp-protocol', {
       type: 'string',
       choices: ['grpc', 'http'],
-      description:
-        '设置遥测的 OTLP 协议',
+      description: '设置遥测的 OTLP 协议',
     })
     .option('telemetry-log-prompts', {
       type: 'boolean',
-      description:
-        '启用或禁用遥测中用户提示词的日志记录',
+      description: '启用或禁用遥测中用户提示词的日志记录',
     })
     .option('telemetry-outfile', {
       type: 'string',
@@ -286,8 +281,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           alias: 'e',
           type: 'array',
           string: true,
-          description:
-            '要使用的扩展列表。未提供则使用所有扩展',
+          description: '要使用的扩展列表。未提供则使用所有扩展',
           coerce: (extensions: string[]) =>
             // Handle comma-separated values
             extensions.flatMap((extension) =>

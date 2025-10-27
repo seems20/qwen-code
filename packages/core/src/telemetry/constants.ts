@@ -25,11 +25,9 @@ export const EVENT_IDE_CONNECTION = 'rdmind.ide_connection';
 export const EVENT_CHAT_COMPRESSION = 'rdmind.chat_compression';
 export const EVENT_INVALID_CHUNK = 'rdmind.chat.invalid_chunk';
 export const EVENT_CONTENT_RETRY = 'rdmind.chat.content_retry';
-export const EVENT_CONTENT_RETRY_FAILURE =
-  'rdmind.chat.content_retry_failure';
+export const EVENT_CONTENT_RETRY_FAILURE = 'rdmind.chat.content_retry_failure';
 export const EVENT_CONVERSATION_FINISHED = 'rdmind.conversation_finished';
-export const EVENT_MALFORMED_JSON_RESPONSE =
-  'rdmind.malformed_json_response';
+export const EVENT_MALFORMED_JSON_RESPONSE = 'rdmind.malformed_json_response';
 export const EVENT_FILE_OPERATION = 'rdmind.file_operation';
 export const EVENT_MODEL_SLASH_COMMAND = 'rdmind.slash_command.model';
 export const EVENT_SUBAGENT_EXECUTION = 'rdmind.subagent_execution';

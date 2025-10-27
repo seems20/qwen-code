@@ -15,11 +15,13 @@
 项目已从**多包模式**迁移到**单包打包模式**：
 
 **旧架构（多包模式）**：
+
 - 发布 `@rdmind/rdmind` 和 `@rdmind/rdmind-core` 两个包
 - 使用 `npm publish --workspaces`
 - 需要管理包之间的依赖关系
 
 **新架构（单包打包模式）**：
+
 - 只发布单个包 `@rdmind/rdmind`
 - 使用 esbuild 将所有代码打包到 `dist/cli.js`
 - 包含平台相关的 ripgrep 二进制文件在 `dist/vendor/`
@@ -85,18 +87,20 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 ### 步骤 3: 打包项目（Bundle）
 
 执行 `npm run bundle`，包含以下操作：
+
 - 删除并重新创建 `dist/` 目录
 - 生成 Git 提交信息
 - 使用 esbuild 打包 CLI 代码到 `dist/cli.js`
   - 设置 `packages: 'bundle'` 进行激进打包
   - 添加 Node.js shims 以提高 ESM 兼容性
   - 目标平台：Node.js 20+
-- 复制 sandbox 配置文件（*.sb）到 `dist/`
+- 复制 sandbox 配置文件（\*.sb）到 `dist/`
 - 复制 ripgrep 二进制文件到 `dist/vendor/`（包含所有平台）
 
 ### 步骤 4: 准备发布包
 
 执行 `npm run prepare:package`，包含以下操作：
+
 - 验证 `dist/cli.js` 和 `dist/vendor/` 存在
 - 复制 `README.md` 和 `LICENSE` 到 `dist/`
 - 复制模板和知识库文件：
@@ -308,16 +312,16 @@ npm run prepare:package
 
 ## 关键差异：新旧架构对比
 
-| 项目 | 旧架构（多包模式） | 新架构（单包打包模式） |
-|------|------------------|---------------------|
-| 发布包数量 | 2个（rdmind + rdmind-core） | 1个（rdmind） |
-| 构建方式 | TypeScript 编译 | esbuild 打包 |
-| 构建命令 | `npm run build` | `npm run bundle` |
-| 发布命令 | `npm publish --workspaces` | `cd dist && npm publish` |
-| 依赖管理 | 包间依赖 | 全部打包到 cli.js |
-| 文件大小 | 多个小文件 | 单个大文件（~14MB） |
-| 二进制文件 | 未包含 | 包含所有平台 ripgrep |
-| 安装速度 | 较慢（多依赖） | 较快（少依赖） |
+| 项目       | 旧架构（多包模式）          | 新架构（单包打包模式）   |
+| ---------- | --------------------------- | ------------------------ |
+| 发布包数量 | 2个（rdmind + rdmind-core） | 1个（rdmind）            |
+| 构建方式   | TypeScript 编译             | esbuild 打包             |
+| 构建命令   | `npm run build`             | `npm run bundle`         |
+| 发布命令   | `npm publish --workspaces`  | `cd dist && npm publish` |
+| 依赖管理   | 包间依赖                    | 全部打包到 cli.js        |
+| 文件大小   | 多个小文件                  | 单个大文件（~14MB）      |
+| 二进制文件 | 未包含                      | 包含所有平台 ripgrep     |
+| 安装速度   | 较慢（多依赖）              | 较快（少依赖）           |
 
 ## 测试发布
 

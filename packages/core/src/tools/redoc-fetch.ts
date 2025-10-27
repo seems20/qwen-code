@@ -211,7 +211,7 @@ ${processedContent}
         [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
         {},
         signal,
-        this.config.getModel() || DEFAULT_QWEN_MODEL
+        this.config.getModel() || DEFAULT_QWEN_MODEL,
       );
       const resultText = getResponseText(result) || '';
 

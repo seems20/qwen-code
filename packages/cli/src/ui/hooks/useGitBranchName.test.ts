@@ -14,9 +14,9 @@ import { spawnAsync as mockSpawnAsync } from '@rdmind/rdmind-core';
 
 // Mock @rdmind/rdmind-core
 vi.mock('@rdmind/rdmind-core', async () => {
-  const original = await vi.importActual<
-    typeof import('@rdmind/rdmind-core')
-  >('@rdmind/rdmind-core');
+  const original = await vi.importActual<typeof import('@rdmind/rdmind-core')>(
+    '@rdmind/rdmind-core',
+  );
   return {
     ...original,
     spawnAsync: vi.fn(),

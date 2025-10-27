@@ -35,11 +35,7 @@ import {
 } from './utils/cleanup.js';
 import { getCliVersion } from './utils/version.js';
 import type { Config } from '@rdmind/rdmind-core';
-import {
-  AuthType,
-  getOauthClient,
-  logUserPrompt,
-} from '@rdmind/rdmind-core';
+import { AuthType, getOauthClient, logUserPrompt } from '@rdmind/rdmind-core';
 import {
   initializeApp,
   type InitializationResult,

@@ -20,8 +20,7 @@ import { Type } from '@google/genai';
 import { MessageType } from '../types.js';
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   const mockAuthenticate = vi.fn();
   return {
     ...actual,

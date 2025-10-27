@@ -11,10 +11,7 @@ import type React from 'react';
 import { ToolGroupMessage } from './ToolGroupMessage.js';
 import type { IndividualToolCallDisplay } from '../../types.js';
 import { ToolCallStatus } from '../../types.js';
-import type {
-  Config,
-  ToolCallConfirmationDetails,
-} from '@rdmind/rdmind-core';
+import type { Config, ToolCallConfirmationDetails } from '@rdmind/rdmind-core';
 import { TOOL_STATUS } from '../../constants.js';
 import { ConfigContext } from '../../contexts/ConfigContext.js';
 

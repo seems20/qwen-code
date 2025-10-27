@@ -61,8 +61,7 @@ const mockLogExtensionInstallEvent = vi.hoisted(() => vi.fn());
 const mockLogExtensionUninstall = vi.hoisted(() => vi.fn());
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...actual,
     logExtensionInstallEvent: mockLogExtensionInstallEvent,

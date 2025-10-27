@@ -30,8 +30,7 @@ const { logSlashCommand } = vi.hoisted(() => ({
 }));
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...original,
     logSlashCommand,
