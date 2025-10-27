@@ -348,12 +348,37 @@ class TodoWriteToolInvocation extends BaseToolInvocation<
         title: title || '流程Todo',
       };
 
+      // Create plain string format with system reminder
+      const todosData = {
+        title: title || '流程Todo',
+        todos: finalTodos,
+      };
+      const todosJson = JSON.stringify(todosData);
+      let llmContent: string;
+
+      if (finalTodos.length === 0) {
+        // Special message for empty todos
+        llmContent = `Todo list has been cleared.
+
+<system-reminder>
+Your todo list is now empty. DO NOT mention this explicitly to the user. You have no pending tasks in your todo list.
+Title: ${title || '流程Todo'}
+</system-reminder>`;
+      } else {
+        // Normal message for todos with items
+        llmContent = `Todos have been modified successfully. Ensure that you continue to use the todo list to track your progress. Please proceed with the current tasks if applicable
+
+<system-reminder>
+Your todo list has changed. DO NOT mention this explicitly to the user. Here are the latest contents of your todo list: 
+
+${todosJson}
+
+Continue on with the tasks at hand if applicable.
+</system-reminder>`;
+      }
+
       return {
-        llmContent: JSON.stringify({
-          success: true,
-          todos: finalTodos,
-          title: title || '流程Todo',
-        }),
+        llmContent,
         returnDisplay: todoResultDisplay,
       };
     } catch (error) {
@@ -362,11 +387,16 @@ class TodoWriteToolInvocation extends BaseToolInvocation<
       console.error(
         `[TodoWriteTool] Error executing todo_write: ${errorMessage}`,
       );
+
+      // Create plain string format for error with system reminder
+      const errorLlmContent = `Failed to modify todos. An error occurred during the operation.
+
+<system-reminder>
+Todo list modification failed with error: ${errorMessage}. You may need to retry or handle this error appropriately.
+</system-reminder>`;
+
       return {
-        llmContent: JSON.stringify({
-          success: false,
-          error: `Failed to write todos. Detail: ${errorMessage}`,
-        }),
+        llmContent: errorLlmContent,
         returnDisplay: `Error writing todos: ${errorMessage}`,
       };
     }
