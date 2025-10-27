@@ -41,7 +41,7 @@ vi.mock('node:fs');
 describe('Core System Prompt (prompts.ts)', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    vi.stubEnv('QWEN_SYSTEM_MD', undefined);
+    vi.stubEnv('RDMind_SYSTEM_MD', undefined);
     vi.stubEnv('QWEN_WRITE_SYSTEM_MD', undefined);
   });
 
@@ -123,33 +123,33 @@ describe('Core System Prompt (prompts.ts)', () => {
     expect(prompt).toMatchSnapshot();
   });
 
-  describe('QWEN_SYSTEM_MD environment variable', () => {
-    it('should use default prompt when QWEN_SYSTEM_MD is "false"', () => {
-      vi.stubEnv('QWEN_SYSTEM_MD', 'false');
+  describe('RDMind_SYSTEM_MD environment variable', () => {
+    it('should use default prompt when RDMind_SYSTEM_MD is "false"', () => {
+      vi.stubEnv('RDMind_SYSTEM_MD', 'false');
       const prompt = getCoreSystemPrompt();
       expect(fs.readFileSync).not.toHaveBeenCalled();
       expect(prompt).not.toContain('custom system prompt');
     });
 
-    it('should use default prompt when QWEN_SYSTEM_MD is "0"', () => {
-      vi.stubEnv('QWEN_SYSTEM_MD', '0');
+    it('should use default prompt when RDMind_SYSTEM_MD is "0"', () => {
+      vi.stubEnv('RDMind_SYSTEM_MD', '0');
       const prompt = getCoreSystemPrompt();
       expect(fs.readFileSync).not.toHaveBeenCalled();
       expect(prompt).not.toContain('custom system prompt');
     });
 
-    it('should throw error if QWEN_SYSTEM_MD points to a non-existent file', () => {
+    it('should throw error if RDMind_SYSTEM_MD points to a non-existent file', () => {
       const customPath = '/non/existent/path/system.md';
-      vi.stubEnv('QWEN_SYSTEM_MD', customPath);
+      vi.stubEnv('RDMind_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(false);
       expect(() => getCoreSystemPrompt()).toThrow(
         `missing system prompt file '${path.resolve(customPath)}'`,
       );
     });
 
-    it('should read from default path when QWEN_SYSTEM_MD is "true"', () => {
+    it('should read from default path when RDMind_SYSTEM_MD is "true"', () => {
       const defaultPath = path.resolve(path.join(QWEN_CONFIG_DIR, 'system.md'));
-      vi.stubEnv('QWEN_SYSTEM_MD', 'true');
+      vi.stubEnv('RDMind_SYSTEM_MD', 'true');
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
@@ -158,9 +158,9 @@ describe('Core System Prompt (prompts.ts)', () => {
       expect(prompt).toBe('custom system prompt');
     });
 
-    it('should read from default path when QWEN_SYSTEM_MD is "1"', () => {
+    it('should read from default path when RDMind_SYSTEM_MD is "1"', () => {
       const defaultPath = path.resolve(path.join(QWEN_CONFIG_DIR, 'system.md'));
-      vi.stubEnv('QWEN_SYSTEM_MD', '1');
+      vi.stubEnv('RDMind_SYSTEM_MD', '1');
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
@@ -169,9 +169,9 @@ describe('Core System Prompt (prompts.ts)', () => {
       expect(prompt).toBe('custom system prompt');
     });
 
-    it('should read from custom path when QWEN_SYSTEM_MD provides one, preserving case', () => {
+    it('should read from custom path when RDMind_SYSTEM_MD provides one, preserving case', () => {
       const customPath = path.resolve('/custom/path/SyStEm.Md');
-      vi.stubEnv('QWEN_SYSTEM_MD', customPath);
+      vi.stubEnv('RDMind_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
@@ -180,12 +180,12 @@ describe('Core System Prompt (prompts.ts)', () => {
       expect(prompt).toBe('custom system prompt');
     });
 
-    it('should expand tilde in custom path when QWEN_SYSTEM_MD is set', () => {
+    it('should expand tilde in custom path when RDMind_SYSTEM_MD is set', () => {
       const homeDir = '/Users/test';
       vi.spyOn(os, 'homedir').mockReturnValue(homeDir);
       const customPath = '~/custom/system.md';
       const expectedPath = path.join(homeDir, 'custom/system.md');
-      vi.stubEnv('QWEN_SYSTEM_MD', customPath);
+      vi.stubEnv('RDMind_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
