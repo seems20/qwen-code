@@ -16,18 +16,18 @@ import type { ICommandLoader } from './types.js';
 import type { PromptArgument } from '@modelcontextprotocol/sdk/types.js';
 
 /**
- * Discovers and loads executable slash commands from prompts exposed by
- * Model-Context-Protocol (MCP) servers.
+ * 从模型上下文协议 (MCP) 服务器公开的提示词中
+ * 发现并加载可执行的斜杠命令
  */
 export class McpPromptLoader implements ICommandLoader {
   constructor(private readonly config: Config | null) {}
 
   /**
-   * Loads all available prompts from all configured MCP servers and adapts
-   * them into executable SlashCommand objects.
+   * 从所有已配置的 MCP 服务器加载所有可用的提示词，并将
+   * 它们适配为可执行的 SlashCommand 对象
    *
-   * @param _signal An AbortSignal (unused for this synchronous loader).
-   * @returns A promise that resolves to an array of loaded SlashCommands.
+   * @param _signal 一个 AbortSignal（在此同步加载器中未使用）
+   * @returns 返回一个 Promise，解析为已加载的 SlashCommands 数组
    */
   loadCommands(_signal: AbortSignal): Promise<SlashCommand[]> {
     const promptCommands: SlashCommand[] = [];
@@ -213,8 +213,8 @@ export class McpPromptLoader implements ICommandLoader {
   }
 
   /**
-   * Parses the `userArgs` string representing the prompt arguments (all the text
-   * after the command) into a record matching the shape of the `promptArgs`.
+   * 解析表示提示词参数的 `userArgs` 字符串（命令后的所有文本）
+   * 为匹配 `promptArgs` 形状的记录
    *
    * @param userArgs
    * @param promptArgs

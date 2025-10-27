@@ -37,7 +37,7 @@ export const toolsCommand: SlashCommand = {
     }
 
     const tools = toolRegistry.getAllTools();
-    // Filter out MCP tools by checking for the absence of a serverName property
+    // 通过检查是否缺少 serverName 属性来过滤掉 MCP 工具
     const geminiTools = tools.filter((tool) => !('serverName' in tool));
 
     const toolsListItem: HistoryItemToolsList = {

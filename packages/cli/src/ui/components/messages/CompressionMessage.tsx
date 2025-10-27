@@ -16,8 +16,8 @@ export interface CompressionDisplayProps {
 }
 
 /*
- * Compression messages appear when the /compress command is run, and show a loading spinner
- * while compression is in progress, followed up by some compression stats.
+ * 压缩消息在运行 /compress 命令时出现，在压缩进行中显示加载旋转器
+ * 然后显示一些压缩统计信息
  */
 export function CompressionMessage({
   compression,
