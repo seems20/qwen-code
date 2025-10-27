@@ -2,12 +2,28 @@
 
 ## 概述
 
-`publish.js` 脚本自动化了版本发布的整个流程，包括：
+`publish.js` 脚本自动化了版本发布的整个流程，使用**单包打包模式**（Bundle Distribution），包括：
 
 1. 更新所有包的版本号
 2. 清理旧的构建文件
-3. 构建项目
-4. 发布到 npm
+3. 打包项目（esbuild bundle）
+4. 准备发布包元数据
+5. 发布到 npm
+
+### 架构变更说明
+
+项目已从**多包模式**迁移到**单包打包模式**：
+
+**旧架构（多包模式）**：
+- 发布 `@rdmind/rdmind` 和 `@rdmind/rdmind-core` 两个包
+- 使用 `npm publish --workspaces`
+- 需要管理包之间的依赖关系
+
+**新架构（单包打包模式）**：
+- 只发布单个包 `@rdmind/rdmind`
+- 使用 esbuild 将所有代码打包到 `dist/cli.js`
+- 包含平台相关的 ripgrep 二进制文件在 `dist/vendor/`
+- 从 `dist/` 目录直接发布
 
 ## 使用方法
 
@@ -60,37 +76,86 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 - 更新 `sandboxImageUri` 配置
 - 运行 `npm install` 更新 `package-lock.json`
 
-### 步骤 2: 清理构建文件
+### 步骤 2: 清理旧的构建文件
 
-- 删除所有 `dist/` 目录
-- 删除 `bundle/` 目录
+- 删除根目录的 `dist/` 目录
+- 删除所有工作空间的 `dist/` 目录
 - 清理所有临时文件
 
-### 步骤 3: 构建项目
+### 步骤 3: 打包项目（Bundle）
 
+执行 `npm run bundle`，包含以下操作：
+- 删除并重新创建 `dist/` 目录
 - 生成 Git 提交信息
-- 运行 esbuild 打包
-- 复制资源文件（template, .knowledge 等）
-- 构建所有 workspace 包
-- 构建 VSCode 扩展
+- 使用 esbuild 打包 CLI 代码到 `dist/cli.js`
+  - 设置 `packages: 'bundle'` 进行激进打包
+  - 添加 Node.js shims 以提高 ESM 兼容性
+  - 目标平台：Node.js 20+
+- 复制 sandbox 配置文件（*.sb）到 `dist/`
+- 复制 ripgrep 二进制文件到 `dist/vendor/`（包含所有平台）
 
-### 步骤 4: 发布到 npm
+### 步骤 4: 准备发布包
 
-- 使用 `npm publish --workspaces` 发布所有公开包
-- 自动跳过 private 包（test-utils）
+执行 `npm run prepare:package`，包含以下操作：
+- 验证 `dist/cli.js` 和 `dist/vendor/` 存在
+- 复制 `README.md` 和 `LICENSE` 到 `dist/`
+- 复制模板和知识库文件：
+  - `packages/cli/template/` → `dist/template/`（Maven 项目模板）
+  - `packages/cli/templates/` → `dist/templates/`（技术设计模板）
+  - `packages/cli/.knowledge/` → `dist/.knowledge/`（知识库文件）
+- 创建 `dist/package.json`，包含：
+  - 基本元数据（name, version, description）
+  - `bin: { rdmind: 'cli.js' }`
+  - `files: ['cli.js', 'vendor', '*.sb', 'template', 'templates', '.knowledge', 'README.md', 'LICENSE']`
+  - 运行时依赖（仅 tiktoken）
+  - 可选依赖（node-pty 系列）
+
+### 步骤 5: 发布到 npm
+
+- 从 `dist/` 目录执行 `npm publish`
 - 根据指定标签发布（latest/alpha/beta/nightly）
+- 发布包只包含运行时必要的文件
+
+## 发布包结构
+
+发布后的包结构：
+
+```
+@rdmind/rdmind/
+├── cli.js                      # 打包后的 CLI 入口（单文件）
+├── vendor/                     # 平台二进制文件
+│   └── ripgrep/
+│       ├── arm64-darwin/rg     # macOS Apple Silicon
+│       ├── x64-darwin/rg       # macOS Intel
+│       ├── arm64-linux/rg      # Linux ARM64
+│       ├── x64-linux/rg        # Linux x64
+│       └── x64-win32/rg.exe    # Windows x64
+├── template/                   # 项目模板
+│   └── sns-demo/               # Maven 项目模板
+├── templates/                  # 文档模板
+│   └── tech-design-template.md
+├── .knowledge/                 # 知识库文件
+│   ├── BMAD.md
+│   ├── coding.md
+│   └── .ext/
+├── *.sb                        # macOS sandbox 配置
+├── README.md
+├── LICENSE
+└── package.json
+```
 
 ## 发布前检查清单
 
 在运行发布脚本之前，请确保：
 
 - [ ] 所有代码已提交到 Git
-- [ ] 所有测试通过 (`npm test`)
+- [ ] 所有测试通过 (`npm run test`)
 - [ ] 代码已格式化 (`npm run format`)
 - [ ] 代码已通过 linting (`npm run lint`)
 - [ ] 已登录到 npm (`npm login`)
 - [ ] 有发布权限（@rdmind scope）
-- [ ] `.knowledge` 目录已复制到 `packages/cli/` 下
+- [ ] 版本号符合语义化版本规范
+- [ ] CHANGELOG 已更新（如有必要）
 
 ## 发布后验证
 
@@ -178,16 +243,33 @@ npm run publish 0.0.13
 1. 使用更高的版本号
 2. 或使用不同的标签（如 alpha）
 
-### 问题 5: .knowledge 目录未包含
+### 问题 5: 打包失败
+
+**错误信息**: `Error: Bundle not found at dist/cli.js`
 
 **解决方案**:
 
 ```bash
-# 确保 .knowledge 目录已复制到 cli 包
-cp -r .knowledge packages/cli/
+# 清理后重新打包
+npm run clean
+npm run bundle
 
-# 然后重新发布
-npm run publish <version>
+# 检查 dist 目录是否生成
+ls -lh dist/
+```
+
+### 问题 6: 模板文件未包含
+
+**解决方案**:
+
+```bash
+# 确保源文件存在
+ls -la packages/cli/template
+ls -la packages/cli/templates
+ls -la packages/cli/.knowledge
+
+# 重新运行准备脚本
+npm run prepare:package
 ```
 
 ## 自动更新机制
@@ -224,21 +306,62 @@ npm run publish <version>
    - 记录每个版本的更改内容
    - 包含新功能、修复和破坏性更改
 
+## 关键差异：新旧架构对比
+
+| 项目 | 旧架构（多包模式） | 新架构（单包打包模式） |
+|------|------------------|---------------------|
+| 发布包数量 | 2个（rdmind + rdmind-core） | 1个（rdmind） |
+| 构建方式 | TypeScript 编译 | esbuild 打包 |
+| 构建命令 | `npm run build` | `npm run bundle` |
+| 发布命令 | `npm publish --workspaces` | `cd dist && npm publish` |
+| 依赖管理 | 包间依赖 | 全部打包到 cli.js |
+| 文件大小 | 多个小文件 | 单个大文件（~14MB） |
+| 二进制文件 | 未包含 | 包含所有平台 ripgrep |
+| 安装速度 | 较慢（多依赖） | 较快（少依赖） |
+
+## 测试发布
+
+在正式发布前，建议先测试打包：
+
+```bash
+# 1. 打包测试
+npm run bundle
+npm run prepare:package
+
+# 2. 查看生成的包结构
+ls -lh dist/
+tree dist/ -L 2
+
+# 3. 检查 package.json
+cat dist/package.json
+
+# 4. 创建测试包
+cd dist && npm pack
+
+# 5. 本地安装测试
+npm install -g ./rdmind-rdmind-0.0.16.tgz
+rdmind --version
+rdmind --help
+```
+
 ## 相关命令
 
 ```bash
-# 只更新版本号（不构建和发布）
+# 只更新版本号（不打包和发布）
 npm run release:version 0.0.13
 
 # 只清理
 npm run clean
 
-# 只构建
-npm run build
+# 只打包（esbuild bundle）
+npm run bundle
 
-# 只发布（需要先手动构建）
-npm publish --workspaces
-npm publish --workspaces --tag alpha
+# 只准备发布包元数据
+npm run prepare:package
+
+# 手动发布（需要先执行上述步骤）
+cd dist && npm publish
+cd dist && npm publish --tag alpha
 ```
 
 ## 联系方式

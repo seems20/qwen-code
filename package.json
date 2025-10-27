@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.15-alpha.2",
+  "version": "0.0.15-alpha.7",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.15-alpha.2"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.15-alpha.7"
   },
   "scripts": {
     "start": "cross-env node scripts/start.js",
@@ -24,7 +24,7 @@
     "build:all": "npm run build && npm run build:sandbox && npm run build:vscode",
     "build:packages": "npm run build --workspaces",
     "build:sandbox": "node scripts/build_sandbox.js",
-    "bundle": "npm run generate && node esbuild.config.js && node scripts/copy_bundle_assets.js",
+    "bundle": "rm -rf dist && npm run generate && node esbuild.config.js && node scripts/copy_bundle_assets.js",
     "test": "npm run test --workspaces --if-present --parallel",
     "test:ci": "npm run test:ci --workspaces --if-present --parallel && npm run test:scripts",
     "test:scripts": "vitest run --config ./scripts/tests/vitest.config.ts",
@@ -61,10 +61,10 @@
     }
   },
   "bin": {
-    "rdmind": "bundle/gemini.js"
+    "rdmind": "dist/cli.js"
   },
   "files": [
-    "bundle/",
+    "dist/",
     "README.md",
     "LICENSE"
   ],
