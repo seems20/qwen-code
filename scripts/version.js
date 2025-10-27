@@ -103,17 +103,8 @@ if (cliPackageJson.config?.sandboxImageUri) {
   writeJson(cliPackageJsonPath, cliPackageJson);
 }
 
-// 7. Update @rdmind/rdmind-core dependency version in CLI package
-const cliPackageJson2 = readJson(cliPackageJsonPath);
-if (cliPackageJson2.dependencies?.['@rdmind/rdmind-core']) {
-  cliPackageJson2.dependencies['@rdmind/rdmind-core'] = `^${newVersion}`;
-  console.log(
-    `Updated @rdmind/rdmind-core dependency in cli package to ^${newVersion}`,
-  );
-  writeJson(cliPackageJsonPath, cliPackageJson2);
-}
-
-// 8. Run `npm install` to update package-lock.json.
+// 7. Run `npm install` to update package-lock.json.
+// Note: @rdmind/rdmind-core uses "file:../core" protocol, so no need to update version
 run(
   'npm install --workspace packages/cli --workspace packages/core --package-lock-only',
 );
