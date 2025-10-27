@@ -96,8 +96,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       - shell 命令
     </Text>
     <Text color={theme.text.primary}>
-      <Text color={theme.text.secondary}>[MCP]</Text> - Model Context Protocol
-      command (from external servers)
+      <Text color={theme.text.secondary}>[MCP]</Text> - 模型上下文协议命令（来自外部服务器）
     </Text>
 
     <Box height={1} />
