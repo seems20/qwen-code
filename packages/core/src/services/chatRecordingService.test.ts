@@ -219,7 +219,7 @@ describe('ChatRecordingService', () => {
         messages: [
           {
             id: '1',
-            type: 'qwen',
+            type: 'rdmind',
             content: 'Response',
             timestamp: new Date().toISOString(),
           },
@@ -261,7 +261,7 @@ describe('ChatRecordingService', () => {
         messages: [
           {
             id: '1',
-            type: 'qwen',
+            type: 'rdmind',
             content: 'Response',
             timestamp: new Date().toISOString(),
             tokens: { input: 1, output: 1, total: 2, cached: 0 },
@@ -306,7 +306,7 @@ describe('ChatRecordingService', () => {
         messages: [
           {
             id: '1',
-            type: 'qwen',
+            type: 'rdmind',
             content: '',
             timestamp: new Date().toISOString(),
           },
@@ -382,7 +382,7 @@ describe('ChatRecordingService', () => {
         ...conversation.messages[1],
         id: 'this-is-a-test-uuid',
         model: 'gemini-pro',
-        type: 'qwen',
+        type: 'rdmind',
         thoughts: [],
         content: '',
         toolCalls: [
