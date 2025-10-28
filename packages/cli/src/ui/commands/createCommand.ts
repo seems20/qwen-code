@@ -434,7 +434,7 @@ async function createJavaFlsProject(
  */
 const javaSnsCommand: SlashCommand = {
   name: 'sns',
-  description: '创建基于SNS业务模块的Java项目',
+  description: '社区',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -460,7 +460,7 @@ const javaSnsCommand: SlashCommand = {
  */
 const javaFlsCommand: SlashCommand = {
   name: 'fls',
-  description: '创建基于FLS业务模块的Java项目',
+  description: '电商',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -499,7 +499,7 @@ const javaCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: '❌ 请选择业务模块类型。\n\n可用的业务模块：\n• sns - SNS社交业务模块\n• fls - FLS业务模块\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>',
+          text: '❌ 请选择业务模块类型。\n\n可用的业务模块：\n• sns - 社区业务模块\n• fls - 业务模块\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>',
         },
         Date.now(),
       );
@@ -529,7 +529,7 @@ const javaCommand: SlashCommand = {
 
 export const createCommand: SlashCommand = {
   name: 'create',
-  description: '创建项目脚手架',
+  description: '创建项目脚手架，用法：/create java sns <项目名>',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaCommand],
   action: async (
@@ -542,7 +542,7 @@ export const createCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: '❌ 请选择业务模块类型。\n\n可用的业务模块：\n• sns - SNS社交业务模块\n• fls - FLS业务模块\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>',
+          text: '❌ 请选择业务模块类型。\n\n可用的业务模块：\n• sns - 社区业务模块\n• fls - 业务模块\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>',
         },
         Date.now(),
       );

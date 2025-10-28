@@ -122,7 +122,7 @@ export const memoryCommand: SlashCommand = {
     {
       name: 'add',
       description:
-        '向记忆中添加内容。--global 添加到全局记忆或 --project 添加到项目记忆',
+        '向记忆中添加内容，--global 添加到全局记忆或 --project 添加到项目记忆',
       kind: CommandKind.BUILT_IN,
       action: (context, args): SlashCommandActionReturn | void => {
         if (!args || args.trim() === '') {

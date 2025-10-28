@@ -138,7 +138,7 @@ const listExtensionsCommand: SlashCommand = {
 
 const updateExtensionsCommand: SlashCommand = {
   name: 'update',
-  description: '更新扩展。用法: update <extension-names>|--all',
+  description: '更新扩展，用法：update <extension-names>|--all',
   kind: CommandKind.BUILT_IN,
   action: updateAction,
   completion: async (context, partialArg) => {

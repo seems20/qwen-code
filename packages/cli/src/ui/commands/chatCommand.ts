@@ -102,7 +102,7 @@ const listCommand: SlashCommand = {
 
 const saveCommand: SlashCommand = {
   name: 'save',
-  description: '将当前对话保存为检查点，用法: /chat save <tag>',
+  description: '将当前对话保存为检查点，用法：/chat save <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args): Promise<SlashCommandActionReturn | void> => {
     const tag = args.trim();
@@ -166,7 +166,7 @@ const saveCommand: SlashCommand = {
 const resumeCommand: SlashCommand = {
   name: 'resume',
   altNames: ['load'],
-  description: '从检查点恢复对话，用法: /chat resume <tag>',
+  description: '从检查点恢复对话，用法：/chat resume <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args) => {
     const tag = args.trim();
@@ -235,7 +235,7 @@ const resumeCommand: SlashCommand = {
 
 const deleteCommand: SlashCommand = {
   name: 'delete',
-  description: '删除对话检查点，用法: /chat delete <tag>',
+  description: '删除对话检查点，用法：/chat delete <tag>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args): Promise<MessageActionReturn> => {
     const tag = args.trim();
@@ -308,7 +308,7 @@ export function serializeHistoryToMarkdown(history: Content[]): string {
 const shareCommand: SlashCommand = {
   name: 'share',
   description:
-    'Share the current conversation to a markdown or json file. Usage: /chat share <file>',
+    '将当前对话分享到 markdown 或 json 文件，用法：/chat share <文件>',
   kind: CommandKind.BUILT_IN,
   action: async (context, args): Promise<MessageActionReturn> => {
     let filePathArg = args.trim();

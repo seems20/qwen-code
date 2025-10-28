@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.16-alpha.2",
+  "version": "0.0.16-alpha.3",
   "description": "RDMind",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
     "access": "public"
   },
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.16-alpha.2"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.16-alpha.3"
   },
   "dependencies": {
     "@google/genai": "1.16.0",
