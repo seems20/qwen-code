@@ -198,16 +198,15 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         // 如果不是 JSON，直接使用原始内容
         processedContent = content;
       }
-      const fallbackPrompt = `用户请求如下："${this.params.prompt}"。
+      const fallbackPrompt = `${this.params.prompt}
 
-我已经从 ${this.params.url} 获取了小红书 Redoc 文档内容。这是一个结构化的文档，包含了完整的内容信息。请仔细分析文档内容并回答用户的请求。
+以下是从 ${this.params.url} 获取的小红书 Redoc 文档内容：
 
-文档内容：
 ---
 ${processedContent}
 ---
 
-请根据文档内容提供准确、详细的回答。如果文档是 JSON 格式的结构化内容，请从中提取关键信息进行分析和总结。`;
+请根据上述文档内容，完成用户的请求。`;
 
       const result = await geminiClient.generateContent(
         [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
