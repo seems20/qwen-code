@@ -148,7 +148,9 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
   override async shouldConfirmExecute(): Promise<
     ToolCallConfirmationDetails | false
   > {
-    if (this.config.getApprovalMode() === ApprovalMode.AUTO_EDIT) {
+    const approvalMode = this.config.getApprovalMode();
+    // 在 PLAN 和 AUTO_EDIT 模式下不需要确认
+    if (approvalMode === ApprovalMode.AUTO_EDIT || approvalMode === ApprovalMode.PLAN) {
       return false;
     }
 
