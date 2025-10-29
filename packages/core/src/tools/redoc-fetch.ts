@@ -33,7 +33,8 @@ export interface RedocFetchToolParams {
    */
   url: string;
   /**
-   * 用于处理获取内容的提示词
+   * 描述用户想从文档中了解什么信息的提示词，
+   * 应该根据用户的原始问题生成，不要假设文档类型
    */
   prompt: string;
 }
@@ -122,10 +123,20 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         throw new Error(errorMessage);
       }
 
-      if (!responseData.data?.content) {
-        throw new Error(
-          'Redoc API response does not contain content field in data',
-        );
+      if (!responseData.data) {
+        const errorMessage = 'Redoc API response does not contain data field';
+        console.error(`[RedocFetchTool] ${errorMessage}`);
+        console.error(`[RedocFetchTool] 完整响应数据:`, JSON.stringify(responseData, null, 2));
+        throw new Error(errorMessage);
+      }
+
+      if (!responseData.data.content) {
+        const errorMessage = 'Redoc API response does not contain content field in data';
+        console.error(`[RedocFetchTool] ${errorMessage}`);
+        console.error(`[RedocFetchTool] 完整响应数据:`, JSON.stringify(responseData, null, 2));
+        console.error(`[RedocFetchTool] data 字段内容:`, JSON.stringify(responseData.data, null, 2));
+        console.error(`[RedocFetchTool] data 字段的所有键:`, Object.keys(responseData.data));
+        throw new Error(`${errorMessage}. 可用字段: ${Object.keys(responseData.data).join(', ')}`);
       }
 
       console.debug(
@@ -142,7 +153,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       this.params.prompt.length > 100
         ? this.params.prompt.substring(0, 97) + '...'
         : this.params.prompt;
-    return `Fetching Redoc document from ${this.params.url} and processing with prompt: "${displayPrompt}"`;
+    return `获取 Redoc 文档并分析：${displayPrompt}`;
   }
 
   override async shouldConfirmExecute(): Promise<
@@ -156,8 +167,8 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
     const confirmationDetails: ToolCallConfirmationDetails = {
       type: 'info',
-      title: `Confirm Redoc Document Fetch`,
-      prompt: `Fetch Redoc document from ${this.params.url} and process with: ${this.params.prompt}`,
+      title: `确认获取 Redoc 文档`,
+      prompt: `从 ${this.params.url} 获取文档并分析：${this.params.prompt}`,
       urls: [this.params.url],
       onConfirm: async (outcome: ToolConfirmationOutcome) => {
         if (outcome === ToolConfirmationOutcome.ProceedAlways) {
@@ -198,15 +209,18 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         // 如果不是 JSON，直接使用原始内容
         processedContent = content;
       }
-      const fallbackPrompt = `${this.params.prompt}
+      const fallbackPrompt = `请根据用户的问题分析以下文档内容：
 
-以下是从 ${this.params.url} 获取的小红书 Redoc 文档内容：
+用户问题：${this.params.prompt}
 
+文档来源：${this.params.url}
+
+文档内容：
 ---
 ${processedContent}
 ---
 
-请根据上述文档内容，完成用户的请求。`;
+请根据上述文档内容回答用户的问题。`;
 
       const result = await geminiClient.generateContent(
         [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
@@ -249,7 +263,7 @@ export class RedocFetchTool extends BaseDeclarativeTool<
     super(
       RedocFetchTool.Name,
       'RedocFetch',
-      '从小红书 Redoc 文档获取内容并使用 AI 模型处理\n- 接受 Redoc 文档 URL 和提示词作为输入\n- 从 URL 中提取文档 ID 并通过 Redoc API 获取内容\n- 使用小型快速模型处理内容和提示词\n- 返回模型对内容的响应\n- 专门用于小红书 Redoc 文档\n\n使用说明:\n  - 此工具专门针对格式为 https://docs.xiaohongshu.com/doc/{doc_id} 的 URL\n  - URL 必须包含有效的文档 ID（32 位十六进制字符串）\n  - 提示词应描述您想从文档中提取的信息\n  - 此工具为只读工具，不会修改任何文件\n  - 如果内容很大，结果可能会被摘要',
+      '从小红书 Redoc 文档获取内容并使用 AI 模型处理\n- 接受 Redoc 文档 URL 和提示词作为输入\n- 从 URL 中提取文档 ID 并通过 Redoc API 获取内容\n- 使用 AI 模型处理文档内容并回答用户问题\n- 返回模型对内容的响应\n- 适用于各种类型的小红书 Redoc 文档（技术文档、产品文档、设计文档等）\n\n使用说明:\n  - 此工具专门针对格式为 https://docs.xiaohongshu.com/doc/{doc_id} 的 URL\n  - URL 必须包含有效的文档 ID（32 位十六进制字符串）\n  - 提示词应该清晰描述用户想了解文档的哪些方面\n  - 此工具为只读工具，不会修改任何文件\n  - 如果内容很大，结果可能会被摘要',
       Kind.Fetch,
       {
         properties: {
@@ -259,7 +273,7 @@ export class RedocFetchTool extends BaseDeclarativeTool<
             type: 'string',
           },
           prompt: {
-            description: '用于处理获取内容的提示词',
+            description: '描述用户想从文档中了解什么信息，例如：总结文档主要内容、解释某个概念、查找特定信息等。应该根据用户的原始问题直接转述，不要假设文档类型',
             type: 'string',
           },
         },
