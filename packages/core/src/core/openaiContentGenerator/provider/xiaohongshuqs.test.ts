@@ -22,7 +22,7 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
       ).toBe(true);
     });
 
-    it('should return true for any Xiaohongshu domain', () => {
+    it('should return false for other Xiaohongshu domain paths', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
         baseUrl: 'https://maas.devops.xiaohongshu.com/other-service/v1',
@@ -31,7 +31,7 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
 
       expect(
         XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config),
-      ).toBe(true);
+      ).toBe(false);
     });
 
     it('should return false for non-Xiaohongshu URLs', () => {
