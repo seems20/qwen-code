@@ -17,7 +17,7 @@ import type {
   Config,
   EditorType,
 } from '@rdmind/rdmind-core';
-import { IdeClient, ToolConfirmationOutcome } from '@qwen-code/qwen-code-core';
+import { IdeClient, ToolConfirmationOutcome } from '@rdmind/rdmind-core';
 import type { RadioSelectItem } from '../shared/RadioButtonSelect.js';
 import { RadioButtonSelect } from '../shared/RadioButtonSelect.js';
 import { MaxSizedBox } from '../shared/MaxSizedBox.js';
