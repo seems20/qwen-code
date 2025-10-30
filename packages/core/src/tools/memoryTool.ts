@@ -72,7 +72,7 @@ Do NOT use this tool:
 
 export const QWEN_CONFIG_DIR = '.rdmind';
 export const DEFAULT_CONTEXT_FILENAME = 'RDMind.md';
-export const MEMORY_SECTION_HEADER = '## Qwen Added Memories';
+export const MEMORY_SECTION_HEADER = '## RDMind Added Memories';
 
 // This variable will hold the currently configured filename for RDMind.md context files.
 // It defaults to DEFAULT_CONTEXT_FILENAME but can be overridden by setGeminiMdFilename.
