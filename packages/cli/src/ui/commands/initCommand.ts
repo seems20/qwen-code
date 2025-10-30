@@ -70,7 +70,7 @@ export const initCommand: SlashCommand = {
         context.ui.addItem(
           {
             type: 'info',
-            text: `Empty ${contextFileName} created. Now analyzing the project to populate it.`,
+            text: `已创建空的 ${contextFileName} ，接下来将分析项目来填充内容。`,
           },
           Date.now(),
         );
