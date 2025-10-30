@@ -71,6 +71,18 @@ for (const dir of templateDirs) {
   }
 }
 
+// Copy examples directory (extension boilerplate templates)
+// Note: examples is in a different location (src/commands/extensions/)
+console.log('Copying examples directory...');
+const examplesSourcePath = path.join(cliDir, 'src', 'commands', 'extensions', 'examples');
+const examplesDestPath = path.join(distDir, 'examples');
+if (fs.existsSync(examplesSourcePath)) {
+  copyRecursiveSync(examplesSourcePath, examplesDestPath);
+  console.log('Copied examples/');
+} else {
+  console.warn(`Warning: examples not found at ${examplesSourcePath}`);
+}
+
 // Copy package.json from root and modify it for publishing
 console.log('Creating package.json for distribution...');
 const rootPackageJson = JSON.parse(
@@ -106,6 +118,7 @@ const distPackageJson = {
     '*.sb',
     'template',
     'templates',
+    'examples',
     '.knowledge',
     'README.md',
     'LICENSE',
