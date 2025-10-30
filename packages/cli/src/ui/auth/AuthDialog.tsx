@@ -157,7 +157,7 @@ export function AuthDialog({
     >
       <Text bold>Get started</Text>
       <Box marginTop={1}>
-        <Text>How would you like to authenticate for this project?</Text>
+        <Text>选择你的认证方式</Text>
       </Box>
       <Box marginTop={1}>
         <RadioButtonSelect
@@ -179,7 +179,7 @@ export function AuthDialog({
       </Box>
       <Box marginTop={1}>
         <Text color={Colors.AccentBlue}>
-          {'https://github.com/QwenLM/Qwen3-Coder/blob/main/README.md'}
+          {'https://docs.xiaohongshu.com/doc/03040f132e7201a6b8e95806118a11f3'}
         </Text>
       </Box>
     </Box>
