@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind-test-utils",
-  "version": "0.0.19-alpha.1",
+  "version": "0.0.19",
   "private": true,
   "main": "src/index.ts",
   "license": "Apache-2.0",
