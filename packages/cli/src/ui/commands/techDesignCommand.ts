@@ -34,15 +34,11 @@ function isGitRepository(cwd: string): boolean {
  * 读取技术方案模板
  */
 function readTemplate(): string {
-  // npm 安装后：
-  // 代码在 node_modules/@rdmind/rdmind/dist/src/ui/commands/
+  // npm 安装后，打包代码在包根目录（cli.js）
+  // __dirname 就是 node_modules/@rdmind/rdmind/
   // 模板在 node_modules/@rdmind/rdmind/templates/
   const templatePath = path.join(
     __dirname,
-    '..',
-    '..',
-    '..',
-    '..',
     'templates',
     'tech-design-template.md',
   );
@@ -151,7 +147,8 @@ const solutionCommand: SlashCommand = {
 **第一步：获取 PRD 文档**
 请使用 redoc_fetch 工具获取 PRD 文档内容：
 - URL: ${prdUrl}
-- 提示词：请详细提取 PRD 文档的所有内容，包括需求描述、功能点、交互设计、业务流程等所有信息
+- 提示词：请详细提取 PRD 文档的所有内容，包括需求描述、功能点、交互设计、
+业务流程等所有信息
 
 **第二步：分析代码仓库**
 当前工作目录：${cwd}
