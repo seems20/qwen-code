@@ -120,6 +120,11 @@ export class FileCommandLoader implements ICommandLoader {
         // Add all commands without deduplication
         allCommands.push(...commands);
       } catch (error) {
+        // Ignore AbortError - it's expected when the operation is cancelled
+        if (error instanceof Error && error.name === 'AbortError') {
+          return [];
+        }
+        // Ignore ENOENT - directory doesn't exist
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
           console.error(
             `[FileCommandLoader] Error loading commands from ${dirInfo.path}:`,
