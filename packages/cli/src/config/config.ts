@@ -132,29 +132,29 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
     )
     .option('telemetry', {
       type: 'boolean',
-      description: '启用遥测？控制是否发送遥测数据',
+      description: 'Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.',
     })
     .option('telemetry-target', {
       type: 'string',
       choices: ['local', 'gcp'],
-      description: '设置遥测目标',
+      description: 'Set the telemetry target (local or gcp). Overrides settings files.',
     })
     .option('telemetry-otlp-endpoint', {
       type: 'string',
-      description: '设置遥测的 OTLP 端点',
+      description: 'Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.',
     })
     .option('telemetry-otlp-protocol', {
       type: 'string',
       choices: ['grpc', 'http'],
-      description: '设置遥测的 OTLP 协议',
+      description: 'Set the OTLP protocol for telemetry (grpc or http). Overrides settings files.',
     })
     .option('telemetry-log-prompts', {
       type: 'boolean',
-      description: '启用或禁用遥测中用户提示词的日志记录',
+      description: 'Enable or disable logging of user prompts for telemetry. Overrides settings files.',
     })
     .option('telemetry-outfile', {
       type: 'string',
-      description: '将所有遥测输出重定向到指定文件',
+      description: 'Redirect all telemetry output to the specified file.',
     })
     .deprecateOption(
       'telemetry',
@@ -204,64 +204,64 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('model', {
           alias: 'm',
           type: 'string',
-          description: `模型`,
+          description: `Model`,
         })
         .option('prompt', {
           alias: 'p',
           type: 'string',
-          description: '提示词',
+          description: 'Prompt. Appended to input on stdin (if any).',
         })
         .option('prompt-interactive', {
           alias: 'i',
           type: 'string',
-          description: '根据提供的提示词执行并继续交互模式',
+          description: 'Execute the provided prompt and continue in interactive mode',
         })
         .option('sandbox', {
           alias: 's',
           type: 'boolean',
-          description: '在沙盒中运行？',
+          description: 'Run in sandbox?',
         })
         .option('sandbox-image', {
           type: 'string',
-          description: '沙盒镜像',
+          description: 'Sandbox image URI.',
         })
         .option('all-files', {
           alias: ['a'],
           type: 'boolean',
-          description: '上下文中包含所有文件？',
+          description: 'Include ALL files in context?',
           default: false,
         })
         .option('show-memory-usage', {
           type: 'boolean',
-          description: '状态栏显示使用情况？',
+          description: 'Show memory usage in status bar',
           default: false,
         })
         .option('yolo', {
           alias: 'y',
           type: 'boolean',
-          description: '默认接受所有操作（YOLO 模式）？',
+          description: 'Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?',
           default: false,
         })
         .option('approval-mode', {
           type: 'string',
           choices: ['plan', 'default', 'auto-edit', 'yolo'],
           description:
-            '设置审批模式：plan（只做规划）、default（提示确认）、auto_edit（接受编辑）、yolo（接受所有工具）',
+            'Set the approval mode: plan (plan only), default (prompt for approval), auto-edit (auto-approve edit tools), yolo (auto-approve all tools)',
         })
         .option('checkpointing', {
           alias: 'c',
           type: 'boolean',
-          description: '启用检查点功能',
+          description: 'Enables checkpointing of file edits',
           default: false,
         })
         .option('experimental-acp', {
           type: 'boolean',
-          description: '在 ACP 模式下启动代理',
+          description: 'Starts the agent in ACP mode',
         })
         .option('allowed-mcp-server-names', {
           type: 'array',
           string: true,
-          description: '允许的 MCP 服务名称',
+          description: 'Allowed MCP server names',
           coerce: (mcpServerNames: string[]) =>
             // Handle comma-separated values
             mcpServerNames.flatMap((mcpServerName) =>
@@ -271,7 +271,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('allowed-tools', {
           type: 'array',
           string: true,
-          description: '无需确认即可运行的工具',
+          description: 'Tools that are allowed to run without confirmation',
           coerce: (tools: string[]) =>
             // Handle comma-separated values
             tools.flatMap((tool) => tool.split(',').map((t) => t.trim())),
@@ -280,7 +280,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           alias: 'e',
           type: 'array',
           string: true,
-          description: '要使用的扩展列表。未提供则使用所有扩展',
+          description: 'A list of extensions to use. If not provided, all extensions are used.',
           coerce: (extensions: string[]) =>
             // Handle comma-separated values
             extensions.flatMap((extension) =>
@@ -290,42 +290,42 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('list-extensions', {
           alias: 'l',
           type: 'boolean',
-          description: '列出所有可用扩展并退出',
+          description: 'List all available extensions and exit.',
         })
         .option('include-directories', {
           type: 'array',
           string: true,
           description:
-            '工作区中的额外目录（逗号分隔或多个 --include-directories）',
+            'Additional directories to include in the workspace (comma-separated or multiple --include-directories)',
           coerce: (dirs: string[]) =>
             // Handle comma-separated values
             dirs.flatMap((dir) => dir.split(',').map((d) => d.trim())),
         })
         .option('openai-logging', {
           type: 'boolean',
-          description: '启用 OpenAI API 调用日志记录',
+          description: 'Enable logging of OpenAI API calls for debugging and analysis',
         })
         .option('openai-api-key', {
           type: 'string',
-          description: '用于身份验证的 OpenAI API 密钥',
+          description: 'OpenAI API key to use for authentication',
         })
         .option('openai-base-url', {
           type: 'string',
-          description: 'OpenAI base URL',
+          description: 'OpenAI base URL (for custom endpoints)',
         })
         .option('tavily-api-key', {
           type: 'string',
-          description: 'Tavily API 密钥',
+          description: 'Tavily API key for web search functionality',
         })
         .option('screen-reader', {
           type: 'boolean',
-          description: '启用 screen-reader',
+          description: 'Enable screen reader mode for accessibility.',
         })
         .option('vlm-switch-mode', {
           type: 'string',
           choices: ['once', 'session', 'persist'],
           description:
-            '检测到输入中包含图像时的默认行为。可选值：once（切换一次）、session（整个会话期间切换）、persist（继续使用当前模型）。会覆盖设置文件的配置',
+            'Default behavior when images are detected in input. Values: once (one-time switch), session (switch for entire session), persist (continue with current model). Overrides settings files.',
           default: process.env['VLM_SWITCH_MODE'],
         })
         .option('output-format', {
@@ -369,13 +369,13 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
             : !!query;
 
           if (argv['prompt'] && hasPositionalQuery) {
-            return '不能同时使用位置参数提示词和 --prompt (-p) 标志';
+            return 'Cannot use both a positional prompt and the --prompt (-p) flag together';
           }
           if (argv['prompt'] && argv['promptInteractive']) {
-            return '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)';
+            return 'Cannot use both --prompt (-p) and --prompt-interactive (-i) together';
           }
           if (argv['yolo'] && argv['approvalMode']) {
-            return '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代';
+            return 'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.';
           }
           return true;
         }),

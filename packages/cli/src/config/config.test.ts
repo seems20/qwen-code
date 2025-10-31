@@ -140,7 +140,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)',
+        'Cannot use both --prompt (-p) and --prompt-interactive (-i) together',
       ),
     );
 
@@ -172,7 +172,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用 --prompt (-p) 和 --prompt-interactive (-i)',
+        'Cannot use both --prompt (-p) and --prompt-interactive (-i) together',
       ),
     );
 
@@ -359,7 +359,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代',
+        'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.',
       ),
     );
 
@@ -384,7 +384,7 @@ describe('parseArguments', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用 --yolo (-y) 和 --approval-mode。请使用 --approval-mode=yolo 替代',
+        'Cannot use both --yolo (-y) and --approval-mode together. Use --approval-mode=yolo instead.',
       ),
     );
 
@@ -3299,7 +3299,7 @@ describe('parseArguments with positional prompt', () => {
 
     expect(mockConsoleError).toHaveBeenCalledWith(
       expect.stringContaining(
-        '不能同时使用位置参数提示词和 --prompt (-p) 标志',
+        'Cannot use both a positional prompt and the --prompt (-p) flag together',
       ),
     );
 
