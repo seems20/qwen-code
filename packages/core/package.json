@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind-core",
-  "version": "0.0.20",
+  "version": "0.0.21-alpha.0",
   "description": "RDMind Core",
   "type": "module",
   "main": "dist/index.js",
