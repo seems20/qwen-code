@@ -52,7 +52,7 @@ describe('getUserStartupWarnings', () => {
         workspaceRoot: homeDir,
       });
       expect(warnings).toContainEqual(
-        expect.stringContaining('home directory'),
+        expect.stringContaining('~ 目录'),
       );
     });
 
@@ -64,7 +64,7 @@ describe('getUserStartupWarnings', () => {
         workspaceRoot: projectDir,
       });
       expect(warnings).not.toContainEqual(
-        expect.stringContaining('home directory'),
+        expect.stringContaining('~ 目录'),
       );
     });
   });
