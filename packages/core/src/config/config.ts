@@ -272,6 +272,7 @@ export interface ConfigParameters {
   interactive?: boolean;
   trustedFolder?: boolean;
   useRipgrep?: boolean;
+  useBuiltinRipgrep?: boolean;
   shouldUseNodePtyShell?: boolean;
   skipNextSpeakerCheck?: boolean;
   shellExecutionConfig?: ShellExecutionConfig;
@@ -360,6 +361,7 @@ export class Config {
   private readonly interactive: boolean;
   private readonly trustedFolder: boolean | undefined;
   private readonly useRipgrep: boolean;
+  private readonly useBuiltinRipgrep: boolean;
   private readonly shouldUseNodePtyShell: boolean;
   private readonly skipNextSpeakerCheck: boolean;
   private shellExecutionConfig: ShellExecutionConfig;
@@ -457,13 +459,12 @@ export class Config {
     this.chatCompression = params.chatCompression;
     this.interactive = params.interactive ?? false;
     this.trustedFolder = params.trustedFolder;
-    this.shouldUseNodePtyShell = params.shouldUseNodePtyShell ?? false;
-    this.skipNextSpeakerCheck = params.skipNextSpeakerCheck ?? false;
     this.skipLoopDetection = params.skipLoopDetection ?? false;
 
     // Web search
     this.tavilyApiKey = params.tavilyApiKey;
     this.useRipgrep = params.useRipgrep ?? true;
+    this.useBuiltinRipgrep = params.useBuiltinRipgrep ?? true;
     this.shouldUseNodePtyShell = params.shouldUseNodePtyShell ?? false;
     this.skipNextSpeakerCheck = params.skipNextSpeakerCheck ?? true;
     this.shellExecutionConfig = {
@@ -993,6 +994,10 @@ export class Config {
     return this.useRipgrep;
   }
 
+  getUseBuiltinRipgrep(): boolean {
+    return this.useBuiltinRipgrep;
+  }
+
   getShouldUseNodePtyShell(): boolean {
     return this.shouldUseNodePtyShell;
   }
@@ -1120,13 +1125,18 @@ export class Config {
       let useRipgrep = false;
       let errorString: undefined | string = undefined;
       try {
-        useRipgrep = await canUseRipgrep();
+        useRipgrep = await canUseRipgrep(this.getUseBuiltinRipgrep());
       } catch (error: unknown) {
         errorString = String(error);
       }
       if (useRipgrep) {
         registerCoreTool(RipGrepTool, this);
       } else {
+        errorString =
+          errorString ||
+          'Ripgrep is not available. Please install ripgrep globally.';
+
+        // Log for telemetry
         logRipgrepFallback(this, new RipgrepFallbackEvent(errorString));
         registerCoreTool(GrepTool, this);
       }
