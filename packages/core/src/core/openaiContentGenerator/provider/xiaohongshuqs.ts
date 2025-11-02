@@ -34,7 +34,7 @@ export class XiaohongshuOpenAICompatibleProvider
     }
     return (
       baseUrl ===
-        'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1'
+      'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1'
     );
   }
 

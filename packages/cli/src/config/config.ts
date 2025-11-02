@@ -132,25 +132,30 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
     )
     .option('telemetry', {
       type: 'boolean',
-      description: 'Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.',
+      description:
+        'Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do not enable telemetry on their own.',
     })
     .option('telemetry-target', {
       type: 'string',
       choices: ['local', 'gcp'],
-      description: 'Set the telemetry target (local or gcp). Overrides settings files.',
+      description:
+        'Set the telemetry target (local or gcp). Overrides settings files.',
     })
     .option('telemetry-otlp-endpoint', {
       type: 'string',
-      description: 'Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.',
+      description:
+        'Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.',
     })
     .option('telemetry-otlp-protocol', {
       type: 'string',
       choices: ['grpc', 'http'],
-      description: 'Set the OTLP protocol for telemetry (grpc or http). Overrides settings files.',
+      description:
+        'Set the OTLP protocol for telemetry (grpc or http). Overrides settings files.',
     })
     .option('telemetry-log-prompts', {
       type: 'boolean',
-      description: 'Enable or disable logging of user prompts for telemetry. Overrides settings files.',
+      description:
+        'Enable or disable logging of user prompts for telemetry. Overrides settings files.',
     })
     .option('telemetry-outfile', {
       type: 'string',
@@ -188,8 +193,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
     })
     .option('proxy', {
       type: 'string',
-      description:
-        'Proxy for RDMind, like schema://user:password@host:port',
+      description: 'Proxy for RDMind, like schema://user:password@host:port',
     })
     .deprecateOption(
       'proxy',
@@ -214,7 +218,8 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('prompt-interactive', {
           alias: 'i',
           type: 'string',
-          description: 'Execute the provided prompt and continue in interactive mode',
+          description:
+            'Execute the provided prompt and continue in interactive mode',
         })
         .option('sandbox', {
           alias: 's',
@@ -239,7 +244,8 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('yolo', {
           alias: 'y',
           type: 'boolean',
-          description: 'Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?',
+          description:
+            'Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?',
           default: false,
         })
         .option('approval-mode', {
@@ -280,7 +286,8 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           alias: 'e',
           type: 'array',
           string: true,
-          description: 'A list of extensions to use. If not provided, all extensions are used.',
+          description:
+            'A list of extensions to use. If not provided, all extensions are used.',
           coerce: (extensions: string[]) =>
             // Handle comma-separated values
             extensions.flatMap((extension) =>
@@ -303,7 +310,8 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         })
         .option('openai-logging', {
           type: 'boolean',
-          description: 'Enable logging of OpenAI API calls for debugging and analysis',
+          description:
+            'Enable logging of OpenAI API calls for debugging and analysis',
         })
         .option('openai-api-key', {
           type: 'string',

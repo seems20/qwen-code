@@ -126,17 +126,32 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       if (!responseData.data) {
         const errorMessage = 'Redoc API response does not contain data field';
         console.error(`[RedocFetchTool] ${errorMessage}`);
-        console.error(`[RedocFetchTool] 完整响应数据:`, JSON.stringify(responseData, null, 2));
+        console.error(
+          `[RedocFetchTool] 完整响应数据:`,
+          JSON.stringify(responseData, null, 2),
+        );
         throw new Error(errorMessage);
       }
 
       if (!responseData.data.content) {
-        const errorMessage = 'Redoc API response does not contain content field in data';
+        const errorMessage =
+          'Redoc API response does not contain content field in data';
         console.error(`[RedocFetchTool] ${errorMessage}`);
-        console.error(`[RedocFetchTool] 完整响应数据:`, JSON.stringify(responseData, null, 2));
-        console.error(`[RedocFetchTool] data 字段内容:`, JSON.stringify(responseData.data, null, 2));
-        console.error(`[RedocFetchTool] data 字段的所有键:`, Object.keys(responseData.data));
-        throw new Error(`${errorMessage}. 可用字段: ${Object.keys(responseData.data).join(', ')}`);
+        console.error(
+          `[RedocFetchTool] 完整响应数据:`,
+          JSON.stringify(responseData, null, 2),
+        );
+        console.error(
+          `[RedocFetchTool] data 字段内容:`,
+          JSON.stringify(responseData.data, null, 2),
+        );
+        console.error(
+          `[RedocFetchTool] data 字段的所有键:`,
+          Object.keys(responseData.data),
+        );
+        throw new Error(
+          `${errorMessage}. 可用字段: ${Object.keys(responseData.data).join(', ')}`,
+        );
       }
 
       console.debug(
@@ -161,7 +176,10 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
   > {
     const approvalMode = this.config.getApprovalMode();
     // 在 PLAN 和 AUTO_EDIT 模式下不需要确认
-    if (approvalMode === ApprovalMode.AUTO_EDIT || approvalMode === ApprovalMode.PLAN) {
+    if (
+      approvalMode === ApprovalMode.AUTO_EDIT ||
+      approvalMode === ApprovalMode.PLAN
+    ) {
       return false;
     }
 
@@ -273,7 +291,8 @@ export class RedocFetchTool extends BaseDeclarativeTool<
             type: 'string',
           },
           prompt: {
-            description: '描述用户想从文档中了解什么信息，例如：总结文档主要内容、解释某个概念、查找特定信息等。应该根据用户的原始问题直接转述，不要假设文档类型',
+            description:
+              '描述用户想从文档中了解什么信息，例如：总结文档主要内容、解释某个概念、查找特定信息等。应该根据用户的原始问题直接转述，不要假设文档类型',
             type: 'string',
           },
         },
