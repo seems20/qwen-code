@@ -27,27 +27,58 @@ function validateProjectName(name: string): boolean {
 }
 
 /**
+ * 验证IDL项目名称（需要符合Java包名规范）
+ */
+function validateIdlProjectName(name: string): boolean {
+  // 更严格的Java包名规范：
+  // 1. 只能包含字母和数字
+  // 2. 不能包含任何特殊符号（包括连字符、下划线、点等）
+  // 3. 不能以数字开头
+  return /^[a-z][a-z0-9]*$/.test(name);
+}
+
+/**
+ * 获取IDL示例路径
+ */
+function getIdlExamplePath(): string {
+  // 尝试多个可能的模板位置
+  const possiblePaths = [
+    // 1. npm 发布：
+    // __dirname 就是 node_modules/@rdmind/rdmind/
+    // 模板在 node_modules/@rdmind/rdmind/templates/
+    path.join(__dirname, 'templates', 'idl-template/wiki/example'),
+
+    // 2. 开发环境：相对于工作区根目录的idl-template
+    path.join(
+      __dirname,
+      '..',
+      'packages/cli/templates/idl-template/wiki/example',
+    ),
+  ];
+
+  for (const templatePath of possiblePaths) {
+    if (fs.existsSync(templatePath)) {
+      return templatePath;
+    }
+  }
+
+  // 如果都找不到，返回默认路径（会在后续检查中报错）
+  return path.join(process.cwd(), 'idl-template');
+}
+
+/**
  * 获取脚手架模板路径
  */
 function getTemplatePath(): string {
   // 尝试多个可能的模板位置
   const possiblePaths = [
-    // 1. npm 安装（workspaces 发布）：
-    // 代码在 node_modules/@rdmind/rdmind/dist/src/ui/commands/
+    // 1. npm 安装
+    // __dirname 就是 node_modules/@rdmind/rdmind/
     // 模板在 node_modules/@rdmind/rdmind/template/
-    path.join(__dirname, '..', '..', '..', '..', 'template'),
-
-    // 2. 开发环境：相对于工作区根目录的sns-demo
-    path.join(process.cwd(), 'sns-demo'),
-    path.join(__dirname, '..', '..', '..', '..', '..', '..', 'sns-demo'),
-
-    // 3. 开发环境：打包后的 bundle/template（如果使用了打包版本）
-    path.join(__dirname, '..', '..', '..', '..', '..', 'bundle', 'template'),
-
-    // 4. 兼容：其他可能的路径
     path.join(__dirname, 'template'),
-    path.join(__dirname, '..', 'template'),
-    path.join(__dirname, '..', '..', 'template'),
+
+    // 2. 开发环境：
+    path.join(__dirname, '..', 'packages/cli/template'),
   ];
 
   for (const templatePath of possiblePaths) {
@@ -58,6 +89,31 @@ function getTemplatePath(): string {
 
   // 如果都找不到，返回默认路径（会在后续检查中报错）
   return path.join(process.cwd(), 'sns-demo');
+}
+
+/**
+ * 替换IDL项目名称相关的内容
+ */
+function replaceIdlProjectNames(
+  content: string,
+  oldName: string,
+  newName: string,
+): string {
+  return (
+    content
+      // 处理 hello.thrift 文件名
+      .replace(new RegExp(`${oldName}\\.thrift`, 'g'), `${newName}.thrift`)
+      // 处理 hello 相关的包名和类名
+      .replace(
+        new RegExp(`com\\.xiaohongshu\\.sns\\.rpc\\.${oldName}`, 'g'),
+        `com.xiaohongshu.sns.rpc.${newName}`,
+      )
+      .replace(new RegExp(`${oldName}Service`, 'g'), `${newName}Service`)
+      .replace(new RegExp(`${oldName}Request`, 'g'), `${newName}Request`)
+      .replace(new RegExp(`${oldName}Response`, 'g'), `${newName}Response`)
+      // 处理 hello 相关的文件名和引用
+      .replace(new RegExp(oldName, 'g'), newName)
+  );
 }
 
 /**
@@ -133,6 +189,7 @@ async function copyAndReplaceFile(
   oldName: string,
   newName: string,
   businessModule: string,
+  isIdlProject: boolean = false,
 ): Promise<void> {
   // 确保目标目录存在
   const destDir = path.dirname(destFile);
@@ -143,13 +200,13 @@ async function copyAndReplaceFile(
   // 读取源文件内容
   const content = fs.readFileSync(srcFile, 'utf8');
 
-  // 替换内容
-  const newContent = replaceProjectNames(
-    content,
-    oldName,
-    newName,
-    businessModule,
-  );
+  // 根据项目类型选择替换函数
+  let newContent;
+  if (isIdlProject) {
+    newContent = replaceIdlProjectNames(content, oldName, newName);
+  } else {
+    newContent = replaceProjectNames(content, oldName, newName, businessModule);
+  }
 
   // 写入目标文件
   fs.writeFileSync(destFile, newContent, 'utf8');
@@ -211,6 +268,7 @@ async function copyAndReplaceDir(
   oldName: string,
   newName: string,
   businessModule: string,
+  isIdlProject: boolean = false,
 ): Promise<void> {
   // 确保目标目录存在
   if (!fs.existsSync(destDir)) {
@@ -259,6 +317,7 @@ async function copyAndReplaceDir(
               oldName,
               newName,
               businessModule,
+              isIdlProject,
             );
           } else {
             // 中间层，只创建目录
@@ -272,9 +331,16 @@ async function copyAndReplaceDir(
     } else if (item === 'sns') {
       // 特殊处理：将 sns 目录替换为新的业务模块名
       destItemName = businessModule;
+    } else if (item === 'hello.thrift') {
+      // 特殊处理：将 hello.thrift 文件名替换为新项目名.thrift
+      destItemName = `${newName}.thrift`;
     } else {
-      // 使用与文件内容替换相同的逻辑：将 sns-demo 替换为新项目名
-      destItemName = item.replace(/sns-demo/g, newName);
+      // 使用与文件内容替换相同的逻辑
+      if (isIdlProject) {
+        destItemName = item.replace(/hello/g, newName);
+      } else {
+        destItemName = item.replace(/sns-demo/g, newName);
+      }
     }
 
     const destPath = path.join(destDir, destItemName);
@@ -289,6 +355,7 @@ async function copyAndReplaceDir(
         oldName,
         newName,
         businessModule,
+        isIdlProject,
       );
     } else if (stats.isFile()) {
       // 复制并替换文件内容
@@ -298,6 +365,7 @@ async function copyAndReplaceDir(
         oldName,
         newName,
         businessModule,
+        isIdlProject,
       );
     }
   }
@@ -360,7 +428,23 @@ async function createJavaProject(
     context.ui.addItem(
       {
         type: MessageType.INFO,
-        text: `✅ Java项目 ${projectName} 创建成功！\n📁 位置：${targetPath}\n🏢 业务模块：${businessModule}\n📦 GroupId: com.xiaohongshu.${businessModule}\n\n✨ 已自动过滤构建产物和IDE配置文件 (target/, .idea/, *.iml 等)\n\n项目结构：\n${projectName}/\n├── ${projectName}-app/\n├── ${projectName}-domain/\n├── ${projectName}-infrastructure/\n├── ${projectName}-common/\n├── ${projectName}-start/\n├── pom.xml\n├── README.md\n└── .gitignore`,
+        text: `✅ Java项目 ${projectName} 创建成功！
+📁 位置：${targetPath}
+🏢 业务模块：${businessModule}
+📦 GroupId: com.xiaohongshu.${businessModule}
+
+✨ 已自动过滤构建产物和IDE配置文件 (target/, .idea/, *.iml 等)
+
+项目结构：
+${projectName}/
+├── ${projectName}-app/
+├── ${projectName}-domain/
+├── ${projectName}-infrastructure/
+├── ${projectName}-common/
+├── ${projectName}-start/
+├── pom.xml
+├── README.md
+└── .gitignore`,
       },
       Date.now(),
     );
@@ -482,6 +566,166 @@ const javaFlsCommand: SlashCommand = {
 };
 
 /**
+ * 创建IDL项目
+ */
+async function createIdlProject(
+  context: CommandContext,
+  projectName: string,
+): Promise<void> {
+  // 获取模板路径
+  const templatePath = getIdlExamplePath();
+
+  // 检查模板是否存在
+  if (!fs.existsSync(templatePath)) {
+    context.ui.addItem(
+      {
+        type: MessageType.ERROR,
+        text: `❌ IDL脚手架模板不存在：${templatePath}\n请确保工作区根目录包含 idl-template/wiki/example 文件夹。`,
+      },
+      Date.now(),
+    );
+    return;
+  }
+
+  // 项目目录名使用 [projectName]-idl 格式
+  const projectDirectoryName = `${projectName}-idl`;
+
+  // 检查目标项目是否已经存在
+  const targetPath = path.join(process.cwd(), projectDirectoryName);
+  if (fs.existsSync(targetPath)) {
+    context.ui.addItem(
+      {
+        type: MessageType.ERROR,
+        text: `❌ 项目目录已存在：${targetPath}`,
+      },
+      Date.now(),
+    );
+    return;
+  }
+
+  try {
+    context.ui.addItem(
+      {
+        type: MessageType.INFO,
+        text: `🚀 开始创建IDL项目 ${projectName}...`,
+      },
+      Date.now(),
+    );
+
+    // 复制模板并替换名称，仍然使用原始的projectName作为内部名称
+    await copyAndReplaceDir(
+      templatePath,
+      targetPath,
+      'hello',
+      projectName,
+      'sns', // 默认业务模块
+      true, // 标记为IDL项目
+    );
+
+    context.ui.addItem(
+      {
+        type: MessageType.INFO,
+        text: `✅ IDL项目 ${projectName} 创建成功！
+📁 位置：${targetPath}
+
+✨ 已自动过滤构建产物和IDE配置文件
+
+项目结构：
+${projectDirectoryName}/
+├── .gitignore
+├── .gitlab-ci.yml
+├── gen-java.sh
+├── ${projectName}.thrift
+├── maven_project/
+├── sdk-spec.yml
+└── README.md
+
+📌 后续事项:
+────────────────────────────────────
+1. 请按需修改后将该idl项目提交至sns-idls仓库
+2. 参考文档配置流水线: https://docs.xiaohongshu.com/doc/57be8d2fb7c584798d5b6135060b2c94
+3. 运行流水线成功后可在以下地址搜索获取maven包:
+   https://artifactory.devops.xiaohongshu.com/ui/packages/
+   搜索关键词: "${projectName}-sdk"
+────────────────────────────────────`,
+      },
+      Date.now(),
+    );
+  } catch (error) {
+    // 清理失败的创建
+    if (fs.existsSync(targetPath)) {
+      try {
+        fs.rmSync(targetPath, { recursive: true, force: true });
+      } catch (cleanupError) {
+        console.warn(
+          'Warning: Could not clean up failed project creation:',
+          cleanupError,
+        );
+      }
+    }
+
+    context.ui.addItem(
+      {
+        type: MessageType.ERROR,
+        text: `❌ 创建IDL项目失败：${error instanceof Error ? error.message : String(error)}`,
+      },
+      Date.now(),
+    );
+  }
+}
+
+/**
+ * 创建 IDL 项目
+ */
+async function createIdlCommand(
+  context: CommandContext,
+  projectName: string,
+): Promise<SlashCommandActionReturn | void> {
+  if (!validateIdlProjectName(projectName)) {
+    context.ui.addItem(
+      {
+        type: MessageType.ERROR,
+        text:
+          '❌ IDL项目名称无效。\n' +
+          '• 只能包含小写字母和数字\n' +
+          '• 不能包含任何特殊符号（连字符、下划线、点等）\n' +
+          '• 不能以数字开头',
+      },
+      Date.now(),
+    );
+    return;
+  }
+
+  await createIdlProject(context, projectName);
+}
+
+/**
+ * IDL 子命令
+ */
+const idlCommand: SlashCommand = {
+  name: 'idl',
+  description: 'IDL 项目脚手架',
+  kind: CommandKind.BUILT_IN,
+  action: async (
+    context: CommandContext,
+    args: string,
+  ): Promise<SlashCommandActionReturn | void> => {
+    const projectName = args.trim();
+    if (!projectName) {
+      context.ui.addItem(
+        {
+          type: MessageType.ERROR,
+          text: '❌ 请提供项目名称。\n\n使用格式：/create idl <项目名>\n例如：/create idl my-service',
+        },
+        Date.now(),
+      );
+      return;
+    }
+    return await createIdlCommand(context, projectName);
+  },
+};
+
+/**
  * Java 主命令
  */
 const javaCommand: SlashCommand = {
@@ -527,11 +771,14 @@ const javaCommand: SlashCommand = {
   },
 };
 
+// Export functions for testing
+export { getIdlExamplePath, getTemplatePath };
+
 export const createCommand: SlashCommand = {
   name: 'create',
   description: '创建项目脚手架，用法：/create java sns <项目名>',
   kind: CommandKind.BUILT_IN,
-  subCommands: [javaCommand],
+  subCommands: [javaCommand, idlCommand],
   action: async (
     context: CommandContext,
     args: string,
@@ -542,7 +789,7 @@ export const createCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: '❌ 请选择业务模块类型。\n\n可用的业务模块：\n• sns - 社区业务模块\n• fls - 业务模块\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>',
+          text: '❌ 请选择项目类型。\n\n可用的项目类型：\n• java - Java项目\n• idl - IDL项目\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>\n• /create idl <项目名>',
         },
         Date.now(),
       );
@@ -557,24 +804,47 @@ export const createCommand: SlashCommand = {
       return await javaCommand.action!(context, remainingArgs);
     }
 
-    // 否则，直接把第一个参数当作业务模块，第二个参数当作项目名
-    const businessModule = firstArg;
-    const projectName = parts.slice(1).join('-');
-
-    switch (businessModule) {
-      case 'sns':
-        return await createJavaSnsProject(context, projectName);
-      case 'fls':
-        return await createJavaFlsProject(context, projectName);
-      default:
-        context.ui.addItem(
-          {
-            type: MessageType.ERROR,
-            text: `❌ 不支持的业务模块：${businessModule}\n\n当前支持的业务模块：sns, fls\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>\n• /create sns <项目名>\n• /create fls <项目名>`,
-          },
-          Date.now(),
-        );
-        return;
+    // 如果第一个参数是 idl，则调用 idl 子命令
+    if (firstArg === 'idl') {
+      const projectName = parts.slice(1).join('-');
+      return await createIdlCommand(context, projectName);
     }
+
+    context.ui.addItem(
+      {
+        type: MessageType.ERROR,
+        text: `❌ 不支持的项目类型：${firstArg}
+
+当前支持的项目类型：java, idl
+
+使用格式：
+• /create java sns <项目名>
+• /create java fls <项目名>
+• /create idl <项目名>`,
+      },
+      Date.now(),
+    );
+    return;
+  },
+  // 添加 completion 函数以支持键盘导航选择子命令
+  completion: async (
+    _context: CommandContext,
+    partial: string,
+  ): Promise<string[]> => {
+    // 提供子命令补全建议
+    const subCommands = ['java', 'idl'];
+    if (!partial) {
+      return subCommands;
+    }
+    return subCommands.filter((cmd) => cmd.startsWith(partial.toLowerCase()));
   },
 };
+
+// For testing purposes, export internal functions
+if (process.env['NODE_ENV'] === 'test') {
+  // @ts-expect-error - testExports is not part of the public API
+  createCommand.testExports = {
+    getIdlExamplePath,
+    getTemplatePath,
+  };
+}

@@ -1,0 +1,5 @@
+dependencies:
+  sns-idls/base: 1.0.1
+build:
+  node:
+    enabled: false
