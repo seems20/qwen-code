@@ -429,8 +429,8 @@ export class Config {
     };
     this.gitCoAuthor = {
       enabled: params.gitCoAuthor?.enabled ?? true,
-      name: params.gitCoAuthor?.name ?? 'Qwen-Coder',
-      email: params.gitCoAuthor?.email ?? 'qwen-coder@alibabacloud.com',
+      name: params.gitCoAuthor?.name ?? 'RDMind',
+      email: params.gitCoAuthor?.email ?? 'RDMind@xiaohongshu.com',
     };
     this.usageStatisticsEnabled = params.usageStatisticsEnabled ?? true;
 
