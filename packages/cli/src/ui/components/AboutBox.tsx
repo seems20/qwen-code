@@ -30,7 +30,7 @@ export const AboutBox: React.FC<AboutBoxProps> = (props) => {
     >
       <Box marginBottom={1}>
         <Text bold color={theme.text.accent}>
-          About Qwen Code
+          About RDMind
         </Text>
       </Box>
       {fields.map((field: SystemInfoField) => (
