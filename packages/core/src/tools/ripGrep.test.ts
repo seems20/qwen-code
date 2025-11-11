@@ -341,9 +341,9 @@ describe('RipGrepTool', () => {
       expect(result.returnDisplay).toBe('Found 1 match');
     });
 
-    it('should pass .qwenignore to ripgrep when respected', async () => {
+    it('should pass .rdmindignore to ripgrep when respected', async () => {
       await fs.writeFile(
-        path.join(tempRootDir, '.qwenignore'),
+        path.join(tempRootDir, '.rdmindignore'),
         'ignored.txt\n',
       );
       mockSpawn.mockImplementationOnce(
@@ -351,7 +351,7 @@ describe('RipGrepTool', () => {
           exitCode: 1,
           onCall: (_, args) => {
             expect(args).toContain('--ignore-file');
-            expect(args).toContain(path.join(tempRootDir, '.qwenignore'));
+            expect(args).toContain(path.join(tempRootDir, '.rdmindignore'));
           },
         }),
       );
@@ -365,8 +365,8 @@ describe('RipGrepTool', () => {
       expect(result.returnDisplay).toBe('No matches found');
     });
 
-    it('should include .qwenignore matches when disabled in config', async () => {
-      await fs.writeFile(path.join(tempRootDir, '.qwenignore'), 'kept.txt\n');
+    it('should include .rdmindignore matches when disabled in config', async () => {
+      await fs.writeFile(path.join(tempRootDir, '.rdmindignore'), 'kept.txt\n');
       await fs.writeFile(path.join(tempRootDir, 'kept.txt'), 'keep me');
       Object.assign(mockConfig, {
         getFileFilteringOptions: () => ({
@@ -381,7 +381,7 @@ describe('RipGrepTool', () => {
           exitCode: 0,
           onCall: (_, args) => {
             expect(args).not.toContain('--ignore-file');
-            expect(args).not.toContain(path.join(tempRootDir, '.qwenignore'));
+            expect(args).not.toContain(path.join(tempRootDir, '.rdmindignore'));
           },
         }),
       );

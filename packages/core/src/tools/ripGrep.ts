@@ -185,19 +185,19 @@ class GrepToolInvocation extends BaseToolInvocation<
       pattern,
     ];
 
-    // Add file exclusions from .gitignore and .qwenignore
+    // Add file exclusions from .gitignore and .rdmindignore
     const filteringOptions = this.getFileFilteringOptions();
     if (!filteringOptions.respectGitIgnore) {
       rgArgs.push('--no-ignore-vcs');
     }
 
     if (filteringOptions.respectQwenIgnore) {
-      const qwenIgnorePath = path.join(
+      const rdmindIgnorePath = path.join(
         this.config.getTargetDir(),
-        '.qwenignore',
+        '.rdmindignore',
       );
-      if (fs.existsSync(qwenIgnorePath)) {
-        rgArgs.push('--ignore-file', qwenIgnorePath);
+      if (fs.existsSync(rdmindIgnorePath)) {
+        rgArgs.push('--ignore-file', rdmindIgnorePath);
       }
     }
 
