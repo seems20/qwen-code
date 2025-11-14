@@ -590,10 +590,13 @@ export class OpenAIContentConverter {
       const promptTokens = usage.prompt_tokens || 0;
       const completionTokens = usage.completion_tokens || 0;
       const totalTokens = usage.total_tokens || 0;
-      // Support both formats: prompt_tokens_details.cached_tokens (OpenAI standard) 
+      // Support both formats: prompt_tokens_details.cached_tokens (OpenAI standard)
       // and cached_tokens (some models return it at top level)
       const extendedUsage = usage as ExtendedCompletionUsage;
-      const cachedTokens = usage.prompt_tokens_details?.cached_tokens ?? extendedUsage.cached_tokens ?? 0;
+      const cachedTokens =
+        usage.prompt_tokens_details?.cached_tokens ??
+        extendedUsage.cached_tokens ??
+        0;
 
       // If we only have total tokens but no breakdown, estimate the split
       // Typically input is ~70% and output is ~30% for most conversations
@@ -718,10 +721,13 @@ export class OpenAIContentConverter {
       const promptTokens = usage.prompt_tokens || 0;
       const completionTokens = usage.completion_tokens || 0;
       const totalTokens = usage.total_tokens || 0;
-      // Support both formats: prompt_tokens_details.cached_tokens (OpenAI standard) 
+      // Support both formats: prompt_tokens_details.cached_tokens (OpenAI standard)
       // and cached_tokens (some models return it at top level)
       const extendedUsage = usage as ExtendedCompletionUsage;
-      const cachedTokens = usage.prompt_tokens_details?.cached_tokens ?? extendedUsage.cached_tokens ?? 0;
+      const cachedTokens =
+        usage.prompt_tokens_details?.cached_tokens ??
+        extendedUsage.cached_tokens ??
+        0;
 
       // If we only have total tokens but no breakdown, estimate the split
       // Typically input is ~70% and output is ~30% for most conversations

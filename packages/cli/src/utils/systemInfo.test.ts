@@ -33,8 +33,7 @@ vi.mock('./version.js', () => ({
 }));
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...actual,
     IdeClient: {
