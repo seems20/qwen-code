@@ -13,6 +13,7 @@ import { OpenAIContentGenerator } from './openaiContentGenerator.js';
 import {
   DashScopeOpenAICompatibleProvider,
   DeepSeekOpenAICompatibleProvider,
+  ModelScopeOpenAICompatibleProvider,
   OpenRouterOpenAICompatibleProvider,
   XiaohongshuOpenAICompatibleProvider,
   type OpenAICompatibleProvider,
@@ -83,6 +84,14 @@ export function determineProvider(
   // Check for OpenRouter provider
   if (OpenRouterOpenAICompatibleProvider.isOpenRouterProvider(config)) {
     return new OpenRouterOpenAICompatibleProvider(
+      contentGeneratorConfig,
+      cliConfig,
+    );
+  }
+
+  // Check for ModelScope provider
+  if (ModelScopeOpenAICompatibleProvider.isModelScopeProvider(config)) {
+    return new ModelScopeOpenAICompatibleProvider(
       contentGeneratorConfig,
       cliConfig,
     );
