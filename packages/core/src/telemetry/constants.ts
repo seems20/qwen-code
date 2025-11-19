@@ -31,6 +31,7 @@ export const EVENT_MALFORMED_JSON_RESPONSE = 'rdmind.malformed_json_response';
 export const EVENT_FILE_OPERATION = 'rdmind.file_operation';
 export const EVENT_MODEL_SLASH_COMMAND = 'rdmind.slash_command.model';
 export const EVENT_SUBAGENT_EXECUTION = 'rdmind.subagent_execution';
+export const EVENT_AUTH = 'rdmind.auth';
 
 // Performance Events
 export const EVENT_STARTUP_PERFORMANCE = 'rdmind.startup.performance';
