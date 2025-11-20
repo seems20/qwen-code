@@ -11,10 +11,17 @@ import {
   clearCachedCredentialFile,
   getErrorMessage,
   logAuth,
+  shouldTriggerAutoSSOAuth,
+  readSSOCredentialsSync,
 } from '@rdmind/rdmind-core';
 import { useCallback, useEffect, useState } from 'react';
 import type { LoadedSettings, SettingScope } from '../../config/settings.js';
 import type { OpenAICredentials } from '../components/OpenAIKeyPrompt.js';
+import {
+  applyXhsSsoConfig,
+  resolveXhsSsoRuntimeConfig,
+} from './xhsSsoConfig.js';
+import { performSsoAuthFlow } from './performSsoAuthFlow.js';
 import { useQwenAuth } from '../hooks/useQwenAuth.js';
 import { AuthState, MessageType } from '../types.js';
 import type { HistoryItem } from '../types.js';
@@ -29,6 +36,9 @@ export const useAuthCommand = (
   const unAuthenticated =
     settings.merged.security?.auth?.selectedType === undefined;
 
+  // 如果正在进行 SSO 自动认证，不要显示认证窗口
+  const isSSOAutoAuthInProgress = shouldTriggerAutoSSOAuth(settings);
+
   const [authState, setAuthState] = useState<AuthState>(
     unAuthenticated ? AuthState.Updating : AuthState.Unauthenticated,
   );
@@ -36,7 +46,9 @@ export const useAuthCommand = (
   const [authError, setAuthError] = useState<string | null>(null);
 
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(unAuthenticated);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(
+    unAuthenticated && !isSSOAutoAuthInProgress,
+  );
   const [pendingAuthType, setPendingAuthType] = useState<AuthType | undefined>(
     undefined,
   );
@@ -60,6 +72,7 @@ export const useAuthCommand = (
   const handleAuthFailure = useCallback(
     (error: unknown) => {
       setIsAuthenticating(false);
+      setPendingAuthType(undefined);
       const errorMessage = `Failed to authenticate. Message: ${getErrorMessage(error)}`;
       onAuthError(errorMessage);
 
@@ -163,6 +176,109 @@ export const useAuthCommand = (
         return;
       }
 
+      await clearCachedCredentialFile();
+
+      // 如果从 XHS_SSO 切换到其他认证方式，清除 XHS_SSO 相关配置
+      const previousAuthType = settings.merged.security?.auth?.selectedType;
+      if (previousAuthType === AuthType.XHS_SSO && authType !== AuthType.XHS_SSO) {
+        // 清除 apiKey、baseUrl 和 model.name
+        settings.setValue(scope, 'security.auth.apiKey', undefined);
+        settings.setValue(scope, 'security.auth.baseUrl', undefined);
+        settings.setValue(scope, 'model.name', undefined);
+      }
+
+      // Special handling for XHS_SSO
+      if (authType === AuthType.XHS_SSO) {
+        // Check if SSO credentials exist
+        const creds = readSSOCredentialsSync();
+        if (!creds || !creds.rdmind_sso_id) {
+          // No SSO credentials, need to perform full SSO auth flow
+          setIsAuthDialogOpen(false);
+          setAuthError(null);
+          setPendingAuthType(authType);
+          setIsAuthenticating(true);
+
+          try {
+            // Trigger full SSO authentication flow
+            await performSsoAuthFlow({
+              config,
+              setAuthState,
+              onAuthError,
+              onSuccess: () => {
+                setPendingAuthType(undefined);
+                setIsAuthenticating(false);
+
+                // Log authentication success
+                const authEvent = new AuthEvent(authType, 'manual', 'success');
+                logAuth(config, authEvent);
+
+                // Show success message
+                addItem(
+                  {
+                    type: MessageType.INFO,
+                    text: `Authenticated successfully with ${authType} credentials.`,
+                  },
+                  Date.now(),
+                );
+              },
+            });
+          } catch (error) {
+            handleAuthFailure(error);
+          }
+          return;
+        }
+
+        let resolvedConfig;
+        try {
+          resolvedConfig = await resolveXhsSsoRuntimeConfig(config, settings);
+        } catch (error) {
+          onAuthError(
+            error instanceof Error ? error.message : String(error),
+          );
+          return;
+        }
+
+        setPendingAuthType(authType);
+        setAuthError(null);
+        setIsAuthDialogOpen(false);
+        setIsAuthenticating(true);
+
+        try {
+          await applyXhsSsoConfig(
+            config,
+            settings,
+            {
+              scope,
+              ...resolvedConfig,
+              refresh: true,
+            },
+          );
+
+          // Success handling
+          setAuthError(null);
+          setAuthState(AuthState.Authenticated);
+          setPendingAuthType(undefined);
+          setIsAuthenticating(false);
+
+          // Log authentication success
+          const authEvent = new AuthEvent(authType, 'manual', 'success');
+          logAuth(config, authEvent);
+
+          // Show success message
+          addItem(
+            {
+              type: MessageType.INFO,
+              text: `Authenticated successfully with ${authType} credentials.`,
+            },
+            Date.now(),
+          );
+        } catch (error) {
+          handleAuthFailure(error);
+        }
+        return;
+      }
+
+      // Standard auth flow for other types
       setPendingAuthType(authType);
       setAuthError(null);
       setIsAuthDialogOpen(false);
@@ -170,19 +286,50 @@ export const useAuthCommand = (
 
       if (authType === AuthType.USE_OPENAI) {
         if (credentials) {
+          // 用户输入了新的 credentials
           config.updateCredentials({
             apiKey: credentials.apiKey,
             baseUrl: credentials.baseUrl,
             model: credentials.model,
           });
-          await performAuth(authType, scope, credentials);
+        } else {
+          // 没有新 credentials，从环境变量或 settings 中读取
+          const apiKey =
+            process.env['OPENAI_API_KEY'] ||
+            settings.merged.security?.auth?.apiKey ||
+            '';
+          const baseUrl =
+            process.env['OPENAI_BASE_URL'] ||
+            settings.merged.security?.auth?.baseUrl ||
+            '';
+          const model =
+            process.env['OPENAI_MODEL'] ||
+            settings.merged.model?.name ||
+            '';
+
+          if (apiKey) {
+            config.updateCredentials({
+              apiKey,
+              baseUrl,
+              model,
+            });
+          }
         }
+        // 无论是否有新的 credentials，都要调用 performAuth 来更新 selectedType
+        await performAuth(authType, scope, credentials);
         return;
       }
 
       await performAuth(authType, scope);
     },
-    [config, performAuth],
+    [
+      config,
+      settings,
+      setAuthState,
+      onAuthError,
+      performAuth,
+      handleAuthFailure,
+    ],
   );
 
   const openAuthDialog = useCallback(() => {
@@ -207,25 +354,24 @@ export const useAuthCommand = (
   }, [isAuthenticating, pendingAuthType, cancelQwenAuth, config]);
 
   /**
-   /**
-    * We previously used a useEffect to trigger authentication automatically when
-    * settings.security.auth.selectedType changed. This caused problems: if authentication failed,
-    * the UI could get stuck, since settings.json would update before success. Now, we
-    * update selectedType in settings only when authentication fully succeeds.
-    * Authentication is triggered explicitly—either during initial app startup or when the
-    * user switches methods—not reactively through settings changes. This avoids repeated
-    * or broken authentication cycles.
-    */
+   * We previously used a useEffect to trigger authentication automatically when
+   * settings.security.auth.selectedType changed. This caused problems: if authentication failed,
+   * the UI could get stuck, since settings.json would update before success. Now, we
+   * update selectedType in settings only when authentication fully succeeds.
+   * Authentication is triggered explicitly—either during initial app startup or when the
+   * user switches methods—not reactively through settings changes. This avoids repeated
+   * or broken authentication cycles.
+   */
   useEffect(() => {
     const defaultAuthType = process.env['QWEN_DEFAULT_AUTH_TYPE'];
     if (
       defaultAuthType &&
-      ![AuthType.QWEN_OAUTH, AuthType.USE_OPENAI].includes(
+      ![AuthType.QWEN_OAUTH, AuthType.USE_OPENAI, AuthType.XHS_SSO].includes(
         defaultAuthType as AuthType,
       )
     ) {
       onAuthError(
-        `Invalid QWEN_DEFAULT_AUTH_TYPE value: "${defaultAuthType}". Valid values are: ${[AuthType.QWEN_OAUTH, AuthType.USE_OPENAI].join(', ')}`,
+        `Invalid QWEN_DEFAULT_AUTH_TYPE value: "${defaultAuthType}". Valid values are: ${[AuthType.QWEN_OAUTH, AuthType.USE_OPENAI, AuthType.XHS_SSO].join(', ')}`,
       );
     }
   }, [onAuthError]);

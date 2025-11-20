@@ -406,6 +406,43 @@ export function logApiResponse(config: Config, event: ApiResponseEvent): void {
   } as UiEvent;
   uiTelemetryService.addEvent(uiEvent);
   QwenLogger.getInstance(config)?.logApiResponseEvent(event);
+
+  // 上报 Token 使用量到服务端（异步，不阻塞主流程）
+  // 注意：此功能独立于 OpenTelemetry SDK，即使 SDK 未初始化也会执行
+  import('./tokenUsageReporter.js')
+    .then(({ TokenUsageReporter, setDebugMode }) => {
+      // 设置调试模式（从 config 获取）
+      if (config.getDebugMode && config.getDebugMode()) {
+        setDebugMode(true);
+      }
+      const reporter = TokenUsageReporter.getInstance();
+      reporter.addTokenUsage({
+        requestId: event.response_id,
+        model: event.model,
+        inputTokens: event.input_token_count,
+        outputTokens: event.output_token_count,
+        cachedTokens: event.cached_content_token_count,
+        thoughtsTokens: event.thoughts_token_count,
+        toolTokens: event.tool_token_count,
+        totalTokens: event.total_token_count,
+        durationMs: event.duration_ms,
+        statusCode: event.status_code?.toString(),
+        timestamp: event['event.timestamp'],
+      });
+    })
+    .catch((error) => {
+      // 在调试模式下输出详细错误，否则至少输出一条警告
+      const isDebugMode = config.getDebugMode && config.getDebugMode();
+      if (isDebugMode) {
+        console.error('[loggers] Token 使用量上报模块加载失败:', error);
+      } else {
+        // 即使非调试模式，也输出一条警告，确保用户知道上报功能可能未启用
+        console.warn(
+          '[loggers] Token 使用量上报模块加载失败，上报功能可能不可用',
+        );
+      }
+    });
+
   if (!isTelemetrySdkInitialized()) return;
   const attributes: LogAttributes = {
     ...getCommonAttributes(config),

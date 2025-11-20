@@ -210,7 +210,7 @@ export function useAtCompletion(props: UseAtCompletionProps): void {
           return;
         }
 
-        const suggestions = results.map((p) => ({
+        const suggestions = results.map((p: string) => ({
           label: p,
           value: escapePath(p),
         }));

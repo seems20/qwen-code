@@ -310,6 +310,11 @@ describe('AppContainer State Management', () => {
           showStatusInTitle: false,
           hideWindowTitle: false,
         },
+        security: {
+          auth: {
+            selectedType: 'qwen-oauth', // Set a default auth type to prevent SSO auto-trigger
+          },
+        },
       },
     } as unknown as LoadedSettings;
 

@@ -433,7 +433,7 @@ describe('chatCommand', () => {
       const result = await shareCommand?.action?.(mockContext, '');
       const expectedPath = path.join(
         process.cwd(),
-        'gemini-conversation-1234567890.json',
+        'rdmind-conversation-1234567890.json',
       );
       const [actualPath, actualContent] = mockFs.writeFile.mock.calls[0];
       expect(actualPath).toEqual(expectedPath);

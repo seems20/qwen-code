@@ -6,6 +6,7 @@
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs/promises';
+import type { Dirent } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { SubagentManager } from './subagent-manager.js';
@@ -39,6 +40,28 @@ vi.mock('./validation.js', () => ({
 }));
 
 vi.mock('./subagent.js');
+
+// Helper function to create mock Dirent objects for fs.readdir with withFileTypes
+// Use Dirent type directly for better type compatibility
+function createMockDirent(
+  name: string,
+  isFile: boolean = true,
+  parentPath: string = '',
+): Dirent {
+  const mockDirent = {
+    name,
+    path: parentPath ? path.join(parentPath, name) : name,
+    parentPath: parentPath || '.',
+    isFile: () => isFile,
+    isDirectory: () => !isFile,
+    isBlockDevice: () => false,
+    isCharacterDevice: () => false,
+    isSymbolicLink: () => false,
+    isFIFO: () => false,
+    isSocket: () => false,
+  } as Dirent;
+  return mockDirent;
+}
 
 describe('SubagentManager', () => {
   let manager: SubagentManager;
@@ -503,8 +526,10 @@ You are a helpful assistant.
 
   describe('loadSubagent', () => {
     it('should load subagent from project level first', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['test-agent.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('test-agent.md'),
+      ] as unknown as Dirent[]);
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
 
       const config = await manager.loadSubagent('test-agent');
@@ -513,6 +538,7 @@ You are a helpful assistant.
       expect(config!.name).toBe('test-agent');
       expect(fs.readdir).toHaveBeenCalledWith(
         path.normalize('/test/project/.rdmind/agents'),
+        { withFileTypes: true },
       );
       expect(fs.readFile).toHaveBeenCalledWith(
         path.normalize('/test/project/.rdmind/agents/test-agent.md'),
@@ -523,8 +549,10 @@ You are a helpful assistant.
     it('should fall back to user level if project level fails', async () => {
       vi.mocked(fs.readdir)
         .mockRejectedValueOnce(new Error('Project dir not found')) // project level fails
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['test-agent.md'] as any); // user level succeeds
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('test-agent.md'),
+        ] as unknown as Dirent[]); // user level succeeds
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
 
       const config = await manager.loadSubagent('test-agent');
@@ -533,6 +561,7 @@ You are a helpful assistant.
       expect(config!.name).toBe('test-agent');
       expect(fs.readdir).toHaveBeenCalledWith(
         path.normalize('/home/user/.rdmind/agents'),
+        { withFileTypes: true },
       );
       expect(fs.readFile).toHaveBeenCalledWith(
         path.normalize('/home/user/.rdmind/agents/test-agent.md'),
@@ -550,11 +579,11 @@ You are a helpful assistant.
 
     it('should load subagent even when filename does not match name', async () => {
       // Mock readdir to return files with different names
+      // @ts-expect-error - Mock Dirent type mismatch in test
       vi.mocked(fs.readdir).mockResolvedValue([
-        'wrong-filename.md',
-        'another-file.md',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ] as any);
+        createMockDirent('wrong-filename.md'),
+        createMockDirent('another-file.md'),
+      ] as unknown as Dirent[]);
 
       // Mock readFile to return content with different name
       const mismatchedMarkdown = `---
@@ -597,16 +626,21 @@ You are another assistant.`;
       // Verify it scanned the directory instead of using direct path
       expect(fs.readdir).toHaveBeenCalledWith(
         path.normalize('/test/project/.rdmind/agents'),
+        { withFileTypes: true },
       );
     });
 
     it('should search user level when filename mismatch at project level', async () => {
       // Mock project level to have no matching files
       vi.mocked(fs.readdir)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['other-file.md'] as any) // project level
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['user-agent.md'] as any); // user level
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('other-file.md'),
+        ] as unknown as Dirent[]) // project level
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('user-agent.md'),
+        ] as unknown as Dirent[]); // user level
 
       const projectMarkdown = `---
 name: wrong-agent
@@ -648,8 +682,10 @@ You are a helpful assistant.`;
     });
 
     it('should handle specific level search with filename mismatch', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['misnamed-file.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('misnamed-file.md'),
+      ] as unknown as Dirent[]);
 
       const levelMarkdown = `---
 name: specific-agent
@@ -677,8 +713,10 @@ You are a helpful assistant.`;
 
   describe('updateSubagent', () => {
     beforeEach(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['test-agent.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('test-agent.md'),
+      ] as unknown as Dirent[]);
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
     });
@@ -722,8 +760,10 @@ You are a helpful assistant.`;
 
   describe('deleteSubagent', () => {
     it('should delete subagent from specified level', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['test-agent.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('test-agent.md'),
+      ] as unknown as Dirent[]);
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
       vi.mocked(fs.unlink).mockResolvedValue(undefined);
 
@@ -736,10 +776,14 @@ You are a helpful assistant.`;
 
     it('should delete from both levels if no level specified', async () => {
       vi.mocked(fs.readdir)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['test-agent.md'] as any) // project level
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['test-agent.md'] as any); // user level
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('test-agent.md'),
+        ] as unknown as Dirent[]) // project level
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('test-agent.md'),
+        ] as unknown as Dirent[]); // user level
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
       vi.mocked(fs.unlink).mockResolvedValue(undefined);
 
@@ -769,8 +813,10 @@ You are a helpful assistant.`;
     it('should succeed if deleted from at least one level', async () => {
       vi.mocked(fs.readdir)
         .mockRejectedValueOnce(new Error('Project dir not found')) // project level fails
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['test-agent.md'] as any); // user level succeeds
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('test-agent.md'),
+        ] as unknown as Dirent[]); // user level succeeds
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
       vi.mocked(fs.unlink).mockResolvedValue(undefined);
 
@@ -779,8 +825,10 @@ You are a helpful assistant.`;
 
     it('should delete subagent with mismatched filename', async () => {
       // Mock directory listing to return files with different names
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['wrong-name.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('wrong-name.md'),
+      ] as unknown as Dirent[]);
 
       const mismatchedMarkdown = `---
 name: correct-name
@@ -807,12 +855,12 @@ You are a helpful assistant.`;
 
     it('should handle deletion when multiple files exist but only one matches', async () => {
       // Mock directory listing with multiple files
+      // @ts-expect-error - Mock Dirent type mismatch in test
       vi.mocked(fs.readdir).mockResolvedValue([
-        'file1.md',
-        'file2.md',
-        'target-file.md',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ] as any);
+        createMockDirent('file1.md'),
+        createMockDirent('file2.md'),
+        createMockDirent('target-file.md'),
+      ] as unknown as Dirent[]);
 
       const markdowns = [
         `---
@@ -867,10 +915,17 @@ Target content`,
     beforeEach(() => {
       // Mock directory listing
       vi.mocked(fs.readdir)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['agent1.md', 'agent2.md', 'not-md.txt'] as any)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['agent3.md', 'agent1.md'] as any); // user level
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('agent1.md'),
+          createMockDirent('agent2.md'),
+          createMockDirent('not-md.txt'),
+        ] as unknown as Dirent[])
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('agent3.md'),
+          createMockDirent('agent1.md'),
+        ] as unknown as Dirent[]); // user level
 
       // Mock file reading for valid agents
       vi.mocked(fs.readFile).mockImplementation((filePath) => {
@@ -945,8 +1000,8 @@ System prompt 3`);
 
     it('should handle empty directories', async () => {
       // Reset all mocks for this specific test
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue([] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([] as unknown as Dirent[]);
       vi.mocked(fs.readFile).mockRejectedValue(new Error('No files'));
 
       const subagents = await manager.listSubagents();
@@ -977,8 +1032,10 @@ System prompt 3`);
 
   describe('findSubagentByName', () => {
     it('should find existing subagent', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['test-agent.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('test-agent.md'),
+      ] as unknown as Dirent[]);
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
 
       const metadata = await manager.findSubagentByName('test-agent');
@@ -1007,8 +1064,10 @@ System prompt 3`);
     });
 
     it('should return false for existing names', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['test-agent.md'] as any);
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('test-agent.md'),
+      ] as unknown as Dirent[]);
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
 
       const available = await manager.isNameAvailable('test-agent');
@@ -1021,8 +1080,10 @@ System prompt 3`);
       // First call: loads subagent (found at user level), checks if it's at project level (different) -> available
       vi.mocked(fs.readdir)
         .mockRejectedValueOnce(new Error('Project dir not found')) // project level
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockResolvedValueOnce(['test-agent.md'] as any); // user level - found here
+        // @ts-expect-error - Mock Dirent type mismatch in test
+        .mockResolvedValueOnce([
+          createMockDirent('test-agent.md'),
+        ] as unknown as Dirent[]); // user level - found here
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
 
       const availableAtProject = await manager.isNameAvailable(
@@ -1032,8 +1093,10 @@ System prompt 3`);
       expect(availableAtProject).toBe(true); // Available at project because found at user level
 
       // Second call: loads subagent (found at user level), checks if it's at user level (same) -> not available
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockResolvedValue(['test-agent.md'] as any); // user level - found here
+      // @ts-expect-error - Mock Dirent type mismatch in test
+      vi.mocked(fs.readdir).mockResolvedValue([
+        createMockDirent('test-agent.md'),
+      ] as unknown as Dirent[]); // user level - found here
       vi.mocked(fs.readFile).mockResolvedValue(validMarkdown);
 
       const availableAtUser = await manager.isNameAvailable(

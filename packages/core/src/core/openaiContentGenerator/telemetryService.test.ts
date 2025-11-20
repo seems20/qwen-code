@@ -34,6 +34,7 @@ describe('DefaultTelemetryService', () => {
     // Create mock config
     mockConfig = {
       getSessionId: vi.fn().mockReturnValue('test-session-id'),
+      getDebugMode: vi.fn().mockReturnValue(false),
     } as unknown as Config;
 
     // Create mock request context

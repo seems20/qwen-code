@@ -12,7 +12,7 @@ import {
   useRef,
   useLayoutEffect,
 } from 'react';
-import { type DOMElement, measureElement } from 'ink';
+import { type DOMElement, measureElement, Box, Text } from 'ink';
 import { App } from './App.js';
 import { AppContext } from './contexts/AppContext.js';
 import { UIStateContext, type UIState } from './contexts/UIStateContext.js';
@@ -25,6 +25,7 @@ import {
   type HistoryItem,
   ToolCallStatus,
   type HistoryItemWithoutId,
+  AuthState,
 } from './types.js';
 import { MessageType, StreamingState } from './types.js';
 import {
@@ -66,7 +67,11 @@ import { useTextBuffer } from './components/shared/text-buffer.js';
 import { useLogger } from './hooks/useLogger.js';
 import { useGeminiStream } from './hooks/useGeminiStream.js';
 import { useVim } from './hooks/vim.js';
-import { type LoadedSettings, SettingScope } from '../config/settings.js';
+import {
+  type LoadedSettings,
+  SettingScope,
+  USER_SETTINGS_PATH,
+} from '../config/settings.js';
 import { type InitializationResult } from '../core/initializer.js';
 import { useFocus } from './hooks/useFocus.js';
 import { useBracketedPaste } from './hooks/useBracketedPaste.js';
@@ -91,12 +96,26 @@ import { ShellFocusContext } from './contexts/ShellFocusContext.js';
 import { useQuitConfirmation } from './hooks/useQuitConfirmation.js';
 import { useWelcomeBack } from './hooks/useWelcomeBack.js';
 import { useDialogClose } from './hooks/useDialogClose.js';
-import { useInitializationAuthError } from './hooks/useInitializationAuthError.js';
 import { type VisionSwitchOutcome } from './components/ModelSwitchDialog.js';
 import { processVisionSwitchOutcome } from './hooks/useVisionAutoSwitch.js';
 import { useSubagentCreateDialog } from './hooks/useSubagentCreateDialog.js';
 import { useAgentsManagerDialog } from './hooks/useAgentsManagerDialog.js';
 import { useAttentionNotifications } from './hooks/useAttentionNotifications.js';
+import { useWebSocket } from './hooks/useWebSocket.js';
+import {
+  AuthType,
+  AuthEvent,
+  logAuth,
+  shouldTriggerAutoSSOAuth,
+  readSSOCredentialsSync,
+  triggerSSOAuth,
+  saveSSOCredentialsAndAuthType,
+} from '@rdmind/rdmind-core';
+import {
+  applyXhsSsoConfig,
+  resolveXhsSsoRuntimeConfig,
+} from './auth/xhsSsoConfig.js';
+import { getSocketId } from '../services/websocketSocketId.js';
 
 const CTRL_EXIT_PROMPT_DURATION_MS = 1000;
 
@@ -355,6 +374,228 @@ export const AppContainer = (props: AppContainerProps) => {
     cancelAuthentication,
   } = useAuthCommand(settings, config, historyManager.addItem);
 
+  // Auto SSO authentication (小红书 SSO)
+  // 在建联后触发 SSO 认证流程，然后轮询检查文件
+  useEffect(() => {
+    // 只有在需要自动 SSO 认证时才启动流程
+    if (!shouldTriggerAutoSSOAuth(settings)) {
+      return;
+    }
+
+    if (config.getDebugMode()) {
+      console.debug('[AppContainer] 检测到需要 SSO 认证，等待 WebSocket 建联');
+    }
+
+    let isCleanedUp = false;
+    let pollTimer: NodeJS.Timeout | null = null;
+
+    // 异步执行认证流程
+    const performAuth = async () => {
+      // 步骤1：等待 socketId 可用（最多等待 5 秒）
+      let socketId: string | null = null;
+      let waitAttempts = 0;
+      const maxWaitAttempts = 50; // 5秒，每100ms检查一次
+
+      while (waitAttempts < maxWaitAttempts && !isCleanedUp) {
+        socketId = getSocketId();
+        if (socketId) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        waitAttempts++;
+      }
+
+      if (isCleanedUp) return;
+
+      if (!socketId) {
+        if (config.getDebugMode()) {
+          console.debug('[AppContainer] ⏰ 等待 socketId 超时');
+        }
+        const errorMsg = 'WebSocket 建联超时，请检查网络后重试';
+        onAuthError(errorMsg);
+        
+        // Log authentication failure
+        const failEvent = new AuthEvent(
+          AuthType.XHS_SSO,
+          'auto',
+          'error',
+          errorMsg,
+        );
+        logAuth(config, failEvent);
+        return;
+      }
+
+      if (config.getDebugMode()) {
+        console.debug(
+          '[AppContainer] ✅ WebSocket 已建联，socketId:',
+          socketId,
+        );
+      }
+
+      // 步骤2：触发 SSO 认证（调用 API + 打开浏览器）
+      try {
+        await triggerSSOAuth(socketId, config.getDebugMode());
+
+        if (config.getDebugMode()) {
+          console.debug('[AppContainer] ✅ SSO 认证已触发，开始轮询等待凭证');
+        }
+      } catch (error) {
+        if (config.getDebugMode()) {
+          console.error('[AppContainer] ❌ 触发 SSO 认证失败:', error);
+        }
+        const errorMsg = `触发 SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`;
+        onAuthError(errorMsg);
+        
+        // Log authentication failure
+        const failEvent = new AuthEvent(
+          AuthType.XHS_SSO,
+          'auto',
+          'error',
+          errorMsg,
+        );
+        logAuth(config, failEvent);
+        return;
+      }
+
+      if (isCleanedUp) return;
+
+      // 步骤3：轮询等待凭证文件（5秒超时）
+      let pollAttempts = 0;
+      const maxPollAttempts = 500; // 50秒，每100ms检查一次
+
+      pollTimer = setInterval(() => {
+        if (isCleanedUp) {
+          if (pollTimer) clearInterval(pollTimer);
+          return;
+        }
+
+        pollAttempts++;
+
+        // 检查文件
+        const creds = readSSOCredentialsSync();
+
+        if (creds && creds.rdmind_sso_id) {
+          // 成功获取到 rdmind_sso_id，停止轮询
+          if (pollTimer) clearInterval(pollTimer);
+          if (config.getDebugMode()) {
+            console.debug(
+              '[AppContainer] ✅ 检测到 rdmind_sso_id:',
+              creds.rdmind_sso_id,
+            );
+          }
+
+          // 异步保存 SSO 凭证和认证类型
+          (async () => {
+            try {
+              if (config.getDebugMode()) {
+                console.debug('[AppContainer] 📝 保存 SSO 凭证和认证类型');
+              }
+
+	              await saveSSOCredentialsAndAuthType(
+	                creds.rdmind_sso_id,
+	                creds.sso_name,
+	                USER_SETTINGS_PATH,
+	                config.getDebugMode(),
+	              );
+
+	              const resolvedConfig = await resolveXhsSsoRuntimeConfig(
+	                config,
+	                settings,
+	              );
+
+	              await applyXhsSsoConfig(config, settings, {
+	                scope: SettingScope.User,
+	                ...resolvedConfig,
+	                refresh: true,
+	              });
+
+	              if (config.getDebugMode()) {
+	                console.debug('[AppContainer] ✅ SSO 凭证和认证类型已保存');
+	                console.debug(
+	                  '[AppContainer] 🎉 自动 SSO 认证完成并已配置默认模型',
+	                );
+	              }
+
+	              // 设置为已认证状态
+	              setAuthState(AuthState.Authenticated);
+
+	              // Log authentication success
+	              const successEvent = new AuthEvent(AuthType.XHS_SSO, 'auto', 'success');
+	              logAuth(config, successEvent);
+            } catch (error) {
+              // 获取/保存失败
+              if (config.getDebugMode()) {
+                console.error('[AppContainer] ❌ SSO 认证流程失败:', error);
+              }
+
+              // TODO: 用户可以在这里提供兜底 Key
+              const errorMsg = `SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`;
+              onAuthError(errorMsg);
+              
+              // Log authentication failure
+              const failEvent = new AuthEvent(
+                AuthType.XHS_SSO,
+                'auto',
+                'error',
+                errorMsg,
+              );
+              logAuth(config, failEvent);
+            }
+          })();
+        } else if (pollAttempts >= maxPollAttempts) {
+          // 5秒后仍然没有，说明用户未完成绑定
+          if (pollTimer) clearInterval(pollTimer);
+          if (config.getDebugMode()) {
+            console.debug(
+              '[AppContainer] ⏰ 5秒内未检测到 rdmind_sso_id，认证超时',
+            );
+          }
+          const errorMsg = 'SSO 认证超时，可选择其他认证方式，或选择小红书 SSO 重试';
+          onAuthError(errorMsg);
+          
+          // Log authentication timeout
+          const timeoutEvent = new AuthEvent(
+            AuthType.XHS_SSO,
+            'auto',
+            'error',
+            errorMsg,
+          );
+          logAuth(config, timeoutEvent);
+        }
+      }, 100);
+    };
+
+    performAuth().catch((error) => {
+      console.error('[AppContainer] SSO 认证流程异常:', error);
+      const errorMsg = 'SSO 认证流程异常，请重试';
+      onAuthError(errorMsg);
+      
+      // Log authentication failure
+      const failEvent = new AuthEvent(
+        AuthType.XHS_SSO,
+        'auto',
+        'error',
+        errorMsg,
+      );
+      logAuth(config, failEvent);
+    });
+
+    // 清理函数
+    return () => {
+      isCleanedUp = true;
+      if (pollTimer) {
+        clearInterval(pollTimer);
+      }
+    };
+  }, [settings, config, setAuthState, onAuthError]);
+
+  // Extract Qwen auth state from qwenAuthState
+  const isQwenAuth = pendingAuthType === AuthType.QWEN_OAUTH;
+  const isQwenAuthenticating = isQwenAuth && isAuthenticating;
+  const deviceAuth = qwenAuthState?.deviceAuth || null;
+  const authStatus = qwenAuthState?.authStatus || 'idle';
+  const authMessage = qwenAuthState?.authMessage || null;
+
   const { proQuotaRequest, handleProQuotaChoice } = useQuotaAndFallback({
     config,
     historyManager,
@@ -363,7 +604,19 @@ export const AppContainer = (props: AppContainerProps) => {
     setModelSwitchedFromQuotaError,
   });
 
-  useInitializationAuthError(initializationResult.authError, onAuthError);
+  // Handle Qwen OAuth timeout
+  const handleQwenAuthTimeout = useCallback(() => {
+    onAuthError('Qwen OAuth authentication timed out. Please try again.');
+    cancelAuthentication();
+    setAuthState(AuthState.Updating);
+  }, [onAuthError, cancelAuthentication, setAuthState]);
+
+  // Handle Qwen OAuth cancel
+  const handleQwenAuthCancel = useCallback(() => {
+    onAuthError('Qwen OAuth authentication cancelled.');
+    cancelAuthentication();
+    setAuthState(AuthState.Updating);
+  }, [onAuthError, cancelAuthentication, setAuthState]);
 
   // Sync user tier from config when authentication changes
   // TODO: Implement getUserTier() method on Config if needed
@@ -375,8 +628,6 @@ export const AppContainer = (props: AppContainerProps) => {
 
   // Check for enforced auth type mismatch
   useEffect(() => {
-    // Check for initialization error first
-
     if (
       settings.merged.security?.auth?.enforcedType &&
       settings.merged.security?.auth.selectedType &&
@@ -502,6 +753,7 @@ export const AppContainer = (props: AppContainerProps) => {
     shellConfirmationRequest,
     confirmationRequest,
     quitConfirmationRequest,
+    reloadCommands,
   } = useSlashCommandProcessor(
     config,
     settings,
@@ -516,6 +768,12 @@ export const AppContainer = (props: AppContainerProps) => {
     extensionsUpdateStateInternal,
     isConfigInitialized,
   );
+
+  // Initialize WebSocket connection with reloadCommands callback
+  useWebSocket({
+    onReloadCommands: reloadCommands,
+    debug: config.getDebugMode(),
+  });
 
   // Vision switch handlers
   const handleVisionSwitchRequired = useCallback(
@@ -1183,7 +1441,7 @@ export const AppContainer = (props: AppContainerProps) => {
     isVisionSwitchDialogOpen ||
     isPermissionsDialogOpen ||
     isAuthDialogOpen ||
-    isAuthenticating ||
+    (isAuthenticating && isQwenAuthenticating) ||
     isEditorDialogOpen ||
     showIdeRestartPrompt ||
     !!proQuotaRequest ||
@@ -1207,8 +1465,13 @@ export const AppContainer = (props: AppContainerProps) => {
       authError,
       isAuthDialogOpen,
       pendingAuthType,
-      // Qwen OAuth state
       qwenAuthState,
+      // Qwen OAuth state
+      isQwenAuth,
+      isQwenAuthenticating,
+      deviceAuth,
+      authStatus,
+      authMessage,
       editorError,
       isEditorDialogOpen,
       corgiMode,
@@ -1299,8 +1562,13 @@ export const AppContainer = (props: AppContainerProps) => {
       authError,
       isAuthDialogOpen,
       pendingAuthType,
-      // Qwen OAuth state
       qwenAuthState,
+      // Qwen OAuth state
+      isQwenAuth,
+      isQwenAuthenticating,
+      deviceAuth,
+      authStatus,
+      authMessage,
       editorError,
       isEditorDialogOpen,
       corgiMode,
@@ -1395,6 +1663,9 @@ export const AppContainer = (props: AppContainerProps) => {
       setAuthState,
       onAuthError,
       cancelAuthentication,
+      // Qwen OAuth handlers
+      handleQwenAuthTimeout,
+      handleQwenAuthCancel,
       handleEditorSelect,
       exitEditorDialog,
       closeSettingsDialog,
@@ -1429,6 +1700,9 @@ export const AppContainer = (props: AppContainerProps) => {
       setAuthState,
       onAuthError,
       cancelAuthentication,
+      // Qwen OAuth handlers
+      handleQwenAuthTimeout,
+      handleQwenAuthCancel,
       handleEditorSelect,
       exitEditorDialog,
       closeSettingsDialog,
@@ -1454,6 +1728,19 @@ export const AppContainer = (props: AppContainerProps) => {
       closeAgentsManagerDialog,
     ],
   );
+
+  // 如果 SSO 认证正在进行中，显示 loading 状态，阻塞应用启动
+  if (pendingAuthType === AuthType.XHS_SSO && isAuthenticating) {
+    return (
+      <Box flexDirection="column" alignItems="center" justifyContent="center">
+        <Text color="cyan">正在进行小红书 SSO 认证...</Text>
+        <Text color="gray" dimColor>
+          {' '}
+          请在浏览器中完成认证
+        </Text>
+      </Box>
+    );
+  }
 
   return (
     <UIStateContext.Provider value={uiState}>

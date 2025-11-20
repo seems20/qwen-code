@@ -7,7 +7,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { writeFileSync, rmSync } from 'node:fs';
+import {
+  writeFileSync,
+  rmSync,
+  chmodSync,
+  existsSync,
+  statSync,
+} from 'node:fs';
 
 let esbuild;
 try {
@@ -23,7 +29,55 @@ const require = createRequire(import.meta.url);
 const pkg = require(path.resolve(__dirname, 'package.json'));
 
 // Clean dist directory (cross-platform)
-rmSync(path.resolve(__dirname, 'dist'), { recursive: true, force: true });
+// Try to fix permissions before deleting if needed
+const distPath = path.resolve(__dirname, 'dist');
+if (existsSync(distPath)) {
+  try {
+    // Try to make files writable before deletion
+    const fixPermissions = (dir) => {
+      try {
+        const stats = statSync(dir);
+        if (stats.isDirectory()) {
+          chmodSync(dir, 0o755);
+        } else {
+          chmodSync(dir, 0o644);
+        }
+      } catch {
+        // Ignore permission errors when trying to fix permissions
+      }
+    };
+
+    // Try to fix permissions recursively (best effort)
+    try {
+      fixPermissions(distPath);
+    } catch {
+      // Ignore if we can't fix permissions
+    }
+  } catch {
+    // Ignore permission fixing errors
+  }
+}
+
+try {
+  rmSync(distPath, { recursive: true, force: true });
+} catch (error) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    error.code === 'EACCES'
+  ) {
+    console.error(
+      `\n❌ 权限错误：无法删除 ${distPath}\n` +
+      `   该目录或文件属于 root 用户，请手动修复权限：\n` +
+      `   sudo chown -R $(whoami) ${distPath}\n` +
+      `   或者：\n` +
+      `   sudo rm -rf ${distPath}\n`,
+    );
+    process.exit(1);
+  }
+  throw error;
+}
 
 const external = [
   '@lydell/node-pty',

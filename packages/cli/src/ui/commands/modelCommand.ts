@@ -12,6 +12,7 @@ import type {
 } from './types.js';
 import { CommandKind } from './types.js';
 import { getAvailableModelsForAuthType } from '../models/availableModels.js';
+import { AuthType } from '@rdmind/rdmind-core';
 
 export const modelCommand: SlashCommand = {
   name: 'model',
@@ -49,6 +50,17 @@ export const modelCommand: SlashCommand = {
       };
     }
 
+    // For auth types with multi-level configuration flow (OpenAI, XHS_SSO),
+    // directly open the dialog without checking available models
+    // The actual model configuration is handled in ModelDialog
+    if (authType === AuthType.USE_OPENAI || authType === AuthType.XHS_SSO) {
+      return {
+        type: 'dialog',
+        dialog: 'model',
+      };
+    }
+
+    // For other auth types, check if models are available
     const availableModels = getAvailableModelsForAuthType(authType);
 
     if (availableModels.length === 0) {

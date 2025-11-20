@@ -12,6 +12,7 @@ import { agentsCommand } from '../ui/commands/agentsCommand.js';
 import { approvalModeCommand } from '../ui/commands/approvalModeCommand.js';
 import { authCommand } from '../ui/commands/authCommand.js';
 import { bugCommand } from '../ui/commands/bugCommand.js';
+import { bmadCommand } from '../ui/commands/bmadCommand.js';
 import { chatCommand } from '../ui/commands/chatCommand.js';
 import { clearCommand } from '../ui/commands/clearCommand.js';
 import { compressCommand } from '../ui/commands/compressCommand.js';
@@ -34,6 +35,7 @@ import { rdconfigCommand } from '../ui/commands/rdconfigCommand.js';
 import { rdflowCommand } from '../ui/commands/rdflowCommand.js';
 import { restoreCommand } from '../ui/commands/restoreCommand.js';
 import { settingsCommand } from '../ui/commands/settingsCommand.js';
+import { ssoCommand } from '../ui/commands/ssoCommand.js';
 import { statsCommand } from '../ui/commands/statsCommand.js';
 import { summaryCommand } from '../ui/commands/summaryCommand.js';
 import { techDesignCommand } from '../ui/commands/techDesignCommand.js';
@@ -64,6 +66,7 @@ export class BuiltinCommandLoader implements ICommandLoader {
       authCommand,
       bugCommand,
       chatCommand,
+      bmadCommand,
       clearCommand,
       compressCommand,
       copyCommand,
@@ -91,6 +94,7 @@ export class BuiltinCommandLoader implements ICommandLoader {
       themeCommand,
       toolsCommand,
       settingsCommand,
+      ssoCommand,
       vimCommand,
       terminalSetupCommand,
     ];

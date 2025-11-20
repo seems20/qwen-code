@@ -28,6 +28,7 @@ vi.mock('node:crypto', () => ({
   randomBytes: vi.fn(() => ({
     toString: vi.fn(() => mockCryptoRandomBytesString),
   })),
+  pbkdf2Sync: vi.fn(() => Buffer.from('mocked-key')),
 }));
 
 describe('KeychainTokenStorage', () => {

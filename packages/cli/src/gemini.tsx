@@ -17,7 +17,10 @@ import dns from 'node:dns';
 import { randomUUID } from 'node:crypto';
 import { start_sandbox } from './utils/sandbox.js';
 import type { DnsResolutionOrder, LoadedSettings } from './config/settings.js';
-import { loadSettings, migrateDeprecatedSettings } from './config/settings.js';
+import {
+  loadSettings,
+  migrateDeprecatedSettings,
+} from './config/settings.js';
 import { themeManager } from './ui/themes/theme-manager.js';
 import { getStartupWarnings } from './utils/startupWarnings.js';
 import { getUserStartupWarnings } from './utils/userStartupWarnings.js';
@@ -31,7 +34,13 @@ import {
 } from './utils/cleanup.js';
 import { getCliVersion } from './utils/version.js';
 import type { Config } from '@rdmind/rdmind-core';
-import { AuthType, getOauthClient, logUserPrompt } from '@rdmind/rdmind-core';
+import {
+  AuthType,
+  getOauthClient,
+  logUserPrompt,
+  logRDMindStart,
+  logRDMindEnd,
+} from '@rdmind/rdmind-core';
 import {
   initializeApp,
   type InitializationResult,
@@ -53,7 +62,6 @@ import {
   relaunchAppInChildProcess,
 } from './utils/relaunch.js';
 import { validateNonInteractiveAuth } from './validateNonInterActiveAuth.js';
-
 export function validateDnsResolutionOrder(
   order: string | undefined,
 ): DnsResolutionOrder {
@@ -205,11 +213,15 @@ export async function main() {
 
   const argv = await parseArguments(settings.merged);
 
+  // 记录RDMind启动事件
+  let configForTelemetry: Config | null = null;
+
   // Check for invalid input combinations early to prevent crashes
   if (argv.promptInteractive && !process.stdin.isTTY) {
     console.error(
       'Error: The --prompt-interactive flag cannot be used when input is piped from stdin.',
     );
+    await runExitCleanup();
     process.exit(1);
   }
 
@@ -275,6 +287,7 @@ export async function main() {
           );
         } catch (err) {
           console.error('Error authenticating:', err);
+          await runExitCleanup();
           process.exit(1);
         }
       }
@@ -335,6 +348,17 @@ export async function main() {
       sessionId,
       argv,
     );
+    configForTelemetry = config;
+
+    // 记录RDMind启动事件
+    logRDMindStart(config, {
+      'event.name': 'rdmind_start',
+      'event.timestamp': new Date().toISOString(),
+      session_id: sessionId,
+      platform: process.platform,
+      arch: process.arch,
+      node_version: process.version,
+    });
 
     if (config.getListExtensions()) {
       console.log('Installed extensions:');
@@ -354,9 +378,21 @@ export async function main() {
       // This cleanup isn't strictly needed but may help in certain situations.
       process.on('SIGTERM', () => {
         process.stdin.setRawMode(wasRaw);
+        logRDMindEnd(configForTelemetry, {
+          'event.name': 'rdmind_end',
+          'event.timestamp': new Date().toISOString(),
+          session_id: sessionId,
+          reason: 'sigterm',
+        });
       });
       process.on('SIGINT', () => {
         process.stdin.setRawMode(wasRaw);
+        logRDMindEnd(configForTelemetry, {
+          'event.name': 'rdmind_end',
+          'event.timestamp': new Date().toISOString(),
+          session_id: sessionId,
+          reason: 'sigint',
+        });
       });
 
       // Detect and enable Kitty keyboard protocol once at startup.
@@ -390,6 +426,40 @@ export async function main() {
       })),
     ];
 
+    // 检查是否是 L4 仓库，如果是则自动切换
+    const { isL4Repository, autoSwitchToQSModel } = await import(
+      './utils/l4RepositoryAutoSwitch.js'
+    );
+    const isL4Repo = isL4Repository(process.cwd());
+    if (isL4Repo) {
+      try {
+        if (config.getDebugMode()) {
+          console.debug('[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型');
+        }
+        await autoSwitchToQSModel(config, settings);
+        if (config.getDebugMode()) {
+          console.debug('[L4Repository] 成功切换到 QS 平台模型');
+        }
+      } catch (error) {
+        // 如果切换失败，将错误添加到警告中
+        const errorMsg = `L4等级仓库检测成功，但切换到QS平台模型失败: ${
+          error instanceof Error ? error.message : String(error)
+        }`;
+        startupWarnings.push(errorMsg);
+        if (config.getDebugMode()) {
+          console.error('[L4Repository]', errorMsg, error);
+        }
+      }
+    }
+
+    // 记录会话开始事件（统一在所有模式下调用一次）
+    const { logSessionStart } = await import('@rdmind/rdmind-core');
+    logSessionStart(configForTelemetry, {
+      'event.name': 'session_start',
+      'event.timestamp': new Date().toISOString(),
+      session_id: sessionId,
+    });
+
     // Render UI, passing necessary config values. Check that there is no command line question.
     if (config.isInteractive()) {
       // Need kitty detection to be complete before we can start the interactive UI.
@@ -418,6 +488,7 @@ export async function main() {
       console.error(
         `No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.`,
       );
+      await runExitCleanup();
       process.exit(1);
     }
 
@@ -443,6 +514,7 @@ export async function main() {
     }
 
     await runNonInteractive(nonInteractiveConfig, settings, input, prompt_id);
+
     // Call cleanup before process.exit, which causes cleanup to not run
     await runExitCleanup();
     process.exit(0);

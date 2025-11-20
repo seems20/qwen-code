@@ -53,6 +53,7 @@ export function getOpenAIAvailableModelFromEnv(): AvailableModel | null {
   return id ? { id, label: id } : null;
 }
 
+// 如果是xhs-sso 模型选择不用这个方法 相关文件ModelDialog.tsx、XhsSsoModel
 export function getAvailableModelsForAuthType(
   authType: AuthType,
 ): AvailableModel[] {

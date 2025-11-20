@@ -62,6 +62,7 @@ export class DefaultTelemetryService implements TelemetryService {
     openaiResponse?: OpenAI.Chat.ChatCompletion,
   ): Promise<void> {
     // Log API response event for UI telemetry
+    // 如果 responseId 不存在，使用 'unknown'
     const responseEvent = new ApiResponseEvent(
       response.responseId || 'unknown',
       context.model,

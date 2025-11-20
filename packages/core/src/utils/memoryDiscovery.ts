@@ -301,6 +301,55 @@ async function getGeminiMdFilePathsInternalForEachDir(
     }
   }
 
+  // Also load all Markdown files under ~/.rdmind/rules (including nested subfolders).
+  try {
+    const resolvedHome = path.resolve(userHomePath);
+    const rulesRoot = path.join(resolvedHome, QWEN_DIR, 'rules');
+    if (
+      fsSync.existsSync(rulesRoot) &&
+      fsSync.statSync(rulesRoot).isDirectory()
+    ) {
+      if (debugMode) {
+        logger.debug(`[RULES] Scanning rules directory: ${rulesRoot}`);
+      }
+      const stack: string[] = [rulesRoot];
+      while (stack.length > 0) {
+        const current = stack.pop() as string;
+        let entries: fsSync.Dirent[] = [];
+        try {
+          entries = fsSync.readdirSync(current, { withFileTypes: true });
+        } catch {
+          continue;
+        }
+        for (const entry of entries) {
+          // skip hidden files/folders
+          if (entry.name.startsWith('.')) continue;
+          const fullPath = path.join(current, entry.name);
+          if (entry.isDirectory()) {
+            stack.push(fullPath);
+          } else if (
+            entry.isFile() &&
+            entry.name.toLowerCase().endsWith('.md')
+          ) {
+            try {
+              await fs.access(fullPath, fsSync.constants.R_OK);
+              allPaths.add(fullPath);
+              if (debugMode) {
+                logger.debug(`[RULES] Added rule file: ${fullPath}`);
+              }
+            } catch {
+              // not readable, skip
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    if (debugMode) {
+      logger.warn(`[RULES] Failed to process rules directory: ${String(e)}`);
+    }
+  }
+
   // Add extension context file paths.
   for (const extensionPath of extensionContextFilePaths) {
     allPaths.add(extensionPath);

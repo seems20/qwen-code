@@ -111,7 +111,7 @@ export class SubagentValidator {
     }
 
     // Check valid characters (alphanumeric, hyphens, underscores)
-    const validNameRegex = /^[a-zA-Z0-9_-]+$/;
+    const validNameRegex = /^[\p{L}\p{N}_-]+$/u;
     if (!validNameRegex.test(trimmedName)) {
       errors.push(
         'Name can only contain letters, numbers, hyphens, and underscores',

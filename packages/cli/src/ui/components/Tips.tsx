@@ -6,6 +6,7 @@
 
 import type React from 'react';
 import { Box, Text } from 'ink';
+import Link from 'ink-link';
 import { theme } from '../semantic-colors.js';
 import { type Config } from '@rdmind/rdmind-core';
 
@@ -18,6 +19,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
   return (
     <Box flexDirection="column">
       <Text color={theme.text.primary}> - Inspired By REDer Mind</Text>
+      <Text color={theme.text.primary}> - 官网地址: <Link url="https://fe.xiaohongshu.com/apps/reddevmind-web">https://fe.xiaohongshu.com/apps/reddevmind-web</Link></Text>
       <Text color={theme.text.primary}> </Text>
       <Text color={theme.text.primary}>使用指南:</Text>
       <Text color={theme.text.primary}>

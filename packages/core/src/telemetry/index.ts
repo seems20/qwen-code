@@ -99,3 +99,20 @@ export {
   FileOperation,
 } from './metrics.js';
 export { QwenLogger } from './qwen-logger/qwen-logger.js';
+
+// RDMind events
+export {
+  logRDMindStart,
+  logRDMindEnd,
+  logSessionStart,
+  logSessionEnd,
+  logCommandExecution,
+} from './rdevents.js';
+
+export type {
+  RDMindStartEvent,
+  RDMindEndEvent,
+  SessionStartEvent,
+  SessionEndEvent,
+  CommandExecutionEvent,
+} from './events.js';

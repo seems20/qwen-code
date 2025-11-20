@@ -33,6 +33,7 @@ vi.mock('node:crypto', () => ({
       digest: vi.fn(() => 'mocked-hash'),
     })),
   })),
+  pbkdf2Sync: vi.fn(() => Buffer.from('mocked-key')),
 }));
 vi.mock('../utils/paths.js');
 

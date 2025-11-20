@@ -124,7 +124,9 @@ describe('modelCommand', () => {
     });
   });
 
-  it('should return error for USE_OPENAI auth type when no model is available', async () => {
+  it('should return dialog action for USE_OPENAI auth type even when no model is available', async () => {
+    // For USE_OPENAI and XHS_SSO, we always open the dialog
+    // The user can configure custom OpenAI-compatible endpoints
     mockGetAvailableModelsForAuthType.mockReturnValue([]);
 
     const mockConfig = createMockConfig({
@@ -136,10 +138,24 @@ describe('modelCommand', () => {
     const result = await modelCommand.action!(mockContext, '');
 
     expect(result).toEqual({
-      type: 'message',
-      messageType: 'error',
-      content:
-        'No models available for the current authentication type (openai).',
+      type: 'dialog',
+      dialog: 'model',
+    });
+  });
+
+  it('should return dialog action for XHS_SSO auth type', async () => {
+    // XHS_SSO uses custom configuration flow
+    const mockConfig = createMockConfig({
+      model: 'test-model',
+      authType: AuthType.XHS_SSO,
+    });
+    mockContext.services.config = mockConfig as Config;
+
+    const result = await modelCommand.action!(mockContext, '');
+
+    expect(result).toEqual({
+      type: 'dialog',
+      dialog: 'model',
     });
   });
 

@@ -26,5 +26,11 @@ export function validateAuthMethod(authMethod: string): string | null {
     return null;
   }
 
+  if (authMethod === AuthType.XHS_SSO) {
+    // XHS SSO doesn't require any environment variables
+    // The auto SSO flow will handle authentication
+    return null;
+  }
+
   return 'Invalid auth method selected.';
 }

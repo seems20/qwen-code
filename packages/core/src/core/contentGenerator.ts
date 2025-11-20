@@ -49,6 +49,7 @@ export enum AuthType {
   CLOUD_SHELL = 'cloud-shell',
   USE_OPENAI = 'openai',
   QWEN_OAUTH = 'qwen-oauth',
+  XHS_SSO = 'xhs-sso',
 }
 
 export type ContentGeneratorConfig = {
@@ -102,6 +103,19 @@ export function createContentGeneratorConfig(
   if (authType === AuthType.USE_OPENAI) {
     if (!newContentGeneratorConfig.apiKey) {
       throw new Error('OpenAI API key is required');
+    }
+
+    return {
+      ...newContentGeneratorConfig,
+      model: newContentGeneratorConfig?.model || 'qwen3-coder-plus',
+    } as ContentGeneratorConfig;
+  }
+
+  if (authType === AuthType.XHS_SSO) {
+    // XHS SSO 使用 OpenAI 兼容的客户端
+    // apiKey、baseUrl、model 应该已经在 settings.json 中配置好了
+    if (!newContentGeneratorConfig.apiKey) {
+      throw new Error('小红书 SSO API key is required');
     }
 
     return {
@@ -205,6 +219,32 @@ export async function createContentGenerator(
         `${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
+
+  if (config.authType === AuthType.XHS_SSO) {
+    // XHS SSO 复用 OpenAI 兼容客户端
+    // API Key 和配置在启动时已经写入 settings.json
+    if (!config.apiKey) {
+      throw new Error(
+        '小红书 SSO 认证未完成：缺少 API Key。请重新启动应用完成认证。',
+      );
+    }
+
+    // Import OpenAIContentGenerator dynamically
+    const { createOpenAIContentGenerator } = await import(
+      './openaiContentGenerator/index.js'
+    );
+
+    // 使用小红书后端默认配置
+    const xhsConfig = {
+      ...config,
+      baseUrl:
+        config.baseUrl ||
+        'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
+      model: config.model || 'Qwen3-Coder-480B-A35B-Instruct',
+    };
+
+    return createOpenAIContentGenerator(xhsConfig, gcConfig);
   }
 
   throw new Error(

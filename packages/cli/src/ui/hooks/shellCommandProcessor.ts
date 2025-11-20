@@ -9,12 +9,14 @@ import type {
   IndividualToolCallDisplay,
 } from '../types.js';
 import { ToolCallStatus } from '../types.js';
+import type React from 'react';
 import { useCallback, useState } from 'react';
 import type {
   AnsiOutput,
   Config,
   GeminiClient,
   ShellExecutionResult,
+  ShellOutputEvent,
 } from '@rdmind/rdmind-core';
 import { isBinary, ShellExecutionService } from '@rdmind/rdmind-core';
 import { type PartListUnion } from '@google/genai';
@@ -152,7 +154,7 @@ export const useShellCommandProcessor = (
           const { pid, result } = await ShellExecutionService.execute(
             commandToExecute,
             targetDir,
-            (event) => {
+            (event: ShellOutputEvent) => {
               let shouldUpdate = false;
               switch (event.type) {
                 case 'data':
@@ -177,7 +179,7 @@ export const useShellCommandProcessor = (
                   break;
                 case 'binary_progress':
                   isBinaryStream = true;
-                  binaryBytesReceived = event.bytesReceived;
+                  binaryBytesReceived = event.bytesReceived ?? 0;
                   break;
                 default: {
                   throw new Error('An unhandled ShellOutputEvent was found.');
@@ -211,12 +213,12 @@ export const useShellCommandProcessor = (
                       tools: prevItem.tools.map((tool) =>
                         tool.callId === callId
                           ? {
-                              ...tool,
-                              resultDisplay:
-                                typeof currentDisplayOutput === 'string'
-                                  ? currentDisplayOutput
-                                  : { ansiOutput: currentDisplayOutput },
-                            }
+                            ...tool,
+                            resultDisplay:
+                              typeof currentDisplayOutput === 'string'
+                                ? currentDisplayOutput
+                                : { ansiOutput: currentDisplayOutput },
+                          }
                           : tool,
                       ),
                     };
@@ -310,7 +312,7 @@ export const useShellCommandProcessor = (
                 finalOutput,
               );
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
               setPendingHistoryItem(null);
               const errorMessage =
                 err instanceof Error ? err.message : String(err);

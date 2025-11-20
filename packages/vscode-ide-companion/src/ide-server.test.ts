@@ -15,6 +15,7 @@ import type { DiffManager } from './diff-manager.js';
 
 vi.mock('node:crypto', () => ({
   randomUUID: vi.fn(() => 'test-auth-token'),
+  pbkdf2Sync: vi.fn(() => Buffer.from('mocked-key')),
 }));
 
 const mocks = vi.hoisted(() => ({
@@ -380,7 +381,7 @@ describe('IDEServer', () => {
     });
 
     it('should allow request without auth token for backwards compatibility', async () => {
-      const response = await fetch(`http://localhost:${port}/mcp`, {
+      const response = await fetch(`http://127.0.0.1:${port}/mcp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -394,7 +395,7 @@ describe('IDEServer', () => {
     });
 
     it('should allow request with valid auth token', async () => {
-      const response = await fetch(`http://localhost:${port}/mcp`, {
+      const response = await fetch(`http://127.0.0.1:${port}/mcp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -411,7 +412,7 @@ describe('IDEServer', () => {
     });
 
     it('should reject request with invalid auth token', async () => {
-      const response = await fetch(`http://localhost:${port}/mcp`, {
+      const response = await fetch(`http://127.0.0.1:${port}/mcp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -437,7 +438,7 @@ describe('IDEServer', () => {
       ];
 
       for (const header of malformedHeaders) {
-        const response = await fetch(`http://localhost:${port}/mcp`, {
+        const response = await fetch(`http://127.0.0.1:${port}/mcp`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -515,7 +516,7 @@ describe('IDEServer HTTP endpoints', () => {
         path: '/mcp',
         method: 'POST',
         headers: {
-          Host: `localhost:${port}`,
+          Host: `127.0.0.1:${port}`,
           Origin: 'https://evil.com',
           'Content-Type': 'application/json',
         },
@@ -548,7 +549,7 @@ describe('IDEServer HTTP endpoints', () => {
         path: '/mcp',
         method: 'POST',
         headers: {
-          Host: `localhost:${port}`,
+          Host: `127.0.0.1:${port}`,
           'Content-Type': 'application/json',
         },
       },

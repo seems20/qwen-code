@@ -37,6 +37,7 @@ export function AuthDialog(): React.JSX.Element {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const items = [
+    { key: AuthType.XHS_SSO, label: '小红书 SSO', value: AuthType.XHS_SSO },
     {
       key: AuthType.QWEN_OAUTH,
       label: 'Qwen OAuth',
@@ -146,7 +147,7 @@ export function AuthDialog(): React.JSX.Element {
         </Box>
       )}
       <Box marginTop={1}>
-        <Text>Terms of Services and Privacy Notice for RDMind</Text>
+        <Text>Welcome to RDMind</Text>
       </Box>
       <Box marginTop={1}>
         <Text color={Colors.AccentBlue}>

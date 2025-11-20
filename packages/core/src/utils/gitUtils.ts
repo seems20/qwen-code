@@ -6,6 +6,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { execSync } from 'node:child_process';
 
 /**
  * Checks if a directory is within a git repository
@@ -67,6 +68,46 @@ export function findGitRoot(directory: string): string | null {
     }
 
     return null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+/**
+ * Gets the git remote URL for a repository
+ * @param directory The directory within the git repository
+ * @returns The git remote URL (origin), or null if not found or not a git repository
+ */
+export function getGitRemoteUrl(directory: string): string | null {
+  try {
+    const gitRoot = findGitRoot(directory);
+    if (!gitRoot) {
+      return null;
+    }
+
+    // Try to get remote URL from git config
+    try {
+      const remoteUrl = execSync('git config --get remote.origin.url', {
+        cwd: gitRoot,
+        encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+
+      return remoteUrl || null;
+    } catch (_error) {
+      // If git config fails, try git remote get-url
+      try {
+        const remoteUrl = execSync('git remote get-url origin', {
+          cwd: gitRoot,
+          encoding: 'utf-8',
+          stdio: ['ignore', 'pipe', 'ignore'],
+        }).trim();
+
+        return remoteUrl || null;
+      } catch (_error2) {
+        return null;
+      }
+    }
   } catch (_error) {
     return null;
   }

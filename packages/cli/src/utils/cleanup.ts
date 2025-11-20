@@ -14,6 +14,17 @@ export function registerCleanup(fn: (() => void) | (() => Promise<void>)) {
   cleanupFunctions.push(fn);
 }
 
+// 将 registerCleanup 暴露到全局，让 TokenUsageReporter 和 EventUsageReporter 可以注册
+declare global {
+  var registerCleanup:
+    | ((fn: (() => void) | (() => Promise<void>)) => void)
+    | undefined;
+}
+
+if (typeof global !== 'undefined') {
+  global.registerCleanup = registerCleanup;
+}
+
 export async function runExitCleanup() {
   for (const fn of cleanupFunctions) {
     try {

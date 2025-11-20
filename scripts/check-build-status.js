@@ -52,6 +52,22 @@ function findSourceFiles(dir, allFiles = []) {
 
 console.log('Checking build status...');
 
+// Check if we're in a npm package environment (no source code directory)
+// If source directory doesn't exist, skip build check as this is likely an npm-installed package
+const sourceDirExists = sourceDirs.some((dir) => fs.existsSync(path.resolve(dir)));
+if (!sourceDirExists) {
+  console.log('Source directory not found, skipping build check (npm package environment).');
+  // Clean up any old warnings file
+  try {
+    if (fs.existsSync(warningsFilePath)) {
+      fs.unlinkSync(warningsFilePath);
+    }
+  } catch (err) {
+    // Ignore cleanup errors
+  }
+  process.exit(0); // Exit successfully, no build check needed
+}
+
 // Clean up old warnings file before check
 try {
   if (fs.existsSync(warningsFilePath)) {

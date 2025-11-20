@@ -22,6 +22,7 @@ describe('SubagentValidator', () => {
         'code_reviewer',
         'agent123',
         'my-helper',
+        '中文助手',
       ];
 
       for (const name of validNames) {

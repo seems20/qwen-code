@@ -262,7 +262,7 @@ export function useVisionAutoSwitch(
         });
         return {
           shouldProceed: true,
-          originalModel: originalModelRef.current,
+          originalModel: originalModelRef.current ?? undefined,
         };
       }
 
@@ -298,7 +298,7 @@ export function useVisionAutoSwitch(
           });
           return {
             shouldProceed: true,
-            originalModel: originalModelRef.current,
+            originalModel: originalModelRef.current ?? undefined,
           };
         } else if (visionSwitchResult.persistSessionModel) {
           // Persistent session model change
@@ -325,7 +325,7 @@ export function useVisionAutoSwitch(
           });
           return {
             shouldProceed: true,
-            originalModel: originalModelRef.current,
+            originalModel: originalModelRef.current ?? undefined,
           };
         } else if (visionSwitchResult.persistSessionModel) {
           // Persistent session model change

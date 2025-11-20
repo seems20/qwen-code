@@ -1,7 +1,7 @@
 # API keys and secrets
 .env
 .env~
-
+.knowledge
 # gemini-cli settings
 # We want to keep the .gemini in the root of the repo and ignore any .gemini
 # in subdirectories. In our root .gemini we want to allow for version control
@@ -60,3 +60,7 @@ RDMind.md
 # Log files
 patch_output.log
 target
+
+# niopd
+.iflow
+niopd-workspace

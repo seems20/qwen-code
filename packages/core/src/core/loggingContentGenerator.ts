@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { randomUUID } from 'node:crypto';
 import type {
   Content,
   CountTokensParameters,
@@ -112,12 +113,16 @@ export class LoggingContentGenerator implements ContentGenerator {
     userPromptId: string,
   ): Promise<GenerateContentResponse> {
     const startTime = Date.now();
+    // 在请求开始时生成一个 request_id，用于在整个重试过程中保持一致性
+    // 如果 API 返回了 responseId，优先使用 API 的 responseId
+    const requestId = randomUUID();
     this.logApiRequest(toContents(req.contents), req.model, userPromptId);
     try {
       const response = await this.wrapped.generateContent(req, userPromptId);
       const durationMs = Date.now() - startTime;
+      // 优先使用 API 返回的 responseId，如果不存在则使用我们生成的 requestId
       this._logApiResponse(
-        response.responseId ?? '',
+        response.responseId ?? requestId,
         durationMs,
         response.modelVersion || req.model,
         userPromptId,
@@ -127,7 +132,8 @@ export class LoggingContentGenerator implements ContentGenerator {
       return response;
     } catch (error) {
       const durationMs = Date.now() - startTime;
-      this._logApiError(undefined, durationMs, error, req.model, userPromptId);
+      // 错误时也使用同一个 requestId
+      this._logApiError(requestId, durationMs, error, req.model, userPromptId);
       throw error;
     }
   }
@@ -137,6 +143,8 @@ export class LoggingContentGenerator implements ContentGenerator {
     userPromptId: string,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     const startTime = Date.now();
+    // 在请求开始时生成一个 request_id，用于在整个重试过程中保持一致性
+    const requestId = randomUUID();
     this.logApiRequest(toContents(req.contents), req.model, userPromptId);
 
     let stream: AsyncGenerator<GenerateContentResponse>;
@@ -144,7 +152,8 @@ export class LoggingContentGenerator implements ContentGenerator {
       stream = await this.wrapped.generateContentStream(req, userPromptId);
     } catch (error) {
       const durationMs = Date.now() - startTime;
-      this._logApiError(undefined, durationMs, error, req.model, userPromptId);
+      // 错误时使用同一个 requestId
+      this._logApiError(requestId, durationMs, error, req.model, userPromptId);
       throw error;
     }
 
@@ -153,6 +162,7 @@ export class LoggingContentGenerator implements ContentGenerator {
       startTime,
       userPromptId,
       req.model,
+      requestId,
     );
   }
 
@@ -161,6 +171,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     startTime: number,
     userPromptId: string,
     model: string,
+    requestId: string,
   ): AsyncGenerator<GenerateContentResponse> {
     const responses: GenerateContentResponse[] = [];
 
@@ -175,8 +186,9 @@ export class LoggingContentGenerator implements ContentGenerator {
       }
       // Only log successful API response if no error occurred
       const durationMs = Date.now() - startTime;
+      // 优先使用 API 返回的 responseId，如果不存在则使用我们生成的 requestId
       this._logApiResponse(
-        responses[0]?.responseId ?? '',
+        responses[0]?.responseId ?? requestId,
         durationMs,
         responses[0]?.modelVersion || model,
         userPromptId,
@@ -185,8 +197,9 @@ export class LoggingContentGenerator implements ContentGenerator {
       );
     } catch (error) {
       const durationMs = Date.now() - startTime;
+      // 错误时使用同一个 requestId
       this._logApiError(
-        undefined,
+        requestId,
         durationMs,
         error,
         responses[0]?.modelVersion || model,

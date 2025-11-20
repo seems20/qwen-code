@@ -734,20 +734,46 @@ export class SubagentManager {
     baseDir = path.join(baseDir, QWEN_CONFIG_DIR, AGENT_CONFIG_DIR);
 
     try {
-      const files = await fs.readdir(baseDir);
+      const entries = await fs.readdir(baseDir, { withFileTypes: true });
       const subagents: SubagentConfig[] = [];
 
-      for (const file of files) {
-        if (!file.endsWith('.md')) continue;
+      for (const entry of entries) {
+        if (entry.isFile() && entry.name.endsWith('.md')) {
+          // Handle .md files directly in baseDir
+          const filePath = path.join(baseDir, entry.name);
 
-        const filePath = path.join(baseDir, file);
+          try {
+            const config = await this.parseSubagentFile(filePath, level);
+            subagents.push(config);
+          } catch (_error) {
+            // Ignore invalid files
+            continue;
+          }
+        } else if (entry.isDirectory()) {
+          // Handle subdirectories: read .md files from one level deep
+          try {
+            const subDirPath = path.join(baseDir, entry.name);
+            const subEntries = await fs.readdir(subDirPath, {
+              withFileTypes: true,
+            });
 
-        try {
-          const config = await this.parseSubagentFile(filePath, level);
-          subagents.push(config);
-        } catch (_error) {
-          // Ignore invalid files
-          continue;
+            for (const subEntry of subEntries) {
+              if (subEntry.isFile() && subEntry.name.endsWith('.md')) {
+                const filePath = path.join(subDirPath, subEntry.name);
+
+                try {
+                  const config = await this.parseSubagentFile(filePath, level);
+                  subagents.push(config);
+                } catch (_error) {
+                  // Ignore invalid files
+                  continue;
+                }
+              }
+            }
+          } catch (_error) {
+            // Ignore directories that can't be read
+            continue;
+          }
         }
       }
 

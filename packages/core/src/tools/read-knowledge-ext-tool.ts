@@ -174,7 +174,7 @@ export class ListKnowledgeExtTool extends BaseDeclarativeTool<
     super(
       'list_knowledge_ext',
       'ListKnowledgeExt',
-      '列出.knowledge/.ext目录中的可用文件和目录。用于探索扩展知识库的结构。',
+      '列出.knowledge/.ext目录中的可用文件和目录。主要用于访问内置的 bmad（BMAD 方法扩展）与 coding（小红书编程规范）知识库，避免在其它场景误用。',
       Kind.Read,
       {
         properties: {

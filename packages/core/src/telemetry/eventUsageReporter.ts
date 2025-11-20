@@ -1,0 +1,464 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import { sessionId } from '../utils/session.js';
+import { PALLAS_HTTP_BASE } from '../config/xhsApiConfig.js';
+
+// 声明全局 registerCleanup 函数类型
+declare global {
+  var registerCleanup:
+    | ((fn: (() => void) | (() => Promise<void>)) => void)
+    | undefined;
+}
+
+/**
+ * 事件使用记录项
+ */
+export interface EventUsageItem {
+  eventType: string;
+  timestamp: string;
+  details?: Record<string, unknown>;
+}
+
+/**
+ * 批量上报配置
+ */
+const BATCH_SIZE = 10; // 批量大小：10条
+const BATCH_INTERVAL_MS = 5 * 1000; // 批量间隔：5s
+
+/**
+ * 是否启用调试日志
+ */
+let globalDebugMode = false;
+
+export function setDebugMode(enabled: boolean): void {
+  globalDebugMode = enabled;
+}
+
+function isDebugEnabled(): boolean {
+  return (
+    globalDebugMode ||
+    process.env['DEBUG'] === '1' ||
+    process.env['DEBUG'] === 'true' ||
+    process.env['DEBUG_MODE'] === '1' ||
+    process.env['DEBUG_MODE'] === 'true' ||
+    process.env['RDMIND_DEBUG_EVENT_USAGE'] === '1'
+  );
+}
+
+/**
+ * 调试日志输出
+ */
+function debugLog(message: string, ...args: unknown[]): void {
+  if (isDebugEnabled()) {
+    console.log(`[eventUsageReporter] ${message}`, ...args);
+  }
+}
+
+/**
+ * 获取 API Base URL
+ */
+function getApiBaseUrl(): string {
+  return process.env['RDMIND_API_BASE_URL']?.trim() || PALLAS_HTTP_BASE;
+}
+
+/**
+ * 读取 xhs_sso_creds.json 中的 rdmind_sso_id
+ */
+function getRdmindSsoId(): string | undefined {
+  try {
+    // 从独立的 SSO 凭证文件读取
+    const credsPath = path.join(os.homedir(), '.rdmind', 'xhs_sso_creds.json');
+    if (fs.existsSync(credsPath)) {
+      const content = fs.readFileSync(credsPath, 'utf-8');
+      const parsed = JSON.parse(content) as Record<string, unknown>;
+      const rdmindSsoId = parsed?.['rdmind_sso_id'];
+      if (typeof rdmindSsoId === 'string' && rdmindSsoId) {
+        return rdmindSsoId;
+      }
+    }
+  } catch (error) {
+    // 忽略读取错误
+    debugLog('读取 xhs_sso_creds.json 中的 rdmind_sso_id 失败:', error);
+  }
+  return undefined;
+}
+
+/**
+ * 事件使用量批量上报器
+ * 支持批量上报：收集10条或1分钟内的数据后批量发送
+ */
+export class EventUsageReporter {
+  private static instance: EventUsageReporter;
+  private readonly queue: EventUsageItem[] = [];
+  private flushTimer: NodeJS.Timeout | null = null;
+  private lastFlushTime: number = Date.now();
+  private isFlushInProgress: boolean = false;
+  private isShutdown: boolean = false;
+
+  private constructor() {
+    // 启动定时器，确保即使未达到批量大小也会定期上报
+    this.startFlushTimer();
+
+    // 注册退出处理器，确保退出时上报剩余数据
+    this.registerExitHandlers();
+  }
+
+  /**
+   * 注册退出处理器，确保退出时上报剩余数据
+   * 只依赖全局清理机制，避免与其他信号处理器冲突
+   */
+  private registerExitHandlers(): void {
+    // 注册清理函数到全局清理列表（如果存在）
+    // 这样可以确保在各种退出场景下都能正确上报
+    // 包括: process.exit(), beforeExit, SIGTERM, SIGINT 等
+    if (typeof global !== 'undefined' && global.registerCleanup) {
+      global.registerCleanup(() => this.shutdown(true));
+      debugLog('已注册到全局清理列表');
+    } else {
+      // 如果全局清理机制不可用，记录警告
+      debugLog(
+        '警告: global.registerCleanup 不可用，退出时可能无法上报剩余数据',
+      );
+    }
+  }
+
+  /**
+   * 获取单例实例
+   */
+  static getInstance(): EventUsageReporter {
+    if (!EventUsageReporter.instance) {
+      EventUsageReporter.instance = new EventUsageReporter();
+    }
+    return EventUsageReporter.instance;
+  }
+
+  /**
+   * 添加事件使用记录到队列
+   */
+  addEventUsage(item: EventUsageItem): void {
+    if (this.isShutdown) {
+      debugLog('上报器已关闭，跳过添加事件使用记录');
+      return;
+    }
+
+    this.queue.push(item);
+
+    // 输出调试日志
+    debugLog(
+      `添加事件使用记录到队列，当前队列长度: ${this.queue.length}/${BATCH_SIZE}`,
+      {
+        eventType: item.eventType,
+      },
+    );
+
+    // 如果达到批量大小，立即触发上报
+    if (this.queue.length >= BATCH_SIZE) {
+      debugLog(`队列达到批量大小 ${BATCH_SIZE}，立即触发上报`);
+      this.flush();
+    }
+  }
+
+  /**
+   * 启动定时刷新器
+   */
+  private startFlushTimer(): void {
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+    }
+
+    this.flushTimer = setInterval(() => {
+      const now = Date.now();
+      const timeSinceLastFlush = now - this.lastFlushTime;
+      // 如果距离上次上报超过1分钟，且队列不为空，则触发上报
+      if (timeSinceLastFlush >= BATCH_INTERVAL_MS && this.queue.length > 0) {
+        debugLog(
+          `定时器触发上报，距离上次上报: ${Math.round(timeSinceLastFlush / 1000)}秒，队列长度: ${this.queue.length}`,
+        );
+        this.flush();
+      } else {
+        debugLog(
+          `定时器检查: 距离上次上报 ${Math.round(timeSinceLastFlush / 1000)}秒，队列长度: ${this.queue.length}`,
+        );
+      }
+    }, BATCH_INTERVAL_MS);
+  }
+
+  /**
+   * 立即上报队列中的所有数据
+   */
+  async flush(): Promise<void> {
+    if (this.isShutdown) {
+      debugLog('上报器已关闭，跳过 flush');
+      return;
+    }
+    if (this.isFlushInProgress) {
+      debugLog('上报正在进行中，跳过本次 flush');
+      return;
+    }
+    if (this.queue.length === 0) {
+      debugLog('队列为空，跳过 flush');
+      return;
+    }
+
+    this.isFlushInProgress = true;
+
+    let items: EventUsageItem[] = [];
+    try {
+      items = [...this.queue];
+      this.queue.length = 0; // 清空队列
+
+      // 如果没有记录，直接返回
+      if (items.length === 0) {
+        if (isDebugEnabled()) {
+          debugLog('没有事件使用记录，跳过上报');
+        }
+        return;
+      }
+
+      const rdmindSsoId = getRdmindSsoId();
+      if (!rdmindSsoId) {
+        debugLog(
+          `⚠️  rdmind_sso_id 不存在，跳过上报（${items.length} 条记录已放回队列）`,
+        );
+        // 将数据放回队列，等待下次尝试
+        this.queue.unshift(...items);
+        return;
+      }
+
+      debugLog(
+        `开始上报 ${items.length} 条事件使用记录，rdmind_sso_id: ${rdmindSsoId}`,
+      );
+      // 正常上报使用默认超时（5秒），退出时会在 shutdown 中设置更短的超时
+      const success = await this.reportToServer(rdmindSsoId, items);
+      if (success) {
+        this.lastFlushTime = Date.now();
+        debugLog(`✅ 成功上报 ${items.length} 条事件使用记录`);
+      } else {
+        // 上报失败，将数据放回队列（保留最新的数据）
+        // 如果队列已满，丢弃最旧的数据
+        const maxRetrySize = BATCH_SIZE * 2; // 允许保留最多2倍批量大小的数据
+        if (this.queue.length + items.length > maxRetrySize) {
+          const toKeep = maxRetrySize - this.queue.length;
+          this.queue.unshift(...items.slice(-toKeep));
+          debugLog(
+            `上报失败，队列已满，丢弃 ${items.length - toKeep} 条旧数据`,
+          );
+        } else {
+          this.queue.unshift(...items);
+          debugLog(`上报失败，将 ${items.length} 条数据放回队列重试`);
+        }
+      }
+    } catch (error) {
+      debugLog('上报异常:', error);
+      // 异常情况下，将数据放回队列
+      if (items.length > 0) {
+        this.queue.unshift(...items);
+      }
+    } finally {
+      this.isFlushInProgress = false;
+    }
+  }
+
+  /**
+   * 上报数据到服务器
+   *
+   * @param rdmindSsoId rdmind_sso_id
+   * @param items 事件使用记录列表
+   * @param timeoutMs 超时时间（毫秒），默认 5000ms，退出时建议使用 500ms
+   */
+  private async reportToServer(
+    rdmindSsoId: string,
+    items: EventUsageItem[],
+    timeoutMs: number = 5000,
+  ): Promise<boolean> {
+    try {
+      const apiBaseUrl = getApiBaseUrl();
+      const url = `${apiBaseUrl}/pallas/rdmind/cli/report-event?rdmind_sso_id=${encodeURIComponent(rdmindSsoId)}`;
+
+      const requestBody = {
+        rdmindSsoId,
+        sessionId,
+        items: items.map((item) => ({
+          eventType: item.eventType,
+          timestamp: item.timestamp,
+          details: item.details,
+        })),
+      };
+
+      debugLog(`上报 URL: ${url}`);
+      debugLog(`上报数据:`, {
+        sessionId,
+        itemCount: items.length,
+        eventTypes: [...new Set(items.map((item) => item.eventType))],
+      });
+
+      // 创建 AbortController 用于超时控制
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        abortController.abort();
+      }, timeoutMs);
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+          signal: abortController.signal,
+        });
+
+        clearTimeout(timeoutId);
+        debugLog(`服务器响应状态: ${response.status} ${response.statusText}`);
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          debugLog(`上报失败，HTTP ${response.status}: ${errorText}`);
+          return false;
+        }
+
+        const result = await response.json();
+        debugLog(`服务器返回结果:`, result);
+        if (result.success === true) {
+          return true;
+        } else {
+          debugLog(
+            `上报失败，服务器返回: ${result.message || 'Unknown error'}`,
+          );
+          return false;
+        }
+      } catch (fetchError: unknown) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          debugLog(`上报请求超时（${timeoutMs}ms），已取消`);
+          return false;
+        }
+        throw fetchError; // 重新抛出其他错误
+      }
+    } catch (error) {
+      debugLog('上报请求异常:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 关闭上报器（清理资源）
+   * 在进程退出时，会尝试上报剩余数据
+   *
+   * @param waitForFlush 是否等待上报完成（默认 true，退出时建议等待）
+   * @param timeoutMs 退出时的超时时间（毫秒），默认 500ms，避免阻塞退出流程
+   */
+  async shutdown(
+    waitForFlush: boolean = true,
+    timeoutMs: number = 500,
+  ): Promise<void> {
+    if (this.isShutdown) {
+      return; // 避免重复调用
+    }
+
+    // 先停止定时器，但不要立即设置 isShutdown
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+      this.flushTimer = null;
+    }
+
+    // 尝试上报剩余数据（在设置 isShutdown 之前）
+    if (this.queue.length > 0) {
+      debugLog(
+        `关闭时发现 ${this.queue.length} 条未上报记录，开始上报（最多等待 ${timeoutMs}ms）...`,
+      );
+      if (waitForFlush) {
+        // 等待上报完成，但设置超时避免阻塞退出
+        try {
+          // 创建一个带超时的 flush 操作
+          const flushPromise = this.flushWithTimeout(timeoutMs);
+          await flushPromise;
+          debugLog('关闭时上报剩余数据完成');
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('超时')) {
+            debugLog(`关闭时上报超时（${timeoutMs}ms），已取消上报`);
+          } else {
+            debugLog('关闭时上报剩余数据失败:', error);
+          }
+        }
+      } else {
+        // 不等待完成（不推荐，可能导致数据丢失）
+        this.flushWithTimeout(timeoutMs).catch((error) => {
+          debugLog('关闭时上报剩余数据失败:', error);
+        });
+      }
+    }
+
+    // 上报完成后再设置 isShutdown，防止后续调用
+    this.isShutdown = true;
+  }
+
+  /**
+   * 带超时的 flush 操作（用于退出时）
+   */
+  private async flushWithTimeout(timeoutMs: number): Promise<void> {
+    if (this.isShutdown) {
+      return;
+    }
+    if (this.isFlushInProgress) {
+      return;
+    }
+    if (this.queue.length === 0) {
+      return;
+    }
+
+    this.isFlushInProgress = true;
+
+    let items: EventUsageItem[] = [];
+    try {
+      items = [...this.queue];
+      this.queue.length = 0; // 清空队列
+
+      // 如果没有记录，直接返回
+      if (items.length === 0) {
+        if (isDebugEnabled()) {
+          debugLog('[flushWithTimeout] 没有事件使用记录，跳过上报');
+        }
+        return;
+      }
+
+      const rdmindSsoId = getRdmindSsoId();
+      if (!rdmindSsoId) {
+        debugLog(
+          `⚠️  rdmind_sso_id 不存在，跳过上报（${items.length} 条记录已放回队列）`,
+        );
+        this.queue.unshift(...items);
+        return;
+      }
+
+      debugLog(
+        `开始上报 ${items.length} 条事件使用记录（超时: ${timeoutMs}ms）`,
+      );
+      // 使用较短的超时时间
+      const success = await this.reportToServer(rdmindSsoId, items, timeoutMs);
+      if (success) {
+        this.lastFlushTime = Date.now();
+        debugLog(`✅ 成功上报 ${items.length} 条事件使用记录`);
+      } else {
+        // 上报失败，将数据放回队列
+        this.queue.unshift(...items);
+        debugLog(`上报失败，将 ${items.length} 条数据放回队列重试`);
+      }
+    } catch (error) {
+      debugLog('上报异常:', error);
+      // 异常情况下，将数据放回队列
+      if (items.length > 0) {
+        this.queue.unshift(...items);
+      }
+    } finally {
+      this.isFlushInProgress = false;
+    }
+  }
+}

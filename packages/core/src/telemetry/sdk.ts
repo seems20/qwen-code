@@ -168,18 +168,41 @@ export function initializeTelemetry(config: Config): void {
     console.error('Error starting OpenTelemetry SDK:', error);
   }
 
+  // 处理退出信号，等待异步操作完成
+  const handleShutdown = async (signal: string) => {
+    console.log(`[telemetry] 收到 ${signal} 信号，开始关闭 telemetry...`);
+    await shutdownTelemetry(config);
+  };
+
   process.on('SIGTERM', () => {
-    shutdownTelemetry(config);
+    handleShutdown('SIGTERM').catch((error) => {
+      console.error('[telemetry] SIGTERM 处理失败:', error);
+    });
   });
   process.on('SIGINT', () => {
-    shutdownTelemetry(config);
+    handleShutdown('SIGINT').catch((error) => {
+      console.error('[telemetry] SIGINT 处理失败:', error);
+    });
   });
+  // exit 事件是同步的，不能等待异步操作，所以只做最后的清理
   process.on('exit', () => {
-    shutdownTelemetry(config);
+    // exit 事件中不能执行异步操作，只能做同步清理
+    // 实际的异步清理应该在 SIGTERM/SIGINT 中完成
   });
 }
 
 export async function shutdownTelemetry(config: Config): Promise<void> {
+  // 关闭 TokenUsageReporter（上报剩余数据）
+  try {
+    const { TokenUsageReporter } = await import('./tokenUsageReporter.js');
+    const reporter = TokenUsageReporter.getInstance();
+    // 等待上报完成，确保数据不丢失
+    await reporter.shutdown(true);
+  } catch (error) {
+    // 静默失败，不影响主流程
+    console.debug('[shutdownTelemetry] 关闭 TokenUsageReporter 失败:', error);
+  }
+
   if (!telemetryInitialized || !sdk) {
     return;
   }

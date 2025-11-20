@@ -313,7 +313,7 @@ const shareCommand: SlashCommand = {
   action: async (context, args): Promise<MessageActionReturn> => {
     let filePathArg = args.trim();
     if (!filePathArg) {
-      filePathArg = `gemini-conversation-${Date.now()}.json`;
+      filePathArg = `rdmind-conversation-${Date.now()}.json`;
     }
 
     const filePath = path.resolve(filePathArg);

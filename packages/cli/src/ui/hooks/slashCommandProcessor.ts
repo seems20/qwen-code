@@ -18,6 +18,7 @@ import {
   ToolConfirmationOutcome,
   Storage,
   IdeClient,
+  logCommandExecution,
 } from '@rdmind/rdmind-core';
 import { useSessionStats } from '../contexts/SessionContext.js';
 import { formatDuration } from '../utils/formatters.js';
@@ -215,7 +216,7 @@ export const useSlashCommandProcessor = (
         extensionsUpdateState,
         dispatchExtensionStateUpdate: actions.dispatchExtensionStateUpdate,
         addConfirmUpdateExtensionRequest:
-          actions.addConfirmUpdateExtensionRequest,
+        actions.addConfirmUpdateExtensionRequest,
       },
       session: {
         stats: session.stats,
@@ -602,6 +603,16 @@ export const useSlashCommandProcessor = (
             status: SlashCommandStatus.ERROR,
           });
           logSlashCommand(config, event);
+
+          // 记录命令执行事件
+          const commandEvent = {
+            'event.name': 'command_execution' as const,
+            'event.timestamp': new Date().toISOString(),
+            command: resolvedCommandPath[0],
+            args: args.split(' '),
+            success: false,
+          };
+          logCommandExecution(config, commandEvent);
         }
         addItem(
           {
@@ -619,6 +630,16 @@ export const useSlashCommandProcessor = (
             status: SlashCommandStatus.SUCCESS,
           });
           logSlashCommand(config, event);
+
+          // 记录命令执行事件
+          const commandEvent = {
+            'event.name': 'command_execution' as const,
+            'event.timestamp': new Date().toISOString(),
+            command: resolvedCommandPath[0],
+            args: args.split(' '),
+            success: true,
+          };
+          logCommandExecution(config, commandEvent);
         }
         setIsProcessing(false);
       }
@@ -646,5 +667,6 @@ export const useSlashCommandProcessor = (
     shellConfirmationRequest,
     confirmationRequest,
     quitConfirmationRequest,
+    reloadCommands,
   };
 };

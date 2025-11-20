@@ -6,6 +6,8 @@
 
 // Export config
 export * from './config/config.js';
+export * from './config/xhsApiConfig.js';
+export * from './config/modelKeyFetcher.js';
 export * from './output/types.js';
 export * from './output/json-formatter.js';
 
@@ -30,6 +32,9 @@ export * from './qwen/qwenOAuth2.js';
 export * from './code_assist/server.js';
 export * from './code_assist/types.js';
 
+// Export XHS SSO
+export * from './xhs-sso/index.js';
+
 // Export utilities
 export * from './utils/paths.js';
 export * from './utils/schemaValidator.js';
@@ -48,6 +53,8 @@ export * from './utils/systemEncoding.js';
 export * from './utils/textUtils.js';
 export * from './utils/formatters.js';
 export * from './utils/generateContentResponseUtilities.js';
+export * from './utils/fetch.js';
+export * from './utils/secure-browser-launcher.js';
 export * from './utils/ripgrepUtils.js';
 export * from './utils/filesearch/fileSearch.js';
 export * from './utils/errorParsing.js';
@@ -58,6 +65,8 @@ export * from './utils/subagentGenerator.js';
 export * from './utils/projectSummary.js';
 export * from './utils/promptIdContext.js';
 export * from './utils/thoughtUtils.js';
+export * from './utils/apiKeyEncryption.js';
+export * from './utils/gitUtils.js';
 
 // Export services
 export * from './services/fileDiscoveryService.js';
@@ -100,6 +109,7 @@ export * from './tools/memoryTool.js';
 export * from './tools/shell.js';
 export * from './tools/web-search/index.js';
 export * from './tools/read-many-files.js';
+export * from './tools/read-knowledge-ext.js';
 export * from './tools/mcp-client.js';
 export * from './tools/mcp-tool.js';
 export * from './tools/task.js';
