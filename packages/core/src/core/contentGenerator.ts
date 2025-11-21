@@ -235,16 +235,7 @@ export async function createContentGenerator(
       './openaiContentGenerator/index.js'
     );
 
-    // 使用小红书后端默认配置
-    const xhsConfig = {
-      ...config,
-      baseUrl:
-        config.baseUrl ||
-        'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1',
-      model: config.model || 'Qwen3-Coder-480B-A35B-Instruct',
-    };
-
-    return createOpenAIContentGenerator(xhsConfig, gcConfig);
+    return createOpenAIContentGenerator(config, gcConfig);
   }
 
   throw new Error(

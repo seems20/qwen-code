@@ -427,9 +427,9 @@ export async function main() {
     const { isL4Repository, autoSwitchToQSModel } = await import(
       './utils/l4RepositoryAutoSwitch.js'
     );
-    const isL4Repo = isL4Repository(process.cwd());
-    if (isL4Repo) {
-      try {
+    try {
+      const isL4Repo = await isL4Repository(process.cwd());
+      if (isL4Repo) {
         if (config.getDebugMode()) {
           console.debug(
             '[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型',
@@ -439,15 +439,15 @@ export async function main() {
         if (config.getDebugMode()) {
           console.debug('[L4Repository] 成功切换到 QS 平台模型');
         }
-      } catch (error) {
-        // 如果切换失败，将错误添加到警告中
-        const errorMsg = `L4等级仓库检测成功，但切换到QS平台模型失败: ${
-          error instanceof Error ? error.message : String(error)
-        }`;
-        startupWarnings.push(errorMsg);
-        if (config.getDebugMode()) {
-          console.error('[L4Repository]', errorMsg, error);
-        }
+      }
+    } catch (error) {
+      // 如果检测或切换失败，将错误添加到警告中
+      const errorMsg = `L4仓库检测或切换失败: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+      startupWarnings.push(errorMsg);
+      if (config.getDebugMode()) {
+        console.error('[L4Repository]', errorMsg, error);
       }
     }
 

@@ -9,10 +9,8 @@ import * as os from 'node:os';
 import path from 'node:path';
 import {
   canUseRipgrep,
-  isGitRepository,
-  getGitRemoteUrl,
 } from '@rdmind/rdmind-core';
-import { L4_SENSITIVE_REPOSITORIES } from './l4SensitiveRepositories.js';
+import { isL4Repository } from './l4RepositoryAutoSwitch.js';
 
 type WarningCheckOptions = {
   workspaceRoot: string;
@@ -88,21 +86,8 @@ const l4RepositoryCheck: WarningCheck = {
   id: 'l4-repository',
   check: async (options: WarningCheckOptions) => {
     try {
-      // 检查是否是 git 仓库
-      if (!isGitRepository(options.workspaceRoot)) {
-        return null;
-      }
-
-      // 获取 git 远程地址
-      const remoteUrl = getGitRemoteUrl(options.workspaceRoot);
-      if (!remoteUrl) {
-        return null;
-      }
-
-      // 检查是否在敏感仓库列表中
-      const isL4Repo = L4_SENSITIVE_REPOSITORIES.some(
-        (repo) => remoteUrl.includes(repo) || repo.includes(remoteUrl),
-      );
+      // 调用接口判断是否是L4仓库
+      const isL4Repo = await isL4Repository(options.workspaceRoot);
 
       if (isL4Repo) {
         return 'L4等级仓库，为您切换到QS平台模型';

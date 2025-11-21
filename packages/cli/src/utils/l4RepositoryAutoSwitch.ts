@@ -12,12 +12,12 @@ import {
 } from '@rdmind/rdmind-core';
 import type { LoadedSettings } from '../config/settings.js';
 import { applyXhsSsoConfig } from '../ui/auth/xhsSsoConfig.js';
-import { L4_SENSITIVE_REPOSITORIES } from './l4SensitiveRepositories.js';
 
 /**
  * 检查当前目录是否是 L4 敏感仓库
+ * 通过调用接口判断仓库风险等级
  */
-export function isL4Repository(workspaceRoot: string): boolean {
+export async function isL4Repository(workspaceRoot: string): Promise<boolean> {
   try {
     if (!isGitRepository(workspaceRoot)) {
       return false;
@@ -28,23 +28,60 @@ export function isL4Repository(workspaceRoot: string): boolean {
       return false;
     }
 
-    // 检查远程地址是否匹配敏感仓库列表
-    const isMatch = L4_SENSITIVE_REPOSITORIES.some(
-      (repo) => remoteUrl.includes(repo) || repo.includes(remoteUrl),
-    );
+    // 调用接口判断仓库风险等级
+    const isL4 = await checkRepositoryRiskLevel(remoteUrl);
 
     // 调试日志（可以通过环境变量控制）
     if (process.env['DEBUG'] || process.env['RDMIND_DEBUG']) {
       console.debug('[L4Repository] Git remote URL:', remoteUrl);
-      console.debug('[L4Repository] Is L4 repository:', isMatch);
+      console.debug('[L4Repository] Is L4 repository:', isL4);
     }
 
-    return isMatch;
+    return isL4;
   } catch (error) {
     if (process.env['DEBUG'] || process.env['RDMIND_DEBUG']) {
       console.debug('[L4Repository] Error checking repository:', error);
     }
+    // 接口调用失败时返回false，不认为是L4仓库
     return false;
+  }
+}
+
+/**
+ * 调用接口检查仓库风险等级
+ */
+async function checkRepositoryRiskLevel(gitRepoUrl: string): Promise<boolean> {
+  const apiUrl = 'http://pallas-t12.devops.sl.beta.xiaohongshu.com/pallas/rdmind/cli/repo-risk-level';
+
+  try {
+    const response = await fetch(`${apiUrl}?gitRepoUrl=${encodeURIComponent(gitRepoUrl)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json() as {
+      code: number;
+      data: string;
+      msg: string;
+      success: boolean;
+    };
+
+    if (data.success && data.code === 0) {
+      return data.data === 'l4';
+    } else {
+      throw new Error(`API error: ${data.msg || 'Unknown error'}`);
+    }
+  } catch (error) {
+    if (process.env['DEBUG'] || process.env['RDMIND_DEBUG']) {
+      console.debug('[L4Repository] API call failed:', error);
+    }
+    throw error;
   }
 }
 
@@ -63,27 +100,15 @@ export async function autoSwitchToQSModel(
 
   if (currentAuthType === AuthType.XHS_SSO) {
     // 如果已经是 xhs-sso，只需要切换模型
-    // 需要获取当前的 apiKey（可能是加密的）
-    const apiKey = settings.merged.security?.auth?.apiKey;
-    if (!apiKey) {
-      // 如果没有 apiKey，需要重新获取
-      const { fetchModelKey } = await import('@rdmind/rdmind-core');
-      const newApiKey = await fetchModelKey(targetModel, config.getDebugMode());
-      await applyXhsSsoConfig(config, settings, {
-        apiKey: newApiKey,
-        baseUrl: targetBaseUrl,
-        model: targetModel,
-        refresh: true,
-      });
-    } else {
-      // 使用现有的 apiKey，只更新模型和 baseUrl
-      await applyXhsSsoConfig(config, settings, {
-        apiKey,
-        baseUrl: targetBaseUrl,
-        model: targetModel,
-        refresh: true,
-      });
-    }
+    // 总是获取新的 apiKey 以确保使用正确的模型
+    const { fetchModelKey } = await import('@rdmind/rdmind-core');
+    const newApiKey = await fetchModelKey(targetModel, config.getDebugMode());
+    await applyXhsSsoConfig(config, settings, {
+      apiKey: newApiKey,
+      baseUrl: targetBaseUrl,
+      model: targetModel,
+      refresh: true,
+    });
   } else {
     // 如果不是 xhs-sso，需要切换到 xhs-sso 并设置模型
     // 首先需要获取 apiKey
