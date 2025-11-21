@@ -18,9 +18,7 @@ const L4_WARNING_AUTO_HIDE_DELAY = 3000; // 3秒
 export const Notifications = () => {
   const { startupWarnings } = useAppContext();
   const { initError, streamingState, updateInfo } = useUIState();
-  const [hiddenWarnings, setHiddenWarnings] = useState<Set<string>>(
-    new Set(),
-  );
+  const [hiddenWarnings, setHiddenWarnings] = useState<Set<string>>(new Set());
 
   // 过滤掉已隐藏的警告
   const visibleWarnings = startupWarnings.filter(

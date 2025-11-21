@@ -7,9 +7,7 @@
 import fs from 'node:fs/promises';
 import * as os from 'node:os';
 import path from 'node:path';
-import {
-  canUseRipgrep,
-} from '@rdmind/rdmind-core';
+import { canUseRipgrep } from '@rdmind/rdmind-core';
 import { isL4Repository } from './l4RepositoryAutoSwitch.js';
 
 type WarningCheckOptions = {

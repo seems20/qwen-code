@@ -51,21 +51,25 @@ export async function isL4Repository(workspaceRoot: string): Promise<boolean> {
  * 调用接口检查仓库风险等级
  */
 async function checkRepositoryRiskLevel(gitRepoUrl: string): Promise<boolean> {
-  const apiUrl = 'http://pallas-t12.devops.sl.beta.xiaohongshu.com/pallas/rdmind/cli/repo-risk-level';
+  const apiUrl =
+    'http://pallas-t12.devops.sl.beta.xiaohongshu.com/pallas/rdmind/cli/repo-risk-level';
 
   try {
-    const response = await fetch(`${apiUrl}?gitRepoUrl=${encodeURIComponent(gitRepoUrl)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${apiUrl}?gitRepoUrl=${encodeURIComponent(gitRepoUrl)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
       code: number;
       data: string;
       msg: string;
