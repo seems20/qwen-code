@@ -120,13 +120,13 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
  *          LLM call and the processed query parts (including file content).
  */
 export async function handleAtCommand({
-                                        query,
-                                        config,
-                                        addItem,
-                                        onDebugMessage,
-                                        messageId: userMessageTimestamp,
-                                        signal,
-                                      }: HandleAtCommandParams): Promise<HandleAtCommandResult> {
+  query,
+  config,
+  addItem,
+  onDebugMessage,
+  messageId: userMessageTimestamp,
+  signal,
+}: HandleAtCommandParams): Promise<HandleAtCommandResult> {
   const commandParts = parseAllAtCommands(query);
   const atPathCommandParts = commandParts.filter(
     (part) => part.type === 'atPath',

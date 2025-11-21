@@ -60,18 +60,15 @@ export function XhsSsoModelConfigFlow({
 
   // 获取当前模型并计算初始索引
   const currentModel = config?.getModel();
-  const initialIndex = useMemo(
-    () => {
-      if (!currentModel) {
-        return 0; // 如果没有当前模型，默认选中第一个
-      }
-      const index = XHS_SSO_MODELS.findIndex(
-        (model) => model.id === currentModel,
-      );
-      return index >= 0 ? index : 0; // 如果找不到，默认选中第一个
-    },
-    [currentModel],
-  );
+  const initialIndex = useMemo(() => {
+    if (!currentModel) {
+      return 0; // 如果没有当前模型，默认选中第一个
+    }
+    const index = XHS_SSO_MODELS.findIndex(
+      (model) => model.id === currentModel,
+    );
+    return index >= 0 ? index : 0; // 如果找不到，默认选中第一个
+  }, [currentModel]);
 
   // 如果没有 rdmind_sso_id，提示用户先认证
   if (!rdmindSsoId) {

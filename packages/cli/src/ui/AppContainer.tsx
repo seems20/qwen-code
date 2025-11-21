@@ -413,7 +413,7 @@ export const AppContainer = (props: AppContainerProps) => {
         }
         const errorMsg = 'WebSocket 建联超时，请检查网络后重试';
         onAuthError(errorMsg);
-        
+
         // Log authentication failure
         const failEvent = new AuthEvent(
           AuthType.XHS_SSO,
@@ -445,7 +445,7 @@ export const AppContainer = (props: AppContainerProps) => {
         }
         const errorMsg = `触发 SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`;
         onAuthError(errorMsg);
-        
+
         // Log authentication failure
         const failEvent = new AuthEvent(
           AuthType.XHS_SSO,
@@ -491,37 +491,41 @@ export const AppContainer = (props: AppContainerProps) => {
                 console.debug('[AppContainer] 📝 保存 SSO 凭证和认证类型');
               }
 
-	              await saveSSOCredentialsAndAuthType(
-	                creds.rdmind_sso_id,
-	                creds.sso_name,
-	                USER_SETTINGS_PATH,
-	                config.getDebugMode(),
-	              );
+              await saveSSOCredentialsAndAuthType(
+                creds.rdmind_sso_id,
+                creds.sso_name,
+                USER_SETTINGS_PATH,
+                config.getDebugMode(),
+              );
 
-	              const resolvedConfig = await resolveXhsSsoRuntimeConfig(
-	                config,
-	                settings,
-	              );
+              const resolvedConfig = await resolveXhsSsoRuntimeConfig(
+                config,
+                settings,
+              );
 
-	              await applyXhsSsoConfig(config, settings, {
-	                scope: SettingScope.User,
-	                ...resolvedConfig,
-	                refresh: true,
-	              });
+              await applyXhsSsoConfig(config, settings, {
+                scope: SettingScope.User,
+                ...resolvedConfig,
+                refresh: true,
+              });
 
-	              if (config.getDebugMode()) {
-	                console.debug('[AppContainer] ✅ SSO 凭证和认证类型已保存');
-	                console.debug(
-	                  '[AppContainer] 🎉 自动 SSO 认证完成并已配置默认模型',
-	                );
-	              }
+              if (config.getDebugMode()) {
+                console.debug('[AppContainer] ✅ SSO 凭证和认证类型已保存');
+                console.debug(
+                  '[AppContainer] 🎉 自动 SSO 认证完成并已配置默认模型',
+                );
+              }
 
-	              // 设置为已认证状态
-	              setAuthState(AuthState.Authenticated);
+              // 设置为已认证状态
+              setAuthState(AuthState.Authenticated);
 
-	              // Log authentication success
-	              const successEvent = new AuthEvent(AuthType.XHS_SSO, 'auto', 'success');
-	              logAuth(config, successEvent);
+              // Log authentication success
+              const successEvent = new AuthEvent(
+                AuthType.XHS_SSO,
+                'auto',
+                'success',
+              );
+              logAuth(config, successEvent);
             } catch (error) {
               // 获取/保存失败
               if (config.getDebugMode()) {
@@ -531,7 +535,7 @@ export const AppContainer = (props: AppContainerProps) => {
               // TODO: 用户可以在这里提供兜底 Key
               const errorMsg = `SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`;
               onAuthError(errorMsg);
-              
+
               // Log authentication failure
               const failEvent = new AuthEvent(
                 AuthType.XHS_SSO,
@@ -550,9 +554,10 @@ export const AppContainer = (props: AppContainerProps) => {
               '[AppContainer] ⏰ 5秒内未检测到 rdmind_sso_id，认证超时',
             );
           }
-          const errorMsg = 'SSO 认证超时，可选择其他认证方式，或选择小红书 SSO 重试';
+          const errorMsg =
+            'SSO 认证超时，可选择其他认证方式，或选择小红书 SSO 重试';
           onAuthError(errorMsg);
-          
+
           // Log authentication timeout
           const timeoutEvent = new AuthEvent(
             AuthType.XHS_SSO,
@@ -569,7 +574,7 @@ export const AppContainer = (props: AppContainerProps) => {
       console.error('[AppContainer] SSO 认证流程异常:', error);
       const errorMsg = 'SSO 认证流程异常，请重试';
       onAuthError(errorMsg);
-      
+
       // Log authentication failure
       const failEvent = new AuthEvent(
         AuthType.XHS_SSO,

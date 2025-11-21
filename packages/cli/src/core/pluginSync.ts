@@ -23,7 +23,7 @@ const PluginTypes = new Map([
   ['orion_subagent', 'orion_subagent'],
   ['rules', 'rules'],
   ['flow', 'flow'],
-  ['all', 'all']
+  ['all', 'all'],
 ]);
 
 /**
@@ -84,12 +84,17 @@ function getSsoCredentials(): SsoCredentials | null {
       const parsed = JSON.parse(content) as Record<string, unknown>;
       const rdmindSsoId = parsed?.['rdmind_sso_id'];
       const ssoName = parsed?.['sso_name'];
-      
-      if (typeof rdmindSsoId === 'string' && rdmindSsoId && typeof ssoName === 'string' && ssoName) {
+
+      if (
+        typeof rdmindSsoId === 'string' &&
+        rdmindSsoId &&
+        typeof ssoName === 'string' &&
+        ssoName
+      ) {
         debugLog('成功读取rdmind_sso_id和sso_name');
         return {
           rdmind_sso_id: rdmindSsoId,
-          sso_name: ssoName
+          sso_name: ssoName,
         };
       } else {
         debugLog('文件中未找到有效的rdmind_sso_id或sso_name');
@@ -109,47 +114,47 @@ function getSsoCredentials(): SsoCredentials | null {
 function getClientPlugins(): ClientPluginInfo[] {
   debugLog('获取客户端插件列表');
   const plugins: ClientPluginInfo[] = [];
-  
+
   try {
     const rdmindDir = path.join(os.homedir(), '.rdmind');
     const pluginTypes = ['agents', 'commands', 'rules'];
-    
+
     for (const pluginType of pluginTypes) {
       const pluginTypeDir = path.join(rdmindDir, pluginType);
-      
+
       if (!fs.existsSync(pluginTypeDir)) {
         debugLog(`插件类型目录不存在: ${pluginTypeDir}`);
         continue;
       }
-      
+
       // 读取插件ID目录
       const idDirs = fs.readdirSync(pluginTypeDir);
-      
+
       for (const idDir of idDirs) {
         const idPath = path.join(pluginTypeDir, idDir);
-        
+
         // 确保这是一个目录且目录名是一个数字
         if (!fs.statSync(idPath).isDirectory()) {
           continue;
         }
-        
+
         const id = parseInt(idDir, 10);
         if (isNaN(id)) {
           continue;
         }
-        
+
         // 读取插件文件
         const files = fs.readdirSync(idPath);
         for (const file of files) {
           if (file.endsWith('.md') || file.endsWith('.toml')) {
             // 从文件名提取插件名称（去掉扩展名）
             const pluginName = path.basename(file, path.extname(file));
-            
+
             // 添加新插件
             plugins.push({
               id,
               name: pluginName,
-              type: PluginTypes.get(pluginType) || 'unknown'
+              type: PluginTypes.get(pluginType) || 'unknown',
             });
             break; // 每个ID目录只取第一个有效文件
           }
@@ -159,7 +164,7 @@ function getClientPlugins(): ClientPluginInfo[] {
   } catch (error) {
     console.error('读取客户端插件列表失败:', error);
   }
-  
+
   debugLog(`找到 ${plugins.length} 个插件`);
   return plugins;
 }
@@ -177,7 +182,7 @@ export async function syncPlugins(): Promise<void> {
     }
 
     const clientPlugins = getClientPlugins();
-    
+
     const request: PluginSyncRequest = {
       rdmindSsoId: credentials.rdmind_sso_id,
       clientPlugins,
@@ -185,7 +190,8 @@ export async function syncPlugins(): Promise<void> {
 
     debugLog('构建同步请求', request);
 
-    const apiBaseUrl = process.env['RDMIND_API_BASE_URL']?.trim() || PALLAS_HTTP_BASE;
+    const apiBaseUrl =
+      process.env['RDMIND_API_BASE_URL']?.trim() || PALLAS_HTTP_BASE;
     const url = `${apiBaseUrl}/pallas/rdmind/cli/sync`;
     debugLog(`准备发送POST请求到: ${url}`);
 
@@ -193,7 +199,7 @@ export async function syncPlugins(): Promise<void> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'sso-name': credentials.sso_name,  // 将sso_name放入HTTP请求头
+        'sso-name': credentials.sso_name, // 将sso_name放入HTTP请求头
       },
       body: JSON.stringify(request),
     });
@@ -201,7 +207,9 @@ export async function syncPlugins(): Promise<void> {
     debugLog(`收到响应状态: ${response.status}`);
 
     if (!response.ok) {
-      console.error(`插件同步失败，HTTP ${response.status}: ${response.statusText}`);
+      console.error(
+        `插件同步失败，HTTP ${response.status}: ${response.statusText}`,
+      );
       return;
     }
 

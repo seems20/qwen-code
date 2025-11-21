@@ -180,7 +180,10 @@ export const useAuthCommand = (
 
       // 如果从 XHS_SSO 切换到其他认证方式，清除 XHS_SSO 相关配置
       const previousAuthType = settings.merged.security?.auth?.selectedType;
-      if (previousAuthType === AuthType.XHS_SSO && authType !== AuthType.XHS_SSO) {
+      if (
+        previousAuthType === AuthType.XHS_SSO &&
+        authType !== AuthType.XHS_SSO
+      ) {
         // 清除 apiKey、baseUrl 和 model.name
         settings.setValue(scope, 'security.auth.apiKey', undefined);
         settings.setValue(scope, 'security.auth.baseUrl', undefined);
@@ -232,9 +235,7 @@ export const useAuthCommand = (
         try {
           resolvedConfig = await resolveXhsSsoRuntimeConfig(config, settings);
         } catch (error) {
-          onAuthError(
-            error instanceof Error ? error.message : String(error),
-          );
+          onAuthError(error instanceof Error ? error.message : String(error));
           return;
         }
 
@@ -244,15 +245,11 @@ export const useAuthCommand = (
         setIsAuthenticating(true);
 
         try {
-          await applyXhsSsoConfig(
-            config,
-            settings,
-            {
-              scope,
-              ...resolvedConfig,
-              refresh: true,
-            },
-          );
+          await applyXhsSsoConfig(config, settings, {
+            scope,
+            ...resolvedConfig,
+            refresh: true,
+          });
 
           // Success handling
           setAuthError(null);
@@ -303,9 +300,7 @@ export const useAuthCommand = (
             settings.merged.security?.auth?.baseUrl ||
             '';
           const model =
-            process.env['OPENAI_MODEL'] ||
-            settings.merged.model?.name ||
-            '';
+            process.env['OPENAI_MODEL'] || settings.merged.model?.name || '';
 
           if (apiKey) {
             config.updateCredentials({
@@ -329,6 +324,7 @@ export const useAuthCommand = (
       onAuthError,
       performAuth,
       handleAuthFailure,
+      addItem,
     ],
   );
 

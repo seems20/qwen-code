@@ -17,10 +17,7 @@ import dns from 'node:dns';
 import { randomUUID } from 'node:crypto';
 import { start_sandbox } from './utils/sandbox.js';
 import type { DnsResolutionOrder, LoadedSettings } from './config/settings.js';
-import {
-  loadSettings,
-  migrateDeprecatedSettings,
-} from './config/settings.js';
+import { loadSettings, migrateDeprecatedSettings } from './config/settings.js';
 import { themeManager } from './ui/themes/theme-manager.js';
 import { getStartupWarnings } from './utils/startupWarnings.js';
 import { getUserStartupWarnings } from './utils/userStartupWarnings.js';
@@ -434,7 +431,9 @@ export async function main() {
     if (isL4Repo) {
       try {
         if (config.getDebugMode()) {
-          console.debug('[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型');
+          console.debug(
+            '[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型',
+          );
         }
         await autoSwitchToQSModel(config, settings);
         if (config.getDebugMode()) {

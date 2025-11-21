@@ -5,8 +5,11 @@
  */
 
 import type { Config } from '@rdmind/rdmind-core';
-import { AuthType } from '@rdmind/rdmind-core';
-import { isGitRepository, getGitRemoteUrl } from '@rdmind/rdmind-core';
+import {
+  AuthType,
+  isGitRepository,
+  getGitRemoteUrl,
+} from '@rdmind/rdmind-core';
 import type { LoadedSettings } from '../config/settings.js';
 import { applyXhsSsoConfig } from '../ui/auth/xhsSsoConfig.js';
 import { L4_SENSITIVE_REPOSITORIES } from './l4SensitiveRepositories.js';
@@ -95,4 +98,3 @@ export async function autoSwitchToQSModel(
     });
   }
 }
-

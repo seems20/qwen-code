@@ -216,7 +216,7 @@ export const useSlashCommandProcessor = (
         extensionsUpdateState,
         dispatchExtensionStateUpdate: actions.dispatchExtensionStateUpdate,
         addConfirmUpdateExtensionRequest:
-        actions.addConfirmUpdateExtensionRequest,
+          actions.addConfirmUpdateExtensionRequest,
       },
       session: {
         stats: session.stats,

@@ -14,4 +14,3 @@ export const L4_SENSITIVE_REPOSITORIES: string[] = [
   // 'git@code.devops.xiaohongshu.com:sns/rdmind.git',
   // 'git@code.devops.xiaohongshu.com:aikit/rdmind.git',
 ];
-

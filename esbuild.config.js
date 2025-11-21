@@ -69,10 +69,10 @@ try {
   ) {
     console.error(
       `\n❌ 权限错误：无法删除 ${distPath}\n` +
-      `   该目录或文件属于 root 用户，请手动修复权限：\n` +
-      `   sudo chown -R $(whoami) ${distPath}\n` +
-      `   或者：\n` +
-      `   sudo rm -rf ${distPath}\n`,
+        `   该目录或文件属于 root 用户，请手动修复权限：\n` +
+        `   sudo chown -R $(whoami) ${distPath}\n` +
+        `   或者：\n` +
+        `   sudo rm -rf ${distPath}\n`,
     );
     process.exit(1);
   }

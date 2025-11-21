@@ -7,7 +7,11 @@
 import fs from 'node:fs/promises';
 import * as os from 'node:os';
 import path from 'node:path';
-import { canUseRipgrep, isGitRepository, getGitRemoteUrl } from '@rdmind/rdmind-core';
+import {
+  canUseRipgrep,
+  isGitRepository,
+  getGitRemoteUrl,
+} from '@rdmind/rdmind-core';
 import { L4_SENSITIVE_REPOSITORIES } from './l4SensitiveRepositories.js';
 
 type WarningCheckOptions = {
@@ -96,8 +100,8 @@ const l4RepositoryCheck: WarningCheck = {
       }
 
       // 检查是否在敏感仓库列表中
-      const isL4Repo = L4_SENSITIVE_REPOSITORIES.some((repo) =>
-        remoteUrl.includes(repo) || repo.includes(remoteUrl),
+      const isL4Repo = L4_SENSITIVE_REPOSITORIES.some(
+        (repo) => remoteUrl.includes(repo) || repo.includes(remoteUrl),
       );
 
       if (isL4Repo) {

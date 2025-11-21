@@ -32,7 +32,7 @@ describe('modelKeyFetcher', () => {
           code: 0,
         }),
       };
-      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as any);
+      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
 
       const key = await fetchModelKey('qwen3-coder-plus', false);
 
@@ -49,7 +49,7 @@ describe('modelKeyFetcher', () => {
         status: 404,
         statusText: 'Not Found',
       };
-      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as any);
+      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
 
       await expect(fetchModelKey('invalid-model', false)).rejects.toThrow(
         '获取模型 key 失败: 404 Not Found',
@@ -66,7 +66,7 @@ describe('modelKeyFetcher', () => {
           code: -1,
         }),
       };
-      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as any);
+      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
 
       await expect(fetchModelKey('qwen3-coder-plus', false)).rejects.toThrow(
         'API 返回错误: 模型不存在',
@@ -83,7 +83,7 @@ describe('modelKeyFetcher', () => {
           code: 400,
         }),
       };
-      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as any);
+      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
 
       await expect(fetchModelKey('qwen3-coder-plus', false)).rejects.toThrow(
         'API 返回错误: 参数错误',
@@ -100,7 +100,7 @@ describe('modelKeyFetcher', () => {
           code: 0,
         }),
       };
-      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as any);
+      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
 
       await expect(fetchModelKey('qwen3-coder-plus', false)).rejects.toThrow(
         'API 响应中未找到 api_key',
@@ -108,9 +108,7 @@ describe('modelKeyFetcher', () => {
     });
 
     it('should throw error when network fails', async () => {
-      vi.mocked(fetchWithTimeout).mockRejectedValue(
-        new Error('Network error'),
-      );
+      vi.mocked(fetchWithTimeout).mockRejectedValue(new Error('Network error'));
 
       await expect(fetchModelKey('qwen3-coder-plus', false)).rejects.toThrow(
         '无法获取模型 qwen3-coder-plus 的 API Key: Network error',
@@ -129,7 +127,7 @@ describe('modelKeyFetcher', () => {
           code: 0,
         }),
       };
-      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as any);
+      vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
 
       const key = await fetchModelKey('model/name with spaces', false);
 
@@ -141,4 +139,3 @@ describe('modelKeyFetcher', () => {
     });
   });
 });
-

@@ -43,9 +43,7 @@ export async function resolveXhsSsoRuntimeConfig(
 
   const modelCandidate = settings.merged.model?.name;
   const model =
-    modelCandidate &&
-    modelCandidate !== '' &&
-    modelCandidate !== 'coder-model'
+    modelCandidate && modelCandidate !== '' && modelCandidate !== 'coder-model'
       ? modelCandidate
       : COMPANY_DEFAULT_CONFIG.model;
 
@@ -92,7 +90,7 @@ export async function applyXhsSsoConfig(
     options.model ??
     settings.merged.model?.name ??
     COMPANY_DEFAULT_CONFIG.model;
-  let apiKey = options.apiKey ?? settings.merged.security?.auth?.apiKey;
+  const apiKey = options.apiKey ?? settings.merged.security?.auth?.apiKey;
 
   if (!apiKey || apiKey.trim() === '') {
     throw new Error('缺少小红书 SSO API Key，请先完成 SSO 认证。');

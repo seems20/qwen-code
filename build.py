@@ -75,13 +75,13 @@ def run_command(command, description, capture_output=False):
 def check_environment():
     """检查运行环境"""
     print_step(0, "检查运行环境")
-
+    
     # 检查操作系统
     system = platform.system()
     if system != 'Darwin':
         print_warning(f"检测到操作系统: {system}")
         print_warning("此脚本主要针对 macOS 设计，其他系统可能存在问题")
-
+    
     # 检查 Python 版本
     python_version = sys.version_info
     if python_version.major < 3 or (python_version.major == 3 and python_version.minor < 6):
@@ -89,7 +89,7 @@ def check_environment():
         print_error("需要 Python 3.6 或更高版本")
         return False
     print_success(f"Python 版本: {python_version.major}.{python_version.minor}.{python_version.micro}")
-
+    
     # 检查 Node.js（项目要求 Node.js 20+）
     try:
         result = subprocess.run(
@@ -111,7 +111,7 @@ def check_environment():
         print_error("Node.js 未安装或未找到")
         print_error("请安装 Node.js 20 或更高版本: https://nodejs.org/")
         return False
-
+    
     # 检查 npm
     try:
         result = subprocess.run(
@@ -130,7 +130,7 @@ def check_environment():
         print_error("npm 未安装或未找到")
         print_error("npm 通常随 Node.js 一起安装")
         return False
-
+    
     return True
 
 
@@ -141,44 +141,44 @@ def check_project_structure():
         "packages/core/package.json",
         "packages/cli/package.json"
     ]
-
+    
     for file_path in required_files:
         if not os.path.exists(file_path):
             print_error(f"项目结构不正确，缺少文件: {file_path}")
             print_error("请确保在项目根目录下运行此脚本")
             return False
-
+    
     print_success("项目结构检查通过")
     return True
 
 
 def fix_dist_permissions():
     """修复 dist 目录的权限问题
-
+    
     检查 dist 目录及其文件的所有者，如果是 root 则尝试修复为当前用户
     """
     dist_path = "dist"
     if not os.path.exists(dist_path):
         return True
-
+    
     try:
         # 获取当前用户名
         current_user = pwd.getpwuid(os.getuid()).pw_name
-
+        
         # 检查 dist 目录的所有者
         dist_stat = os.stat(dist_path)
         dist_owner = pwd.getpwuid(dist_stat.st_uid).pw_name
-
+        
         # 如果所有者不是当前用户，尝试修复
         if dist_owner != current_user:
             print_warning(f"检测到 dist 目录权限问题（所有者: {dist_owner}）")
             print(f"正在修复 dist 目录权限为当前用户: {current_user}...")
-
+            
             # 尝试使用 chown 修复权限
             chown_cmd = f"sudo chown -R {current_user} {dist_path}"
             print(f"执行: {chown_cmd}")
             print("提示: 需要输入管理员密码")
-
+            
             result = subprocess.run(
                 chown_cmd,
                 shell=True,
@@ -186,7 +186,7 @@ def fix_dist_permissions():
                 capture_output=True,
                 text=True
             )
-
+            
             if result.returncode == 0:
                 print_success(f"dist 目录权限已修复为 {current_user}")
                 return True
@@ -211,13 +211,13 @@ def fix_dist_permissions():
                         continue
                 if has_permission_issue:
                     break
-
+            
             if has_permission_issue:
                 print_warning("检测到 dist 目录内文件权限问题")
                 chown_cmd = f"sudo chown -R {current_user} {dist_path}"
                 print(f"执行: {chown_cmd}")
                 print("提示: 需要输入管理员密码")
-
+                
                 result = subprocess.run(
                     chown_cmd,
                     shell=True,
@@ -225,7 +225,7 @@ def fix_dist_permissions():
                     capture_output=True,
                     text=True
                 )
-
+                
                 if result.returncode == 0:
                     print_success(f"dist 目录权限已修复为 {current_user}")
                     return True
@@ -234,7 +234,7 @@ def fix_dist_permissions():
                     print_warning("请手动运行以下命令修复权限:")
                     print_warning(f"  sudo chown -R {current_user} {dist_path}")
                     return False
-
+        
         return True
     except (OSError, KeyError, AttributeError) as e:
         # Windows 系统或其他不支持 pwd 的系统
@@ -261,24 +261,24 @@ def clean_build_artifacts(use_npm_clean=True):
         return run_command("npm run clean", "清理构建产物")
     else:
         print_step(1, "清理构建产物（手动清理）")
-
+        
         # 删除 bundle 目录
         if os.path.exists("bundle"):
             print("删除目录: bundle")
             shutil.rmtree("bundle")
-
+        
         # 删除所有 packages/*/dist 目录
         dist_dirs = glob.glob("packages/*/dist")
         for dist_dir in dist_dirs:
             if os.path.exists(dist_dir):
                 print(f"删除目录: {dist_dir}")
                 shutil.rmtree(dist_dir)
-
+        
         # 删除根目录的 dist 目录（如果存在）
         if os.path.exists("dist"):
             print("删除目录: dist")
             shutil.rmtree("dist")
-
+        
         print_success("构建产物清理完成")
         return True
 
@@ -304,14 +304,14 @@ def build_project():
 def verify_build():
     """验证构建结果"""
     print_step(5, "验证构建结果")
-
+    
     # 检查关键构建产物
     key_files = [
         "bundle/gemini.js",
         "packages/core/dist/index.js",
         "packages/cli/dist/index.js"
     ]
-
+    
     all_exist = True
     for file_path in key_files:
         if os.path.exists(file_path):
@@ -319,32 +319,32 @@ def verify_build():
         else:
             print_error(f"构建产物缺失: {file_path}")
             all_exist = False
-
+    
     return all_exist
 
 
 def link_command(use_sudo=True):
     """链接 rdmind 命令到全局
-
+    
     默认使用 sudo，如果失败则尝试普通权限（适用于已配置 npm 全局目录权限的情况）
     """
     print_step(6, "链接 rdmind 命令")
-
+    
     # 先尝试取消现有的链接（如果存在）
     print("移除现有链接...")
     unlink_cmd = "npm unlink -g @rdmind/rdmind 2>/dev/null || true"
     if use_sudo:
         unlink_cmd = f"sudo {unlink_cmd}"
     subprocess.run(unlink_cmd, shell=True, check=False)
-
+    
     # 尝试链接（默认使用 sudo，因为大多数用户需要）
     link_cmd = "npm link --force"
     if use_sudo:
         link_cmd = f"sudo {link_cmd}"
         print("提示: 使用 sudo 权限链接，可能需要输入密码")
-
+    
     success = run_command(link_cmd, "命令链接")
-
+    
     if not success:
         if use_sudo:
             # 如果 sudo 失败，尝试普通权限（适用于已配置 npm 全局目录权限的用户）
@@ -355,7 +355,7 @@ def link_command(use_sudo=True):
             print_warning("您可以稍后手动运行: sudo npm link --force")
             print_warning("或者检查 npm 全局目录权限")
             return False
-
+    
     return success
 
 
@@ -369,25 +369,25 @@ def main():
     print("=" * 60)
     print("           RDMind 项目构建脚本")
     print("=" * 60)
-
+    
     # 检查运行环境
     if not check_environment():
         print_error("环境检查失败，请解决上述问题后重试")
         sys.exit(1)
-
+    
     # 检查项目结构
     if not check_project_structure():
         sys.exit(1)
-
+    
     # 判断是否是首次安装
     first_install = is_first_install()
-
+    
     # 在清理之前，先修复 dist 目录的权限问题（如果存在）
     # 这可以避免在清理或安装时遇到权限错误
     if os.path.exists("dist"):
         print("\n🔧 检查 dist 目录权限")
         fix_dist_permissions()
-
+    
     # 根据情况选择清理策略
     if first_install:
         # 首次安装：不需要清理（但为了保险，检查一下 bundle 目录）
@@ -403,31 +403,31 @@ def main():
         if not run_command("npm run clean", "清理构建产物"):
             print_warning("npm run clean 失败，尝试手动清理...")
             clean_build_artifacts(use_npm_clean=False)
-
+    
     # 安装依赖
     if not install_dependencies():
         print_error("依赖安装失败，构建过程终止")
         sys.exit(1)
-
+    
     # 构建项目
     if not build_project():
         print_error("项目构建失败，构建过程终止")
         sys.exit(1)
-
+    
     # 验证构建结果
     if not verify_build():
         print_warning("部分构建产物缺失，但继续执行...")
-
+    
     # 链接命令（自动检测是否需要 sudo）
     link_command()
-
+    
     print("\n" + "=" * 60)
     print("           构建完成！")
     print("=" * 60)
-
+    
     print("\n使用方法:")
     print("  - 运行 rdmind 命令: rdmind")
-
+    
     print("\n📝 提示:")
     print("  - 代码更新后，直接运行 ./build.py 即可重新构建")
     print("\n💡 开发时快速体验:")

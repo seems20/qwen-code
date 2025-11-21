@@ -101,7 +101,11 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
         // Save to settings file (encrypt before saving)
         const encryptedApiKey = encryptApiKey(apiKey);
-        settings.setValue(SettingScope.User, 'security.auth.apiKey', encryptedApiKey);
+        settings.setValue(
+          SettingScope.User,
+          'security.auth.apiKey',
+          encryptedApiKey,
+        );
         settings.setValue(SettingScope.User, 'security.auth.baseUrl', baseUrl);
         settings.setValue(SettingScope.User, 'model.name', model);
 

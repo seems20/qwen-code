@@ -25,11 +25,11 @@ function getKey(): Buffer {
  */
 export function encryptApiKey(key: string): string {
   if (!key) return key;
-  
+
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv('aes-256-cbc', getKey(), iv);
   const encrypted = Buffer.concat([cipher.update(key, 'utf8'), cipher.final()]);
-  
+
   return `${iv.toString('hex')}:${encrypted.toString('hex')}`;
 }
 
@@ -38,13 +38,20 @@ export function encryptApiKey(key: string): string {
  */
 export function decryptApiKey(encrypted: string): string {
   if (!encrypted) return encrypted;
-  
+
   const parts = encrypted.split(':');
   if (parts.length !== 2) return encrypted; // 不是加密格式，返回原值
-  
+
   try {
-    const decipher = crypto.createDecipheriv('aes-256-cbc', getKey(), Buffer.from(parts[0], 'hex'));
-    return Buffer.concat([decipher.update(parts[1], 'hex'), decipher.final()]).toString('utf8');
+    const decipher = crypto.createDecipheriv(
+      'aes-256-cbc',
+      getKey(),
+      Buffer.from(parts[0], 'hex'),
+    );
+    return Buffer.concat([
+      decipher.update(parts[1], 'hex'),
+      decipher.final(),
+    ]).toString('utf8');
   } catch {
     return encrypted; // 解密失败，返回原值
   }
@@ -65,4 +72,3 @@ export function isEncrypted(key: string): boolean {
 export function getDecryptedKey(key: string): string {
   return isEncrypted(key) ? decryptApiKey(key) : key;
 }
-

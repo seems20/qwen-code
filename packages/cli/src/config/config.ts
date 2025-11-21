@@ -697,11 +697,11 @@ export async function loadCliConfig(
     argv.model ||
     (isXhsSso
       ? settings.model?.name ||
-      process.env['OPENAI_MODEL'] ||
-      process.env['QWEN_MODEL']
+        process.env['OPENAI_MODEL'] ||
+        process.env['QWEN_MODEL']
       : process.env['OPENAI_MODEL'] ||
-      process.env['QWEN_MODEL'] ||
-      settings.model?.name);
+        process.env['QWEN_MODEL'] ||
+        settings.model?.name);
 
   const sandboxConfig = await loadSandboxConfig(settings, argv);
   const screenReader =
@@ -771,8 +771,7 @@ export async function loadCliConfig(
           argv.openaiApiKey ||
           (isXhsSso
             ? settings.security?.auth?.apiKey || process.env['OPENAI_API_KEY']
-            : process.env['OPENAI_API_KEY'] ||
-            settings.security?.auth?.apiKey);
+            : process.env['OPENAI_API_KEY'] || settings.security?.auth?.apiKey);
         // 如果 rawApiKey 是加密格式（xhs_enc:开头），需要解密
         if (rawApiKey && rawApiKey.startsWith('xhs_enc:')) {
           return decryptApiKey(rawApiKey);
@@ -783,8 +782,7 @@ export async function loadCliConfig(
         argv.openaiBaseUrl ||
         (isXhsSso
           ? settings.security?.auth?.baseUrl || process.env['OPENAI_BASE_URL']
-          : process.env['OPENAI_BASE_URL'] ||
-          settings.security?.auth?.baseUrl),
+          : process.env['OPENAI_BASE_URL'] || settings.security?.auth?.baseUrl),
       enableOpenAILogging:
         (typeof argv.openaiLogging === 'undefined'
           ? settings.model?.enableOpenAILogging

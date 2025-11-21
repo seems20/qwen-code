@@ -53,9 +53,7 @@ export async function fetchModelKey(
 
     // 验证响应格式
     if (!data.success || data.code !== 0) {
-      throw new Error(
-        `API 返回错误: ${data.msg || '未知错误'}`,
-      );
+      throw new Error(`API 返回错误: ${data.msg || '未知错误'}`);
     }
 
     if (!data.data?.api_key) {
@@ -82,4 +80,3 @@ export async function fetchModelKey(
     );
   }
 }
-
