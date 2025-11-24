@@ -11,10 +11,13 @@ import {
   CommandKind,
 } from './types.js';
 import { MessageType } from '../types.js';
+import { t } from '../../i18n/index.js';
 
 export const bugCommand: SlashCommand = {
   name: 'bug',
-  description: '打开 RDMind 问题报告页面',
+  get description() {
+    return t('submit a bug report');
+  },
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext, _args?: string): Promise<void> => {
     const issueUrl =

@@ -12,11 +12,14 @@ import {
   type SlashCommand,
   CommandKind,
 } from './types.js';
+import { t } from '../../i18n/index.js';
 
 export const statsCommand: SlashCommand = {
   name: 'stats',
   altNames: ['usage'],
-  description: '查看会话统计信息，可选择 model 或 tools',
+  get description() {
+    return t('check session stats. Usage: /stats [model|tools]');
+  },
   kind: CommandKind.BUILT_IN,
   action: (context: CommandContext) => {
     const now = new Date();
@@ -25,7 +28,7 @@ export const statsCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: 'Session start time is unavailable, cannot calculate stats.',
+          text: t('Session start time is unavailable, cannot calculate stats.'),
         },
         Date.now(),
       );
@@ -43,7 +46,9 @@ export const statsCommand: SlashCommand = {
   subCommands: [
     {
       name: 'model',
-      description: '显示模型特定的使用统计信息',
+      get description() {
+        return t('Show model-specific usage statistics.');
+      },
       kind: CommandKind.BUILT_IN,
       action: (context: CommandContext) => {
         context.ui.addItem(
@@ -56,7 +61,9 @@ export const statsCommand: SlashCommand = {
     },
     {
       name: 'tools',
-      description: '显示工具特定的使用统计信息',
+      get description() {
+        return t('Show tool-specific usage statistics.');
+      },
       kind: CommandKind.BUILT_IN,
       action: (context: CommandContext) => {
         context.ui.addItem(

@@ -87,7 +87,7 @@ describe('initCommand', () => {
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       {
         type: 'info',
-        text: `已创建空的 ${DEFAULT_CONTEXT_FILENAME} ，接下来将分析项目来填充内容。`,
+        text: `Empty ${DEFAULT_CONTEXT_FILENAME} created. Now analyzing the project to populate it.`,
       },
       expect.any(Number),
     );
@@ -133,7 +133,7 @@ describe('initCommand', () => {
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       {
         type: 'info',
-        text: `已创建空的 ${DEFAULT_CONTEXT_FILENAME} ，接下来将分析项目来填充内容。`,
+        text: `Empty ${DEFAULT_CONTEXT_FILENAME} created. Now analyzing the project to populate it.`,
       },
       expect.any(Number),
     );

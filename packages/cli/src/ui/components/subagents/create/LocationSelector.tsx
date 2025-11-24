@@ -7,6 +7,7 @@
 import { Box } from 'ink';
 import { RadioButtonSelect } from '../../shared/RadioButtonSelect.js';
 import type { WizardStepProps } from '../types.js';
+import { t } from '../../../../i18n/index.js';
 
 interface LocationOption {
   label: string;
@@ -15,11 +16,15 @@ interface LocationOption {
 
 const locationOptions: LocationOption[] = [
   {
-    label: 'Project Level (.rdmind/agents/)',
+    get label() {
+      return t('Project Level (.rdmind/agents/)');
+    },
     value: 'project',
   },
   {
-    label: 'User Level (~/.rdmind/agents/)',
+    get label() {
+      return t('User Level (~/.rdmind/agents/)');
+    },
     value: 'user',
   },
 ];

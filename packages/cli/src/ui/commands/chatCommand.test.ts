@@ -87,7 +87,7 @@ describe('chatCommand', () => {
 
   it('should have the correct main command definition', () => {
     expect(chatCommand.name).toBe('chat');
-    expect(chatCommand.description).toBe('管理对话');
+    expect(chatCommand.description).toBe('Manage conversation history.');
     expect(chatCommand.subCommands).toHaveLength(5);
   });
 

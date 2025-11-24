@@ -26,6 +26,7 @@ import {
   readSSOCredentialsSync,
   encryptApiKey,
 } from '@rdmind/rdmind-core';
+import { t } from '../../i18n/index.js';
 
 interface ModelDialogProps {
   onClose: () => void;
@@ -195,7 +196,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       padding={1}
       width="100%"
     >
-      <Text bold>Select Model</Text>
+      <Text bold>{t('Select Model')}</Text>
       <Box marginTop={1}>
         <DescriptiveRadioButtonSelect
           items={MODEL_OPTIONS}
@@ -205,7 +206,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
         />
       </Box>
       <Box marginTop={1} flexDirection="column">
-        <Text color={theme.text.secondary}>(Press Esc to close)</Text>
+        <Text color={theme.text.secondary}>{t('(Press Esc to close)')}</Text>
       </Box>
     </Box>
   );

@@ -36,7 +36,7 @@ describe('approvalModeCommand', () => {
   it('should have correct metadata', () => {
     expect(approvalModeCommand.name).toBe('approval-mode');
     expect(approvalModeCommand.description).toBe(
-      '查看或切换工具使用的审批模式',
+      'View or change the approval mode for tool usage',
     );
     expect(approvalModeCommand.kind).toBe(CommandKind.BUILT_IN);
   });

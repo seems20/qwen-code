@@ -9,10 +9,13 @@ import {
   type OpenDialogActionReturn,
   type SlashCommand,
 } from './types.js';
+import { t } from '../../i18n/index.js';
 
 export const editorCommand: SlashCommand = {
   name: 'editor',
-  description: '设置外部编辑器偏好',
+  get description() {
+    return t('set external editor preference');
+  },
   kind: CommandKind.BUILT_IN,
   action: (): OpenDialogActionReturn => ({
     type: 'dialog',

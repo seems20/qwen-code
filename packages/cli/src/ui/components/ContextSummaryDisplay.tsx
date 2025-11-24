@@ -10,6 +10,7 @@ import { theme } from '../semantic-colors.js';
 import { type IdeContext, type MCPServerConfig } from '@rdmind/rdmind-core';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { isNarrowWidth } from '../utils/isNarrowWidth.js';
+import { t } from '../../i18n/index.js';
 
 interface ContextSummaryDisplayProps {
   geminiMdFileCount: number;
@@ -47,9 +48,11 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     if (openFileCount === 0) {
       return '';
     }
-    return `${openFileCount} open file${
-      openFileCount > 1 ? 's' : ''
-    } (ctrl+g to view)`;
+    const fileText =
+      openFileCount === 1
+        ? t('{{count}} open file', { count: String(openFileCount) })
+        : t('{{count}} open files', { count: String(openFileCount) });
+    return `${fileText} ${t('(ctrl+g to view)')}`;
   })();
 
   const geminiMdText = (() => {
@@ -58,9 +61,15 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     }
     const allNamesTheSame = new Set(contextFileNames).size < 2;
     const name = allNamesTheSame ? contextFileNames[0] : 'context';
-    return `${geminiMdFileCount} ${name} file${
-      geminiMdFileCount > 1 ? 's' : ''
-    }`;
+    return geminiMdFileCount === 1
+      ? t('{{count}} {{name}} file', {
+          count: String(geminiMdFileCount),
+          name,
+        })
+      : t('{{count}} {{name}} files', {
+          count: String(geminiMdFileCount),
+          name,
+        });
   })();
 
   const mcpText = (() => {
@@ -70,15 +79,27 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
 
     const parts = [];
     if (mcpServerCount > 0) {
-      parts.push(
-        `${mcpServerCount} MCP server${mcpServerCount > 1 ? 's' : ''}`,
-      );
+      const serverText =
+        mcpServerCount === 1
+          ? t('{{count}} MCP server', { count: String(mcpServerCount) })
+          : t('{{count}} MCP servers', { count: String(mcpServerCount) });
+      parts.push(serverText);
     }
 
     if (blockedMcpServerCount > 0) {
-      let blockedText = `${blockedMcpServerCount} Blocked`;
+      let blockedText = t('{{count}} Blocked', {
+        count: String(blockedMcpServerCount),
+      });
       if (mcpServerCount === 0) {
-        blockedText += ` MCP server${blockedMcpServerCount > 1 ? 's' : ''}`;
+        const serverText =
+          blockedMcpServerCount === 1
+            ? t('{{count}} MCP server', {
+                count: String(blockedMcpServerCount),
+              })
+            : t('{{count}} MCP servers', {
+                count: String(blockedMcpServerCount),
+              });
+        blockedText += ` ${serverText}`;
       }
       parts.push(blockedText);
     }
@@ -86,9 +107,9 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     // Add ctrl+t hint when MCP servers are available
     if (mcpServers && Object.keys(mcpServers).length > 0) {
       if (showToolDescriptions) {
-        text += ' (ctrl+t to toggle)';
+        text += ` ${t('(ctrl+t to toggle)')}`;
       } else {
-        text += ' (ctrl+t to view)';
+        text += ` ${t('(ctrl+t to view)')}`;
       }
     }
     return text;
@@ -99,7 +120,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   if (isNarrow) {
     return (
       <Box flexDirection="column">
-        <Text color={theme.text.secondary}>Using:</Text>
+        <Text color={theme.text.secondary}>{t('Using:')}</Text>
         {summaryParts.map((part, index) => (
           <Text key={index} color={theme.text.secondary}>
             {'  '}- {part}
@@ -112,7 +133,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   return (
     <Box>
       <Text color={theme.text.secondary}>
-        Using: {summaryParts.join(' | ')}
+        {t('Using:')} {summaryParts.join(' | ')}
       </Text>
     </Box>
   );

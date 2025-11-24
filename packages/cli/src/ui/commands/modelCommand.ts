@@ -13,10 +13,13 @@ import type {
 import { CommandKind } from './types.js';
 import { getAvailableModelsForAuthType } from '../models/availableModels.js';
 import { AuthType } from '@rdmind/rdmind-core';
+import { t } from '../../i18n/index.js';
 
 export const modelCommand: SlashCommand = {
   name: 'model',
-  description: '切换本次对话模型',
+  get description() {
+    return t('Switch the model for this session');
+  },
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -37,7 +40,7 @@ export const modelCommand: SlashCommand = {
       return {
         type: 'message',
         messageType: 'error',
-        content: 'Content generator configuration not available.',
+        content: t('Content generator configuration not available.'),
       };
     }
 
@@ -46,7 +49,7 @@ export const modelCommand: SlashCommand = {
       return {
         type: 'message',
         messageType: 'error',
-        content: 'Authentication type not available.',
+        content: t('Authentication type not available.'),
       };
     }
 
@@ -67,7 +70,12 @@ export const modelCommand: SlashCommand = {
       return {
         type: 'message',
         messageType: 'error',
-        content: `No models available for the current authentication type (${authType}).`,
+        content: t(
+          'No models available for the current authentication type ({{authType}}).',
+          {
+            authType,
+          },
+        ),
       };
     }
 

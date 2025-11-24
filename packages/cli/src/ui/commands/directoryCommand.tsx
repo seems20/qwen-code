@@ -11,6 +11,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { loadServerHierarchicalMemory } from '@rdmind/rdmind-core';
+import { t } from '../../i18n/index.js';
 
 export function expandHomeDir(p: string): string {
   if (!p) {
@@ -28,12 +29,18 @@ export function expandHomeDir(p: string): string {
 export const directoryCommand: SlashCommand = {
   name: 'directory',
   altNames: ['dir'],
-  description: '管理工作区目录',
+  get description() {
+    return t('Manage workspace directories');
+  },
   kind: CommandKind.BUILT_IN,
   subCommands: [
     {
       name: 'add',
-      description: '添加目录到工作区，使用逗号分隔路径',
+      get description() {
+        return t(
+          'Add directories to the workspace. Use comma to separate multiple paths',
+        );
+      },
       kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext, args: string) => {
         const {
@@ -46,7 +53,7 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.ERROR,
-              text: 'Configuration is not available.',
+              text: t('Configuration is not available.'),
             },
             Date.now(),
           );
@@ -63,7 +70,7 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.ERROR,
-              text: 'Please provide at least one path to add.',
+              text: t('Please provide at least one path to add.'),
             },
             Date.now(),
           );
@@ -74,8 +81,9 @@ export const directoryCommand: SlashCommand = {
           return {
             type: 'message' as const,
             messageType: 'error' as const,
-            content:
+            content: t(
               'The /directory add command is not supported in restrictive sandbox profiles. Please use --include-directories when starting the session instead.',
+            ),
           };
         }
 
@@ -88,7 +96,12 @@ export const directoryCommand: SlashCommand = {
             added.push(pathToAdd.trim());
           } catch (e) {
             const error = e as Error;
-            errors.push(`Error adding '${pathToAdd.trim()}': ${error.message}`);
+            errors.push(
+              t("Error adding '{{path}}': {{error}}", {
+                path: pathToAdd.trim(),
+                error: error.message,
+              }),
+            );
           }
         }
 
@@ -114,15 +127,24 @@ export const directoryCommand: SlashCommand = {
             config.setGeminiMdFileCount(fileCount);
             context.ui.setGeminiMdFileCount(fileCount);
           }
-          // addItem(
-          //   {
-          //     type: MessageType.INFO,
-          //     text: `Successfully added GEMINI.md files from the following directories if there are:\n- ${added.join('\n- ')}`,
-          //   },
-          //   Date.now(),
-          // );
+          addItem(
+            {
+              type: MessageType.INFO,
+              text: t(
+                'Successfully added GEMINI.md files from the following directories if there are:\n- {{directories}}',
+                {
+                  directories: added.join('\n- '),
+                },
+              ),
+            },
+            Date.now(),
+          );
         } catch (error) {
-          errors.push(`Error refreshing memory: ${(error as Error).message}`);
+          errors.push(
+            t('Error refreshing memory: {{error}}', {
+              error: (error as Error).message,
+            }),
+          );
         }
 
         if (added.length > 0) {
@@ -133,7 +155,9 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.INFO,
-              text: `Successfully added directories:\n- ${added.join('\n- ')}`,
+              text: t('Successfully added directories:\n- {{directories}}', {
+                directories: added.join('\n- '),
+              }),
             },
             Date.now(),
           );
@@ -159,7 +183,11 @@ export const directoryCommand: SlashCommand = {
     },
     {
       name: 'remove',
-      description: '从工作区移除目录，使用逗号分隔路径',
+      get description() {
+        return t(
+          'Remove directories from the workspace. Use comma to separate multiple paths',
+        );
+      },
       kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext, args: string) => {
         const {
@@ -172,7 +200,7 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.ERROR,
-              text: 'Configuration is not available.',
+              text: t('Configuration is not available.'),
             },
             Date.now(),
           );
@@ -190,7 +218,7 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.ERROR,
-              text: 'Please provide at least one path to remove.',
+              text: t('Please provide at least one path to remove.'),
             },
             Date.now(),
           );
@@ -201,8 +229,9 @@ export const directoryCommand: SlashCommand = {
           return {
             type: 'message' as const,
             messageType: 'error' as const,
-            content:
+            content: t(
               'The /directory remove command is not supported in restrictive sandbox profiles. Please use --include-directories when starting the session instead.',
+            ),
           };
         }
 
@@ -217,7 +246,12 @@ export const directoryCommand: SlashCommand = {
             removed.push(pathToRemove);
           } catch (e) {
             const error = e as Error;
-            errors.push(`Error removing '${pathToRemove}': ${error.message}`);
+            errors.push(
+              t("Error removing '{{path}}': {{error}}", {
+                path: pathToRemove,
+                error: error.message,
+              }),
+            );
           }
         }
 
@@ -241,7 +275,11 @@ export const directoryCommand: SlashCommand = {
             context.ui.setGeminiMdFileCount(fileCount);
           }
         } catch (error) {
-          errors.push(`Error refreshing memory: ${(error as Error).message}`);
+          errors.push(
+            t('Error refreshing memory: {{error}}', {
+              error: (error as Error).message,
+            }),
+          );
         }
 
         if (removed.length > 0) {
@@ -252,7 +290,9 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.INFO,
-              text: `Successfully removed directories:\n- ${removed.join('\n- ')}`,
+              text: t('Successfully removed directories:\n- {{directories}}', {
+                directories: removed.join('\n- '),
+              }),
             },
             Date.now(),
           );
@@ -280,7 +320,9 @@ export const directoryCommand: SlashCommand = {
     },
     {
       name: 'show',
-      description: '显示工作区所有目录',
+      get description() {
+        return t('Show all directories in the workspace');
+      },
       kind: CommandKind.BUILT_IN,
       action: async (context: CommandContext) => {
         const {
@@ -291,7 +333,7 @@ export const directoryCommand: SlashCommand = {
           addItem(
             {
               type: MessageType.ERROR,
-              text: 'Configuration is not available.',
+              text: t('Configuration is not available.'),
             },
             Date.now(),
           );
@@ -303,7 +345,9 @@ export const directoryCommand: SlashCommand = {
         addItem(
           {
             type: MessageType.INFO,
-            text: `Current workspace directories:\n${directoryList}`,
+            text: t('Current workspace directories:\n{{directories}}', {
+              directories: directoryList,
+            }),
           },
           Date.now(),
         );

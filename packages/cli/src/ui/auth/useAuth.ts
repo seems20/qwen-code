@@ -25,6 +25,7 @@ import { performSsoAuthFlow } from './performSsoAuthFlow.js';
 import { useQwenAuth } from '../hooks/useQwenAuth.js';
 import { AuthState, MessageType } from '../types.js';
 import type { HistoryItem } from '../types.js';
+import { t } from '../../i18n/index.js';
 
 export type { QwenAuthState } from '../hooks/useQwenAuth.js';
 
@@ -73,7 +74,9 @@ export const useAuthCommand = (
     (error: unknown) => {
       setIsAuthenticating(false);
       setPendingAuthType(undefined);
-      const errorMessage = `Failed to authenticate. Message: ${getErrorMessage(error)}`;
+      const errorMessage = t('Failed to authenticate. Message: {{message}}', {
+        message: getErrorMessage(error),
+      });
       onAuthError(errorMessage);
 
       // Log authentication failure
@@ -140,7 +143,9 @@ export const useAuthCommand = (
       addItem(
         {
           type: MessageType.INFO,
-          text: `Authenticated successfully with ${authType} credentials.`,
+          text: t('Authenticated successfully with {{authType}} credentials.', {
+            authType,
+          }),
         },
         Date.now(),
       );
@@ -367,7 +372,13 @@ export const useAuthCommand = (
       )
     ) {
       onAuthError(
-        `Invalid QWEN_DEFAULT_AUTH_TYPE value: "${defaultAuthType}". Valid values are: ${[AuthType.QWEN_OAUTH, AuthType.USE_OPENAI, AuthType.XHS_SSO].join(', ')}`,
+        t(
+          'Invalid RDMind_DEFAULT_AUTH_TYPE value: "{{value}}". Valid values are: {{validValues}}',
+          {
+            value: defaultAuthType,
+            validValues: [AuthType.QWEN_OAUTH, AuthType.USE_OPENAI].join(', '),
+          },
+        ),
       );
     }
   }, [onAuthError]);

@@ -8,6 +8,7 @@ import type React from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import { type SlashCommand, CommandKind } from '../commands/types.js';
+import { t } from '../../i18n/index.js';
 
 interface Help {
   commands: readonly SlashCommand[];
@@ -23,42 +24,41 @@ export const Help: React.FC<Help> = ({ commands }) => (
   >
     {/* Basics */}
     <Text bold color={theme.text.primary}>
-      基础用法:
+      {t('Basics:')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
-        添加上下文
+        {t('Add context')}
       </Text>
-      : 使用{' '}
-      <Text bold color={theme.text.accent}>
-        @
-      </Text>{' '}
-      指定用于上下文的文件 (例如{' '}
-      <Text bold color={theme.text.accent}>
-        @src/myFile.ts
-      </Text>
-      )
+      :{' '}
+      {t(
+        'Use {{symbol}} to specify files for context (e.g., {{example}}) to target specific files or folders.',
+        {
+          symbol: t('@'),
+          example: t('@src/myFile.ts'),
+        },
+      )}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
-        Shell 模式
+        {t('Shell mode')}
       </Text>
-      : 使用{' '}
-      <Text bold color={theme.text.accent}>
-        !
-      </Text>{' '}
-      执行 shell 命令 (例如{' '}
-      <Text bold color={theme.text.accent}>
-        !npm run start
-      </Text>
-      )
+      :{' '}
+      {t(
+        'Execute shell commands via {{symbol}} (e.g., {{example1}}) or use natural language (e.g., {{example2}}).',
+        {
+          symbol: t('!'),
+          example1: t('!npm run start'),
+          example2: t('start server'),
+        },
+      )}
     </Text>
 
     <Box height={1} />
 
     {/* Commands */}
     <Text bold color={theme.text.primary}>
-      命令:
+      {t('Commands:')}
     </Text>
     {commands
       .filter((command) => command.description && !command.hidden)
@@ -93,81 +93,81 @@ export const Help: React.FC<Help> = ({ commands }) => (
         {' '}
         !{' '}
       </Text>
-      - shell 命令
+      - {t('shell command')}
     </Text>
     <Text color={theme.text.primary}>
-      <Text color={theme.text.secondary}>[MCP]</Text> -
-      模型上下文协议命令（来自外部服务器）
+      <Text color={theme.text.secondary}>[MCP]</Text> -{' '}
+      {t('Model Context Protocol command (from external servers)')}
     </Text>
 
     <Box height={1} />
 
     {/* Shortcuts */}
     <Text bold color={theme.text.primary}>
-      键盘快捷键:
+      {t('Keyboard Shortcuts:')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Alt+Left/Right
       </Text>{' '}
-      - 在输入框中跳转
+      - {t('Jump through words in the input')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Ctrl+C
       </Text>{' '}
-      - 关闭对话框、取消请求或退出 RDMind
+      - {t('Close dialogs, cancel requests, or quit application')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         {process.platform === 'win32' ? 'Ctrl+Enter' : 'Ctrl+J'}
       </Text>{' '}
+      -{' '}
       {process.platform === 'linux'
-        ? '- 换行 (某些 Linux 发行版支持 Alt+Enter)'
-        : '- 换行'}
+        ? t('New line (Alt+Enter works for certain linux distros)')
+        : t('New line')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Ctrl+L
       </Text>{' '}
-      - 清屏
+      - {t('Clear the screen')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         {process.platform === 'darwin' ? 'Ctrl+X / Meta+Enter' : 'Ctrl+X'}
       </Text>{' '}
-      - 打开外部编辑器
+      - {t('Open input in external editor')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Enter
       </Text>{' '}
-      - 发送
+      - {t('Send message')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Esc
       </Text>{' '}
-      - 取消操作
+      - {t('Cancel operation / Clear input (double press)')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Shift+Tab
       </Text>{' '}
-      - 模式切换
+      - {t('Cycle approval modes')}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>
         Up/Down
       </Text>{' '}
-      - 切换
+      - {t('Cycle through your prompt history')}
     </Text>
     <Box height={1} />
     <Text color={theme.text.primary}>
-      完整的快捷键列表请参见{' '}
-      <Text bold color={theme.text.accent}>
-        /docs
-      </Text>
+      {t('For a full list of shortcuts, see {{docPath}}', {
+        docPath: t('docs/keyboard-shortcuts.md'),
+      })}
     </Text>
   </Box>
 );

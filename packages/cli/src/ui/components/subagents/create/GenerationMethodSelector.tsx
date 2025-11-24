@@ -7,6 +7,7 @@
 import { Box } from 'ink';
 import { RadioButtonSelect } from '../../shared/RadioButtonSelect.js';
 import type { WizardStepProps } from '../types.js';
+import { t } from '../../../../i18n/index.js';
 
 interface GenerationOption {
   label: string;
@@ -15,11 +16,15 @@ interface GenerationOption {
 
 const generationOptions: GenerationOption[] = [
   {
-    label: 'Generate with RDMind (Recommended)',
+    get label() {
+      return t('Generate with RDMind (Recommended)');
+    },
     value: 'rdmind',
   },
   {
-    label: 'Manual Creation',
+    get label() {
+      return t('Manual Creation');
+    },
     value: 'manual',
   },
 ];

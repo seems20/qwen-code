@@ -6,10 +6,13 @@
 
 import type { OpenDialogActionReturn, SlashCommand } from './types.js';
 import { CommandKind } from './types.js';
+import { t } from '../../i18n/index.js';
 
 export const settingsCommand: SlashCommand = {
   name: 'settings',
-  description: 'RDMind 设置',
+  get description() {
+    return t('View and edit RDMind settings');
+  },
   kind: CommandKind.BUILT_IN,
   action: (_context, _args): OpenDialogActionReturn => ({
     type: 'dialog',

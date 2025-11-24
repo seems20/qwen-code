@@ -15,10 +15,13 @@ import { getCurrentGeminiMdFilename } from '@rdmind/rdmind-core';
 import { CommandKind } from './types.js';
 import { Text } from 'ink';
 import React from 'react';
+import { t } from '../../i18n/index.js';
 
 export const initCommand: SlashCommand = {
   name: 'init',
-  description: '分析项目并创建 RDMind.md ',
+  get description() {
+    return t('Analyzes the project and creates a tailored RDMind.md file.');
+  },
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -28,7 +31,7 @@ export const initCommand: SlashCommand = {
       return {
         type: 'message',
         messageType: 'error',
-        content: 'Configuration not available.',
+        content: t('Configuration not available.'),
       };
     }
     const targetDir = context.services.config.getTargetDir();
@@ -70,7 +73,7 @@ export const initCommand: SlashCommand = {
         context.ui.addItem(
           {
             type: 'info',
-            text: `已创建空的 ${contextFileName} ，接下来将分析项目来填充内容。`,
+            text: `Empty ${contextFileName} created. Now analyzing the project to populate it.`,
           },
           Date.now(),
         );

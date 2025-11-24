@@ -12,10 +12,13 @@ import {
   CommandKind,
 } from './types.js';
 import { MessageType } from '../types.js';
+import { t } from '../../i18n/index.js';
 
 export const docsCommand: SlashCommand = {
   name: 'docs',
-  description: 'RDMind 文档',
+  get description() {
+    return t('open full RDMind documentation in your browser');
+  },
   kind: CommandKind.BUILT_IN,
   action: async (context: CommandContext): Promise<void> => {
     const docsUrl =
@@ -25,7 +28,12 @@ export const docsCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.INFO,
-          text: `Please open the following URL in your browser to view the documentation:\n${docsUrl}`,
+          text: t(
+            'Please open the following URL in your browser to view the documentation:\n{{url}}',
+            {
+              url: docsUrl,
+            },
+          ),
         },
         Date.now(),
       );
@@ -33,7 +41,9 @@ export const docsCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.INFO,
-          text: `Opening documentation in your browser: ${docsUrl}`,
+          text: t('Opening documentation in your browser: {{url}}', {
+            url: docsUrl,
+          }),
         },
         Date.now(),
       );

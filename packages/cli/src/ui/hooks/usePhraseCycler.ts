@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { t } from '../../i18n/index.js';
 
 export const WITTY_LOADING_PHRASES = [
   '冬瓜、黄瓜、西瓜、南瓜都能吃，什么瓜不能吃？',
@@ -121,10 +122,14 @@ export const usePhraseCycler = (
   isWaiting: boolean,
   customPhrases?: string[],
 ) => {
-  const loadingPhrases =
-    customPhrases && customPhrases.length > 0
-      ? customPhrases
-      : WITTY_LOADING_PHRASES;
+  // Translate all phrases at once if using default phrases
+  const loadingPhrases = useMemo(
+    () =>
+      customPhrases && customPhrases.length > 0
+        ? customPhrases
+        : WITTY_LOADING_PHRASES.map((phrase) => t(phrase)),
+    [customPhrases],
+  );
 
   const [currentLoadingPhrase, setCurrentLoadingPhrase] = useState(
     loadingPhrases[0],
@@ -133,7 +138,7 @@ export const usePhraseCycler = (
 
   useEffect(() => {
     if (isWaiting) {
-      setCurrentLoadingPhrase('Waiting for user confirmation...');
+      setCurrentLoadingPhrase(t('Waiting for user confirmation...'));
       if (phraseIntervalRef.current) {
         clearInterval(phraseIntervalRef.current);
         phraseIntervalRef.current = null;
