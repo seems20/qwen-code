@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.0.28-alpha.12",
+  "version": "0.0.28-alpha.13",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.28-alpha.12"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.0.28-alpha.13"
   },
   "scripts": {
     "start": "cross-env node scripts/start.js",
