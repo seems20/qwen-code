@@ -188,7 +188,7 @@ const personaSubCommands: SlashCommand[] = Object.values(BMAD_PROFILES).map(
 
 export const bmadCommand: SlashCommand = {
   name: 'bmad',
-  description: '激活内置 BMAD 角色，目前支持 architect/dev/pm/po/qa/sm。',
+  description: '激活内置 BMAD 角色，目前支持 architect/dev/pm/po/qa/sm',
   kind: CommandKind.BUILT_IN,
   subCommands: personaSubCommands,
   action: async (

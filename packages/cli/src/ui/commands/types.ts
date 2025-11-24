@@ -189,6 +189,7 @@ export type SlashCommandActionReturn =
 export enum CommandKind {
   BUILT_IN = 'built-in',
   FILE = 'file',
+  MARKDOWN = 'markdown',
   MCP_PROMPT = 'mcp-prompt',
 }
 

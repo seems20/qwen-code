@@ -838,7 +838,7 @@ export default {
   'to customize your interactions with RDMind':
     '自定义你与 RDMind 的交互方式',
   Press: '按',
-  'twice to clear input,': '清空输入框，',
+  'twice to clear input,': '两次清空输入框，',
   'for new line,': '换行，',
   'to exit RDMind': '退出RDMind',
   'Tips for getting started:': '入门提示：',
@@ -1072,4 +1072,14 @@ export default {
   'Have you tried turning it off and on again? (The loading screen, not me.)':
     '你试过把它关掉再打开吗？（加载屏幕，不是我。）',
   'Constructing additional pylons...': '正在建造额外的能量塔...',
+  'Initialize OpenSpec in a project with RDMind integration':
+    '在项目中初始化 OpenSpec（集成 RDMind）',
+  'Initialize OpenSpec in the current directory':
+    '在当前目录初始化 OpenSpec',
+  'Scaffold a new OpenSpec change and validate strictly.':
+    '搭建新的 OpenSpec 变更并严格验证。',
+  'Implement an approved OpenSpec change and keep tasks in sync.':
+    '实施已批准的 OpenSpec 变更并保持任务同步。',
+  'Archive a deployed OpenSpec change and update specs.':
+    '归档已部署的 OpenSpec 变更并更新规范。',
 };

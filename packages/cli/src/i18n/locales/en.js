@@ -1150,4 +1150,14 @@ export default {
   'Have you tried turning it off and on again? (The loading screen, not me.)':
     'Have you tried turning it off and on again? (The loading screen, not me.)',
   'Constructing additional pylons...': 'Constructing additional pylons...',
+  'Initialize OpenSpec in a project with RDMind integration':
+    'Initialize OpenSpec in a project with RDMind integration',
+  'Initialize OpenSpec in the current directory':
+    'Initialize OpenSpec in the current directory',
+  'Scaffold a new OpenSpec change and validate strictly.':
+    'Scaffold a new OpenSpec change and validate strictly.',
+  'Implement an approved OpenSpec change and keep tasks in sync.':
+    'Implement an approved OpenSpec change and keep tasks in sync.',
+  'Archive a deployed OpenSpec change and update specs.':
+    'Archive a deployed OpenSpec change and update specs.',
 };

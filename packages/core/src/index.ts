@@ -137,5 +137,11 @@ export * from './utils/browser.js';
 export { OpenAILogger, openaiLogger } from './utils/openaiLogger.js';
 export { Storage } from './config/storage.js';
 
+// Export OpenSpec
+export * from './openspec/configurators/base.js';
+export * from './openspec/configurators/rdmind.js';
+export * from './openspec/core/schemas/index.js';
+export * from './openspec/core/parsers/markdown-parser.js';
+
 // Export test utils
 export * from './test-utils/index.js';

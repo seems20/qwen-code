@@ -15,6 +15,8 @@ import {
 import { CommandService } from './services/CommandService.js';
 import { BuiltinCommandLoader } from './services/BuiltinCommandLoader.js';
 import { FileCommandLoader } from './services/FileCommandLoader.js';
+import { MarkdownCommandLoader } from './services/MarkdownCommandLoader.js';
+import type { ICommandLoader } from './services/types.js';
 import {
   CommandKind,
   type CommandContext,
@@ -28,6 +30,7 @@ import type { SessionStatsState } from './ui/contexts/SessionContext.js';
  * Filters commands based on the allowed built-in command names.
  *
  * - Always includes FILE commands
+ * - Always includes MARKDOWN commands (for OpenSpec support)
  * - Only includes BUILT_IN commands if their name is in the allowed set
  * - Excludes other command types (e.g., MCP_PROMPT) in non-interactive mode
  *
@@ -41,6 +44,11 @@ function filterCommandsForNonInteractive(
 ): SlashCommand[] {
   return commands.filter((cmd) => {
     if (cmd.kind === CommandKind.FILE) {
+      return true;
+    }
+
+    // Always allow MARKDOWN commands (for OpenSpec functionality)
+    if (cmd.kind === CommandKind.MARKDOWN) {
       return true;
     }
 
@@ -82,11 +90,13 @@ export const handleSlashCommand = async (
 
   const allowedBuiltinSet = new Set(allowedBuiltinCommandNames ?? []);
 
-  // Only load BuiltinCommandLoader if there are allowed built-in commands
-  const loaders =
-    allowedBuiltinSet.size > 0
-      ? [new BuiltinCommandLoader(config), new FileCommandLoader(config)]
-      : [new FileCommandLoader(config)];
+  // Always include FileCommandLoader and MarkdownCommandLoader for OpenSpec support
+  const loaders: ICommandLoader[] = [new FileCommandLoader(config), new MarkdownCommandLoader(config)];
+
+  // Only add BuiltinCommandLoader if there are allowed built-in commands
+  if (allowedBuiltinSet.size > 0) {
+    loaders.push(new BuiltinCommandLoader(config));
+  }
 
   const commandService = await CommandService.create(
     loaders,
@@ -141,6 +151,14 @@ export const handleSlashCommand = async (
         switch (result.type) {
           case 'submit_prompt':
             return result.content;
+          case 'message':
+            // Handle message results by printing to console and returning undefined
+            if (result.messageType === 'info') {
+              console.log(result.content);
+            } else {
+              console.error(result.content);
+            }
+            return;
           case 'confirm_shell_commands':
             // This result indicates a command attempted to confirm shell commands.
             // However note that currently, ShellTool is excluded in non-interactive
@@ -170,7 +188,7 @@ export const handleSlashCommand = async (
  * @param settings The loaded settings
  * @param abortSignal Signal to cancel the loading process
  * @param allowedBuiltinCommandNames Optional array of built-in command names that are
- *   allowed. If not provided or empty, only file commands are available.
+ *  allowed. If not provided or empty, only file and markdown commands are available.
  * @returns A Promise that resolves to an array of SlashCommand objects
  */
 export const getAvailableCommands = async (
@@ -182,11 +200,13 @@ export const getAvailableCommands = async (
   try {
     const allowedBuiltinSet = new Set(allowedBuiltinCommandNames ?? []);
 
-    // Only load BuiltinCommandLoader if there are allowed built-in commands
-    const loaders =
-      allowedBuiltinSet.size > 0
-        ? [new BuiltinCommandLoader(config), new FileCommandLoader(config)]
-        : [new FileCommandLoader(config)];
+    // Always include FileCommandLoader and MarkdownCommandLoader for OpenSpec support
+    const loaders: ICommandLoader[] = [new FileCommandLoader(config), new MarkdownCommandLoader(config)];
+
+    // Only add BuiltinCommandLoader if there are allowed built-in commands
+    if (allowedBuiltinSet.size > 0) {
+      loaders.push(new BuiltinCommandLoader(config));
+    }
 
     const commandService = await CommandService.create(loaders, abortSignal);
     const commands = commandService.getCommands();
