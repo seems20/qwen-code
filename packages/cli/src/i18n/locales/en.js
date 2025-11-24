@@ -867,7 +867,7 @@ export default {
   'to hide descriptions': 'to hide descriptions',
   'to authenticate with OAuth-enabled servers':
     'to authenticate with OAuth-enabled servers',
-  Press: 'Press',
+  'Press key': 'Press key',
   'to toggle tool descriptions on/off': 'to toggle tool descriptions on/off',
   "Starting OAuth authentication for MCP server '{{name}}'...":
     "Starting OAuth authentication for MCP server '{{name}}'...",
@@ -887,7 +887,7 @@ export default {
   Create: 'Create',
   'to customize your interactions with RDMind':
     'to customize your interactions with RDMind',
-  PressEsc: 'Press',
+  Press: 'Press',
   'twice to clear input,': 'twice to clear input,',
   'for new line,': 'for new line,',
   'to exit RDMind': 'to exit RDMind',

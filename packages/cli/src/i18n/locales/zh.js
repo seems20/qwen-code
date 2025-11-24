@@ -817,7 +817,7 @@ export default {
   'to hide descriptions': '隐藏描述',
   'to authenticate with OAuth-enabled servers':
     '使用支持 OAuth 的服务器进行认证',
-  Press: '按',
+  'Press key': '按',
   'to toggle tool descriptions on/off': '切换工具描述开关',
   "Starting OAuth authentication for MCP server '{{name}}'...":
     "正在为 MCP 服务器 '{{name}}' 启动 OAuth 认证...",
@@ -837,7 +837,7 @@ export default {
   Create: '创建',
   'to customize your interactions with RDMind':
     '自定义你与 RDMind 的交互方式',
-  PressEsc: '两次',
+  Press: '按',
   'twice to clear input,': '清空输入框，',
   'for new line,': '换行，',
   'to exit RDMind': '退出RDMind',

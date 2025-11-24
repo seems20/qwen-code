@@ -61,7 +61,7 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
         </Text>
       )}
       <Text color={theme.text.primary}>
-        {geminiMdFileCount === 0 ? '4.' : '3.'} {t('PressEsc')}{' '}
+        {geminiMdFileCount === 0 ? '4.' : '3.'} {t('Press')}{' '}
         <Text bold color={theme.text.accent}>
           Esc
         </Text>{' '}
