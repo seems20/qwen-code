@@ -128,7 +128,7 @@ describe('activate', () => {
     expect(vscode.workspace.onDidGrantWorkspaceTrust).toHaveBeenCalled();
   });
 
-  it('should launch the Qwen Code when the user clicks the button', async () => {
+  it('should launch the RDMind when the user clicks the button', async () => {
     const showInformationMessageMock = vi
       .mocked(vscode.window.showInformationMessage)
       .mockResolvedValue('Run RDMind' as never);
@@ -171,7 +171,7 @@ describe('activate', () => {
       await activate(context);
 
       expect(showInformationMessageMock).toHaveBeenCalledWith(
-        'A new version (1.2.0) of the Qwen Code Companion extension is available.',
+        'A new version (1.2.0) of the RDMind Companion extension is available.',
         'Update to latest version',
       );
     });

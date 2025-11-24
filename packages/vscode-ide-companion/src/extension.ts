@@ -83,7 +83,7 @@ async function checkForUpdates(
 
     if (latestVersion && semver.gt(latestVersion, currentVersion)) {
       const selection = await vscode.window.showInformationMessage(
-        `A new version (${latestVersion}) of the Qwen Code Companion extension is available.`,
+        `A new version (${latestVersion}) of the RDMind Companion extension is available.`,
         'Update to latest version',
       );
       if (selection === 'Update to latest version') {
@@ -174,7 +174,7 @@ export async function activate(context: vscode.ExtensionContext) {
         selectedFolder = workspaceFolders[0];
       } else {
         selectedFolder = await vscode.window.showWorkspaceFolderPick({
-          placeHolder: 'Select a folder to run Qwen Code in',
+          placeHolder: 'Select a folder to run RDMind in',
         });
       }
 
