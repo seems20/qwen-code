@@ -887,7 +887,7 @@ export default {
   Create: 'Create',
   'to customize your interactions with RDMind':
     'to customize your interactions with RDMind',
-  Press: 'Press',
+  PressEsc: 'Press',
   'twice to clear input,': 'twice to clear input,',
   'for new line,': 'for new line,',
   'to exit RDMind': 'to exit RDMind',

@@ -837,7 +837,7 @@ export default {
   Create: '创建',
   'to customize your interactions with RDMind':
     '自定义你与 RDMind 的交互方式',
-  Press: '两次',
+  PressEsc: '两次',
   'twice to clear input,': '清空输入框，',
   'for new line,': '换行，',
   'to exit RDMind': '退出RDMind',
