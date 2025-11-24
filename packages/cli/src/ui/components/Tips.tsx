@@ -6,6 +6,7 @@
 
 import type React from 'react';
 import { Box, Text } from 'ink';
+import Link from 'ink-link';
 import { theme } from '../semantic-colors.js';
 import { type Config } from '@rdmind/rdmind-core';
 import { t } from '../../i18n/index.js';
@@ -18,28 +19,61 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
   const geminiMdFileCount = config.getGeminiMdFileCount();
   return (
     <Box flexDirection="column">
-      <Text color={theme.text.primary}>{t('Tips for getting started:')}</Text>
+      <Text color={theme.text.primary}> - {t('Inspired By REDer Mind')}</Text>
       <Text color={theme.text.primary}>
-        {t('1. Ask questions, edit files, or run commands.')}
+        {' '}
+        {t('Official website:')}{' '}
+        <Link url="https://fe.xiaohongshu.com/apps/reddevmind-web">
+          https://fe.xiaohongshu.com/apps/reddevmind-web
+        </Link>
+      </Text>
+      <Text color={theme.text.primary}> </Text>
+      <Text color={theme.text.primary}>{t('Usage Guide:')}</Text>
+      <Text color={theme.text.primary}>
+        1.{' '}
+        <Text bold color={theme.text.accent}>
+          /
+        </Text>{' '}
+        {t('use commands,')}{' '}
+        <Text bold color={theme.text.accent}>
+          @
+        </Text>{' '}
+        {t('add files')}
       </Text>
       <Text color={theme.text.primary}>
-        {t('2. Be specific for the best results.')}
-      </Text>
-      {geminiMdFileCount === 0 && (
-        <Text color={theme.text.primary}>
-          3. Create{' '}
-          <Text bold color={theme.text.accent}>
-            QWEN.md
-          </Text>{' '}
-          {t('files to customize your interactions with Qwen Code.')}
-        </Text>
-      )}
-      <Text color={theme.text.primary}>
-        {geminiMdFileCount === 0 ? '4.' : '3.'}{' '}
+        2. {t('Input')}{' '}
         <Text bold color={theme.text.accent}>
           /help
         </Text>{' '}
-        {t('for more information.')}
+        {t('for help,')}{' '}
+        <Text bold color={theme.text.accent}>
+          /docs
+        </Text>{' '}
+        {t('open documentation')}
+      </Text>
+      {geminiMdFileCount === 0 && (
+        <Text color={theme.text.primary}>
+          3. {t('Create')}{' '}
+          <Text bold color={theme.text.accent}>
+            RDMind.md
+          </Text>{' '}
+          {t('to customize your interactions with RDMind')}
+        </Text>
+      )}
+      <Text color={theme.text.primary}>
+        {geminiMdFileCount === 0 ? '4.' : '3.'} {t('Press')}{' '}
+        <Text bold color={theme.text.accent}>
+          Esc
+        </Text>{' '}
+        {t('twice to clear input,')}{' '}
+        <Text bold color={theme.text.accent}>
+          Shift + Enter
+        </Text>{' '}
+        {t('for new line,')}{' '}
+        <Text bold color={theme.text.accent}>
+          Ctrl + C
+        </Text>{' '}
+        {t('to exit RDMind')}
       </Text>
     </Box>
   );

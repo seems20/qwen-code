@@ -876,6 +876,21 @@ export default {
   // ============================================================================
   // Startup Tips
   // ============================================================================
+  'Inspired By REDer Mind': 'Inspired By REDer Mind',
+  'Official website:': 'Official website:',
+  'Usage Guide:': 'Usage Guide:',
+  'use commands,': 'use commands,',
+  'add files': 'add files',
+  Input: 'Input',
+  'for help,': 'for help,',
+  'open documentation': 'open documentation',
+  Create: 'Create',
+  'to customize your interactions with RDMind':
+    'to customize your interactions with RDMind',
+  Press: 'Press',
+  'twice to clear input,': 'twice to clear input,',
+  'for new line,': 'for new line,',
+  'to exit RDMind': 'to exit RDMind',
   'Tips for getting started:': 'Tips for getting started:',
   '1. Ask questions, edit files, or run commands.':
     '1. Ask questions, edit files, or run commands.',

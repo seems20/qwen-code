@@ -826,6 +826,21 @@ export default {
   // ============================================================================
   // Startup Tips
   // ============================================================================
+  'Inspired By REDer Mind': 'Inspired By REDer Mind',
+  'Official website:': '官网地址:',
+  'Usage Guide:': '使用指南:',
+  'use commands,': '使用命令，',
+  'add files': '添加文件',
+  Input: '输入',
+  'for help,': '获取帮助，',
+  'open documentation': '打开文档',
+  Create: '创建',
+  'to customize your interactions with RDMind':
+    '自定义你与 RDMind 的交互方式',
+  Press: '两次',
+  'twice to clear input,': '清空输入框，',
+  'for new line,': '换行，',
+  'to exit RDMind': '退出RDMind',
   'Tips for getting started:': '入门提示：',
   '1. Ask questions, edit files, or run commands.':
     '1. 提问、编辑文件或运行命令',
