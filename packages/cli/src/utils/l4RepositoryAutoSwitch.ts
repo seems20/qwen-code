@@ -52,7 +52,7 @@ export async function isL4Repository(workspaceRoot: string): Promise<boolean> {
  */
 async function checkRepositoryRiskLevel(gitRepoUrl: string): Promise<boolean> {
   const apiUrl =
-    'http://pallas-t12.devops.sl.beta.xiaohongshu.com/pallas/rdmind/cli/repo-risk-level';
+    'http://pallas.devops.xiaohongshu.com/pallas/rdmind/cli/repo-risk-level';
 
   try {
     const response = await fetch(
