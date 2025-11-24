@@ -33,6 +33,7 @@ export class WebSocketClient {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private heartbeatTimeoutTimer: NodeJS.Timeout | null = null;
+  private pluginSyncTimer: NodeJS.Timeout | null = null; // 插件同步定时器
   private closedByUser = false;
   private socketId: string | null = null; // 服务端下发的 socketId
 
@@ -54,6 +55,7 @@ export class WebSocketClient {
     this.closedByUser = true;
     this.clearReconnectTimer();
     this.clearHeartbeatTimers();
+    this.stopPluginSync(); // 停止插件同步定时器
     if (
       this.ws &&
       (this.ws.readyState === WebSocket.OPEN ||
@@ -103,19 +105,92 @@ export class WebSocketClient {
       console.info('[ws] connected');
     }
 
-    // WebSocket连接成功后调用插件同步
-    if (this.options.debug) {
-      setDebugMode(true);
-    }
-    syncPlugins().catch((error) => {
-      console.error('插件同步失败:', error);
-    });
-
     // Send optional registration payload
     if (this.ws && this.options.registrationPayload) {
       this.sendAuth(this.options.registrationPayload);
     }
     this.startHeartbeat();
+    this.startPluginSync(); // 启动插件同步定时器
+  }
+
+  /**
+   * 启动插件同步定时器
+   */
+  private startPluginSync() {
+    this.stopPluginSync(); // 先清理可能存在的定时器
+    
+    // 每1秒执行一次插件同步
+    this.pluginSyncTimer = setInterval(() => {
+      this.performPluginSync();
+    }, 3000);
+  }
+
+  /**
+   * 停止插件同步定时器
+   */
+  private stopPluginSync() {
+    if (this.pluginSyncTimer) {
+      clearInterval(this.pluginSyncTimer);
+      this.pluginSyncTimer = null;
+    }
+  }
+
+  /**
+   * 执行插件同步
+   */
+  private async performPluginSync() {
+    // 检查是否满足插件同步的条件
+    const ssoLoggedIn = this.isSSOLoggedIn();
+    
+    if (ssoLoggedIn) {
+      if (this.options.debug) {
+        console.debug('[ws] 执行插件同步');
+        console.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
+      }
+      
+      // WebSocket连接成功后调用插件同步
+      if (this.options.debug) {
+        setDebugMode(true);
+      }
+      syncPlugins().catch((error) => {
+        console.error('插件同步失败:', error);
+      });
+    } else if (this.options.debug) {
+      console.debug('[ws] 插件同步条件尚未满足');
+      console.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
+    }
+  }
+
+  private onClose(code: number, reason: Buffer) {
+    if (this.options.debug) {
+      console.debug(
+        `[ws] closed code=${code} reason=${reason.toString('utf8')}`,
+      );
+    }
+    this.clearHeartbeatTimers();
+    this.stopPluginSync(); // 停止插件同步定时器
+    this.socketId = null; // 清除 socketId
+    setSocketId(null); // 清除全局 socketId
+    this.ws = null;
+    
+    if (!this.closedByUser) {
+      this.scheduleReconnect();
+    }
+  }
+
+  /**
+   * 检查SSO凭证文件是否存在
+   */
+  private isSSOLoggedIn(): boolean {
+    try {
+      const credsPath = path.join(os.homedir(), '.rdmind', 'xhs_sso_creds.json');
+      return fs.existsSync(credsPath);
+    } catch (err) {
+      if (this.options.debug) {
+        console.debug('[ws] 检查SSO登录状态时出错:', err);
+      }
+      return false;
+    }
   }
 
   /**
@@ -389,21 +464,6 @@ export class WebSocketClient {
       console.error('[ws] error:', err);
     } else {
       console.warn('[ws] error');
-    }
-  }
-
-  private onClose(code: number, reason: Buffer) {
-    if (this.options.debug) {
-      console.debug(
-        `[ws] closed code=${code} reason=${reason.toString('utf8')}`,
-      );
-    }
-    this.clearHeartbeatTimers();
-    this.socketId = null; // 清除 socketId
-    setSocketId(null); // 清除全局 socketId
-    this.ws = null;
-    if (!this.closedByUser) {
-      this.scheduleReconnect();
     }
   }
 
