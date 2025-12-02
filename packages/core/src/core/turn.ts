@@ -283,6 +283,19 @@ export class Turn {
 
         // Handle function calls (requesting tool execution)
         const functionCalls = resp.functionCalls ?? [];
+        // Also check candidates for function calls as raw JSON response might not have the helper property
+        // Only do this if functionCalls is empty to avoid duplicates for models that populate both
+        if (
+          functionCalls.length === 0 &&
+          resp.candidates?.[0]?.content?.parts
+        ) {
+          for (const part of resp.candidates[0].content.parts) {
+            if (part.functionCall) {
+              functionCalls.push(part.functionCall);
+            }
+          }
+        }
+
         for (const fnCall of functionCalls) {
           const event = this.handlePendingFunctionCall(fnCall);
           if (event) {

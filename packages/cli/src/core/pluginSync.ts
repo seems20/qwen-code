@@ -55,10 +55,6 @@ export function setDebugMode(enabled: boolean): void {
 function isDebugEnabled(): boolean {
   return (
     globalDebugMode ||
-    process.env['DEBUG'] === '1' ||
-    process.env['DEBUG'] === 'true' ||
-    process.env['DEBUG_MODE'] === '1' ||
-    process.env['DEBUG_MODE'] === 'true' ||
     process.env['RDMIND_DEBUG_PLUGIN_SYNC'] === '1'
   );
 }
@@ -78,7 +74,6 @@ function debugLog(message: string, ...args: unknown[]): void {
 function getSsoCredentials(): SsoCredentials | null {
   try {
     const credsPath = path.join(os.homedir(), '.rdmind', 'xhs_sso_creds.json');
-    debugLog(`尝试从路径读取SSO凭证: ${credsPath}`);
     if (fs.existsSync(credsPath)) {
       const content = fs.readFileSync(credsPath, 'utf-8');
       const parsed = JSON.parse(content) as Record<string, unknown>;
@@ -91,7 +86,6 @@ function getSsoCredentials(): SsoCredentials | null {
         typeof ssoName === 'string' &&
         ssoName
       ) {
-        debugLog('成功读取rdmind_sso_id和sso_name');
         return {
           rdmind_sso_id: rdmindSsoId,
           sso_name: ssoName,
@@ -103,7 +97,7 @@ function getSsoCredentials(): SsoCredentials | null {
       debugLog('SSO凭证文件不存在');
     }
   } catch (error) {
-    console.error('读取 xhs_sso_creds.json 中的凭证信息失败:', error);
+    debugLog('读取 xhs_sso_creds.json 中的凭证信息失败:', error);
   }
   return null;
 }
@@ -112,7 +106,6 @@ function getSsoCredentials(): SsoCredentials | null {
  * 获取客户端插件列表
  */
 function getClientPlugins(): ClientPluginInfo[] {
-  debugLog('获取客户端插件列表');
   const plugins: ClientPluginInfo[] = [];
 
   try {
@@ -123,7 +116,6 @@ function getClientPlugins(): ClientPluginInfo[] {
       const pluginTypeDir = path.join(rdmindDir, pluginType);
 
       if (!fs.existsSync(pluginTypeDir)) {
-        debugLog(`插件类型目录不存在: ${pluginTypeDir}`);
         continue;
       }
 
@@ -162,10 +154,8 @@ function getClientPlugins(): ClientPluginInfo[] {
       }
     }
   } catch (error) {
-    console.error('读取客户端插件列表失败:', error);
+    debugLog('读取客户端插件列表失败:', error);
   }
-
-  debugLog(`找到 ${plugins.length} 个插件`);
   return plugins;
 }
 
@@ -174,7 +164,6 @@ function getClientPlugins(): ClientPluginInfo[] {
  */
 export async function syncPlugins(): Promise<void> {
   try {
-    debugLog('开始插件同步流程');
     const credentials = getSsoCredentials();
     if (!credentials) {
       debugLog('未找到有效的SSO凭证，跳过插件同步');
@@ -188,12 +177,10 @@ export async function syncPlugins(): Promise<void> {
       clientPlugins,
     };
 
-    debugLog('构建同步请求', request);
 
     const apiBaseUrl =
       process.env['RDMIND_API_BASE_URL']?.trim() || PALLAS_HTTP_BASE;
-    const url = `${apiBaseUrl}/pallas/rdmind/cli/sync`;
-    debugLog(`准备发送POST请求到: ${url}`);
+    const url = `${apiBaseUrl}/pallas/rdmind/cli/sync`;  
 
     const response = await fetch(url, {
       method: 'POST',
@@ -204,10 +191,8 @@ export async function syncPlugins(): Promise<void> {
       body: JSON.stringify(request),
     });
 
-    debugLog(`收到响应状态: ${response.status}`);
-
     if (!response.ok) {
-      console.error(
+       debugLog(
         `插件同步失败，HTTP ${response.status}: ${response.statusText}`,
       );
       return;
@@ -216,6 +201,6 @@ export async function syncPlugins(): Promise<void> {
     const result = await response.json();
     debugLog('插件同步成功，服务器响应:', result);
   } catch (error) {
-    console.error('插件同步异常:', error);
+    debugLog('插件同步异常:', error);
   }
 }

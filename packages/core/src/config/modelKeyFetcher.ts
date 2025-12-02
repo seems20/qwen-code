@@ -40,7 +40,23 @@ export async function fetchModelKey(
   }
 
   try {
-    const url = `${MODEL_KEY_API_BASE}?model_name=${encodeURIComponent(modelName)}`;
+    // 如果是 gemini 开头的模型，需要先做预处理，去除思考等级后缀
+    // 例如 gemini-3-pro-preview(low) -> gemini-3-pro-preview
+    let processedModelName = modelName;
+    if (modelName.toLowerCase().startsWith('gemini')) {
+      // 匹配并去除括号内的思考等级后缀，例如 (low)、(high) 等
+      const match = modelName.match(/^(.+?)\(\w+\)$/);
+      if (match) {
+        processedModelName = match[1];
+        if (debugMode) {
+          console.debug(
+            `[ModelKeyFetcher] gemini 模型预处理: ${modelName} -> ${processedModelName}`,
+          );
+        }
+      }
+    }
+
+    const url = `${MODEL_KEY_API_BASE}?model_name=${encodeURIComponent(processedModelName)}`;
     const response = await fetchWithTimeout(url, 10000); // 10秒超时
 
     if (!response.ok) {

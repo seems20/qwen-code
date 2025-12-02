@@ -11,6 +11,19 @@ import { OpenAILogger } from '../../utils/openaiLogger.js';
 import type { GenerateContentResponse } from '@google/genai';
 import type OpenAI from 'openai';
 
+// Define extended response type to handle potential extra properties like responseId
+type ExtendedGenerateContentResponse = GenerateContentResponse & {
+  responseId?: string;
+};
+
+// Define error interface for better type safety
+interface ApiErrorWithMetadata {
+  requestID?: string;
+  type?: string;
+  code?: string | number;
+  message: string;
+}
+
 export interface RequestContext {
   userPromptId: string;
   model: string;
@@ -24,21 +37,22 @@ export interface TelemetryService {
   logSuccess(
     context: RequestContext,
     response: GenerateContentResponse,
-    openaiRequest?: OpenAI.Chat.ChatCompletionCreateParams,
-    openaiResponse?: OpenAI.Chat.ChatCompletion,
+    openaiRequest?: unknown,
+    openaiResponse?: unknown,
   ): Promise<void>;
 
   logError(
     context: RequestContext,
     error: unknown,
-    openaiRequest?: OpenAI.Chat.ChatCompletionCreateParams,
+    openaiRequest?: unknown,
   ): Promise<void>;
 
   logStreamingSuccess(
     context: RequestContext,
     responses: GenerateContentResponse[],
-    openaiRequest?: OpenAI.Chat.ChatCompletionCreateParams,
+    openaiRequest?: unknown,
     openaiChunks?: OpenAI.Chat.ChatCompletionChunk[],
+    combinedResponse?: unknown,
   ): Promise<void>;
 }
 
@@ -58,13 +72,14 @@ export class DefaultTelemetryService implements TelemetryService {
   async logSuccess(
     context: RequestContext,
     response: GenerateContentResponse,
-    openaiRequest?: OpenAI.Chat.ChatCompletionCreateParams,
-    openaiResponse?: OpenAI.Chat.ChatCompletion,
+    openaiRequest?: unknown,
+    openaiResponse?: unknown,
   ): Promise<void> {
     // Log API response event for UI telemetry
     // 如果 responseId 不存在，使用 'unknown'
+    const extendedResponse = response as ExtendedGenerateContentResponse;
     const responseEvent = new ApiResponseEvent(
-      response.responseId || 'unknown',
+      extendedResponse.responseId || 'unknown',
       context.model,
       context.duration,
       context.userPromptId,
@@ -83,23 +98,21 @@ export class DefaultTelemetryService implements TelemetryService {
   async logError(
     context: RequestContext,
     error: unknown,
-    openaiRequest?: OpenAI.Chat.ChatCompletionCreateParams,
+    openaiRequest?: unknown,
   ): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const apiError = error as ApiErrorWithMetadata;
 
     // Log API error event for UI telemetry
     const errorEvent = new ApiErrorEvent(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (error as any)?.requestID || 'unknown',
+      apiError?.requestID || 'unknown',
       context.model,
       errorMessage,
       context.duration,
       context.userPromptId,
       context.authType,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (error as any)?.type,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (error as any)?.code,
+      apiError?.type,
+      apiError?.code,
     );
     logApiError(this.config, errorEvent);
 
@@ -116,8 +129,9 @@ export class DefaultTelemetryService implements TelemetryService {
   async logStreamingSuccess(
     context: RequestContext,
     responses: GenerateContentResponse[],
-    openaiRequest?: OpenAI.Chat.ChatCompletionCreateParams,
+    openaiRequest?: unknown,
     openaiChunks?: OpenAI.Chat.ChatCompletionChunk[],
+    combinedResponse?: unknown,
   ): Promise<void> {
     // Get final usage metadata from the last response that has it
     const finalUsageMetadata = responses
@@ -126,8 +140,11 @@ export class DefaultTelemetryService implements TelemetryService {
       .find((r) => r.usageMetadata)?.usageMetadata;
 
     // Log API response event for UI telemetry
+    const lastResponse = responses[
+      responses.length - 1
+    ] as ExtendedGenerateContentResponse;
     const responseEvent = new ApiResponseEvent(
-      responses[responses.length - 1]?.responseId || 'unknown',
+      lastResponse?.responseId || 'unknown',
       context.model,
       context.duration,
       context.userPromptId,
@@ -138,14 +155,20 @@ export class DefaultTelemetryService implements TelemetryService {
     logApiResponse(this.config, responseEvent);
 
     // Log interaction if enabled - combine chunks only when needed
-    if (
-      this.enableOpenAILogging &&
-      openaiRequest &&
-      openaiChunks &&
-      openaiChunks.length > 0
-    ) {
-      const combinedResponse = this.combineOpenAIChunksForLogging(openaiChunks);
-      await this.logger.logInteraction(openaiRequest, combinedResponse);
+    if (this.enableOpenAILogging && openaiRequest) {
+      let responseToLog = combinedResponse;
+
+      if (
+        !responseToLog &&
+        openaiChunks &&
+        openaiChunks.length > 0
+      ) {
+        responseToLog = this.combineOpenAIChunksForLogging(openaiChunks);
+      }
+
+      if (responseToLog) {
+        await this.logger.logInteraction(openaiRequest, responseToLog);
+      }
     }
   }
 

@@ -124,7 +124,7 @@ export class LoggingContentGenerator implements ContentGenerator {
       this._logApiResponse(
         response.responseId ?? requestId,
         durationMs,
-        response.modelVersion || req.model,
+        req.model,
         userPromptId,
         response.usageMetadata,
         JSON.stringify(response),
@@ -187,10 +187,11 @@ export class LoggingContentGenerator implements ContentGenerator {
       // Only log successful API response if no error occurred
       const durationMs = Date.now() - startTime;
       // 优先使用 API 返回的 responseId，如果不存在则使用我们生成的 requestId
+      // 使用原始的 model 参数，保留完整的模型名称（包含思考等级后缀如 "(high)"）
       this._logApiResponse(
         responses[0]?.responseId ?? requestId,
         durationMs,
-        responses[0]?.modelVersion || model,
+        model,
         userPromptId,
         lastUsageMetadata,
         JSON.stringify(responses),
@@ -202,7 +203,7 @@ export class LoggingContentGenerator implements ContentGenerator {
         requestId,
         durationMs,
         error,
-        responses[0]?.modelVersion || model,
+        model,
         userPromptId,
       );
       throw error;

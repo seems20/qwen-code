@@ -307,6 +307,49 @@ describe('Turn', () => {
       });
     });
 
+    it('should handle function calls from raw JSON response (without functionCalls helper)', async () => {
+      const mockResponseStream = (async function* () {
+        yield {
+          type: StreamEventType.CHUNK,
+          value: {
+            candidates: [
+              {
+                content: {
+                  parts: [
+                    {
+                      functionCall: {
+                        name: 'rawTool',
+                        args: { raw: true },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            // No functionCalls property at root
+          } as unknown as GenerateContentResponse,
+        };
+      })();
+      mockSendMessageStream.mockResolvedValue(mockResponseStream);
+
+      const events = [];
+      for await (const event of turn.run(
+        'test-model',
+        [{ text: 'Test raw tool' }],
+        new AbortController().signal,
+      )) {
+        events.push(event);
+      }
+
+      expect(events.length).toBe(1);
+      const event = events[0] as ServerGeminiToolCallRequestEvent;
+      expect(event.type).toBe(GeminiEventType.ToolCallRequest);
+      expect(event.value).toMatchObject({
+        name: 'rawTool',
+        args: { raw: true },
+      });
+    });
+
     it('should yield finished event when response has finish reason', async () => {
       const mockResponseStream = (async function* () {
         yield {

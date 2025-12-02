@@ -25,6 +25,8 @@ import type { ToolRegistry } from './tool-registry.js';
 
 vi.mock('@modelcontextprotocol/sdk/client/stdio.js');
 vi.mock('@modelcontextprotocol/sdk/client/index.js');
+vi.mock('@modelcontextprotocol/sdk/client/sse.js');
+vi.mock('@modelcontextprotocol/sdk/client/streamableHttp.js');
 vi.mock('@google/genai');
 vi.mock('../mcp/oauth-provider.js');
 vi.mock('../mcp/oauth-token-storage.js');
@@ -209,7 +211,7 @@ describe('mcp-client', () => {
   describe('createTransport', () => {
     describe('should connect via httpUrl', () => {
       it('without headers', async () => {
-        const transport = await createTransport(
+        await createTransport(
           'test-server',
           {
             httpUrl: 'http://test-server',
@@ -217,13 +219,14 @@ describe('mcp-client', () => {
           false,
         );
 
-        expect(transport).toEqual(
-          new StreamableHTTPClientTransport(new URL('http://test-server'), {}),
+        expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
+          new URL('http://test-server'),
+          {},
         );
       });
 
       it('with headers', async () => {
-        const transport = await createTransport(
+        await createTransport(
           'test-server',
           {
             httpUrl: 'http://test-server',
@@ -232,32 +235,34 @@ describe('mcp-client', () => {
           false,
         );
 
-        expect(transport).toEqual(
-          new StreamableHTTPClientTransport(new URL('http://test-server'), {
+        expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
+          new URL('http://test-server'),
+          {
             requestInit: {
               headers: { Authorization: 'derp' },
             },
-          }),
+          },
         );
       });
     });
 
     describe('should connect via url', () => {
       it('without headers', async () => {
-        const transport = await createTransport(
+        await createTransport(
           'test-server',
           {
             url: 'http://test-server',
           },
           false,
         );
-        expect(transport).toEqual(
-          new SSEClientTransport(new URL('http://test-server'), {}),
+        expect(SSEClientTransport).toHaveBeenCalledWith(
+          new URL('http://test-server'),
+          {},
         );
       });
 
       it('with headers', async () => {
-        const transport = await createTransport(
+        await createTransport(
           'test-server',
           {
             url: 'http://test-server',
@@ -266,12 +271,13 @@ describe('mcp-client', () => {
           false,
         );
 
-        expect(transport).toEqual(
-          new SSEClientTransport(new URL('http://test-server'), {
+        expect(SSEClientTransport).toHaveBeenCalledWith(
+          new URL('http://test-server'),
+          {
             requestInit: {
               headers: { Authorization: 'derp' },
             },
-          }),
+          },
         );
       });
     });
@@ -303,7 +309,7 @@ describe('mcp-client', () => {
 
     describe('useGoogleCredentialProvider', () => {
       it('should use GoogleCredentialProvider when specified', async () => {
-        const transport = await createTransport(
+        await createTransport(
           'test-server',
           {
             httpUrl: 'http://test.googleapis.com',
@@ -315,14 +321,16 @@ describe('mcp-client', () => {
           false,
         );
 
-        expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const authProvider = (transport as any)._authProvider;
-        expect(authProvider).toBeInstanceOf(GoogleCredentialProvider);
+        expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
+          new URL('http://test.googleapis.com'),
+          expect.objectContaining({
+            authProvider: expect.any(GoogleCredentialProvider),
+          }),
+        );
       });
 
       it('should use GoogleCredentialProvider with SSE transport', async () => {
-        const transport = await createTransport(
+        await createTransport(
           'test-server',
           {
             url: 'http://test.googleapis.com',
@@ -334,10 +342,12 @@ describe('mcp-client', () => {
           false,
         );
 
-        expect(transport).toBeInstanceOf(SSEClientTransport);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const authProvider = (transport as any)._authProvider;
-        expect(authProvider).toBeInstanceOf(GoogleCredentialProvider);
+        expect(SSEClientTransport).toHaveBeenCalledWith(
+          new URL('http://test.googleapis.com'),
+          expect.objectContaining({
+            authProvider: expect.any(GoogleCredentialProvider),
+          }),
+        );
       });
 
       it('should throw an error if no URL is provided with GoogleCredentialProvider', async () => {

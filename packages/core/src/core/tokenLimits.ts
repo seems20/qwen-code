@@ -87,6 +87,8 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   [/^gemini-2\.5-flash.*$/, LIMITS['1m']],
   [/^gemini-2\.0-flash-image-generation$/, LIMITS['32k']],
   [/^gemini-2\.0-flash.*$/, LIMITS['1m']],
+  [/^gemini-3-pro.*$/, LIMITS['1m']], // Gemini 3 Pro: 1M context window
+  [/^gemini-3-flash.*$/, LIMITS['1m']], // Gemini 3 Flash: 1M context window
 
   // -------------------
   // OpenAI (o3 / o4-mini / gpt-4.1 / gpt-4o family)

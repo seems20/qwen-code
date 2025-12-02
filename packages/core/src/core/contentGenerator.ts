@@ -230,7 +230,19 @@ export async function createContentGenerator(
       );
     }
 
-    // Import OpenAIContentGenerator dynamically
+    // 根据模型名称选择不同的 ContentGenerator
+    const model = config.model.toLowerCase();
+    if (model.startsWith('gemini')) {
+      const { GeminiContentGenerator } = await import(
+        './geminiContentGenerator.js'
+      );
+      return new LoggingContentGenerator(
+        new GeminiContentGenerator(config, gcConfig),
+        gcConfig,
+      );
+    }
+
+    // 默认使用 OpenAI 兼容客户端
     const { createOpenAIContentGenerator } = await import(
       './openaiContentGenerator/index.js'
     );

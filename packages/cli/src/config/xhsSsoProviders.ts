@@ -41,4 +41,18 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     contextWindow: '256k',
     description: 'QuickSilver平台部署版本',
   },
+  {
+    id: 'gemini-3-pro-preview(low)',
+    displayName: 'gemini-3-pro-preview(low)',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+    contextWindow: '1M',
+    description: 'Google迄今为止最智能的模型(思考时间短)',
+  },
+  {
+    id: 'gemini-3-pro-preview(high)',
+    displayName: 'gemini-3-pro-preview(high)',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+    contextWindow: '1M',
+    description: 'Google迄今为止最智能的模型(思考时间长)',
+  },
 ];

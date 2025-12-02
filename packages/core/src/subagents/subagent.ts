@@ -406,9 +406,13 @@ export class SubAgentScope {
             if (resp.responseId) {
               currentResponseId = resp.responseId;
             }
+            // Collect function calls from resp.functionCalls helper property
             if (resp.functionCalls) functionCalls.push(...resp.functionCalls);
             const content = resp.candidates?.[0]?.content;
             const parts = content?.parts || [];
+            // Track if we got function calls from the helper property for this chunk
+            const hadFunctionCallsFromHelper =
+              resp.functionCalls && resp.functionCalls.length > 0;
             for (const p of parts) {
               const txt = (p as Part & { text?: string }).text;
               if (txt) roundText += txt;
@@ -419,6 +423,18 @@ export class SubAgentScope {
                   text: txt,
                   timestamp: Date.now(),
                 } as SubAgentStreamTextEvent);
+              // Also check for function calls in parts (some models like gemini-3-pro-preview
+              // may return functionCall in candidates[0].content.parts instead of resp.functionCalls)
+              // Only do this if we didn't already get function calls from the helper property
+              // to avoid duplicates for models that populate both
+              if (!hadFunctionCallsFromHelper) {
+                const partWithFunctionCall = p as Part & {
+                  functionCall?: FunctionCall;
+                };
+                if (partWithFunctionCall.functionCall) {
+                  functionCalls.push(partWithFunctionCall.functionCall);
+                }
+              }
             }
             if (resp.usageMetadata) lastUsage = resp.usageMetadata;
           }
