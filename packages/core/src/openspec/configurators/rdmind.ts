@@ -130,7 +130,9 @@ description: Archive a deployed OpenSpec change and update specs.
 /**
  * RDMind slash command configurator
  */
-export class RDMindSlashCommandConfigurator implements SlashCommandConfigurator {
+export class RDMindSlashCommandConfigurator
+  implements SlashCommandConfigurator
+{
   readonly toolId = 'rdmind';
   readonly isAvailable = true;
 

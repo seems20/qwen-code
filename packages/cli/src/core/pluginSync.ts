@@ -53,10 +53,7 @@ export function setDebugMode(enabled: boolean): void {
 }
 
 function isDebugEnabled(): boolean {
-  return (
-    globalDebugMode ||
-    process.env['RDMIND_DEBUG_PLUGIN_SYNC'] === '1'
-  );
+  return globalDebugMode || process.env['RDMIND_DEBUG_PLUGIN_SYNC'] === '1';
 }
 
 /**
@@ -177,10 +174,9 @@ export async function syncPlugins(): Promise<void> {
       clientPlugins,
     };
 
-
     const apiBaseUrl =
       process.env['RDMIND_API_BASE_URL']?.trim() || PALLAS_HTTP_BASE;
-    const url = `${apiBaseUrl}/pallas/rdmind/cli/sync`;  
+    const url = `${apiBaseUrl}/pallas/rdmind/cli/sync`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -192,9 +188,7 @@ export async function syncPlugins(): Promise<void> {
     });
 
     if (!response.ok) {
-       debugLog(
-        `插件同步失败，HTTP ${response.status}: ${response.statusText}`,
-      );
+      debugLog(`插件同步失败，HTTP ${response.status}: ${response.statusText}`);
       return;
     }
 

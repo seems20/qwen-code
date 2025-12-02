@@ -65,8 +65,8 @@ export function WorkspaceMigrationDialog(props: {
           </>
         ) : (
           <Text color={theme.text.primary}>
-            Migration complete. To see changes, RDMind must be restarted.
-            Press &apos;q&apos; to quit.
+            Migration complete. To see changes, RDMind must be restarted. Press
+            &apos;q&apos; to quit.
           </Text>
         )}
       </Box>

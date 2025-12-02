@@ -121,7 +121,11 @@ export class McpPromptLoader implements ICommandLoader {
               }
 
               const firstContent = result.messages?.[0]?.content;
-              if (!firstContent || firstContent.type !== 'text' || !firstContent.text) {
+              if (
+                !firstContent ||
+                firstContent.type !== 'text' ||
+                !firstContent.text
+              ) {
                 return {
                   type: 'message',
                   messageType: 'error',

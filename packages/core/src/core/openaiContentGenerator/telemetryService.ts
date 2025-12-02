@@ -158,11 +158,7 @@ export class DefaultTelemetryService implements TelemetryService {
     if (this.enableOpenAILogging && openaiRequest) {
       let responseToLog = combinedResponse;
 
-      if (
-        !responseToLog &&
-        openaiChunks &&
-        openaiChunks.length > 0
-      ) {
+      if (!responseToLog && openaiChunks && openaiChunks.length > 0) {
         responseToLog = this.combineOpenAIChunksForLogging(openaiChunks);
       }
 

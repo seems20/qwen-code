@@ -7,10 +7,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import type { WizardStepProps } from '../types.js';
-import type {
-  SubagentManager,
-  SubagentConfig,
-} from '@rdmind/rdmind-core';
+import type { SubagentManager, SubagentConfig } from '@rdmind/rdmind-core';
 import { theme } from '../../../semantic-colors.js';
 import { shouldShowColor, getColorForDisplay } from '../utils.js';
 import { useLaunchEditor } from '../../../hooks/useLaunchEditor.js';

@@ -91,7 +91,10 @@ export const handleSlashCommand = async (
   const allowedBuiltinSet = new Set(allowedBuiltinCommandNames ?? []);
 
   // Always include FileCommandLoader and MarkdownCommandLoader for OpenSpec support
-  const loaders: ICommandLoader[] = [new FileCommandLoader(config), new MarkdownCommandLoader(config)];
+  const loaders: ICommandLoader[] = [
+    new FileCommandLoader(config),
+    new MarkdownCommandLoader(config),
+  ];
 
   // Only add BuiltinCommandLoader if there are allowed built-in commands
   if (allowedBuiltinSet.size > 0) {
@@ -201,7 +204,10 @@ export const getAvailableCommands = async (
     const allowedBuiltinSet = new Set(allowedBuiltinCommandNames ?? []);
 
     // Always include FileCommandLoader and MarkdownCommandLoader for OpenSpec support
-    const loaders: ICommandLoader[] = [new FileCommandLoader(config), new MarkdownCommandLoader(config)];
+    const loaders: ICommandLoader[] = [
+      new FileCommandLoader(config),
+      new MarkdownCommandLoader(config),
+    ];
 
     // Only add BuiltinCommandLoader if there are allowed built-in commands
     if (allowedBuiltinSet.size > 0) {

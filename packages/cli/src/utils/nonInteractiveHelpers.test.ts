@@ -61,8 +61,7 @@ vi.mock('../ui/utils/computeStats.js', () => ({
 }));
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...actual,
     getMCPServerStatus: vi.fn(),

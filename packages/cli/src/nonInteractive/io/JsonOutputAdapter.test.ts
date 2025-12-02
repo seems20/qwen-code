@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type {
-  Config,
-  ServerGeminiStreamEvent,
-} from '@rdmind/rdmind-core';
+import type { Config, ServerGeminiStreamEvent } from '@rdmind/rdmind-core';
 import { GeminiEventType } from '@rdmind/rdmind-core';
 import type { Part } from '@google/genai';
 import { JsonOutputAdapter } from './JsonOutputAdapter.js';

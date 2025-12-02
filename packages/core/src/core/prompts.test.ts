@@ -384,7 +384,9 @@ describe('Model-specific tool call formats', () => {
 
     // Should contain the tool explanation requirement for Gemini 3
     expect(prompt).toContain('Do not call tools in silence');
-    expect(prompt).toContain('You must provide to the user very short and concise natural explanation (one sentence) before calling tools');
+    expect(prompt).toContain(
+      'You must provide to the user very short and concise natural explanation (one sentence) before calling tools',
+    );
 
     // Should NOT contain "No Chitchat" rule for Gemini 3
     expect(prompt).not.toContain('No Chitchat');

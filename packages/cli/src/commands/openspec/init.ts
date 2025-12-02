@@ -246,8 +246,9 @@ For more information, visit: https://github.com/Fission-AI/OpenSpec
     try {
       // Basic project analysis
       const packageInfo = await this.readPackageJson(projectPath);
-      const projectName = packageInfo?.['name'] as string || '项目';
-      const description = packageInfo?.['description'] as string || '这是一个软件开发项目';
+      const projectName = (packageInfo?.['name'] as string) || '项目';
+      const description =
+        (packageInfo?.['description'] as string) || '这是一个软件开发项目';
 
       // Simple tech detection
       const techs = await this.detectBasicTechnologies(
@@ -420,8 +421,10 @@ ${techs.hasDocs ? '├── docs/          # 项目文档' : ''}
 
       // Detect from package.json
       if (packageInfo?.['dependencies'] || packageInfo?.['devDependencies']) {
-        const deps = packageInfo['dependencies'] as Record<string, string> || {};
-        const devDeps = packageInfo['devDependencies'] as Record<string, string> || {};
+        const deps =
+          (packageInfo['dependencies'] as Record<string, string>) || {};
+        const devDeps =
+          (packageInfo['devDependencies'] as Record<string, string>) || {};
         const allDeps = {
           ...deps,
           ...devDeps,

@@ -331,7 +331,7 @@ export class GeminiContentGenerator implements ContentGenerator {
       const stream = this.handleStream(response.body);
       const collectedResponses: GenerateContentResponse[] = [];
 
-      return (async function* (this: GeminiContentGenerator) {
+      return async function* (this: GeminiContentGenerator) {
         try {
           for await (const chunk of stream) {
             collectedResponses.push(chunk);
@@ -357,7 +357,7 @@ export class GeminiContentGenerator implements ContentGenerator {
           await this.telemetryService.logError(context, error, requestBody);
           throw error;
         }
-      }).call(this);
+      }.call(this);
     } catch (error) {
       context.duration = Date.now() - startTime;
       await this.telemetryService.logError(context, error, request);

@@ -14,14 +14,8 @@
  * Abstracts all permission logic from the session manager to keep it clean.
  */
 
-import type {
-  ToolCallRequestInfo,
-  WaitingToolCall,
-} from '@rdmind/rdmind-core';
-import {
-  InputFormat,
-  ToolConfirmationOutcome,
-} from '@rdmind/rdmind-core';
+import type { ToolCallRequestInfo, WaitingToolCall } from '@rdmind/rdmind-core';
+import { InputFormat, ToolConfirmationOutcome } from '@rdmind/rdmind-core';
 import type {
   CLIControlPermissionRequest,
   CLIControlSetPermissionModeRequest,

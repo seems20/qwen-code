@@ -193,8 +193,7 @@ export default {
   'Step {{n}}: Choose Location': 'Step {{n}}: Choose Location',
   'Step {{n}}: Choose Generation Method':
     'Step {{n}}: Choose Generation Method',
-  'Generate with RDMind (Recommended)':
-    'Generate with RDMind (Recommended)',
+  'Generate with RDMind (Recommended)': 'Generate with RDMind (Recommended)',
   'Manual Creation': 'Manual Creation',
   'Describe what this subagent should do and when it should be used. (Be comprehensive for best results)':
     'Describe what this subagent should do and when it should be used. (Be comprehensive for best results)',
@@ -649,7 +648,8 @@ export default {
     'Please provide at least one path to remove.',
   'The /directory remove command is not supported in restrictive sandbox profiles. Please use --include-directories when starting the session instead.':
     'The /directory remove command is not supported in restrictive sandbox profiles. Please use --include-directories when starting the session instead.',
-  "Error removing '{{path}}': {{error}}": "Error removing '{{path}}': {{error}}",
+  "Error removing '{{path}}': {{error}}":
+    "Error removing '{{path}}': {{error}}",
   'Successfully removed directories:\n- {{directories}}':
     'Successfully removed directories:\n- {{directories}}',
 

@@ -19,10 +19,7 @@ import type {
   ControlRequestPayload,
   CLIControlMcpMessageRequest,
 } from '../../types.js';
-import type {
-  MCPServerConfig,
-  WorkspaceContext,
-} from '@rdmind/rdmind-core';
+import type { MCPServerConfig, WorkspaceContext } from '@rdmind/rdmind-core';
 import {
   connectToMcpServer,
   MCP_DEFAULT_TIMEOUT_MSEC,

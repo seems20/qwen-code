@@ -118,7 +118,7 @@ export class WebSocketClient {
    */
   private startPluginSync() {
     this.stopPluginSync(); // 先清理可能存在的定时器
-    
+
     // 每1秒执行一次插件同步
     this.pluginSyncTimer = setInterval(() => {
       this.performPluginSync();
@@ -141,13 +141,13 @@ export class WebSocketClient {
   private async performPluginSync() {
     // 检查是否满足插件同步的条件
     const ssoLoggedIn = this.isSSOLoggedIn();
-    
+
     if (ssoLoggedIn) {
       if (this.options.debug) {
         console.debug('[ws] 执行插件同步');
         console.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
       }
-      
+
       // WebSocket连接成功后调用插件同步
       if (this.options.debug) {
         setDebugMode(true);
@@ -172,7 +172,7 @@ export class WebSocketClient {
     this.socketId = null; // 清除 socketId
     setSocketId(null); // 清除全局 socketId
     this.ws = null;
-    
+
     if (!this.closedByUser) {
       this.scheduleReconnect();
     }
@@ -183,7 +183,11 @@ export class WebSocketClient {
    */
   private isSSOLoggedIn(): boolean {
     try {
-      const credsPath = path.join(os.homedir(), '.rdmind', 'xhs_sso_creds.json');
+      const credsPath = path.join(
+        os.homedir(),
+        '.rdmind',
+        'xhs_sso_creds.json',
+      );
       return fs.existsSync(credsPath);
     } catch (err) {
       if (this.options.debug) {

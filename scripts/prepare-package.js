@@ -165,7 +165,7 @@ const distPackageJson = {
     '.knowledge',
     'README.md',
     'LICENSE',
-    'locales'
+    'locales',
   ],
   config: rootPackageJson.config,
   publishConfig: rootPackageJson.publishConfig,

@@ -99,7 +99,11 @@ export class MarkdownCommandLoader implements ICommandLoader {
    */
   private getOpenSpecCommandDirectories(): string[] {
     // OpenSpec generates commands in .rdmind/commands/
-    const rdmindCommandsDir = path.join(this.projectRoot, '.rdmind', 'commands');
+    const rdmindCommandsDir = path.join(
+      this.projectRoot,
+      '.rdmind',
+      'commands',
+    );
     return [rdmindCommandsDir];
   }
 
@@ -150,7 +154,9 @@ export class MarkdownCommandLoader implements ICommandLoader {
     if (commandName === 'openspec-proposal') {
       description = t('Scaffold a new OpenSpec change and validate strictly.');
     } else if (commandName === 'openspec-apply') {
-      description = t('Implement an approved OpenSpec change and keep tasks in sync.');
+      description = t(
+        'Implement an approved OpenSpec change and keep tasks in sync.',
+      );
     } else if (commandName === 'openspec-archive') {
       description = t('Archive a deployed OpenSpec change and update specs.');
     }

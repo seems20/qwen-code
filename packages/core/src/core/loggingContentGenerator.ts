@@ -199,13 +199,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     } catch (error) {
       const durationMs = Date.now() - startTime;
       // 错误时使用同一个 requestId
-      this._logApiError(
-        requestId,
-        durationMs,
-        error,
-        model,
-        userPromptId,
-      );
+      this._logApiError(requestId, durationMs, error, model, userPromptId);
       throw error;
     }
   }

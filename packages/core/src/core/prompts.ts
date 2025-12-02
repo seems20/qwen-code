@@ -136,7 +136,7 @@ export function getCoreSystemPrompt(
 
   // Check if current model is gemini-3-pro-preview
   const isGemini3 = model?.toLowerCase().includes('gemini-3-pro-preview');
-  
+
   const mandatesVariant = isGemini3
     ? `
 
@@ -250,13 +250,13 @@ IMPORTANT: Always use the ${ToolNames.TODO_WRITE} tool to plan and track tasks t
 - **Concise & Direct:** Adopt a professional, direct, and concise tone suitable for a CLI environment.
 - **Minimal Output:** Aim for fewer than 3 lines of text output (excluding tool use/code generation) per response whenever practical. Focus strictly on the user's query.
 - **Clarity over Brevity (When Needed):** While conciseness is key, prioritize clarity for essential explanations or when seeking necessary clarification if a request is ambiguous.${(function () {
-      if (isGemini3) {
-        return '';
-      } else {
-        return `
+        if (isGemini3) {
+          return '';
+        } else {
+          return `
 - **No Chitchat:** Avoid conversational filler, preambles ("Okay, I will now..."), or postambles ("I have finished the changes..."). Get straight to the action or answer.`;
-      }
-    })()}
+        }
+      })()}
 - **Formatting:** Use GitHub-flavored Markdown. Responses will be rendered in monospace.
 - **Tools vs. Text:** Use tools for actions, text output *only* for communication. Do not add explanatory comments within tool calls or code blocks unless specifically part of the required code/command itself.
 - **Handling Inability:** If unable/unwilling to fulfill a request, state so briefly (1-2 sentences) without excessive justification. Offer alternatives if appropriate.

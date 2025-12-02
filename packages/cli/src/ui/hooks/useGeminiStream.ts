@@ -597,8 +597,7 @@ export const useGeminiStream = (
           'Response stopped due to unexpected tool call.',
         [FinishReason.IMAGE_PROHIBITED_CONTENT]:
           'Response stopped due to prohibited image content.',
-        [FinishReason.NO_IMAGE]:
-          'Response stopped due to missing image.',
+        [FinishReason.NO_IMAGE]: 'Response stopped due to missing image.',
       };
 
       const message = finishReasonMessages[finishReason];

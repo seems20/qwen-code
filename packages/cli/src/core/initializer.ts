@@ -36,9 +36,7 @@ export async function initializeApp(
 ): Promise<InitializationResult> {
   // Initialize i18n system
   const languageSetting =
-    process.env['RDMind_LANG'] ||
-    settings.merged.general?.language ||
-    'auto';
+    process.env['RDMind_LANG'] || settings.merged.general?.language || 'auto';
   await initializeI18n(languageSetting);
 
   const authType = settings.merged.security?.auth?.selectedType;
