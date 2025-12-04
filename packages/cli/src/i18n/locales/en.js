@@ -104,6 +104,8 @@ export default {
     'Theme "{{themeName}}" not found in selected scope.',
   'clear the screen and conversation history':
     'clear the screen and conversation history',
+  'Clear conversation history and free up context':
+    'Clear conversation history and free up context',
   'Compresses the context by replacing it with a summary.':
     'Compresses the context by replacing it with a summary.',
   'open full RDMind documentation in your browser':
