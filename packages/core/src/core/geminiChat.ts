@@ -558,16 +558,19 @@ export class GeminiChat {
 
     // Record assistant turn with raw Content and metadata
     if (responseText || hasToolCall || usageMetadata) {
+      const messageParts = [
+        ...(responseText ? [{ text: responseText }] : []),
+        ...(hasToolCall
+          ? historyParts
+              .filter((part) => part.functionCall)
+              .map((part) => ({ functionCall: part.functionCall }))
+          : []),
+      ];
+      
       this.chatRecordingService?.recordAssistantTurn({
         model,
-        message: [
-          ...(responseText ? [{ text: responseText }] : []),
-          ...(hasToolCall
-            ? historyParts
-                .filter((part) => part.functionCall)
-                .map((part) => ({ functionCall: part.functionCall }))
-            : []),
-        ],
+        // Only include message if there are actual parts to avoid empty array error
+        ...(messageParts.length > 0 ? { message: messageParts } : {}),
         tokens: usageMetadata,
       });
     }
