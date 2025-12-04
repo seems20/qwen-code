@@ -772,9 +772,9 @@ const SETTINGS_SCHEMA = {
             label: 'Enable Interactive Shell',
             category: 'Tools',
             requiresRestart: true,
-            default: false,
+            default: true,
             description:
-              'Use node-pty for an interactive shell experience. Fallback to child_process still applies.',
+              'Use node-pty for an interactive shell experience. Allows input to interactive commands (e.g., sudo password prompts). Fallback to child_process still applies.',
             showInDialog: true,
           },
           pager: {

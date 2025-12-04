@@ -102,7 +102,7 @@ export default {
   'Theme "{{themeName}}" not found in selected scope.':
     '在所选作用域中未找到主题 "{{themeName}}"。',
   'clear the screen and conversation history': '清屏并清除对话历史',
-  'Clear conversation history and free up context': '清除对话历史并释放上下文',
+  'Clear conversation history and free up context': '清除对话历史',
   'Compresses the context by replacing it with a summary.':
     '通过用摘要替换来压缩上下文',
   'open full RDMind documentation in your browser':
