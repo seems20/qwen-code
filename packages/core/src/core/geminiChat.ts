@@ -566,7 +566,7 @@ export class GeminiChat {
               .map((part) => ({ functionCall: part.functionCall }))
           : []),
       ];
-      
+
       this.chatRecordingService?.recordAssistantTurn({
         model,
         // Only include message if there are actual parts to avoid empty array error

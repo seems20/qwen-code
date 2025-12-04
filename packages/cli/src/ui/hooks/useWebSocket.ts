@@ -29,7 +29,11 @@ function getRdmindSsoId(): string | undefined {
   }
 }
 
-export function useWebSocket({ onReloadCommands, debug, sessionId }: UseWebSocketOptions) {
+export function useWebSocket({
+  onReloadCommands,
+  debug,
+  sessionId,
+}: UseWebSocketOptions) {
   const wsClientRef = useRef<WebSocketClient | null>(null);
 
   useEffect(() => {

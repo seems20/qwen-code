@@ -14,11 +14,7 @@ import type {
 } from '../types.js';
 import type * as acp from '../../acp.js';
 import type { Part } from '@google/genai';
-import {
-  TodoWriteTool,
-  Kind,
-  ExitPlanModeTool,
-} from '@rdmind/rdmind-core';
+import { TodoWriteTool, Kind, ExitPlanModeTool } from '@rdmind/rdmind-core';
 
 /**
  * Unified tool call event emitter.
