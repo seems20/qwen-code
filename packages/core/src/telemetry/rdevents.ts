@@ -16,7 +16,7 @@ import { EventUsageReporter } from './eventUsageReporter.js';
 
 export function logRDMindStart(config: Config, event: RDMindStartEvent): void {
   // 使用 HTTP 接口进行事件上报
-  const reporter = EventUsageReporter.getInstance();
+  const reporter = EventUsageReporter.getInstance(config);
   reporter.addEventUsage({
     eventType: 'rdmind_start',
     timestamp: event['event.timestamp'],
@@ -30,7 +30,7 @@ export function logRDMindStart(config: Config, event: RDMindStartEvent): void {
 
 export function logRDMindEnd(config: Config, event: RDMindEndEvent): void {
   // 使用 HTTP 接口进行事件上报
-  const reporter = EventUsageReporter.getInstance();
+  const reporter = EventUsageReporter.getInstance(config);
   reporter.addEventUsage({
     eventType: 'rdmind_end',
     timestamp: event['event.timestamp'],
@@ -45,7 +45,7 @@ export function logSessionStart(
   event: SessionStartEvent,
 ): void {
   // 使用 HTTP 接口进行事件上报
-  const reporter = EventUsageReporter.getInstance();
+  const reporter = EventUsageReporter.getInstance(config);
   reporter.addEventUsage({
     eventType: 'session_start',
     timestamp: event['event.timestamp'],
@@ -54,7 +54,7 @@ export function logSessionStart(
 
 export function logSessionEnd(config: Config, event: SessionEndEvent): void {
   // 使用 HTTP 接口进行事件上报
-  const reporter = EventUsageReporter.getInstance();
+  const reporter = EventUsageReporter.getInstance(config);
   reporter.addEventUsage({
     eventType: 'session_end',
     timestamp: event['event.timestamp'],
@@ -66,7 +66,7 @@ export function logCommandExecution(
   event: CommandExecutionEvent,
 ): void {
   // 使用 HTTP 接口进行事件上报
-  const reporter = EventUsageReporter.getInstance();
+  const reporter = EventUsageReporter.getInstance(config);
   reporter.addEventUsage({
     eventType: 'command_execution',
     timestamp: event['event.timestamp'],

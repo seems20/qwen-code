@@ -8,11 +8,12 @@ import { useEffect, useRef } from 'react';
 import { loadWebSocketRuntimeConfig } from '../../config/websocket.js';
 import { WebSocketClient } from '../../services/WebSocketClient.js';
 import * as os from 'node:os';
-import { sessionId, readSSOCredentialsSync } from '@rdmind/rdmind-core';
+import { readSSOCredentialsSync } from '@rdmind/rdmind-core';
 
 interface UseWebSocketOptions {
   onReloadCommands?: () => void;
   debug?: boolean;
+  sessionId?: string;
 }
 
 /**
@@ -28,7 +29,7 @@ function getRdmindSsoId(): string | undefined {
   }
 }
 
-export function useWebSocket({ onReloadCommands, debug }: UseWebSocketOptions) {
+export function useWebSocket({ onReloadCommands, debug, sessionId }: UseWebSocketOptions) {
   const wsClientRef = useRef<WebSocketClient | null>(null);
 
   useEffect(() => {
@@ -74,5 +75,5 @@ export function useWebSocket({ onReloadCommands, debug }: UseWebSocketOptions) {
       client.stop();
       wsClientRef.current = null;
     };
-  }, [onReloadCommands, debug]);
+  }, [onReloadCommands, debug, sessionId]);
 }

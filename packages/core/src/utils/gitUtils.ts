@@ -74,6 +74,22 @@ export function findGitRoot(directory: string): string | null {
 }
 
 /**
+ * Gets the current git branch, if in a git repository.
+ */
+export const getGitBranch = (cwd: string): string | undefined => {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return branch || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
  * Gets the git remote URL for a repository
  * @param directory The directory within the git repository
  * @returns The git remote URL (origin), or null if not found or not a git repository

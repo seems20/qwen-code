@@ -133,7 +133,6 @@ export function createContentGeneratorConfig(
 export async function createContentGenerator(
   config: ContentGeneratorConfig,
   gcConfig: Config,
-  sessionId?: string,
   isInitialAuth?: boolean,
 ): Promise<ContentGenerator> {
   const version = process.env['CLI_VERSION'] || process.version;
@@ -152,7 +151,6 @@ export async function createContentGenerator(
         httpOptions,
         config.authType,
         gcConfig,
-        sessionId,
       ),
       gcConfig,
     );

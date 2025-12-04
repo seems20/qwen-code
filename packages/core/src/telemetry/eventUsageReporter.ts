@@ -7,8 +7,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { sessionId } from '../utils/session.js';
 import { PALLAS_HTTP_BASE } from '../config/xhsApiConfig.js';
+import type { Config } from '../config/config.js';
 
 // 声明全局 registerCleanup 函数类型
 declare global {
@@ -101,8 +101,10 @@ export class EventUsageReporter {
   private lastFlushTime: number = Date.now();
   private isFlushInProgress: boolean = false;
   private isShutdown: boolean = false;
+  private config: Config | undefined;
 
-  private constructor() {
+  private constructor(config?: Config) {
+    this.config = config;
     // 启动定时器，确保即使未达到批量大小也会定期上报
     this.startFlushTimer();
 
@@ -131,10 +133,14 @@ export class EventUsageReporter {
 
   /**
    * 获取单例实例
+   * @param config 可选的 Config 实例，用于获取 sessionId
    */
-  static getInstance(): EventUsageReporter {
+  static getInstance(config?: Config): EventUsageReporter {
     if (!EventUsageReporter.instance) {
-      EventUsageReporter.instance = new EventUsageReporter();
+      EventUsageReporter.instance = new EventUsageReporter(config);
+    } else if (config) {
+      // 更新 config（支持 session 切换场景）
+      EventUsageReporter.instance.config = config;
     }
     return EventUsageReporter.instance;
   }
@@ -281,6 +287,9 @@ export class EventUsageReporter {
     try {
       const apiBaseUrl = getApiBaseUrl();
       const url = `${apiBaseUrl}/pallas/rdmind/cli/report-event?rdmind_sso_id=${encodeURIComponent(rdmindSsoId)}`;
+
+      // 从 config 获取 sessionId
+      const sessionId = this.config?.getSessionId();
 
       const requestBody = {
         rdmindSsoId,

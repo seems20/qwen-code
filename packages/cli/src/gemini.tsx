@@ -14,7 +14,6 @@ import {
   logRDMindEnd,
 } from '@rdmind/rdmind-core';
 import { render } from 'ink';
-import { randomUUID } from 'node:crypto';
 import dns from 'node:dns';
 import os from 'node:os';
 import { basename } from 'node:path';
@@ -61,6 +60,8 @@ import { getUserStartupWarnings } from './utils/userStartupWarnings.js';
 import { getCliVersion } from './utils/version.js';
 import { computeWindowTitle } from './utils/windowTitle.js';
 import { validateNonInteractiveAuth } from './validateNonInterActiveAuth.js';
+import { showResumeSessionPicker } from './ui/components/ResumeSessionPicker.js';
+
 export function validateDnsResolutionOrder(
   order: string | undefined,
 ): DnsResolutionOrder {
@@ -111,7 +112,7 @@ function getNodeMemoryArgs(isDebugMode: boolean): string[] {
 
 import { ExtensionEnablementManager } from './config/extensions/extensionEnablement.js';
 import { loadSandboxConfig } from './config/sandboxConfig.js';
-import { runZedIntegration } from './zed-integration/zedIntegration.js';
+import { runAcpAgent } from './acp-integration/acpAgent.js';
 
 export function setupUnhandledRejectionHandler() {
   let unhandledRejectionOccurred = false;
@@ -159,7 +160,7 @@ export async function startInteractiveUI(
             process.platform === 'win32' || nodeMajorVersion < 20
           }
         >
-          <SessionStatsProvider>
+          <SessionStatsProvider sessionId={config.getSessionId()}>
             <VimModeProvider settings={settings}>
               <AppContainer
                 config={config}
@@ -208,9 +209,8 @@ export async function main() {
   const settings = loadSettings();
   migrateDeprecatedSettings(settings);
   await cleanupCheckpoints();
-  const sessionId = randomUUID();
 
-  const argv = await parseArguments(settings.merged);
+  let argv = await parseArguments(settings.merged);
 
   // 记录RDMind启动事件
   let configForTelemetry: Config | null = null;
@@ -258,7 +258,6 @@ export async function main() {
         settings.merged,
         [],
         new ExtensionEnablementManager(ExtensionStorage.getUserExtensionsDir()),
-        sessionId,
         argv,
       );
 
@@ -325,6 +324,18 @@ export async function main() {
     }
   }
 
+  // Handle --resume without a session ID by showing the session picker
+  if (argv.resume === '') {
+    const selectedSessionId = await showResumeSessionPicker();
+    if (!selectedSessionId) {
+      // User cancelled or no sessions available
+      process.exit(0);
+    }
+
+    // Update argv with the selected session ID
+    argv = { ...argv, resume: selectedSessionId };
+  }
+
   // We are now past the logic handling potentially launching a child process
   // to run Gemini CLI. It is now safe to perform expensive initialization that
   // may have side effects.
@@ -338,7 +349,6 @@ export async function main() {
       settings.merged,
       extensions,
       extensionEnablementManager,
-      sessionId,
       argv,
     );
     configForTelemetry = config;
@@ -347,7 +357,7 @@ export async function main() {
     logRDMindStart(config, {
       'event.name': 'rdmind_start',
       'event.timestamp': new Date().toISOString(),
-      session_id: sessionId,
+      session_id: config.getSessionId(),
       platform: process.platform,
       arch: process.arch,
       node_version: process.version,
@@ -383,7 +393,7 @@ export async function main() {
         logRDMindEnd(configForTelemetry, {
           'event.name': 'rdmind_end',
           'event.timestamp': new Date().toISOString(),
-          session_id: sessionId,
+          session_id: configForTelemetry?.getSessionId(),
           reason: 'sigterm',
         });
       });
@@ -392,7 +402,7 @@ export async function main() {
         logRDMindEnd(configForTelemetry, {
           'event.name': 'rdmind_end',
           'event.timestamp': new Date().toISOString(),
-          session_id: sessionId,
+          session_id: configForTelemetry?.getSessionId(),
           reason: 'sigint',
         });
       });
@@ -415,7 +425,7 @@ export async function main() {
     }
 
     if (config.getExperimentalZedIntegration()) {
-      return runZedIntegration(config, settings, extensions, argv);
+      return runAcpAgent(config, settings, extensions, argv);
     }
 
     let input = config.getQuestion();
@@ -461,7 +471,7 @@ export async function main() {
     logSessionStart(configForTelemetry, {
       'event.name': 'session_start',
       'event.timestamp': new Date().toISOString(),
-      session_id: sessionId,
+      session_id: config.getSessionId(),
     });
 
     // Render UI, passing necessary config values. Check that there is no command line question.
@@ -535,7 +545,7 @@ export async function main() {
     });
 
     if (config.getDebugMode()) {
-      console.log('Session ID: %s', sessionId);
+      console.log('Session ID: %s', config.getSessionId());
     }
 
     await runNonInteractive(nonInteractiveConfig, settings, input, prompt_id);

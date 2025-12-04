@@ -74,7 +74,7 @@ import {
   DEFAULT_OTLP_ENDPOINT,
   DEFAULT_TELEMETRY_TARGET,
   initializeTelemetry,
-  logCliConfiguration,
+  logStartSession,
   logRipgrepFallback,
   RipgrepFallbackEvent,
   StartSessionEvent,
@@ -98,6 +98,12 @@ import {
 import { DEFAULT_QWEN_EMBEDDING_MODEL, DEFAULT_QWEN_MODEL } from './models.js';
 import { Storage } from './storage.js';
 import { DEFAULT_DASHSCOPE_BASE_URL } from '../core/openaiContentGenerator/constants.js';
+import { ChatRecordingService } from '../services/chatRecordingService.js';
+import {
+  SessionService,
+  type ResumedSessionData,
+} from '../services/sessionService.js';
+import { randomUUID } from 'node:crypto';
 
 // Re-export types
 export type { AnyToolInvocation, FileFilteringOptions, MCPOAuthConfig };
@@ -114,6 +120,42 @@ export enum ApprovalMode {
 }
 
 export const APPROVAL_MODES = Object.values(ApprovalMode);
+
+/**
+ * Information about an approval mode including display name and description.
+ */
+export interface ApprovalModeInfo {
+  id: ApprovalMode;
+  name: string;
+  description: string;
+}
+
+/**
+ * Detailed information about each approval mode.
+ * Used for UI display and protocol responses.
+ */
+export const APPROVAL_MODE_INFO: Record<ApprovalMode, ApprovalModeInfo> = {
+  [ApprovalMode.PLAN]: {
+    id: ApprovalMode.PLAN,
+    name: 'Plan',
+    description: 'Analyze only, do not modify files or execute commands',
+  },
+  [ApprovalMode.DEFAULT]: {
+    id: ApprovalMode.DEFAULT,
+    name: 'Default',
+    description: 'Require approval for file edits or shell commands',
+  },
+  [ApprovalMode.AUTO_EDIT]: {
+    id: ApprovalMode.AUTO_EDIT,
+    name: 'Auto Edit',
+    description: 'Automatically approve file edits',
+  },
+  [ApprovalMode.YOLO]: {
+    id: ApprovalMode.YOLO,
+    name: 'YOLO',
+    description: 'Automatically approve all tools',
+  },
+};
 
 export interface AccessibilitySettings {
   disableLoadingPhrases?: boolean;
@@ -216,7 +258,8 @@ export interface SandboxConfig {
 }
 
 export interface ConfigParameters {
-  sessionId: string;
+  sessionId?: string;
+  sessionData?: ResumedSessionData;
   embeddingModel?: string;
   sandbox?: SandboxConfig;
   targetDir: string;
@@ -320,10 +363,11 @@ function normalizeConfigOutputFormat(
 }
 
 export class Config {
+  private sessionId: string;
+  private sessionData?: ResumedSessionData;
   private toolRegistry!: ToolRegistry;
   private promptRegistry!: PromptRegistry;
   private subagentManager!: SubagentManager;
-  private readonly sessionId: string;
   private fileSystemService: FileSystemService;
   private contentGeneratorConfig!: ContentGeneratorConfig;
   private contentGenerator!: ContentGenerator;
@@ -363,6 +407,8 @@ export class Config {
   };
   private fileDiscoveryService: FileDiscoveryService | null = null;
   private gitService: GitService | undefined = undefined;
+  private sessionService: SessionService | undefined = undefined;
+  private chatRecordingService: ChatRecordingService | undefined = undefined;
   private readonly checkpointing: boolean;
   private readonly proxy: string | undefined;
   private readonly cwd: string;
@@ -420,7 +466,8 @@ export class Config {
   private readonly useSmartEdit: boolean;
 
   constructor(params: ConfigParameters) {
-    this.sessionId = params.sessionId;
+    this.sessionId = params.sessionId ?? randomUUID();
+    this.sessionData = params.sessionData;
     this.embeddingModel = params.embeddingModel ?? DEFAULT_QWEN_EMBEDDING_MODEL;
     this.fileSystemService = new StandardFileSystemService();
     this.sandbox = params.sandbox;
@@ -545,6 +592,7 @@ export class Config {
       setGlobalDispatcher(new ProxyAgent(this.getProxy() as string));
     }
     this.geminiClient = new GeminiClient(this);
+    this.chatRecordingService = new ChatRecordingService(this);
   }
 
   /**
@@ -566,6 +614,8 @@ export class Config {
     this.toolRegistry = await this.createToolRegistry();
 
     await this.geminiClient.initialize();
+
+    logStartSession(this, new StartSessionEvent(this));
   }
 
   getContentGenerator(): ContentGenerator {
@@ -611,7 +661,6 @@ export class Config {
     this.contentGenerator = await createContentGenerator(
       newContentGeneratorConfig,
       this,
-      this.getSessionId(),
       isInitialAuth,
     );
     // Only assign to instance properties after successful initialization
@@ -622,9 +671,6 @@ export class Config {
 
     // Reset the session flag since we're explicitly changing auth and using default model
     this.inFallbackMode = false;
-
-    // Logging the cli configuration here as the auth related configuration params would have been loaded by this point
-    logCliConfiguration(this, new StartSessionEvent(this, this.toolRegistry));
   }
 
   /**
@@ -649,6 +695,26 @@ export class Config {
 
   getSessionId(): string {
     return this.sessionId;
+  }
+
+  /**
+   * Starts a new session and resets session-scoped services.
+   */
+  startNewSession(sessionId?: string): string {
+    this.sessionId = sessionId ?? randomUUID();
+    this.sessionData = undefined;
+    this.chatRecordingService = new ChatRecordingService(this);
+    if (this.initialized) {
+      logStartSession(this, new StartSessionEvent(this));
+    }
+    return this.sessionId;
+  }
+
+  /**
+   * Returns the resumed session data if this session was resumed from a previous one.
+   */
+  getResumedSessionData(): ResumedSessionData | undefined {
+    return this.sessionData;
   }
 
   shouldLoadMemoryFromIncludeDirectories(): boolean {
@@ -1131,6 +1197,26 @@ export class Config {
       await this.gitService.initialize();
     }
     return this.gitService;
+  }
+
+  /**
+   * Returns the chat recording service.
+   */
+  getChatRecordingService(): ChatRecordingService {
+    if (!this.chatRecordingService) {
+      this.chatRecordingService = new ChatRecordingService(this);
+    }
+    return this.chatRecordingService;
+  }
+
+  /**
+   * Gets or creates a SessionService for managing chat sessions.
+   */
+  getSessionService(): SessionService {
+    if (!this.sessionService) {
+      this.sessionService = new SessionService(this.targetDir);
+    }
+    return this.sessionService;
   }
 
   getFileExclusions(): FileExclusions {

@@ -18,6 +18,8 @@ global.fetch = mockFetch;
 const mockConfig = {
   getProxy: vi.fn(),
   getUsageStatisticsEnabled: vi.fn().mockReturnValue(false),
+  getSessionId: vi.fn().mockReturnValue('test-session-id'),
+  getChatRecordingService: vi.fn().mockReturnValue(null),
 } as unknown as Config;
 
 describe('GeminiContentGenerator Integration Tests', () => {
