@@ -20,9 +20,8 @@ export class DeepSeekOpenAICompatibleProvider extends DefaultOpenAICompatiblePro
   static isDeepSeekProvider(
     contentGeneratorConfig: ContentGeneratorConfig,
   ): boolean {
-    const baseUrl = contentGeneratorConfig.baseUrl ?? '';
-
-    return baseUrl.toLowerCase().includes('api.deepseek.com');
+    const model = contentGeneratorConfig.model ?? '';
+    return model.toLowerCase().includes('deepseek');
   }
 
   override buildRequest(
@@ -74,6 +73,12 @@ export class DeepSeekOpenAICompatibleProvider extends DefaultOpenAICompatiblePro
     return {
       ...baseRequest,
       messages,
-    };
+      /* @ts-expect-error DeepSeek exclusive */
+      extra_body: {
+        thinking: {
+          type: 'enabled',
+        },
+      },
+    } as OpenAI.Chat.ChatCompletionCreateParams;
   }
 }

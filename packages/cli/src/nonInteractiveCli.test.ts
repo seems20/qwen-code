@@ -244,6 +244,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Test input' }],
       expect.any(AbortSignal),
       'prompt-id-1',
+      { isContinuation: false },
     );
     expect(processStdoutSpy).toHaveBeenCalledWith('Hello');
     expect(processStdoutSpy).toHaveBeenCalledWith(' World');
@@ -292,11 +293,21 @@ describe('runNonInteractive', () => {
       expect.any(AbortSignal),
       undefined,
     );
+    // Verify first call has isContinuation: false
+    expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
+      1,
+      [{ text: 'Use a tool' }],
+      expect.any(AbortSignal),
+      'prompt-id-2',
+      { isContinuation: false },
+    );
+    // Verify second call (after tool execution) has isContinuation: true
     expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
       2,
       [{ text: 'Tool response' }],
       expect.any(AbortSignal),
       'prompt-id-2',
+      { isContinuation: true },
     );
     expect(processStdoutSpy).toHaveBeenCalledWith('Final answer');
     expect(processStdoutSpy).toHaveBeenCalledWith('\n');
@@ -371,6 +382,7 @@ describe('runNonInteractive', () => {
       ],
       expect.any(AbortSignal),
       'prompt-id-3',
+      { isContinuation: true },
     );
     expect(processStdoutSpy).toHaveBeenCalledWith('Sorry, let me try again.');
   });
@@ -496,6 +508,7 @@ describe('runNonInteractive', () => {
       processedParts,
       expect.any(AbortSignal),
       'prompt-id-7',
+      { isContinuation: false },
     );
 
     // 6. Assert the final output is correct
@@ -527,6 +540,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Test input' }],
       expect.any(AbortSignal),
       'prompt-id-1',
+      { isContinuation: false },
     );
 
     // JSON adapter emits array of messages, last one is result with stats
@@ -679,6 +693,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Empty response test' }],
       expect.any(AbortSignal),
       'prompt-id-empty',
+      { isContinuation: false },
     );
 
     // JSON adapter emits array of messages, last one is result with stats
@@ -830,6 +845,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Prompt from command' }],
       expect.any(AbortSignal),
       'prompt-id-slash',
+      { isContinuation: false },
     );
 
     expect(processStdoutSpy).toHaveBeenCalledWith('Response from command');
@@ -886,6 +902,7 @@ describe('runNonInteractive', () => {
       [{ text: '/unknowncommand' }],
       expect.any(AbortSignal),
       'prompt-id-unknown',
+      { isContinuation: false },
     );
 
     expect(processStdoutSpy).toHaveBeenCalledWith('Response to unknown');
@@ -1216,6 +1233,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Message from stream-json input' }],
       expect.any(AbortSignal),
       'prompt-envelope',
+      { isContinuation: false },
     );
   });
 
@@ -1691,6 +1709,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Simple string content' }],
       expect.any(AbortSignal),
       'prompt-string-content',
+      { isContinuation: false },
     );
 
     // UserMessage with array of text blocks
@@ -1723,6 +1742,7 @@ describe('runNonInteractive', () => {
       [{ text: 'First part' }, { text: 'Second part' }],
       expect.any(AbortSignal),
       'prompt-blocks-content',
+      { isContinuation: false },
     );
   });
 });

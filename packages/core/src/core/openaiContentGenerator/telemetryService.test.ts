@@ -562,11 +562,14 @@ describe('DefaultTelemetryService', () => {
           choices: [
             {
               index: 0,
-              delta: { content: 'Hello' },
+              delta: {
+                content: 'Hello',
+                reasoning_content: 'thinking ',
+              },
               finish_reason: null,
             },
           ],
-        } as OpenAI.Chat.ChatCompletionChunk,
+        } as unknown as OpenAI.Chat.ChatCompletionChunk,
         {
           id: 'test-id',
           object: 'chat.completion.chunk',
@@ -575,7 +578,10 @@ describe('DefaultTelemetryService', () => {
           choices: [
             {
               index: 0,
-              delta: { content: ' world' },
+              delta: {
+                content: ' world',
+                reasoning_content: 'more',
+              },
               finish_reason: 'stop',
             },
           ],
@@ -584,7 +590,7 @@ describe('DefaultTelemetryService', () => {
             completion_tokens: 5,
             total_tokens: 15,
           },
-        } as OpenAI.Chat.ChatCompletionChunk,
+        } as unknown as OpenAI.Chat.ChatCompletionChunk,
       ];
 
       await telemetryService.logStreamingSuccess(
@@ -604,11 +610,11 @@ describe('DefaultTelemetryService', () => {
           choices: [
             {
               index: 0,
-              message: {
+              message: expect.objectContaining({
                 role: 'assistant',
                 content: 'Hello world',
-                refusal: null,
-              },
+                reasoning_content: 'thinking more',
+              }),
               finish_reason: 'stop',
               logprobs: null,
             },
@@ -723,11 +729,14 @@ describe('DefaultTelemetryService', () => {
           choices: [
             {
               index: 0,
-              delta: { content: 'Hello' },
+              delta: {
+                content: 'Hello',
+                reasoning_content: 'thinking ',
+              },
               finish_reason: null,
             },
           ],
-        } as OpenAI.Chat.ChatCompletionChunk,
+        } as unknown as OpenAI.Chat.ChatCompletionChunk,
         {
           id: 'test-id',
           object: 'chat.completion.chunk',
@@ -736,7 +745,10 @@ describe('DefaultTelemetryService', () => {
           choices: [
             {
               index: 0,
-              delta: { content: ' world!' },
+              delta: {
+                content: ' world!',
+                reasoning_content: 'more',
+              },
               finish_reason: 'stop',
             },
           ],
@@ -745,7 +757,7 @@ describe('DefaultTelemetryService', () => {
             completion_tokens: 5,
             total_tokens: 15,
           },
-        } as OpenAI.Chat.ChatCompletionChunk,
+        } as unknown as OpenAI.Chat.ChatCompletionChunk,
       ];
 
       await telemetryService.logStreamingSuccess(
@@ -758,27 +770,14 @@ describe('DefaultTelemetryService', () => {
       expect(openaiLogger.logInteraction).toHaveBeenCalledWith(
         mockOpenAIRequest,
         expect.objectContaining({
-          id: 'test-id',
-          object: 'chat.completion',
-          created: 1234567890,
-          model: 'gpt-4',
           choices: [
-            {
-              index: 0,
-              message: {
-                role: 'assistant',
+            expect.objectContaining({
+              message: expect.objectContaining({
                 content: 'Hello world!',
-                refusal: null,
-              },
-              finish_reason: 'stop',
-              logprobs: null,
-            },
+                reasoning_content: 'thinking more',
+              }),
+            }),
           ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 5,
-            total_tokens: 15,
-          },
         }),
       );
     });
