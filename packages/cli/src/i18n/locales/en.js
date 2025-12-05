@@ -112,7 +112,6 @@ export default {
     'open full RDMind documentation in your browser',
   'Configuration not available.': 'Configuration not available.',
   'change the auth method': 'change the auth method',
-  'Show quit confirmation dialog': 'Show quit confirmation dialog',
   'Copy the last result or code snippet to clipboard':
     'Copy the last result or code snippet to clipboard',
 
@@ -700,18 +699,6 @@ export default {
   'Shell Command Execution': 'Shell Command Execution',
   'A custom command wants to run the following shell commands:':
     'A custom command wants to run the following shell commands:',
-
-  // ============================================================================
-  // Dialogs - Quit Confirmation
-  // ============================================================================
-  'What would you like to do before exiting?':
-    'What would you like to do before exiting?',
-  'Quit immediately (/quit)': 'Quit immediately (/quit)',
-  'Generate summary and quit (/summary)':
-    'Generate summary and quit (/summary)',
-  'Save conversation and quit (/chat save)':
-    'Save conversation and quit (/chat save)',
-  'Cancel (stay in application)': 'Cancel (stay in application)',
 
   // ============================================================================
   // Dialogs - Pro Quota

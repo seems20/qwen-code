@@ -30,7 +30,7 @@ import { languageCommand } from '../ui/commands/languageCommand.js';
 import { mcpCommand } from '../ui/commands/mcpCommand.js';
 import { memoryCommand } from '../ui/commands/memoryCommand.js';
 import { modelCommand } from '../ui/commands/modelCommand.js';
-import { quitCommand, quitConfirmCommand } from '../ui/commands/quitCommand.js';
+import { quitCommand } from '../ui/commands/quitCommand.js';
 import { rdconfigCommand } from '../ui/commands/rdconfigCommand.js';
 import { rdflowCommand } from '../ui/commands/rdflowCommand.js';
 import { restoreCommand } from '../ui/commands/restoreCommand.js';
@@ -88,7 +88,6 @@ export class BuiltinCommandLoader implements ICommandLoader {
       memoryCommand,
       modelCommand,
       quitCommand,
-      quitConfirmCommand,
       restoreCommand(this.config),
       statsCommand,
       summaryCommand,
