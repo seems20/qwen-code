@@ -340,7 +340,12 @@ export const useGeminiStream = (
         onDebugMessage(`User query: '${trimmedQuery}'`);
         await logger?.logMessage(MessageSenderType.USER, trimmedQuery);
 
-        // Handle UI-only commands first
+        // Handle shell mode first - when in shell mode, all input should be treated as shell commands
+        if (shellModeActive && handleShellCommand(trimmedQuery, abortSignal)) {
+          return { queryToSend: null, shouldProceed: false };
+        }
+
+        // Handle UI-only commands (only when not in shell mode)
         const slashCommandResult = isSlashCommand(trimmedQuery)
           ? await handleSlashCommand(trimmedQuery)
           : false;
@@ -377,10 +382,6 @@ export const useGeminiStream = (
               );
             }
           }
-        }
-
-        if (shellModeActive && handleShellCommand(trimmedQuery, abortSignal)) {
-          return { queryToSend: null, shouldProceed: false };
         }
 
         // Handle @-commands (which might involve tool calls)

@@ -45,6 +45,7 @@ export function useCommandCompletion(
   commandContext: CommandContext,
   reverseSearchActive: boolean = false,
   config?: Config,
+  shellModeActive: boolean = false,
 ): UseCommandCompletionReturn {
   const {
     suggestions,
@@ -72,7 +73,8 @@ export function useCommandCompletion(
   const { completionMode, query, completionStart, completionEnd } =
     useMemo(() => {
       const currentLine = buffer.lines[cursorRow] || '';
-      if (cursorRow === 0 && isSlashCommand(currentLine.trim())) {
+      // Don't trigger slash command completion when in shell mode
+      if (cursorRow === 0 && !shellModeActive && isSlashCommand(currentLine.trim())) {
         return {
           completionMode: CompletionMode.SLASH,
           query: currentLine,
@@ -125,7 +127,7 @@ export function useCommandCompletion(
         completionStart: -1,
         completionEnd: -1,
       };
-    }, [cursorRow, cursorCol, buffer.lines]);
+    }, [cursorRow, cursorCol, buffer.lines, shellModeActive]);
 
   useAtCompletion({
     enabled: completionMode === CompletionMode.AT,

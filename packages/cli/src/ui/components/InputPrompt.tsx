@@ -135,6 +135,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
     commandContext,
     reverseSearchActive,
     config,
+    shellModeActive,
   );
 
   const reverseSearchCompletion = useReverseSearchCompletion(

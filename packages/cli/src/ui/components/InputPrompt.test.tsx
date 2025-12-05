@@ -764,6 +764,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -791,6 +792,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -818,6 +820,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -845,6 +848,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -872,6 +876,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -900,6 +905,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -927,6 +933,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -955,6 +962,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -983,6 +991,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -1011,6 +1020,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -1039,6 +1049,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -1069,6 +1080,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -1097,6 +1109,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
@@ -1127,6 +1140,7 @@ describe('InputPrompt', () => {
         mockCommandContext,
         false,
         expect.any(Object),
+        false,
       );
 
       unmount();
