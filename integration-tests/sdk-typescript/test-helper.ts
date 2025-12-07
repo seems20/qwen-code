@@ -21,12 +21,12 @@ import type {
   ContentBlock,
   TextBlock,
   ToolUseBlock,
-} from '@rdmind/sdk-typescript';
+} from '@rdmind/sdk';
 import {
   isSDKAssistantMessage,
   isSDKSystemMessage,
   isSDKResultMessage,
-} from '@rdmind/sdk-typescript';
+} from '@rdmind/sdk';
 
 // ============================================================================
 // Core Test Helper Class

@@ -12,11 +12,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  query,
-  isSDKAssistantMessage,
-  type SDKMessage,
-} from '@rdmind/sdk-typescript';
+import { query, isSDKAssistantMessage, type SDKMessage } from '@rdmind/sdk';
 import {
   SDKTestHelper,
   extractText,

@@ -13,7 +13,7 @@ import {
   isSDKAssistantMessage,
   type TextBlock,
   type ContentBlock,
-} from '@rdmind/sdk-typescript';
+} from '@rdmind/sdk';
 import { SDKTestHelper, createSharedTestOptions } from './test-helper.js';
 
 const SHARED_TEST_OPTIONS = createSharedTestOptions();

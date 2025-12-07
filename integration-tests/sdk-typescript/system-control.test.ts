@@ -9,7 +9,7 @@ import {
   isSDKAssistantMessage,
   isSDKSystemMessage,
   type SDKUserMessage,
-} from '@rdmind/sdk-typescript';
+} from '@rdmind/sdk';
 import { SDKTestHelper, createSharedTestOptions } from './test-helper.js';
 
 const SHARED_TEST_OPTIONS = createSharedTestOptions();

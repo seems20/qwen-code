@@ -17,7 +17,7 @@ import {
   type SubagentConfig,
   type ContentBlock,
   type ToolUseBlock,
-} from '@rdmind/sdk-typescript';
+} from '@rdmind/sdk';
 import {
   SDKTestHelper,
   extractText,

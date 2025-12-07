@@ -19,7 +19,7 @@ import {
   type SDKMessage,
   type ToolUseBlock,
   type SDKSystemMessage,
-} from '@rdmind/sdk-typescript';
+} from '@rdmind/sdk';
 import {
   SDKTestHelper,
   createMCPServer,

@@ -5,9 +5,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@rdmind/sdk-typescript": [
-        "../packages/sdk-typescript/dist/index.d.ts"
-      ]
+      "@rdmind/sdk": ["../packages/sdk-typescript/dist/index.d.ts"]
     }
   },
   "include": ["**/*.ts"],

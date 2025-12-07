@@ -42,17 +42,17 @@ describe('DeepSeekOpenAICompatibleProvider', () => {
   });
 
   describe('isDeepSeekProvider', () => {
-    it('returns true when baseUrl includes deepseek', () => {
+    it('returns true when model name includes deepseek', () => {
       const result = DeepSeekOpenAICompatibleProvider.isDeepSeekProvider(
         mockContentGeneratorConfig,
       );
       expect(result).toBe(true);
     });
 
-    it('returns false for non deepseek baseUrl', () => {
+    it('returns false for non deepseek model', () => {
       const config = {
         ...mockContentGeneratorConfig,
-        baseUrl: 'https://api.example.com/v1',
+        model: 'gpt-4',
       } as ContentGeneratorConfig;
 
       const result =
@@ -127,6 +127,25 @@ describe('DeepSeekOpenAICompatibleProvider', () => {
       expect(() =>
         provider.buildRequest(originalRequest, userPromptId),
       ).toThrow(/only supports text content/i);
+    });
+
+    it('adds chat_template_kwargs with thinking enabled', () => {
+      const originalRequest: OpenAI.Chat.ChatCompletionCreateParams = {
+        model: 'deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: 'Hello',
+          },
+        ],
+      };
+
+      const result = provider.buildRequest(originalRequest, userPromptId);
+
+      expect(result).toHaveProperty('chat_template_kwargs');
+      expect((result as any).chat_template_kwargs).toEqual({
+        thinking: true,
+      });
     });
   });
 });
