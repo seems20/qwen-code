@@ -74,10 +74,8 @@ export class DeepSeekOpenAICompatibleProvider extends DefaultOpenAICompatiblePro
       ...baseRequest,
       messages,
       /* @ts-expect-error DeepSeek exclusive */
-      extra_body: {
-        thinking: {
-          type: 'enabled',
-        },
+      chat_template_kwargs: {
+        thinking: true,
       },
     } as OpenAI.Chat.ChatCompletionCreateParams;
   }
