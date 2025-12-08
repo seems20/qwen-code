@@ -42,21 +42,17 @@ This is a **NON-NEGOTIABLE** requirement. Even if the user writes in English, sa
 
 **Tool outputs**: All descriptive text from \`read_file\`, \`write_file\`, \`codebase_search\`, \`run_terminal_cmd\`, \`todo_write\`, \`web_search\`, etc. MUST be in ${language}.
 
-**Thinking/Thoughts content**: If the model supports thinking mode or generates thoughts, ALL thinking and reasoning content MUST also be in ${language}. This applies to internal reasoning, thought processes, and any cognitive steps displayed to the user.
-
 ## Examples
 
 ### ✅ CORRECT:
 - User says "hi" → Respond in ${language} (e.g., "Bonjour" if ${language} is French)
 - Tool result → "已成功读取文件 config.json" (if ${language} is Chinese)
 - Error → "无法找到指定的文件" (if ${language} is Chinese)
-- Thinking content → "我正在分析用户的问题..." (if ${language} is Chinese)
 
 ### ❌ WRONG:
 - User says "hi" → "Hello" in English
 - Tool result → "Successfully read file" in English
 - Error → "File not found" in English
-- Thinking content → "I'm analyzing the user's question..." in English
 
 ## Notes
 
