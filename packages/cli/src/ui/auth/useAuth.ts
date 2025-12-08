@@ -224,7 +224,12 @@ export const useAuthCommand = (
                 addItem(
                   {
                     type: MessageType.INFO,
-                    text: `Authenticated successfully with ${authType} credentials.`,
+                    text: t(
+                      'Authenticated successfully with {{authType}} credentials.',
+                      {
+                        authType,
+                      },
+                    ),
                   },
                   Date.now(),
                 );
@@ -270,7 +275,12 @@ export const useAuthCommand = (
           addItem(
             {
               type: MessageType.INFO,
-              text: `Authenticated successfully with ${authType} credentials.`,
+              text: t(
+                'Authenticated successfully with {{authType}} credentials.',
+                {
+                  authType,
+                },
+              ),
             },
             Date.now(),
           );

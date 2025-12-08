@@ -74,7 +74,11 @@ export function useCommandCompletion(
     useMemo(() => {
       const currentLine = buffer.lines[cursorRow] || '';
       // Don't trigger slash command completion when in shell mode
-      if (cursorRow === 0 && !shellModeActive && isSlashCommand(currentLine.trim())) {
+      if (
+        cursorRow === 0 &&
+        !shellModeActive &&
+        isSlashCommand(currentLine.trim())
+      ) {
         return {
           completionMode: CompletionMode.SLASH,
           query: currentLine,

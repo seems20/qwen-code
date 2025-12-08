@@ -32,7 +32,7 @@ const homeDirectoryCheck: WarningCheck = {
       ]);
 
       if (workspaceRealPath === homeRealPath) {
-        return '当前正在 ~ 目录下运行 RDMind，建议进入项目目录';
+        return '当前正在主目录下运行 RDMind，建议进入项目目录';
       }
       return null;
     } catch (_err: unknown) {

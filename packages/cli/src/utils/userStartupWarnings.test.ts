@@ -51,7 +51,7 @@ describe('getUserStartupWarnings', () => {
         ...startupOptions,
         workspaceRoot: homeDir,
       });
-      expect(warnings).toContainEqual(expect.stringContaining('~ 目录'));
+      expect(warnings).toContainEqual(expect.stringContaining('主目录'));
     });
 
     it('should not return a warning when running in a project directory', async () => {

@@ -97,6 +97,27 @@ export class OpenAIContentConverter {
   }
 
   /**
+   * Unescape newline sequences in reasoning content from Gemini models.
+   * Gemini sometimes returns reasoning_content with escaped newlines (\\n)
+   * that need to be converted to actual newline characters.
+   *
+   * @param text The text with potential escaped newlines
+   * @returns The text with escaped newlines converted to actual newlines
+   */
+  private unescapeReasoningContent(text: string): string {
+    if (!text) return text;
+
+    // Replace escaped newlines with actual newlines
+    let result = text.replace(/\\n/g, '\n');
+
+    // Limit consecutive newlines to maximum 3 (i.e., at most 2 blank lines)
+    // This prevents excessive spacing while maintaining readability
+    result = result.replace(/\n{4,}/g, '\n\n\n');
+
+    return result;
+  }
+
+  /**
    * Convert Gemini tool parameters to OpenAI JSON Schema format
    */
   convertGeminiToolParametersToOpenAI(
@@ -601,7 +622,10 @@ export class OpenAIContentConverter {
     const reasoningText = (choice.message as ExtendedCompletionMessage)
       .reasoning_content;
     if (reasoningText) {
-      parts.push({ text: reasoningText, thought: true });
+      // Unescape escape sequences in reasoning content (e.g., \n -> actual newline)
+      const unescapedReasoningText =
+        this.unescapeReasoningContent(reasoningText);
+      parts.push({ text: unescapedReasoningText, thought: true });
     }
 
     // Handle text content
@@ -703,7 +727,10 @@ export class OpenAIContentConverter {
       const reasoningText = (choice.delta as ExtendedCompletionChunkDelta)
         .reasoning_content;
       if (reasoningText) {
-        parts.push({ text: reasoningText, thought: true });
+        // Unescape escape sequences in reasoning content (e.g., \n -> actual newline)
+        const unescapedReasoningText =
+          this.unescapeReasoningContent(reasoningText);
+        parts.push({ text: unescapedReasoningText, thought: true });
       }
 
       // Handle text content

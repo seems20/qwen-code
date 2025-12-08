@@ -20,10 +20,7 @@ import type {
   ToolMcpConfirmationDetails,
   ApprovalMode,
 } from '@rdmind/rdmind-core';
-import {
-  InputFormat,
-  ToolConfirmationOutcome,
-} from '@rdmind/rdmind-core';
+import { InputFormat, ToolConfirmationOutcome } from '@rdmind/rdmind-core';
 import type {
   CLIControlPermissionRequest,
   CLIControlSetPermissionModeRequest,
