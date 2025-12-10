@@ -71,7 +71,7 @@ const getPortFromMock = (
 ) => {
   const port = vi
     .mocked(replaceMock)
-    .mock.calls.find((call) => call[0] === 'QWEN_CODE_IDE_SERVER_PORT')?.[1];
+    .mock.calls.find((call) => call[0] === 'RDMIND_CODE_IDE_SERVER_PORT')?.[1];
 
   if (port === undefined) {
     expect.fail('Port was not set');
@@ -113,7 +113,7 @@ describe('IDEServer', () => {
 
     expect(replaceMock).toHaveBeenNthCalledWith(
       1,
-      'QWEN_CODE_IDE_SERVER_PORT',
+      'RDMIND_CODE_IDE_SERVER_PORT',
       expect.any(String), // port is a number as a string
     );
 
@@ -124,18 +124,18 @@ describe('IDEServer', () => {
 
     expect(replaceMock).toHaveBeenNthCalledWith(
       2,
-      'QWEN_CODE_IDE_WORKSPACE_PATH',
+      'RDMIND_CODE_IDE_WORKSPACE_PATH',
       expectedWorkspacePaths,
     );
 
     const port = getPortFromMock(replaceMock);
     const expectedPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${port}.json`,
+      `rdmind-code-ide-server-${port}.json`,
     );
     const expectedPpidPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${process.ppid}.json`,
+      `rdmind-code-ide-server-${process.ppid}.json`,
     );
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
@@ -162,18 +162,18 @@ describe('IDEServer', () => {
     const replaceMock = mockContext.environmentVariableCollection.replace;
 
     expect(replaceMock).toHaveBeenCalledWith(
-      'QWEN_CODE_IDE_WORKSPACE_PATH',
+      'RDMIND_CODE_IDE_WORKSPACE_PATH',
       '/foo/bar',
     );
 
     const port = getPortFromMock(replaceMock);
     const expectedPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${port}.json`,
+      `rdmind-code-ide-server-${port}.json`,
     );
     const expectedPpidPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${process.ppid}.json`,
+      `rdmind-code-ide-server-${process.ppid}.json`,
     );
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
@@ -200,18 +200,18 @@ describe('IDEServer', () => {
     const replaceMock = mockContext.environmentVariableCollection.replace;
 
     expect(replaceMock).toHaveBeenCalledWith(
-      'QWEN_CODE_IDE_WORKSPACE_PATH',
+      'RDMIND_CODE_IDE_WORKSPACE_PATH',
       '',
     );
 
     const port = getPortFromMock(replaceMock);
     const expectedPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${port}.json`,
+      `rdmind-code-ide-server-${port}.json`,
     );
     const expectedPpidPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${process.ppid}.json`,
+      `rdmind-code-ide-server-${process.ppid}.json`,
     );
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
@@ -237,7 +237,7 @@ describe('IDEServer', () => {
     const replaceMock = mockContext.environmentVariableCollection.replace;
 
     expect(replaceMock).toHaveBeenCalledWith(
-      'QWEN_CODE_IDE_WORKSPACE_PATH',
+      'RDMIND_CODE_IDE_WORKSPACE_PATH',
       '/foo/bar',
     );
 
@@ -252,18 +252,18 @@ describe('IDEServer', () => {
       path.delimiter,
     );
     expect(replaceMock).toHaveBeenCalledWith(
-      'QWEN_CODE_IDE_WORKSPACE_PATH',
+      'RDMIND_CODE_IDE_WORKSPACE_PATH',
       expectedWorkspacePaths,
     );
 
     const port = getPortFromMock(replaceMock);
     const expectedPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${port}.json`,
+      `rdmind-code-ide-server-${port}.json`,
     );
     const expectedPpidPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${process.ppid}.json`,
+      `rdmind-code-ide-server-${process.ppid}.json`,
     );
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
@@ -287,7 +287,7 @@ describe('IDEServer', () => {
     await ideServer.syncEnvVars();
 
     expect(replaceMock).toHaveBeenCalledWith(
-      'QWEN_CODE_IDE_WORKSPACE_PATH',
+      'RDMIND_CODE_IDE_WORKSPACE_PATH',
       '/baz/qux',
     );
     const expectedContent2 = JSON.stringify({
@@ -312,10 +312,10 @@ describe('IDEServer', () => {
     await ideServer.start(mockContext);
     const replaceMock = mockContext.environmentVariableCollection.replace;
     const port = getPortFromMock(replaceMock);
-    const portFile = path.join('/tmp', `qwen-code-ide-server-${port}.json`);
+    const portFile = path.join('/tmp', `rdmind-code-ide-server-${port}.json`);
     const ppidPortFile = path.join(
       '/tmp',
-      `qwen-code-ide-server-${process.ppid}.json`,
+      `rdmind-code-ide-server-${process.ppid}.json`,
     );
     expect(fs.writeFile).toHaveBeenCalledWith(portFile, expect.any(String));
     expect(fs.writeFile).toHaveBeenCalledWith(ppidPortFile, expect.any(String));
@@ -340,18 +340,18 @@ describe('IDEServer', () => {
       const expectedWorkspacePaths = 'c:\\foo\\bar;d:\\baz\\qux';
 
       expect(replaceMock).toHaveBeenCalledWith(
-        'QWEN_CODE_IDE_WORKSPACE_PATH',
+        'RDMIND_CODE_IDE_WORKSPACE_PATH',
         expectedWorkspacePaths,
       );
 
       const port = getPortFromMock(replaceMock);
       const expectedPortFile = path.join(
         '/tmp',
-        `qwen-code-ide-server-${port}.json`,
+        `rdmind-code-ide-server-${port}.json`,
       );
       const expectedPpidPortFile = path.join(
         '/tmp',
-        `qwen-code-ide-server-${process.ppid}.json`,
+        `rdmind-code-ide-server-${process.ppid}.json`,
       );
       const expectedContent = JSON.stringify({
         port: parseInt(port, 10),

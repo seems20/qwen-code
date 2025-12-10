@@ -218,7 +218,7 @@ export class WebViewProvider {
                 optionId.toLowerCase().includes('reject');
               if (!isCancel) {
                 try {
-                  void vscode.commands.executeCommand('qwen.diff.closeAll');
+                  void vscode.commands.executeCommand('rdmind.diff.closeAll');
                 } catch (err) {
                   console.warn(
                     '[WebViewProvider] Failed to close diffs after allow (resolver):',
@@ -227,7 +227,7 @@ export class WebViewProvider {
                 }
                 try {
                   void vscode.commands.executeCommand(
-                    'qwen.diff.suppressBriefly',
+                    'rdmind.diff.suppressBriefly',
                   );
                 } catch (err) {
                   console.warn(
@@ -330,7 +330,7 @@ export class WebViewProvider {
             // If user allowed/proceeded, proactively close any open qwen-diff editors and suppress re-open briefly
             else {
               try {
-                void vscode.commands.executeCommand('qwen.diff.closeAll');
+                void vscode.commands.executeCommand('rdmind.diff.closeAll');
               } catch (err) {
                 console.warn(
                   '[WebViewProvider] Failed to close diffs after allow:',
@@ -578,11 +578,11 @@ export class WebViewProvider {
     );
 
     // Check if CLI is installed before attempting to connect
-    const cliDetection = await CliDetector.detectQwenCli();
+    const cliDetection = await CliDetector.detectRdmindCli();
 
     if (!cliDetection.isInstalled) {
       console.log(
-        '[WebViewProvider] Qwen CLI not detected, skipping agent connection',
+        '[WebViewProvider] RDMind CLI not detected, skipping agent connection',
       );
       console.log('[WebViewProvider] CLI detection error:', cliDetection.error);
 
@@ -593,7 +593,7 @@ export class WebViewProvider {
       await this.initializeEmptyConversation();
     } else {
       console.log(
-        '[WebViewProvider] Qwen CLI detected, attempting connection...',
+        '[WebViewProvider] RDMind CLI detected, attempting connection...',
       );
       console.log('[WebViewProvider] CLI path:', cliDetection.cliPath);
       console.log('[WebViewProvider] CLI version:', cliDetection.version);
@@ -629,7 +629,7 @@ export class WebViewProvider {
         // Clear auth cache on error (might be auth issue)
         await this.authStateManager.clearAuthState();
         vscode.window.showWarningMessage(
-          `Failed to connect to Qwen CLI: ${_error}\nYou can still use the chat UI, but messages won't be sent to AI.`,
+          `Failed to connect to RDMind CLI: ${_error}\nYou can still use the chat UI, but messages won't be sent to AI.`,
         );
         // Fallback to empty conversation
         await this.initializeEmptyConversation();

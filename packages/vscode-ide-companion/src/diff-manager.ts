@@ -218,7 +218,7 @@ export class DiffManager {
     const diffTitle = `${path.basename(normalizedPath)} (Before ↔ After)`;
     await vscode.commands.executeCommand(
       'setContext',
-      'qwen.diff.isVisible',
+      'rdmind.diff.isVisible',
       true,
     );
 
@@ -358,7 +358,7 @@ export class DiffManager {
     }
     await vscode.commands.executeCommand(
       'setContext',
-      'qwen.diff.isVisible',
+      'rdmind.diff.isVisible',
       isVisible,
     );
   }
@@ -371,7 +371,7 @@ export class DiffManager {
     const diffInfo = this.diffDocuments.get(rightDocUri.toString());
     await vscode.commands.executeCommand(
       'setContext',
-      'qwen.diff.isVisible',
+      'rdmind.diff.isVisible',
       false,
     );
 

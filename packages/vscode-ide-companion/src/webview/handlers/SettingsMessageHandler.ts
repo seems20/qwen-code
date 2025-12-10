@@ -53,7 +53,7 @@ export class SettingsMessageHandler extends BaseMessageHandler {
     try {
       // Open settings in a side panel
       await vscode.commands.executeCommand('workbench.action.openSettings', {
-        query: 'qwenCode',
+        query: 'rdmindCode',
       });
     } catch (error) {
       console.error('[SettingsMessageHandler] Failed to open settings:', error);
@@ -66,7 +66,7 @@ export class SettingsMessageHandler extends BaseMessageHandler {
    */
   private async handleRecheckCli(): Promise<void> {
     try {
-      await vscode.commands.executeCommand('qwenCode.recheckCli');
+      await vscode.commands.executeCommand('rdmindCode.recheckCli');
       this.sendToWebView({
         type: 'cliRechecked',
         data: { success: true },

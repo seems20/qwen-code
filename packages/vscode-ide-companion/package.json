@@ -2,8 +2,8 @@
   "name": "rdmind-vscode-ide-companion",
   "displayName": "RDMind Companion",
   "description": "Enable RDMind with direct access to your VS Code workspace.",
-  "version": "0.1.4-alpha.1",
-  "publisher": "rdmind",
+  "version": "0.1.4-alpha.3",
+  "publisher": "RDMind",
   "icon": "assets/icon.png",
   "engines": {
     "vscode": "^1.99.0"
@@ -24,80 +24,80 @@
   "contributes": {
     "languages": [
       {
-        "id": "qwen-diff-editable"
+        "id": "rdmind-diff-editable"
       }
     ],
     "commands": [
       {
-        "command": "qwen.diff.accept",
+        "command": "rdmind.diff.accept",
         "title": "RDMind: Accept Current Diff",
         "icon": "$(check)"
       },
       {
-        "command": "qwen.diff.cancel",
+        "command": "rdmind.diff.cancel",
         "title": "RDMind: Close Diff Editor",
         "icon": "$(close)"
       },
       {
-        "command": "qwen-code.runQwenCode",
+        "command": "rdmind-code.runRdmind",
         "title": "RDMind: Run"
       },
       {
-        "command": "qwen-code.showNotices",
+        "command": "rdmind-code.showNotices",
         "title": "RDMind: View Third-Party Notices"
       },
       {
-        "command": "qwen-code.openChat",
+        "command": "rdmind-code.openChat",
         "title": "RDMind: Open",
         "icon": "./assets/icon.png"
       },
       {
-        "command": "qwen-code.login",
+        "command": "rdmind-code.login",
         "title": "RDMind: Login"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "qwen.diff.accept",
-          "when": "qwen.diff.isVisible"
+          "command": "rdmind.diff.accept",
+          "when": "rdmind.diff.isVisible"
         },
         {
-          "command": "qwen.diff.cancel",
-          "when": "qwen.diff.isVisible"
+          "command": "rdmind.diff.cancel",
+          "when": "rdmind.diff.isVisible"
         },
         {
-          "command": "qwen-code.login",
+          "command": "rdmind-code.login",
           "when": "false"
         }
       ],
       "editor/title": [
         {
-          "command": "qwen.diff.accept",
-          "when": "qwen.diff.isVisible",
+          "command": "rdmind.diff.accept",
+          "when": "rdmind.diff.isVisible",
           "group": "navigation"
         },
         {
-          "command": "qwen.diff.cancel",
-          "when": "qwen.diff.isVisible",
+          "command": "rdmind.diff.cancel",
+          "when": "rdmind.diff.isVisible",
           "group": "navigation"
         },
         {
-          "command": "qwen-code.openChat",
+          "command": "rdmind-code.openChat",
           "group": "navigation"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "qwen.diff.accept",
+        "command": "rdmind.diff.accept",
         "key": "ctrl+s",
-        "when": "qwen.diff.isVisible"
+        "when": "rdmind.diff.isVisible"
       },
       {
-        "command": "qwen.diff.accept",
+        "command": "rdmind.diff.accept",
         "key": "cmd+s",
-        "when": "qwen.diff.isVisible"
+        "when": "rdmind.diff.isVisible"
       }
     ]
   },

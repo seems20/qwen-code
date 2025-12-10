@@ -94,7 +94,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
         // This does not alter the current conversation in this tab; the new tab
         // will initialize its own state and (optionally) create a new session.
         try {
-          await vscode.commands.executeCommand('qwenCode.openNewChatTab');
+          await vscode.commands.executeCommand('rdmindCode.openNewChatTab');
         } catch (error) {
           console.error(
             '[SessionMessageHandler] Failed to open new chat tab:',
@@ -272,7 +272,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
 
       // Show non-modal notification with Login button
       const result = await vscode.window.showWarningMessage(
-        'You need to login first to use Qwen Code.',
+        'You need to login first to use RDMind.',
         'Login Now',
       );
 
@@ -283,9 +283,9 @@ export class SessionMessageHandler extends BaseMessageHandler {
         } else {
           // Fallback to command
           vscode.window.showInformationMessage(
-            'Please wait while we connect to Qwen Code...',
+            'Please wait while we connect to RDMind...',
           );
-          await vscode.commands.executeCommand('qwen-code.login');
+          await vscode.commands.executeCommand('rdmind-code.login');
         }
       }
       return;
@@ -392,7 +392,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
       ) {
         // Show a more user-friendly error message for expired sessions
         const result = await vscode.window.showWarningMessage(
-          'Your login session has expired or is invalid. Please login again to continue using Qwen Code.',
+          'Your login session has expired or is invalid. Please login again to continue using RDMind.',
           'Login Now',
         );
 
@@ -400,7 +400,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         }
 
@@ -436,7 +436,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         } else {
           return;
@@ -498,7 +498,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         }
 
@@ -535,7 +535,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         } else if (selection === 'View Offline') {
           // Show messages from local cache only
@@ -646,7 +646,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
             if (this.loginHandler) {
               await this.loginHandler();
             } else {
-              await vscode.commands.executeCommand('qwen-code.login');
+              await vscode.commands.executeCommand('rdmind-code.login');
             }
           }
 
@@ -715,7 +715,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
                 if (this.loginHandler) {
                   await this.loginHandler();
                 } else {
-                  await vscode.commands.executeCommand('qwen-code.login');
+                  await vscode.commands.executeCommand('rdmind-code.login');
                 }
               }
 
@@ -764,7 +764,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         }
 
@@ -828,7 +828,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         }
 
@@ -892,7 +892,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
             if (this.loginHandler) {
               await this.loginHandler();
             } else {
-              await vscode.commands.executeCommand('qwen-code.login');
+              await vscode.commands.executeCommand('rdmind-code.login');
             }
           }
 
@@ -940,7 +940,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         }
 
@@ -1006,7 +1006,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         } else if (selection === 'View Offline') {
           const messages =
@@ -1063,7 +1063,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
             if (this.loginHandler) {
               await this.loginHandler();
             } else {
-              await vscode.commands.executeCommand('qwen-code.login');
+              await vscode.commands.executeCommand('rdmind-code.login');
             }
           }
 
@@ -1114,7 +1114,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
           if (this.loginHandler) {
             await this.loginHandler();
           } else {
-            await vscode.commands.executeCommand('qwen-code.login');
+            await vscode.commands.executeCommand('rdmind-code.login');
           }
         }
 

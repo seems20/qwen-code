@@ -36,8 +36,8 @@ class CORSError extends Error {
 }
 
 const MCP_SESSION_ID_HEADER = 'mcp-session-id';
-const IDE_SERVER_PORT_ENV_VAR = 'QWEN_CODE_IDE_SERVER_PORT';
-const IDE_WORKSPACE_PATH_ENV_VAR = 'QWEN_CODE_IDE_WORKSPACE_PATH';
+const IDE_SERVER_PORT_ENV_VAR = 'RDMIND_CODE_IDE_SERVER_PORT';
+const IDE_WORKSPACE_PATH_ENV_VAR = 'RDMIND_CODE_IDE_WORKSPACE_PATH';
 
 interface WritePortAndWorkspaceArgs {
   context: vscode.ExtensionContext;
@@ -328,11 +328,11 @@ export class IDEServer {
           this.port = address.port;
           this.portFile = path.join(
             os.tmpdir(),
-            `qwen-code-ide-server-${this.port}.json`,
+            `rdmind-code-ide-server-${this.port}.json`,
           );
           this.ppidPortFile = path.join(
             os.tmpdir(),
-            `qwen-code-ide-server-${process.ppid}.json`,
+            `rdmind-code-ide-server-${process.ppid}.json`,
           );
           this.log(`IDE server listening on http://127.0.0.1:${this.port}`);
 

@@ -115,7 +115,7 @@ export class CliVersionManager {
 
     try {
       // Detect CLI installation
-      const detectionResult = await CliDetector.detectQwenCli(forceRefresh);
+      const detectionResult = await CliDetector.detectRdmindCli(forceRefresh);
 
       const versionInfo: CliVersionInfo = {
         version: detectionResult.version,

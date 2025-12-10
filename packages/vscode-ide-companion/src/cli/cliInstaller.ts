@@ -9,7 +9,7 @@ import { CliDetector } from './cliDetector.js';
 
 /**
  * CLI Detection and Installation Handler
- * Responsible for detecting, installing, and prompting for Qwen CLI
+ * Responsible for detecting, installing, and prompting for RDMind CLI
  */
 export class CliInstaller {
   /**
@@ -20,7 +20,7 @@ export class CliInstaller {
     sendToWebView: (message: unknown) => void,
   ): Promise<void> {
     try {
-      const result = await CliDetector.detectQwenCli();
+      const result = await CliDetector.detectRdmindCli();
 
       sendToWebView({
         type: 'cliDetectionResult',
@@ -36,10 +36,10 @@ export class CliInstaller {
       });
 
       if (!result.isInstalled) {
-        console.log('[CliInstaller] Qwen CLI not detected:', result.error);
+        console.log('[CliInstaller] RDMind CLI not detected:', result.error);
       } else {
         console.log(
-          '[CliInstaller] Qwen CLI detected:',
+          '[CliInstaller] RDMind CLI detected:',
           result.cliPath,
           result.version,
         );
@@ -55,7 +55,7 @@ export class CliInstaller {
    */
   static async promptInstallation(): Promise<void> {
     const selection = await vscode.window.showWarningMessage(
-      'Qwen Code CLI is not installed. You can browse conversation history, but cannot send new messages.',
+      'RDMind CLI is not installed. You can browse conversation history, but cannot send new messages.',
       'Install Now',
       'View Documentation',
       'Remind Me Later',
@@ -65,13 +65,13 @@ export class CliInstaller {
       await this.install();
     } else if (selection === 'View Documentation') {
       vscode.env.openExternal(
-        vscode.Uri.parse('https://github.com/QwenLM/qwen-code#installation'),
+        vscode.Uri.parse('https://github.com/rdmind/rdmind#installation'),
       );
     }
   }
 
   /**
-   * Install Qwen CLI
+   * Install RDMind CLI
    * Install global CLI package via npm
    */
   static async install(): Promise<void> {
@@ -80,12 +80,12 @@ export class CliInstaller {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Installing Qwen Code CLI',
+          title: 'Installing RDMind CLI',
           cancellable: false,
         },
         async (progress) => {
           progress.report({
-            message: 'Running: npm install -g @qwen-code/qwen-code@latest',
+            message: 'Running: npm install -g @rdmind/rdmind',
           });
 
           const { exec } = await import('child_process');
@@ -98,8 +98,8 @@ export class CliInstaller {
             // Fallback chain: default alias -> node alias -> current version
             const installCommand =
               process.platform === 'win32'
-                ? 'npm install -g @qwen-code/qwen-code@latest'
-                : 'source ~/.nvm/nvm.sh 2>/dev/null && (nvm use default 2>/dev/null || nvm use node 2>/dev/null || nvm use 2>/dev/null); npm install -g @qwen-code/qwen-code@latest';
+                ? 'npm install -g @rdmind/rdmind'
+                : 'source ~/.nvm/nvm.sh 2>/dev/null && (nvm use default 2>/dev/null || nvm use node 2>/dev/null || nvm use 2>/dev/null); npm install -g @rdmind/rdmind';
 
             console.log(
               '[CliInstaller] Installing with command:',
@@ -135,12 +135,12 @@ export class CliInstaller {
 
             // Clear cache and recheck
             CliDetector.clearCache();
-            const detection = await CliDetector.detectQwenCli();
+            const detection = await CliDetector.detectRdmindCli();
 
             if (detection.isInstalled) {
               vscode.window
                 .showInformationMessage(
-                  `✅ Qwen Code CLI installed successfully! Version: ${detection.version}`,
+                  `✅ RDMind CLI installed successfully! Version: ${detection.version}`,
                   'Reload Window',
                 )
                 .then((selection) => {
@@ -162,14 +162,14 @@ export class CliInstaller {
             console.error('[CliInstaller] Error stack:', error);
 
             // Provide specific guidance for permission errors
-            let userFriendlyMessage = `Failed to install Qwen Code CLI: ${errorMessage}`;
+            let userFriendlyMessage = `Failed to install RDMind CLI: ${errorMessage}`;
 
             if (
               errorMessage.includes('EACCES') ||
               errorMessage.includes('Permission denied')
             ) {
               userFriendlyMessage += `\n\nThis is likely due to permission issues. Possible solutions:
-                \n1. Reinstall without sudo: npm install -g @qwen-code/qwen-code@latest
+                \n1. Reinstall without sudo: npm install -g @rdmind/rdmind
                 \n2. Fix npm permissions: sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
                 \n3. Use nvm for Node.js version management to avoid permission issues
                 \n4. Configure npm to use a different directory: npm config set prefix ~/.npm-global`;
@@ -184,7 +184,7 @@ export class CliInstaller {
               .then((selection) => {
                 if (selection === 'Try Manual Installation') {
                   const terminal = vscode.window.createTerminal(
-                    'Qwen Code Installation',
+                    'RDMind Installation',
                   );
                   terminal.show();
 
@@ -195,7 +195,7 @@ export class CliInstaller {
                   ) {
                     terminal.sendText('# Try installing without sudo:');
                     terminal.sendText(
-                      'npm install -g @qwen-code/qwen-code@latest',
+                      'npm install -g @rdmind/rdmind',
                     );
                     terminal.sendText('');
                     terminal.sendText('# Or fix npm permissions:');
@@ -204,13 +204,13 @@ export class CliInstaller {
                     );
                   } else {
                     terminal.sendText(
-                      'npm install -g @qwen-code/qwen-code@latest',
+                      'npm install -g @rdmind/rdmind',
                     );
                   }
                 } else if (selection === 'View Documentation') {
                   vscode.env.openExternal(
                     vscode.Uri.parse(
-                      'https://github.com/QwenLM/qwen-code#installation',
+                      'https://github.com/rdmind/rdmind#installation',
                     ),
                   );
                 }

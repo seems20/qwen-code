@@ -58,14 +58,14 @@ export class QwenConnectionHandler {
     if (!versionInfo.isSupported) {
       // Wait to determine release version number
       vscode.window.showWarningMessage(
-        `Qwen Code CLI version ${versionInfo.version} is below the minimum required version. Some features may not work properly. Please upgrade to version ${MIN_CLI_VERSION_FOR_SESSION_METHODS} or later.`,
+        `RDMind CLI version ${versionInfo.version} is below the minimum required version. Some features may not work properly. Please upgrade to version ${MIN_CLI_VERSION_FOR_SESSION_METHODS} or later.`,
       );
     }
 
-    const config = vscode.workspace.getConfiguration('qwenCode');
+    const config = vscode.workspace.getConfiguration('rdmindCode');
     // Use the provided CLI path if available, otherwise use the configured path
     const effectiveCliPath =
-      cliPath || config.get<string>('qwen.cliPath', 'qwen');
+      cliPath || config.get<string>('rdmind.cliPath', 'rdmind');
 
     // Build extra CLI arguments (only essential parameters)
     const extraArgs: string[] = [];

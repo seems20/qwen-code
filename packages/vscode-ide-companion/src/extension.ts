@@ -17,9 +17,9 @@ import {
 import { WebViewProvider } from './webview/WebViewProvider.js';
 import { registerNewCommands } from './commands/index.js';
 
-const CLI_IDE_COMPANION_IDENTIFIER = 'qwenlm.qwen-code-vscode-ide-companion';
-const INFO_MESSAGE_SHOWN_KEY = 'qwenCodeInfoMessageShown';
-export const DIFF_SCHEME = 'qwen-diff';
+const CLI_IDE_COMPANION_IDENTIFIER = 'RDMind.rdmind-vscode-ide-companion';
+const INFO_MESSAGE_SHOWN_KEY = 'rdmindCodeInfoMessageShown';
+export const DIFF_SCHEME = 'rdmind-diff';
 
 /**
  * IDE environments where the installation greeting is hidden.  In these
@@ -137,7 +137,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Register WebView panel serializer for persistence across reloads
   context.subscriptions.push(
-    vscode.window.registerWebviewPanelSerializer('qwenCode.chat', {
+    vscode.window.registerWebviewPanelSerializer('rdmindCode.chat', {
       async deserializeWebviewPanel(
         webviewPanel: vscode.WebviewPanel,
         state: unknown,
@@ -191,7 +191,7 @@ export async function activate(context: vscode.ExtensionContext) {
       DIFF_SCHEME,
       diffContentProvider,
     ),
-    (vscode.commands.registerCommand('qwen.diff.accept', (uri?: vscode.Uri) => {
+    (vscode.commands.registerCommand('rdmind.diff.accept', (uri?: vscode.Uri) => {
       const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
       if (docUri && docUri.scheme === DIFF_SCHEME) {
         diffManager.acceptDiff(docUri);
@@ -208,7 +208,7 @@ export async function activate(context: vscode.ExtensionContext) {
       }
       console.log('[Extension] Diff accepted');
     }),
-    vscode.commands.registerCommand('qwen.diff.cancel', (uri?: vscode.Uri) => {
+    vscode.commands.registerCommand('rdmind.diff.cancel', (uri?: vscode.Uri) => {
       const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
       if (docUri && docUri.scheme === DIFF_SCHEME) {
         diffManager.cancelDiff(docUri);
@@ -225,18 +225,18 @@ export async function activate(context: vscode.ExtensionContext) {
       }
       console.log('[Extension] Diff cancelled');
     })),
-    vscode.commands.registerCommand('qwen.diff.closeAll', async () => {
+    vscode.commands.registerCommand('rdmind.diff.closeAll', async () => {
       try {
         await diffManager.closeAll();
       } catch (err) {
-        console.warn('[Extension] qwen.diff.closeAll failed:', err);
+        console.warn('[Extension] rdmind.diff.closeAll failed:', err);
       }
     }),
-    vscode.commands.registerCommand('qwen.diff.suppressBriefly', async () => {
+    vscode.commands.registerCommand('rdmind.diff.suppressBriefly', async () => {
       try {
         diffManager.suppressFor(1200);
       } catch (err) {
-        console.warn('[Extension] qwen.diff.suppressBriefly failed:', err);
+        console.warn('[Extension] rdmind.diff.suppressBriefly failed:', err);
       }
     }),
   );
@@ -268,7 +268,7 @@ export async function activate(context: vscode.ExtensionContext) {
       ideServer.syncEnvVars();
     }),
     vscode.commands.registerCommand(
-      'qwen-code.runQwenCode',
+      'rdmind-code.runRdmind',
       async (
         location?:
           | vscode.TerminalLocation
@@ -277,7 +277,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
           vscode.window.showInformationMessage(
-            'No folder open. Please open a folder to run Qwen Code.',
+            'No folder open. Please open a folder to run RDMind.',
           );
           return;
         }
@@ -287,23 +287,23 @@ export async function activate(context: vscode.ExtensionContext) {
           selectedFolder = workspaceFolders[0];
         } else {
           selectedFolder = await vscode.window.showWorkspaceFolderPick({
-            placeHolder: 'Select a folder to run Qwen Code in',
+            placeHolder: 'Select a folder to run RDMind in',
           });
         }
 
         if (selectedFolder) {
-          const qwenCmd = 'qwen';
+          const rdmindCmd = 'rdmind';
           const terminal = vscode.window.createTerminal({
-            name: `Qwen Code (${selectedFolder.name})`,
+            name: `RDMind (${selectedFolder.name})`,
             cwd: selectedFolder.uri.fsPath,
             location,
           });
           terminal.show();
-          terminal.sendText(qwenCmd);
+          terminal.sendText(rdmindCmd);
         }
       },
     ),
-    vscode.commands.registerCommand('qwen-code.showNotices', async () => {
+    vscode.commands.registerCommand('rdmind-code.showNotices', async () => {
       const noticePath = vscode.Uri.joinPath(
         context.extensionUri,
         'NOTICES.txt',

@@ -10,7 +10,7 @@ import { openChatCommand } from '../commands/index.js';
 /**
  * Find the editor group immediately to the left of the Qwen chat webview.
  * - If the chat webview group is the leftmost group, returns undefined.
- * - Uses the webview tab viewType 'mainThreadWebview-qwenCode.chat'.
+ * - Uses the webview tab viewType 'mainThreadWebview-rdmindCode.chat'.
  */
 export function findLeftGroupOfChatWebview(): vscode.ViewColumn | undefined {
   try {
@@ -24,7 +24,7 @@ export function findLeftGroupOfChatWebview(): vscode.ViewColumn | undefined {
           !!inp && typeof inp === 'object' && 'viewType' in inp;
         return (
           isWebviewInput(input) &&
-          input.viewType === 'mainThreadWebview-qwenCode.chat'
+          input.viewType === 'mainThreadWebview-rdmindCode.chat'
         );
       }),
     );
@@ -78,7 +78,7 @@ export async function ensureLeftGroupOfChatWebview(): Promise<
         !!inp && typeof inp === 'object' && 'viewType' in inp;
       return (
         isWebviewInput(input) &&
-        input.viewType === 'mainThreadWebview-qwenCode.chat'
+        input.viewType === 'mainThreadWebview-rdmindCode.chat'
       );
     }),
   );

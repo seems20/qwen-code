@@ -23,17 +23,17 @@ export function determineNodePathForCli(
 ): CliPathDetectionResult {
   // Common patterns for Node.js installations
   const nodePathPatterns = [
-    // NVM pattern: /Users/user/.nvm/versions/node/vXX.XX.X/bin/qwen -> /Users/user/.nvm/versions/node/vXX.XX.X/bin/node
-    cliPath.replace(/\/bin\/qwen$/, '/bin/node'),
+    // NVM pattern: /Users/user/.nvm/versions/node/vXX.XX.X/bin/rdmind -> /Users/user/.nvm/versions/node/vXX.XX.X/bin/node
+    cliPath.replace(/\/bin\/rdmind$/, '/bin/node'),
 
-    // N pattern: /Users/user/n/bin/qwen -> /Users/user/n/bin/node
-    cliPath.replace(/\/bin\/qwen$/, '/bin/node'),
+    // N pattern: /Users/user/n/bin/rdmind -> /Users/user/n/bin/node
+    cliPath.replace(/\/bin\/rdmind$/, '/bin/node'),
 
-    // Manual installation pattern: /usr/local/bin/qwen -> /usr/local/bin/node
-    cliPath.replace(/\/qwen$/, '/node'),
+    // Manual installation pattern: /usr/local/bin/rdmind -> /usr/local/bin/node
+    cliPath.replace(/\/rdmind$/, '/node'),
 
-    // Alternative pattern: /opt/nodejs/bin/qwen -> /opt/nodejs/bin/node
-    cliPath.replace(/\/bin\/qwen$/, '/bin/node'),
+    // Alternative pattern: /opt/nodejs/bin/rdmind -> /opt/nodejs/bin/node
+    cliPath.replace(/\/bin\/rdmind$/, '/bin/node'),
   ];
 
   // Check each pattern

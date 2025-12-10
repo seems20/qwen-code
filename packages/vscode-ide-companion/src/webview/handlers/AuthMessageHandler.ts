@@ -62,9 +62,9 @@ export class AuthMessageHandler extends BaseMessageHandler {
         console.log('[AuthMessageHandler] Using fallback login method');
         // Fallback: show message and use command
         vscode.window.showInformationMessage(
-          'Please wait while we connect to Qwen Code...',
+          'Please wait while we connect to RDMind...',
         );
-        await vscode.commands.executeCommand('qwen-code.login');
+        await vscode.commands.executeCommand('rdmind-code.login');
       }
     } catch (error) {
       console.error('[AuthMessageHandler] Login failed:', error);

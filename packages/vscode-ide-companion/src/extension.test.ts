@@ -273,7 +273,7 @@ describe('activate', () => {
 
       expect(executeCommandMock).toHaveBeenCalledWith(
         'workbench.extensions.installExtension',
-        'qwenlm.qwen-code-vscode-ide-companion',
+        'RDMind.rdmind-vscode-ide-companion',
       );
     });
 
