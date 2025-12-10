@@ -5,7 +5,7 @@
  */
 
 export const JSONRPC_VERSION = '2.0' as const;
-export const authMethod = 'qwen-oauth';
+export const authMethod = 'xhs-sso';
 
 export interface AcpRequest {
   jsonrpc: typeof JSONRPC_VERSION;

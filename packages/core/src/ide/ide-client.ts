@@ -154,7 +154,7 @@ export class IdeClient {
     }
     const workspacePath =
       this.connectionConfig?.workspacePath ??
-      process.env['QWEN_CODE_IDE_WORKSPACE_PATH'];
+      process.env['RDMIND_CODE_IDE_WORKSPACE_PATH'];
 
     const { isValid, error } = IdeClient.validateWorkspacePath(
       workspacePath,
@@ -535,7 +535,7 @@ export class IdeClient {
   }
 
   private getPortFromEnv(): string | undefined {
-    const port = process.env['QWEN_CODE_IDE_SERVER_PORT'];
+    const port = process.env['RDMIND_CODE_IDE_SERVER_PORT'];
     if (!port) {
       return undefined;
     }
@@ -543,12 +543,12 @@ export class IdeClient {
   }
 
   private getStdioConfigFromEnv(): StdioConfig | undefined {
-    const command = process.env['QWEN_CODE_IDE_SERVER_STDIO_COMMAND'];
+    const command = process.env['RDMIND_CODE_IDE_SERVER_STDIO_COMMAND'];
     if (!command) {
       return undefined;
     }
 
-    const argsStr = process.env['QWEN_CODE_IDE_SERVER_STDIO_ARGS'];
+    const argsStr = process.env['RDMIND_CODE_IDE_SERVER_STDIO_ARGS'];
     let args: string[] = [];
     if (argsStr) {
       try {
@@ -557,11 +557,11 @@ export class IdeClient {
           args = parsedArgs;
         } else {
           logger.error(
-            'QWEN_CODE_IDE_SERVER_STDIO_ARGS must be a JSON array string.',
+            'RDMIND_CODE_IDE_SERVER_STDIO_ARGS must be a JSON array string.',
           );
         }
       } catch (e) {
-        logger.error('Failed to parse QWEN_CODE_IDE_SERVER_STDIO_ARGS:', e);
+        logger.error('Failed to parse RDMIND_CODE_IDE_SERVER_STDIO_ARGS:', e);
       }
     }
 
@@ -580,13 +580,13 @@ export class IdeClient {
     try {
       const portFile = path.join(
         os.tmpdir(),
-        `qwen-code-ide-server-${this.ideProcessInfo.pid}.json`,
+        `rdmind-code-ide-server-${this.ideProcessInfo.pid}.json`,
       );
       const portFileContents = await fs.promises.readFile(portFile, 'utf8');
       return JSON.parse(portFileContents);
     } catch (_) {
       // For newer extension versions, the file name matches the pattern
-      // /^qwen-code-ide-server-${pid}-\d+\.json$/. If multiple IDE
+      // /^rdmind-code-ide-server-${pid}-\d+\.json$/. If multiple IDE
       // windows are open, multiple files matching the pattern are expected to
       // exist.
     }
@@ -605,7 +605,7 @@ export class IdeClient {
     }
 
     const fileRegex = new RegExp(
-      `^qwen-code-ide-server-${this.ideProcessInfo.pid}-\\d+\\.json$`,
+      `^rdmind-code-ide-server-${this.ideProcessInfo.pid}-\\d+\\.json$`,
     );
     const matchingFiles = portFiles
       .filter((file) => fileRegex.test(file))

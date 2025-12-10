@@ -138,7 +138,7 @@ export const App: React.FC = () => {
           {
             id: 'login',
             label: '/login',
-            description: 'Login to Qwen Code',
+            description: 'Login to RDMind',
             type: 'command',
             icon: <UserIcon />,
           },

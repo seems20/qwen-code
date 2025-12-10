@@ -410,7 +410,7 @@ export class WebViewProvider {
           ).trim();
           const panelRef = this.panelManager.getPanel();
           if (panelRef) {
-            panelRef.title = title || 'Qwen Code';
+            panelRef.title = title || 'RDMind';
           }
           return;
         }
@@ -659,7 +659,7 @@ export class WebViewProvider {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: 'Logging in to Qwen Code... ',
+        title: 'Logging in to RDMind... ',
         cancellable: false,
       },
       async (progress) => {
@@ -999,7 +999,7 @@ export class WebViewProvider {
 
     // Ensure restored tab title starts from default label
     try {
-      panel.title = 'Qwen Code';
+      panel.title = 'RDMind';
     } catch (e) {
       console.warn(
         '[WebViewProvider] Failed to reset restored panel title:',
@@ -1022,7 +1022,7 @@ export class WebViewProvider {
           ).trim();
           const panelRef = this.panelManager.getPanel();
           if (panelRef) {
-            panelRef.title = title || 'Qwen Code';
+            panelRef.title = title || 'RDMind';
           }
           return;
         }

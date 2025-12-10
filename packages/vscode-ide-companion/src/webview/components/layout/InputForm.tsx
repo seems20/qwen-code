@@ -176,7 +176,7 @@ export const InputForm: React.FC<InputFormProps> = ({
               role="textbox"
               aria-label="Message input"
               aria-multiline="true"
-              data-placeholder="Ask Qwen Code …"
+              data-placeholder="Ask RDMind …"
               // Use a data flag so CSS can show placeholder even if the browser
               // inserts an invisible <br> into contentEditable (so :empty no longer matches)
               data-empty={inputText.trim().length === 0 ? 'true' : 'false'}
@@ -216,8 +216,8 @@ export const InputForm: React.FC<InputFormProps> = ({
                       : `Active file will NOT be auto-loaded into context: ${activeFileName}`;
                   }
                   return selectedLinesText
-                    ? `Showing Qwen Code your current selection: ${selectedLinesText}`
-                    : `Showing Qwen Code your current file: ${activeFileName}`;
+                    ? `Showing RDMind your current selection: ${selectedLinesText}`
+                    : `Showing RDMind your current file: ${activeFileName}`;
                 })()}
                 onClick={onToggleSkipAutoActiveContext}
               >

@@ -294,7 +294,7 @@ const CustomMessageInputRow: React.FC<CustomMessageInputRowProps> = ({
     <input
       ref={inputRef as React.LegacyRef<HTMLInputElement> | undefined}
       type="text"
-      placeholder="Tell Qwen what to do instead"
+      placeholder="Tell RDMind what to do instead"
       spellCheck={false}
       className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:opacity-70"
       style={{ color: 'var(--app-input-foreground)' }}

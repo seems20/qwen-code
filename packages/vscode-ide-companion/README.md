@@ -1,81 +1,81 @@
 # RDMind Companion
 
-The RDMind Companion extension seamlessly integrates [Qwen Code](https://github.com/QwenLM/qwen-code). This extension is compatible with both VS Code and VS Code forks.
+RDMind Companion 扩展无缝集成 RDMind。此扩展兼容 VS Code 和 VS Code 的衍生版本。
 
-# Features
+# 功能特性
 
-- Open Editor File Context: RDMind gains awareness of the files you have open in your editor, providing it with a richer understanding of your project's structure and content.
+- **编辑器文件上下文**：RDMind 可以感知您在编辑器中打开的文件，从而更好地理解项目结构和内容。
 
-- Selection Context: RDMind can easily access your cursor's position and selected text within the editor, giving it valuable context directly from your current work.
+- **选择上下文**：RDMind 可以轻松访问光标位置和选中的文本，直接从您当前的工作中获取有价值的上下文。
 
-- Native Diffing: Seamlessly view, modify, and accept code changes suggested by RDMind directly within the editor.
+- **原生差异对比**：在编辑器内无缝查看、修改和接受 RDMind 建议的代码更改。
 
-- Launch RDMind: Quickly start a new RDMind session from the Command Palette (Cmd+Shift+P or Ctrl+Shift+P) by running the "RDMind: Run" command.
+- **启动 RDMind**：通过命令面板（Cmd+Shift+P 或 Ctrl+Shift+P）运行 "RDMind: Run" 命令，快速启动新的 RDMind 会话。
 
-# Requirements
+# 系统要求
 
-To use this extension, you'll need:
+使用此扩展需要：
 
-- VS Code version 1.101.0 or newer
-- RDMind (installed separately) running within the VS Code integrated terminal
+- VS Code 版本 1.101.0 或更高版本
+- RDMind（需单独安装）在 VS Code 集成终端中运行
 
-# Development and Debugging
+# 开发和调试
 
-To debug and develop this extension locally:
+要在本地调试和开发此扩展：
 
-1. **Clone the repository**
+1. **克隆仓库**
 
    ```bash
-   git clone https://github.com/QwenLM/qwen-code.git
-   cd qwen-code
+   git clone <repository-url>
+   cd <repository-name>
    ```
 
-2. **Install dependencies**
+2. **安装依赖**
 
    ```bash
    npm install
-   # or if using pnpm
+   # 或使用 pnpm
    pnpm install
    ```
 
-3. **Start debugging**
+3. **开始调试**
 
    ```bash
-   code .  # Open the project root in VS Code
+   code .  # 在 VS Code 中打开项目根目录
    ```
-   - Open the `packages/vscode-ide-companion/src/extension.ts` file
-   - Open Debug panel (`Ctrl+Shift+D` or `Cmd+Shift+D`)
-   - Select **"Launch Companion VS Code Extension"** from the debug dropdown
-   - Press `F5` to launch Extension Development Host
+   - 打开 `packages/vscode-ide-companion/src/extension.ts` 文件
+   - 打开调试面板（`Ctrl+Shift+D` 或 `Cmd+Shift+D`）
+   - 从调试下拉菜单中选择 **"Launch Companion VS Code Extension"**
+   - 按 `F5` 启动扩展开发宿主窗口
 
-4. **Make changes and reload**
-   - Edit the source code in the original VS Code window
-   - To see your changes, reload the Extension Development Host window by:
-     - Pressing `Ctrl+R` (Windows/Linux) or `Cmd+R` (macOS)
-     - Or clicking the "Reload" button in the debug toolbar
+4. **进行更改并重新加载**
+   - 在原始 VS Code 窗口中编辑源代码
+   - 要查看更改，请通过以下方式重新加载扩展开发宿主窗口：
+     - 按 `Ctrl+R`（Windows/Linux）或 `Cmd+R`（macOS）
+     - 或点击调试工具栏中的"重新加载"按钮
 
-5. **View logs and debug output**
-   - Open the Debug Console in the original VS Code window to see extension logs
-   - In the Extension Development Host window, open Developer Tools with `Help > Toggle Developer Tools` to see webview logs
+5. **查看日志和调试输出**
+   - 在原始 VS Code 窗口中打开调试控制台以查看扩展日志
+   - 在扩展开发宿主窗口中，使用 `帮助 > 切换开发人员工具` 打开开发人员工具以查看 webview 日志
 
-## Build for Production
+## 生产构建
 
-To build the extension for distribution:
+要构建用于分发的扩展：
 
 ```bash
 npm run compile
-# or
+# 或
 pnpm run compile
 ```
 
-To package the extension as a VSIX file:
+要将扩展打包为 VSIX 文件：
 
 ```bash
 npx vsce package
-# or
+# 或
 pnpm vsce package
 ```
 
-# Terms of Service and Privacy Notice
+# 服务条款和隐私声明
 
-By installing this extension, you agree to the [Terms of Service](https://github.com/QwenLM/qwen-code/blob/main/docs/tos-privacy.md).
+安装此扩展即表示您同意服务条款。

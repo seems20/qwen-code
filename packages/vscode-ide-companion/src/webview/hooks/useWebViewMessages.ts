@@ -231,7 +231,7 @@ export const useWebViewMessages = ({
         //   // Show CLI not installed message
         //   const errorMsg =
         //     (message?.data?.error as string) ||
-        //     'Qwen Code CLI is not installed. Please install it to enable full functionality.';
+        //     'RDMind CLI is not installed. Please install it to enable full functionality.';
 
         //   handlers.messageHandling.addMessage({
         //     role: 'assistant',
@@ -696,7 +696,7 @@ export const useWebViewMessages = ({
           // Reset the VS Code tab title to default label
           vscode.postMessage({
             type: 'updatePanelTitle',
-            data: { title: 'Qwen Code' },
+            data: { title: 'RDMind' },
           });
           lastPlanSnapshotRef.current = null;
           break;

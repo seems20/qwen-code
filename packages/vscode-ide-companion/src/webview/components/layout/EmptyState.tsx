@@ -14,11 +14,11 @@ export const EmptyState: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full p-5 md:p-10">
       <div className="flex flex-col items-center gap-8 w-full">
-        {/* Qwen Logo */}
+        {/* RDMind Logo */}
         <div className="flex flex-col items-center gap-6">
           <img
             src={iconUri}
-            alt="Qwen Logo"
+            alt="RDMind Logo"
             className="w-[60px] h-[60px] object-contain"
           />
           <div className="text-center">

@@ -18,7 +18,7 @@ interface AssistantMessageProps {
 }
 
 /**
- * AssistantMessage component - renders AI responses with Qwen Code styling
+ * AssistantMessage component - renders AI responses with RDMind styling
  * Supports different states: default, success, error, warning, loading
  */
 export const AssistantMessage: React.FC<AssistantMessageProps> = ({
