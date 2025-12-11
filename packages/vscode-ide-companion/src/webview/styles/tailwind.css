@@ -111,7 +111,7 @@
   }
   .btn-text-compact > svg {
     height: 1em;
-    width: 1em; 
+    width: 1em;
     flex-shrink: 0;
   }
   .btn-text-compact > span {

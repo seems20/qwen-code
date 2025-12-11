@@ -194,18 +194,14 @@ export class CliInstaller {
                     errorMessage.includes('Permission denied')
                   ) {
                     terminal.sendText('# Try installing without sudo:');
-                    terminal.sendText(
-                      'npm install -g @rdmind/rdmind',
-                    );
+                    terminal.sendText('npm install -g @rdmind/rdmind');
                     terminal.sendText('');
                     terminal.sendText('# Or fix npm permissions:');
                     terminal.sendText(
                       'sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}',
                     );
                   } else {
-                    terminal.sendText(
-                      'npm install -g @rdmind/rdmind',
-                    );
+                    terminal.sendText('npm install -g @rdmind/rdmind');
                   }
                 } else if (selection === 'View Documentation') {
                   vscode.env.openExternal(

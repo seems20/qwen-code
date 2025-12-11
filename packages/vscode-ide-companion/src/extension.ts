@@ -191,40 +191,46 @@ export async function activate(context: vscode.ExtensionContext) {
       DIFF_SCHEME,
       diffContentProvider,
     ),
-    (vscode.commands.registerCommand('rdmind.diff.accept', (uri?: vscode.Uri) => {
-      const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
-      if (docUri && docUri.scheme === DIFF_SCHEME) {
-        diffManager.acceptDiff(docUri);
-      }
-      // If WebView is requesting permission, actively select an allow option (prefer once)
-      try {
-        for (const provider of webViewProviders) {
-          if (provider?.hasPendingPermission()) {
-            provider.respondToPendingPermission('allow');
-          }
+    (vscode.commands.registerCommand(
+      'rdmind.diff.accept',
+      (uri?: vscode.Uri) => {
+        const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
+        if (docUri && docUri.scheme === DIFF_SCHEME) {
+          diffManager.acceptDiff(docUri);
         }
-      } catch (err) {
-        console.warn('[Extension] Auto-allow on diff.accept failed:', err);
-      }
-      console.log('[Extension] Diff accepted');
-    }),
-    vscode.commands.registerCommand('rdmind.diff.cancel', (uri?: vscode.Uri) => {
-      const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
-      if (docUri && docUri.scheme === DIFF_SCHEME) {
-        diffManager.cancelDiff(docUri);
-      }
-      // If WebView is requesting permission, actively select reject/cancel
-      try {
-        for (const provider of webViewProviders) {
-          if (provider?.hasPendingPermission()) {
-            provider.respondToPendingPermission('cancel');
+        // If WebView is requesting permission, actively select an allow option (prefer once)
+        try {
+          for (const provider of webViewProviders) {
+            if (provider?.hasPendingPermission()) {
+              provider.respondToPendingPermission('allow');
+            }
           }
+        } catch (err) {
+          console.warn('[Extension] Auto-allow on diff.accept failed:', err);
         }
-      } catch (err) {
-        console.warn('[Extension] Auto-reject on diff.cancel failed:', err);
-      }
-      console.log('[Extension] Diff cancelled');
-    })),
+        console.log('[Extension] Diff accepted');
+      },
+    ),
+    vscode.commands.registerCommand(
+      'rdmind.diff.cancel',
+      (uri?: vscode.Uri) => {
+        const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
+        if (docUri && docUri.scheme === DIFF_SCHEME) {
+          diffManager.cancelDiff(docUri);
+        }
+        // If WebView is requesting permission, actively select reject/cancel
+        try {
+          for (const provider of webViewProviders) {
+            if (provider?.hasPendingPermission()) {
+              provider.respondToPendingPermission('cancel');
+            }
+          }
+        } catch (err) {
+          console.warn('[Extension] Auto-reject on diff.cancel failed:', err);
+        }
+        console.log('[Extension] Diff cancelled');
+      },
+    )),
     vscode.commands.registerCommand('rdmind.diff.closeAll', async () => {
       try {
         await diffManager.closeAll();
