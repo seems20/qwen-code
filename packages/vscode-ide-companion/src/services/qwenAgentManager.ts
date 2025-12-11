@@ -902,7 +902,7 @@ export class QwenAgentManager {
 
   /**
    * Save session as checkpoint (using CLI format)
-   * Saves to ~/.qwen/tmp/{projectHash}/checkpoint-{tag}.json
+   * Saves to ~/.rdmind/tmp/{projectHash}/checkpoint-{tag}.json
    * Saves two copies with sessionId and conversationId to ensure recovery via either ID
    *
    * @param messages - Current session messages
@@ -927,7 +927,7 @@ export class QwenAgentManager {
       );
       // In ACP mode, the CLI does not accept arbitrary slash commands like
       // "/chat save". To ensure we never block on unsupported features,
-      // persist checkpoints directly to ~/.qwen/tmp using our SessionManager.
+      // persist checkpoints directly to ~/.rdmind/tmp using our SessionManager.
       const qwenMessages = messages.map((m) => ({
         // Generate minimal QwenMessage shape expected by the writer
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,

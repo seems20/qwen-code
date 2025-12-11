@@ -313,7 +313,7 @@ export class GeminiContentGenerator implements ContentGenerator {
         config: {
           ...request.config,
           thinkingConfig: {
-            includeThoughts: true,
+            includeThoughts: false,
             thinkingLevel,
           },
         },

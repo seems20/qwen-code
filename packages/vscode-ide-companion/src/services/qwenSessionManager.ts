@@ -24,7 +24,7 @@ export class QwenSessionManager {
   private qwenDir: string;
 
   constructor() {
-    this.qwenDir = path.join(os.homedir(), '.qwen');
+    this.qwenDir = path.join(os.homedir(), '.rdmind');
   }
 
   /**

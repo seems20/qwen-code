@@ -120,7 +120,7 @@ const MAX_PROMPT_SCAN_LINES = 10;
  * - Removing sessions
  *
  * Sessions are stored as JSONL files, one per session.
- * File location: ~/.qwen/tmp/<project_id>/chats/
+ * File location: ~/.rdmind/tmp/<project_id>/chats/
  */
 export class SessionService {
   private readonly storage: Storage;
