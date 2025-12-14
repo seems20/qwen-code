@@ -893,6 +893,7 @@ export default {
   // Exit Screen / Stats
   // ============================================================================
   'Agent powering down. Goodbye!': 'Agent powering down. Goodbye!',
+  'To continue this session, run': 'To continue this session, run',
   'Interaction Summary': 'Interaction Summary',
   'Session ID:': 'Session ID:',
   'Tool Calls:': 'Tool Calls:',

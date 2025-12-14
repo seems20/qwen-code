@@ -298,14 +298,21 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         if (selectedFolder) {
-          const rdmindCmd = 'rdmind';
+          const cliEntry = vscode.Uri.joinPath(
+            context.extensionUri,
+            'dist',
+            'rdmind',
+            'cli.js',
+          ).fsPath;
+          const quote = (s: string) => `"${s.replaceAll('"', '\\"')}"`;
+          const qwenCmd = `${quote(process.execPath)} ${quote(cliEntry)}`;
           const terminal = vscode.window.createTerminal({
             name: `RDMind (${selectedFolder.name})`,
             cwd: selectedFolder.uri.fsPath,
             location,
           });
           terminal.show();
-          terminal.sendText(rdmindCmd);
+          terminal.sendText(qwenCmd);
         }
       },
     ),
