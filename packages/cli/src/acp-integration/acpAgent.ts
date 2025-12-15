@@ -87,6 +87,12 @@ class GeminiAgent {
         description:
           'OAuth authentication for Qwen models with 2000 daily requests',
       },
+      {
+        id: AuthType.XHS_SSO,
+        name: 'Xiaohongshu SSO',
+        description:
+          'SSO authentication for Xiaohongshu internal models',
+      },
     ];
 
     // Get current approval mode from config
@@ -104,8 +110,8 @@ class GeminiAgent {
     return {
       protocolVersion: acp.PROTOCOL_VERSION,
       agentInfo: {
-        name: 'qwen-code',
-        title: 'Qwen Code',
+        name: 'rdmind',
+        title: 'RDMind',
         version,
       },
       authMethods,
