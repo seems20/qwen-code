@@ -524,10 +524,7 @@ export class QwenAgentManager {
         }),
       );
     } catch (error) {
-      console.error(
-        '[AgentManager] Failed to get session messages:',
-        error,
-      );
+      console.error('[AgentManager] Failed to get session messages:', error);
       return [];
     }
   }
@@ -718,10 +715,7 @@ export class QwenAgentManager {
         // Handle other types if needed
       }
 
-      console.log(
-        '[AgentManager] JSONL messages reconstructed:',
-        msgs.length,
-      );
+      console.log('[AgentManager] JSONL messages reconstructed:', msgs.length);
       return msgs;
     } catch (err) {
       console.warn('[AgentManager] Failed to read JSONL messages:', err);
@@ -914,10 +908,7 @@ export class QwenAgentManager {
     try {
       // Route upcoming session/update messages as discrete messages for replay
       this.rehydratingSessionId = sessionId;
-      console.log(
-        '[AgentManager] Rehydration start for session:',
-        sessionId,
-      );
+      console.log('[AgentManager] Rehydration start for session:', sessionId);
       console.log(
         '[AgentManager] Attempting session/load via ACP for session:',
         sessionId,
@@ -985,9 +976,7 @@ export class QwenAgentManager {
     );
 
     try {
-      console.log(
-        '[AgentManager] Attempting to load session via ACP method',
-      );
+      console.log('[AgentManager] Attempting to load session via ACP method');
       await this.loadSessionViaAcp(sessionId);
       console.log('[AgentManager] Session loaded successfully via ACP');
 
@@ -1002,9 +991,7 @@ export class QwenAgentManager {
 
     // Always fall back to file system method
     try {
-      console.log(
-        '[AgentManager] Loading session messages from file system',
-      );
+      console.log('[AgentManager] Loading session messages from file system');
       const messages = await this.loadSessionMessagesFromFile(sessionId);
       console.log(
         '[AgentManager] Session messages loaded successfully from file system',

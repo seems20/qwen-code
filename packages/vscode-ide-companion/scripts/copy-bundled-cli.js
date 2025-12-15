@@ -5,7 +5,7 @@
  */
 
 /**
- * Copy the already-built root dist/ folder into the extension dist/qwen-cli/.
+ * Copy the already-built root dist/ folder into the extension dist/rdmind/.
  *
  * Assumes repoRoot/dist already exists (e.g. produced by `npm run bundle` and
  * optionally `npm run prepare:package`).
@@ -23,7 +23,7 @@ const extensionRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(extensionRoot, '..', '..');
 const rootDistDir = path.join(repoRoot, 'dist');
 const extensionDistDir = path.join(extensionRoot, 'dist');
-const bundledCliDir = path.join(extensionDistDir, 'qwen-cli');
+const bundledCliDir = path.join(extensionDistDir, 'rdmind');
 
 async function main() {
   const cliJs = path.join(rootDistDir, 'cli.js');
@@ -37,10 +37,7 @@ async function main() {
 
   await fs.mkdir(extensionDistDir, { recursive: true });
   const existingNodeModules = path.join(bundledCliDir, 'node_modules');
-  const tmpNodeModules = path.join(
-    extensionDistDir,
-    'qwen-cli.node_modules.tmp',
-  );
+  const tmpNodeModules = path.join(extensionDistDir, 'rdmind.node_modules.tmp');
   const keepNodeModules = existsSync(existingNodeModules);
 
   // Preserve destination node_modules if it exists (e.g. after packaging install).

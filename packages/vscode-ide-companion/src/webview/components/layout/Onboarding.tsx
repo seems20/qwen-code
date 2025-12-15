@@ -21,14 +21,14 @@ export const Onboarding: React.FC<OnboardingPageProps> = ({ onLogin }) => {
           <div className="relative">
             <img
               src={iconUri}
-              alt="Qwen Code Logo"
+              alt="RDMind Logo"
               className="w-[80px] h-[80px] object-contain"
             />
           </div>
 
           <div className="text-center">
             <h1 className="text-2xl font-bold text-app-primary-foreground mb-2">
-              Welcome to Qwen Code
+              Welcome to RDMind
             </h1>
             <p className="text-app-secondary-foreground max-w-sm">
               Unlock the power of AI to understand, navigate, and transform your
@@ -40,7 +40,7 @@ export const Onboarding: React.FC<OnboardingPageProps> = ({ onLogin }) => {
             onClick={onLogin}
             className="w-full px-4 py-3 bg-[#4f46e5] text-white font-medium rounded-lg shadow-sm hover:bg-[#4338ca] transition-colors duration-200"
           >
-            Get Started with Qwen Code
+            Get Started with RDMind
           </button>
         </div>
       </div>

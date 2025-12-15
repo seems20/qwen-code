@@ -681,9 +681,7 @@ export const App: React.FC = () => {
         <div className="bg-background/80 absolute inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="text-center">
             <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-            <p className="text-muted-foreground text-sm">
-              Preparing Qwen Code...
-            </p>
+            <p className="text-muted-foreground text-sm">Preparing RDMind...</p>
           </div>
         </div>
       )}
@@ -720,7 +718,7 @@ export const App: React.FC = () => {
               onLogin={() => {
                 vscode.postMessage({ type: 'login', data: {} });
                 messageHandling.setWaitingForResponse(
-                  'Logging in to Qwen Code...',
+                  'Logging in to RDMind...',
                 );
               }}
             />

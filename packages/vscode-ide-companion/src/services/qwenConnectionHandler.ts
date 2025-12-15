@@ -58,9 +58,7 @@ export class QwenConnectionHandler {
 
     // Create new session if unable to restore
     if (!sessionRestored) {
-      console.log(
-        '[AgentManager] no sessionRestored, Creating new session...',
-      );
+      console.log('[AgentManager] no sessionRestored, Creating new session...');
 
       try {
         console.log(
@@ -161,10 +159,7 @@ export class QwenConnectionHandler {
             );
             return;
           } catch (authErr) {
-            console.error(
-              '[AgentManager] Re-authentication failed:',
-              authErr,
-            );
+            console.error('[AgentManager] Re-authentication failed:', authErr);
             // Fall through to retry logic below
           }
         }

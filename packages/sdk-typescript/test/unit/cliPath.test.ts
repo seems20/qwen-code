@@ -417,7 +417,9 @@ describe('CLI Path Utilities', () => {
       delete process.env['RDMIND_CODE_CLI_PATH'];
       mockFs.existsSync.mockReturnValue(false);
 
-      expect(() => findNativeCliPath()).toThrow('RDMind CLI not found. Please:');
+      expect(() => findNativeCliPath()).toThrow(
+        'RDMind CLI not found. Please:',
+      );
 
       process.env['RDMIND_CODE_CLI_PATH'] = originalEnv;
     });
