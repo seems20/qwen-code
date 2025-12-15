@@ -29,7 +29,7 @@ export class QwenSessionManager {
 
   /**
    * Calculate project hash (same as CLI)
-   * Qwen CLI uses SHA256 hash of the project path
+   * RDMind CLI uses SHA256 hash of the project path
    */
   private getProjectHash(workingDir: string): string {
     return crypto.createHash('sha256').update(workingDir).digest('hex');

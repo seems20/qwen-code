@@ -156,7 +156,7 @@ export class QwenSessionUpdateHandler {
       }
 
       default:
-        console.log('[QwenAgentManager] Unhandled session update type');
+        console.log('[AgentManager] Unhandled session update type');
         break;
     }
   }

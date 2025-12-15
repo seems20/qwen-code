@@ -2,19 +2,19 @@
  * CLI path auto-detection and subprocess spawning utilities
  *
  * Supports multiple execution modes:
- * 1. Native binary: 'qwen' (production)
+ * 1. Native binary: 'rdmind' (production)
  * 2. Node.js bundle: 'node /path/to/cli.js' (production validation)
  * 3. Bun bundle: 'bun /path/to/cli.js' (alternative runtime)
  * 4. TypeScript source: 'tsx /path/to/index.ts' (development)
  *
  * Auto-detection locations for native binary:
- * 1. QWEN_CODE_CLI_PATH environment variable
- * 2. ~/.volta/bin/qwen
- * 3. ~/.npm-global/bin/qwen
- * 4. /usr/local/bin/qwen
- * 5. ~/.local/bin/qwen
- * 6. ~/node_modules/.bin/qwen
- * 7. ~/.yarn/bin/qwen
+ * 1. RDMIND_CODE_CLI_PATH environment variable
+ * 2. ~/.volta/bin/rdmind
+ * 3. ~/.npm-global/bin/rdmind
+ * 4. /usr/local/bin/rdmind
+ * 5. ~/.local/bin/rdmind
+ * 6. ~/node_modules/.bin/rdmind
+ * 7. ~/.yarn/bin/rdmind
  */
 
 import * as fs from 'node:fs';
@@ -30,7 +30,7 @@ export type ExecutableType = 'native' | 'node' | 'bun' | 'tsx' | 'deno';
  * Spawn information for CLI process
  */
 export type SpawnInfo = {
-  /** Command to execute (e.g., 'qwen', 'node', 'bun', 'tsx') */
+  /** Command to execute (e.g., 'rdmind', 'node', 'bun', 'tsx') */
   command: string;
   /** Arguments to pass to command */
   args: string[];
@@ -45,25 +45,25 @@ export function findNativeCliPath(): string {
 
   const candidates: Array<string | undefined> = [
     // 1. Environment variable (highest priority)
-    process.env['QWEN_CODE_CLI_PATH'],
+    process.env['RDMIND_CODE_CLI_PATH'],
 
     // 2. Volta bin
-    path.join(homeDir, '.volta', 'bin', 'qwen'),
+    path.join(homeDir, '.volta', 'bin', 'rdmind'),
 
     // 3. Global npm installations
-    path.join(homeDir, '.npm-global', 'bin', 'qwen'),
+    path.join(homeDir, '.npm-global', 'bin', 'rdmind'),
 
     // 4. Common Unix binary locations
-    '/usr/local/bin/qwen',
+    '/usr/local/bin/rdmind',
 
     // 5. User local bin
-    path.join(homeDir, '.local', 'bin', 'qwen'),
+    path.join(homeDir, '.local', 'bin', 'rdmind'),
 
     // 6. Node modules bin in home directory
-    path.join(homeDir, 'node_modules', '.bin', 'qwen'),
+    path.join(homeDir, 'node_modules', '.bin', 'rdmind'),
 
     // 7. Yarn global bin
-    path.join(homeDir, '.yarn', 'bin', 'qwen'),
+    path.join(homeDir, '.yarn', 'bin', 'rdmind'),
   ];
 
   // Find first existing candidate
@@ -75,10 +75,10 @@ export function findNativeCliPath(): string {
 
   // Not found - throw helpful error
   throw new Error(
-    'qwen CLI not found. Please:\n' +
-      '  1. Install qwen globally: npm install -g qwen\n' +
-      '  2. Or provide explicit executable: query({ pathToQwenExecutable: "/path/to/qwen" })\n' +
-      '  3. Or set environment variable: QWEN_CODE_CLI_PATH="/path/to/qwen"\n' +
+    'RDMind CLI not found. Please:\n' +
+      '  1. Install RDMind globally: npm install -g @rdmind/rdmind\n' +
+      '  2. Or provide explicit executable: query({ pathToQwenExecutable: "/path/to/rdmind" })\n' +
+      '  3. Or set environment variable: RDMIND_CODE_CLI_PATH="/path/to/rdmind"\n' +
       '\n' +
       'For development/testing, you can also use:\n' +
       '  • TypeScript source: query({ pathToQwenExecutable: "/path/to/index.ts" })\n' +
@@ -134,8 +134,8 @@ function validateFileExtensionForRuntime(
  * Parse executable specification into components with comprehensive validation
  *
  * Supports multiple formats:
- * - 'qwen' -> native binary (auto-detected)
- * - '/path/to/qwen' -> native binary (explicit path)
+ * - 'rdmind' -> native binary (auto-detected)
+ * - '/path/to/rdmind' -> native binary (explicit path)
  * - '/path/to/cli.js' -> Node.js bundle (default for .js files)
  * - '/path/to/index.ts' -> TypeScript source (requires tsx)
  *
@@ -218,7 +218,7 @@ export function parseExecutableSpec(executableSpec?: string): {
     !executableSpec.includes('/') && !executableSpec.includes('\\');
 
   if (isCommandName) {
-    // It's a command name like 'qwen' - validate it's a reasonable command name
+    // It's a command name like 'rdmind' - validate it's a reasonable command name
     if (!executableSpec || executableSpec.trim() === '') {
       throw new Error('Command name cannot be empty');
     }
@@ -244,8 +244,8 @@ export function parseExecutableSpec(executableSpec?: string): {
       `Executable file not found at '${resolvedPath}'. ` +
         'Please check the file path and ensure the file exists. ' +
         'You can also:\n' +
-        '  • Set QWEN_CODE_CLI_PATH environment variable\n' +
-        '  • Install qwen globally: npm install -g qwen\n' +
+        '  • Set RDMIND_CODE_CLI_PATH environment variable\n' +
+        '  • Install RDMind globally: npm install -g @rdmind/rdmind\n' +
         '  • For TypeScript files, ensure tsx is installed: npm install -g tsx\n' +
         '  • Force specific runtime: bun:/path/to/cli.js or tsx:/path/to/index.ts',
     );

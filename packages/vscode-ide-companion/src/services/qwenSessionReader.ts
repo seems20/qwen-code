@@ -178,8 +178,8 @@ export class QwenSessionReader {
   }
 
   /**
-   * Calculate project hash (needs to be consistent with Qwen CLI)
-   * Qwen CLI uses SHA256 hash of project path
+   * Calculate project hash (needs to be consistent with RDMind CLI)
+   * RDMind CLI uses SHA256 hash of project path
    */
   private async getProjectHash(workingDir: string): Promise<string> {
     return crypto.createHash('sha256').update(workingDir).digest('hex');

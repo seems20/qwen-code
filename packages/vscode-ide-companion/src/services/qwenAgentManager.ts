@@ -87,7 +87,7 @@ export class QwenAgentManager {
           const text = update?.content?.text || '';
           if (update?.sessionUpdate === 'user_message_chunk' && text) {
             console.log(
-              '[QwenAgentManager] Rehydration: routing user message chunk',
+              '[AgentManager] Rehydration: routing user message chunk',
             );
             this.callbacks.onMessage?.({
               role: 'user',
@@ -98,7 +98,7 @@ export class QwenAgentManager {
           }
           if (update?.sessionUpdate === 'agent_message_chunk' && text) {
             console.log(
-              '[QwenAgentManager] Rehydration: routing agent message chunk',
+              '[AgentManager] Rehydration: routing agent message chunk',
             );
             this.callbacks.onMessage?.({
               role: 'assistant',
@@ -109,11 +109,11 @@ export class QwenAgentManager {
           }
           // For other types during rehydration, fall through to normal handler
           console.log(
-            '[QwenAgentManager] Rehydration: non-text update, forwarding to handler',
+            '[AgentManager] Rehydration: non-text update, forwarding to handler',
           );
         }
       } catch (err) {
-        console.warn('[QwenAgentManager] Rehydration routing failed:', err);
+        console.warn('[AgentManager] Rehydration routing failed:', err);
       }
 
       // Default handling path
@@ -139,7 +139,7 @@ export class QwenAgentManager {
           this.callbacks.onStreamChunk('');
         }
       } catch (err) {
-        console.warn('[QwenAgentManager] onEndTurn callback error:', err);
+        console.warn('[AgentManager] onEndTurn callback error:', err);
       }
     };
 
@@ -178,7 +178,7 @@ export class QwenAgentManager {
           });
         }
       } catch (err) {
-        console.warn('[QwenAgentManager] onInitialized parse error:', err);
+        console.warn('[AgentManager] onInitialized parse error:', err);
       }
     };
   }
@@ -233,7 +233,7 @@ export class QwenAgentManager {
       this.callbacks.onModeChanged?.(confirmed);
       return confirmed;
     } catch (err) {
-      console.error('[QwenAgentManager] Failed to set mode:', err);
+      console.error('[AgentManager] Failed to set mode:', err);
       throw err;
     }
   }
@@ -264,7 +264,7 @@ export class QwenAgentManager {
 
       return sessionExists;
     } catch (error) {
-      console.warn('[QwenAgentManager] Session validation failed:', error);
+      console.warn('[AgentManager] Session validation failed:', error);
       // If we can't validate, assume session is invalid
       return false;
     }
@@ -278,15 +278,15 @@ export class QwenAgentManager {
    */
   async getSessionList(): Promise<Array<Record<string, unknown>>> {
     console.log(
-      '[QwenAgentManager] Getting session list with version-aware strategy',
+      '[AgentManager] Getting session list with version-aware strategy',
     );
 
     try {
       console.log(
-        '[QwenAgentManager] Attempting to get session list via ACP method',
+        '[AgentManager] Attempting to get session list via ACP method',
       );
       const response = await this.connection.listSessions();
-      console.log('[QwenAgentManager] ACP session list response:', response);
+      console.log('[AgentManager] ACP session list response:', response);
 
       // sendRequest resolves with the JSON-RPC "result" directly
       // Newer CLI returns an object: { items: [...], nextCursor?, hasMore }
@@ -338,7 +338,7 @@ export class QwenAgentManager {
 
     // Always fall back to file system method
     try {
-      console.log('[QwenAgentManager] Getting session list from file system');
+      console.log('[AgentManager] Getting session list from file system');
       const sessions = await this.sessionReader.getAllSessions(undefined, true);
       console.log(
         '[AgentManager] Session list from file system (all projects):',
@@ -361,13 +361,13 @@ export class QwenAgentManager {
       );
 
       console.log(
-        '[QwenAgentManager] Sessions retrieved from file system:',
+        '[AgentManager] Sessions retrieved from file system:',
         result.length,
       );
       return result;
     } catch (error) {
       console.error(
-        '[QwenAgentManager] Failed to get session list from file system:',
+        '[AgentManager] Failed to get session list from file system:',
         error,
       );
       return [];
@@ -434,7 +434,7 @@ export class QwenAgentManager {
 
       return { sessions: mapped, nextCursor, hasMore };
     } catch (error) {
-      console.warn('[QwenAgentManager] Paged ACP session list failed:', error);
+      console.warn('[AgentManager] Paged ACP session list failed:', error);
       // fall through to file system
     }
 
@@ -471,7 +471,7 @@ export class QwenAgentManager {
       const hasMore = filtered.length > size;
       return { sessions, nextCursor: nextCursorVal, hasMore };
     } catch (error) {
-      console.error('[QwenAgentManager] File system paged list failed:', error);
+      console.error('[AgentManager] File system paged list failed:', error);
       return { sessions: [], hasMore: false };
     }
   }
@@ -490,7 +490,7 @@ export class QwenAgentManager {
           (s) => s.sessionId === sessionId || s.id === sessionId,
         );
         console.log(
-          '[QwenAgentManager] Session list item for filePath lookup:',
+          '[AgentManager] Session list item for filePath lookup:',
           item,
         );
         if (
@@ -505,7 +505,7 @@ export class QwenAgentManager {
           return messages;
         }
       } catch (e) {
-        console.warn('[QwenAgentManager] JSONL read path lookup failed:', e);
+        console.warn('[AgentManager] JSONL read path lookup failed:', e);
       }
 
       // Fallback: legacy JSON session files
@@ -525,7 +525,7 @@ export class QwenAgentManager {
       );
     } catch (error) {
       console.error(
-        '[QwenAgentManager] Failed to get session messages:',
+        '[AgentManager] Failed to get session messages:',
         error,
       );
       return [];
@@ -560,7 +560,7 @@ export class QwenAgentManager {
       }
       // Simple linear reconstruction: filter user/assistant and sort by timestamp
       console.log(
-        '[QwenAgentManager] JSONL records read:',
+        '[AgentManager] JSONL records read:',
         records.length,
         filePath,
       );
@@ -719,12 +719,12 @@ export class QwenAgentManager {
       }
 
       console.log(
-        '[QwenAgentManager] JSONL messages reconstructed:',
+        '[AgentManager] JSONL messages reconstructed:',
         msgs.length,
       );
       return msgs;
     } catch (err) {
-      console.warn('[QwenAgentManager] Failed to read JSONL messages:', err);
+      console.warn('[AgentManager] Failed to read JSONL messages:', err);
       return [];
     }
   }
@@ -857,7 +857,7 @@ export class QwenAgentManager {
   ): Promise<{ success: boolean; message?: string }> {
     try {
       console.log(
-        '[QwenAgentManager] Saving session via /chat save command:',
+        '[AgentManager] Saving session via /chat save command:',
         sessionId,
         'with tag:',
         tag,
@@ -867,13 +867,13 @@ export class QwenAgentManager {
       // The CLI will handle this as a special command
       await this.connection.sendPrompt(`/chat save "${tag}"`);
 
-      console.log('[QwenAgentManager] /chat save command sent successfully');
+      console.log('[AgentManager] /chat save command sent successfully');
       return {
         success: true,
         message: `Session saved with tag: ${tag}`,
       };
     } catch (error) {
-      console.error('[QwenAgentManager] /chat save command failed:', error);
+      console.error('[AgentManager] /chat save command failed:', error);
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),
@@ -895,7 +895,7 @@ export class QwenAgentManager {
   ): Promise<{ success: boolean; message?: string }> {
     // Fallback to command-based save since CLI doesn't support session/save ACP method
     console.warn(
-      '[QwenAgentManager] saveSessionViaAcp is deprecated, using command-based save instead',
+      '[AgentManager] saveSessionViaAcp is deprecated, using command-based save instead',
     );
     return this.saveSessionViaCommand(sessionId, tag);
   }
@@ -935,11 +935,11 @@ export class QwenAgentManager {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       console.error(
-        '[QwenAgentManager] Session load via ACP failed for session:',
+        '[AgentManager] Session load via ACP failed for session:',
         sessionId,
       );
-      console.error('[QwenAgentManager] Error type:', error?.constructor?.name);
-      console.error('[QwenAgentManager] Error message:', errorMessage);
+      console.error('[AgentManager] Error type:', error?.constructor?.name);
+      console.error('[AgentManager] Error message:', errorMessage);
 
       // Check if error is from ACP response
       if (error && typeof error === 'object') {
@@ -950,23 +950,23 @@ export class QwenAgentManager {
           };
           if (acpError.error) {
             console.error(
-              '[QwenAgentManager] ACP error code:',
+              '[AgentManager] ACP error code:',
               acpError.error.code,
             );
             console.error(
-              '[QwenAgentManager] ACP error message:',
+              '[AgentManager] ACP error message:',
               acpError.error.message,
             );
           }
         } else {
-          console.error('[QwenAgentManager] Non-ACPIf error details:', error);
+          console.error('[AgentManager] Non-ACPIf error details:', error);
         }
       }
 
       throw error;
     } finally {
       // End rehydration routing regardless of outcome
-      console.log('[QwenAgentManager] Rehydration end for session:', sessionId);
+      console.log('[AgentManager] Rehydration end for session:', sessionId);
       this.rehydratingSessionId = null;
     }
   }
@@ -1012,7 +1012,7 @@ export class QwenAgentManager {
       return messages;
     } catch (error) {
       console.error(
-        '[QwenAgentManager] Failed to load session messages from file system:',
+        '[AgentManager] Failed to load session messages from file system:',
         error,
       );
       return null;
@@ -1030,7 +1030,7 @@ export class QwenAgentManager {
   ): Promise<ChatMessage[] | null> {
     try {
       console.log(
-        '[QwenAgentManager] Loading session from file system:',
+        '[AgentManager] Loading session from file system:',
         sessionId,
       );
 
@@ -1042,7 +1042,7 @@ export class QwenAgentManager {
 
       if (!session) {
         console.log(
-          '[QwenAgentManager] Session not found in file system:',
+          '[AgentManager] Session not found in file system:',
           sessionId,
         );
         return null;
@@ -1058,7 +1058,7 @@ export class QwenAgentManager {
       return messages;
     } catch (error) {
       console.error(
-        '[QwenAgentManager] Session load from file system failed:',
+        '[AgentManager] Session load from file system failed:',
         error,
       );
       throw error;
@@ -1087,7 +1087,7 @@ export class QwenAgentManager {
       return this.sessionCreateInFlight;
     }
 
-    console.log('[QwenAgentManager] Creating new session...');
+    console.log('[AgentManager] Creating new session...');
 
     this.sessionCreateInFlight = (async () => {
       try {
@@ -1129,7 +1129,7 @@ export class QwenAgentManager {
         }
         const newSessionId = this.connection.currentSessionId;
         console.log(
-          '[QwenAgentManager] New session created with ID:',
+          '[AgentManager] New session created with ID:',
           newSessionId,
         );
         return newSessionId;
@@ -1154,7 +1154,7 @@ export class QwenAgentManager {
    * Cancel current prompt
    */
   async cancelCurrentPrompt(): Promise<void> {
-    console.log('[QwenAgentManager] Cancelling current prompt');
+    console.log('[AgentManager] Cancelling current prompt');
     await this.connection.cancelSession();
   }
 

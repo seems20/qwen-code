@@ -102,7 +102,7 @@ export class AcpConnection {
 
     if (!fs.existsSync(cliEntryPath)) {
       throw new Error(
-        `Bundled Qwen CLI entry not found at ${cliEntryPath}. The extension may not have been packaged correctly.`,
+        `Bundled RDMind CLI entry not found at ${cliEntryPath}. The extension may not have been packaged correctly.`,
       );
     }
 
@@ -132,9 +132,9 @@ export class AcpConnection {
         message.toLowerCase().includes('error') &&
         !message.includes('Loaded cached')
       ) {
-        console.error(`[ACP qwen]:`, message);
+        console.error(`[ACP rdmind]:`, message);
       } else {
-        console.log(`[ACP qwen]:`, message);
+        console.log(`[ACP rdmind]:`, message);
       }
     });
 
@@ -144,7 +144,7 @@ export class AcpConnection {
 
     this.child!.on('exit', (code, signal) => {
       console.error(
-        `[ACP qwen] Process exited with code: ${code}, signal: ${signal}`,
+        `[ACP rdmind] Process exited with code: ${code}, signal: ${signal}`,
       );
     });
 

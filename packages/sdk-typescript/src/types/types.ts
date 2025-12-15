@@ -159,7 +159,7 @@ export function isSdkMcpServerConfig(
 }
 
 /**
- * Configuration options for creating a query session with the Qwen CLI.
+ * Configuration options for creating a query session with the RDMind CLI.
  */
 export interface QueryOptions {
   /**
@@ -177,7 +177,7 @@ export interface QueryOptions {
   model?: string;
 
   /**
-   * Path to the Qwen CLI executable or runtime specification.
+   * Path to the RDMind CLI executable or runtime specification.
    *
    * Supports multiple formats:
    * - 'qwen' -> native binary (auto-detected from PATH)
@@ -190,7 +190,7 @@ export interface QueryOptions {
    * - 'deno:/path/to/cli.ts' -> Force Deno runtime
    *
    * If not provided, the SDK will auto-detect the native binary in this order:
-   * 1. QWEN_CODE_CLI_PATH environment variable
+   * 1. RDMIND_CODE_CLI_PATH environment variable
    * 2. ~/.volta/bin/qwen
    * 3. ~/.npm-global/bin/qwen
    * 4. /usr/local/bin/qwen
@@ -207,7 +207,7 @@ export interface QueryOptions {
   pathToQwenExecutable?: string;
 
   /**
-   * Environment variables to pass to the Qwen CLI process.
+   * Environment variables to pass to the RDMind CLI process.
    * These variables will be merged with the current process environment.
    */
   env?: Record<string, string>;
@@ -308,7 +308,7 @@ export interface QueryOptions {
   debug?: boolean;
 
   /**
-   * Custom handler for stderr output from the Qwen CLI process.
+   * Custom handler for stderr output from the RDMind CLI process.
    * Use this to capture and process error messages or diagnostic output.
    */
   stderr?: (message: string) => void;

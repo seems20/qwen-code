@@ -59,12 +59,12 @@ export class QwenConnectionHandler {
     // Create new session if unable to restore
     if (!sessionRestored) {
       console.log(
-        '[QwenAgentManager] no sessionRestored, Creating new session...',
+        '[AgentManager] no sessionRestored, Creating new session...',
       );
 
       try {
         console.log(
-          '[QwenAgentManager] Creating new session (letting CLI handle authentication)...',
+          '[AgentManager] Creating new session (letting CLI handle authentication)...',
         );
         await this.newSessionWithRetry(
           connection,
@@ -73,7 +73,7 @@ export class QwenConnectionHandler {
           authMethod,
           autoAuthenticate,
         );
-        console.log('[QwenAgentManager] New session created successfully');
+        console.log('[AgentManager] New session created successfully');
         sessionCreated = true;
       } catch (sessionError) {
         const needsAuth =
@@ -82,13 +82,13 @@ export class QwenConnectionHandler {
         if (needsAuth) {
           requiresAuth = true;
           console.log(
-            '[QwenAgentManager] Session creation requires authentication; waiting for user-triggered login.',
+            '[AgentManager] Session creation requires authentication; waiting for user-triggered login.',
           );
         } else {
           console.log(
             `\n⚠️ [SESSION FAILED] newSessionWithRetry threw error\n`,
           );
-          console.log(`[QwenAgentManager] Error details:`, sessionError);
+          console.log(`[AgentManager] Error details:`, sessionError);
           throw sessionError;
         }
       }
@@ -97,7 +97,7 @@ export class QwenConnectionHandler {
     }
 
     console.log(`\n========================================`);
-    console.log(`[QwenAgentManager] ✅ CONNECT() COMPLETED SUCCESSFULLY`);
+    console.log(`[AgentManager] ✅ CONNECT() COMPLETED SUCCESSFULLY`);
     console.log(`========================================\n`);
     return { sessionCreated, requiresAuth };
   }
@@ -119,16 +119,16 @@ export class QwenConnectionHandler {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(
-          `[QwenAgentManager] Creating session (attempt ${attempt}/${maxRetries})...`,
+          `[AgentManager] Creating session (attempt ${attempt}/${maxRetries})...`,
         );
         await connection.newSession(workingDir);
-        console.log('[QwenAgentManager] Session created successfully');
+        console.log('[AgentManager] Session created successfully');
         return;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         console.error(
-          `[QwenAgentManager] Session creation attempt ${attempt} failed:`,
+          `[AgentManager] Session creation attempt ${attempt} failed:`,
           errorMessage,
         );
 
@@ -138,12 +138,12 @@ export class QwenConnectionHandler {
         if (requiresAuth) {
           if (!autoAuthenticate) {
             console.log(
-              '[QwenAgentManager] Authentication required but auto-authentication is disabled. Propagating error.',
+              '[AgentManager] Authentication required but auto-authentication is disabled. Propagating error.',
             );
             throw error;
           }
           console.log(
-            '[QwenAgentManager] Qwen requires authentication. Authenticating and retrying session/new...',
+            '[AgentManager] Qwen requires authentication. Authenticating and retrying session/new...',
           );
           try {
             await connection.authenticate(authMethod);
@@ -152,17 +152,17 @@ export class QwenConnectionHandler {
             // Add a slight delay to ensure auth state is settled
             await new Promise((resolve) => setTimeout(resolve, 300));
             console.log(
-              '[QwenAgentManager] newSessionWithRetry Authentication successful',
+              '[AgentManager] newSessionWithRetry Authentication successful',
             );
             // Retry immediately after successful auth
             await connection.newSession(workingDir);
             console.log(
-              '[QwenAgentManager] Session created successfully after auth',
+              '[AgentManager] Session created successfully after auth',
             );
             return;
           } catch (authErr) {
             console.error(
-              '[QwenAgentManager] Re-authentication failed:',
+              '[AgentManager] Re-authentication failed:',
               authErr,
             );
             // Fall through to retry logic below
@@ -176,7 +176,7 @@ export class QwenConnectionHandler {
         }
 
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-        console.log(`[QwenAgentManager] Retrying in ${delay}ms...`);
+        console.log(`[AgentManager] Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
