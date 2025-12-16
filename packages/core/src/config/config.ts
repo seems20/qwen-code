@@ -323,6 +323,7 @@ export interface ConfigParameters {
   generationConfig?: Partial<ContentGeneratorConfig>;
   cliVersion?: string;
   loadMemoryFromIncludeDirectories?: boolean;
+  chatRecording?: boolean;
   // Web search providers
   webSearch?: {
     provider: Array<{
@@ -462,6 +463,7 @@ export class Config {
     | undefined;
   private readonly cliVersion?: string;
   private readonly experimentalZedIntegration: boolean = false;
+  private readonly chatRecordingEnabled: boolean;
   private readonly loadMemoryFromIncludeDirectories: boolean = false;
   private readonly webSearch?: {
     provider: Array<{
@@ -577,6 +579,8 @@ export class Config {
       ._generationConfig as ContentGeneratorConfig;
     this.cliVersion = params.cliVersion;
 
+    this.chatRecordingEnabled = params.chatRecording ?? true;
+
     this.loadMemoryFromIncludeDirectories =
       params.loadMemoryFromIncludeDirectories ?? false;
     this.chatCompression = params.chatCompression;
@@ -623,7 +627,9 @@ export class Config {
       setGlobalDispatcher(new ProxyAgent(this.getProxy() as string));
     }
     this.geminiClient = new GeminiClient(this);
-    this.chatRecordingService = new ChatRecordingService(this);
+    this.chatRecordingService = this.chatRecordingEnabled
+      ? new ChatRecordingService(this)
+      : undefined;
   }
 
   /**
@@ -743,7 +749,9 @@ export class Config {
   startNewSession(sessionId?: string): string {
     this.sessionId = sessionId ?? randomUUID();
     this.sessionData = undefined;
-    this.chatRecordingService = new ChatRecordingService(this);
+    this.chatRecordingService = this.chatRecordingEnabled
+      ? new ChatRecordingService(this)
+      : undefined;
     if (this.initialized) {
       logStartSession(this, new StartSessionEvent(this));
     }
@@ -1272,7 +1280,10 @@ export class Config {
   /**
    * Returns the chat recording service.
    */
-  getChatRecordingService(): ChatRecordingService {
+  getChatRecordingService(): ChatRecordingService | undefined {
+    if (!this.chatRecordingEnabled) {
+      return undefined;
+    }
     if (!this.chatRecordingService) {
       this.chatRecordingService = new ChatRecordingService(this);
     }
