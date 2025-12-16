@@ -23,8 +23,8 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
       <Text color={theme.text.primary}>
         {' '}
         {t('Official website:')}{' '}
-        <Link url="https://fe.xiaohongshu.com/apps/reddevmind-web">
-          https://fe.xiaohongshu.com/apps/reddevmind-web
+        <Link url="https://rdmind.devops.xiaohongshu.com/apps/reddevmind-web">
+          https://rdmind.devops.xiaohongshu.com/apps/reddevmind-web
         </Link>
       </Text>
       <Text color={theme.text.primary}> </Text>

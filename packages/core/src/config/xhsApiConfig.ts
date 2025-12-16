@@ -26,4 +26,4 @@ export const PALLAS_WS_BASE = `ws://${PALLAS_DOMAIN}`;
 
 // RdMind SSO Web 页面固定地址
 export const RDMIND_SSO_WEB_URL =
-  'http://fe.xiaohongshu.com/apps/reddevmind-web/rdmind/sso';
+  'http://rdmind.devops.xiaohongshu.com/apps/reddevmind-web/rdmind/sso';
