@@ -91,7 +91,7 @@ class GeminiAgent {
         id: AuthType.XHS_SSO,
         name: 'Xiaohongshu SSO',
         description:
-          'SSO authentication for Xiaohongshu internal models',
+          'SSO authentication for Xiaohongshu',
       },
     ];
 
