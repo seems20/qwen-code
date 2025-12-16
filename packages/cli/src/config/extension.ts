@@ -583,7 +583,7 @@ function extensionConsentString(extensionConfig: ExtensionConfig): string {
   }
   if (extensionConfig.contextFileName) {
     output.push(
-      `This extension will append info to your gemini.md context using ${extensionConfig.contextFileName}`,
+      `This extension will append info to your RDMind.md context using ${extensionConfig.contextFileName}`,
     );
   }
   if (extensionConfig.excludeTools) {

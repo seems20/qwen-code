@@ -292,7 +292,7 @@ export interface ConfigParameters {
   contextFileName?: string | string[];
   accessibility?: AccessibilitySettings;
   telemetry?: TelemetrySettings;
-  gitCoAuthor?: GitCoAuthorSettings;
+  gitCoAuthor?: boolean;
   usageStatisticsEnabled?: boolean;
   fileFiltering?: {
     respectGitIgnore?: boolean;
@@ -539,9 +539,9 @@ export class Config {
       useCollector: params.telemetry?.useCollector,
     };
     this.gitCoAuthor = {
-      enabled: params.gitCoAuthor?.enabled ?? true,
-      name: params.gitCoAuthor?.name ?? 'RDMind',
-      email: params.gitCoAuthor?.email ?? 'RDMind@xiaohongshu.com',
+      enabled: params.gitCoAuthor ?? true,
+      name: 'RDMind',
+      email: 'RDMind@xiaohongshu.com',
     };
     this.usageStatisticsEnabled = params.usageStatisticsEnabled ?? true;
 

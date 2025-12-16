@@ -147,6 +147,16 @@ const SETTINGS_SCHEMA = {
         description: 'Disable update notification prompts.',
         showInDialog: false,
       },
+      gitCoAuthor: {
+        type: 'boolean',
+        label: 'Git Co-Author',
+        category: 'General',
+        requiresRestart: false,
+        default: true,
+        description:
+          'Automatically add a Co-authored-by trailer to git commit messages when commits are made through RDMind.',
+        showInDialog: false,
+      },
       checkpointing: {
         type: 'object',
         label: 'Checkpointing',
@@ -283,7 +293,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: false,
         default: false,
         description:
-          'Show Gemini CLI status and thoughts in the terminal window title',
+          'Show RDMind status and thoughts in the terminal window title',
         showInDialog: true,
       },
       hideTips: {
@@ -311,7 +321,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: false,
         default: false,
         description:
-          'Hide the context summary (GEMINI.md, MCP servers) above the input.',
+          'Hide the context summary (RDMind.md, MCP servers) above the input.',
         showInDialog: true,
       },
       footer: {
@@ -517,7 +527,7 @@ const SETTINGS_SCHEMA = {
         category: 'Model',
         requiresRestart: false,
         default: undefined as string | undefined,
-        description: 'The Gemini model to use for conversations.',
+        description: 'The model to use for conversations.',
         showInDialog: false,
       },
       maxSessionTurns: {
