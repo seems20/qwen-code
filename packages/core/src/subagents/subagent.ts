@@ -426,7 +426,8 @@ export class SubAgentScope {
                   timestamp: Date.now(),
                 } as SubAgentStreamTextEvent);
               // Also check for function calls in parts (some models like gemini-3-pro-preview
-              // may return functionCall in candidates[0].content.parts instead of resp.functionCalls)
+              // and gemini-3-flash-preview may return functionCall in candidates[0].content.parts
+              // instead of resp.functionCalls)
               // Only do this if we didn't already get function calls from the helper property
               // to avoid duplicates for models that populate both
               if (!hadFunctionCallsFromHelper) {

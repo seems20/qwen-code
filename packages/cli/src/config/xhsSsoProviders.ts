@@ -55,4 +55,18 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     contextWindow: '1M',
     description: 'Google迄今为止最智能的模型(思考时间长)',
   },
+  {
+    id: 'gemini-3-flash-preview(low)',
+    displayName: 'gemini-3-flash-preview(low)',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+    contextWindow: '1M',
+    description: 'Google高速响应模型(思考时间短)',
+  },
+  {
+    id: 'gemini-3-flash-preview(high)',
+    displayName: 'gemini-3-flash-preview(high)',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+    contextWindow: '1M',
+    description: 'Google高速响应模型(思考时间长)',
+  },
 ];

@@ -251,14 +251,14 @@ export class GeminiContentGenerator implements ContentGenerator {
 
   /**
    * 解析模型名称，提取基础模型名和思考等级
-   * @param model 完整模型名称，例如 "gemini-3-pro-preview(low)"
+   * @param model 完整模型名称，例如 "gemini-3-pro-preview(low)" 或 "gemini-3-flash-preview(high)"
    * @returns 包含基础模型名和思考等级的对象
    */
   private parseModelWithThinkingLevel(model: string): {
     baseModel: string;
     thinkingLevel: ThinkingLevel;
   } {
-    // 匹配模型名称中括号内的思考等级，例如 "gemini-3-pro-preview(low)"
+    // 匹配模型名称中括号内的思考等级，例如 "gemini-3-pro-preview(low)" 或 "gemini-3-flash-preview(high)"
     const match = model.match(/^(.+?)\((\w+)\)$/);
 
     if (!match) {

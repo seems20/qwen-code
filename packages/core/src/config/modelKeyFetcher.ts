@@ -42,6 +42,7 @@ export async function fetchModelKey(
   try {
     // 如果是 gemini 开头的模型，需要先做预处理，去除思考等级后缀
     // 例如 gemini-3-pro-preview(low) -> gemini-3-pro-preview
+    // 或 gemini-3-flash-preview(high) -> gemini-3-flash-preview
     let processedModelName = modelName;
     if (modelName.toLowerCase().startsWith('gemini')) {
       // 匹配并去除括号内的思考等级后缀，例如 (low)、(high) 等

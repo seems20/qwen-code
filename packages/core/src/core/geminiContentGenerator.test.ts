@@ -251,5 +251,71 @@ describe('GeminiContentGenerator Integration Tests', () => {
         'THINKING_LEVEL_UNSPECIFIED',
       );
     });
+
+    it('should parse gemini-3-flash-preview model with low thinking level correctly', async () => {
+      const mockReader = {
+        read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+      };
+
+      const mockBody = {
+        getReader: () => mockReader,
+      };
+
+      const mockResponse = {
+        ok: true,
+        body: mockBody,
+      };
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const request: GenerateContentParameters = {
+        model: 'gemini-3-flash-preview(low)',
+        contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
+      };
+
+      await generator.generateContentStream(request, 'test-id');
+
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchCall = mockFetch.mock.calls[0];
+      const requestBody = JSON.parse(fetchCall[1].body);
+
+      expect(requestBody.generationConfig?.thinkingConfig?.thinkingLevel).toBe(
+        'LOW',
+      );
+    });
+
+    it('should parse gemini-3-flash-preview model with high thinking level correctly', async () => {
+      const mockReader = {
+        read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+      };
+
+      const mockBody = {
+        getReader: () => mockReader,
+      };
+
+      const mockResponse = {
+        ok: true,
+        body: mockBody,
+      };
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const request: GenerateContentParameters = {
+        model: 'gemini-3-flash-preview(high)',
+        contents: [{ role: 'user', parts: [{ text: 'Hello' }] }],
+      };
+
+      await generator.generateContentStream(request, 'test-id');
+
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchCall = mockFetch.mock.calls[0];
+      const requestBody = JSON.parse(fetchCall[1].body);
+
+      expect(requestBody.generationConfig?.thinkingConfig?.thinkingLevel).toBe(
+        'HIGH',
+      );
+    });
   });
 });

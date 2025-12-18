@@ -134,8 +134,10 @@ export function getCoreSystemPrompt(
     }
   }
 
-  // Check if current model is gemini-3-pro-preview
-  const isGemini3 = model?.toLowerCase().includes('gemini-3-pro-preview');
+  // Check if current model is gemini-3-pro-preview or gemini-3-flash-preview
+  const isGemini3 =
+    model?.toLowerCase().includes('gemini-3-pro-preview') ||
+    model?.toLowerCase().includes('gemini-3-flash-preview');
 
   const mandatesVariant = isGemini3
     ? `
