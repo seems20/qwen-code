@@ -110,7 +110,10 @@ describe('ContentGenerationPipeline', () => {
   describe('constructor', () => {
     it('should initialize with correct configuration', () => {
       expect(mockProvider.buildClient).toHaveBeenCalled();
-      expect(OpenAIContentConverter).toHaveBeenCalledWith('test-model');
+      expect(OpenAIContentConverter).toHaveBeenCalledWith(
+        'test-model',
+        undefined,
+      );
     });
   });
 

@@ -54,6 +54,7 @@ import { useEditorSettings } from './hooks/useEditorSettings.js';
 import { useSettingsCommand } from './hooks/useSettingsCommand.js';
 import { useModelCommand } from './hooks/useModelCommand.js';
 import { useApprovalModeCommand } from './hooks/useApprovalModeCommand.js';
+import { useResumeCommand } from './hooks/useResumeCommand.js';
 import { useSlashCommandProcessor } from './hooks/slashCommandProcessor.js';
 import { useVimMode } from './contexts/VimModeContext.js';
 import { useConsoleMessages } from './hooks/useConsoleMessages.js';
@@ -222,7 +223,7 @@ export const AppContainer = (props: AppContainerProps) => {
   const { stdout } = useStdout();
 
   // Additional hooks moved from App.tsx
-  const { stats: sessionStats } = useSessionStats();
+  const { stats: sessionStats, startNewSession } = useSessionStats();
   const logger = useLogger(config.storage, sessionStats.sessionId);
   const branchName = useGitBranchName(config.getTargetDir());
 
@@ -692,6 +693,18 @@ export const AppContainer = (props: AppContainerProps) => {
     useModelCommand();
 
   const {
+    isResumeDialogOpen,
+    openResumeDialog,
+    closeResumeDialog,
+    handleResume,
+  } = useResumeCommand({
+    config,
+    historyManager,
+    startNewSession,
+    remount: refreshStatic,
+  });
+
+  const {
     showWorkspaceMigrationDialog,
     workspaceExtensions,
     onWorkspaceMigrationDialogOpen,
@@ -744,6 +757,7 @@ export const AppContainer = (props: AppContainerProps) => {
       addConfirmUpdateExtensionRequest,
       openSubagentCreateDialog,
       openAgentsManagerDialog,
+      openResumeDialog,
     }),
     [
       openAuthDialog,
@@ -758,6 +772,7 @@ export const AppContainer = (props: AppContainerProps) => {
       addConfirmUpdateExtensionRequest,
       openSubagentCreateDialog,
       openAgentsManagerDialog,
+      openResumeDialog,
     ],
   );
 
@@ -1458,7 +1473,8 @@ export const AppContainer = (props: AppContainerProps) => {
     !!proQuotaRequest ||
     isSubagentCreateDialogOpen ||
     isAgentsManagerDialogOpen ||
-    isApprovalModeDialogOpen;
+    isApprovalModeDialogOpen ||
+    isResumeDialogOpen;
 
   const pendingHistoryItems = useMemo(
     () => [...pendingSlashCommandHistoryItems, ...pendingGeminiHistoryItems],
@@ -1491,6 +1507,7 @@ export const AppContainer = (props: AppContainerProps) => {
       isModelDialogOpen,
       isPermissionsDialogOpen,
       isApprovalModeDialogOpen,
+      isResumeDialogOpen,
       slashCommands,
       pendingSlashCommandHistoryItems,
       commandContext,
@@ -1586,6 +1603,7 @@ export const AppContainer = (props: AppContainerProps) => {
       isModelDialogOpen,
       isPermissionsDialogOpen,
       isApprovalModeDialogOpen,
+      isResumeDialogOpen,
       slashCommands,
       pendingSlashCommandHistoryItems,
       commandContext,
@@ -1698,6 +1716,10 @@ export const AppContainer = (props: AppContainerProps) => {
       // Subagent dialogs
       closeSubagentCreateDialog,
       closeAgentsManagerDialog,
+      // Resume session dialog
+      openResumeDialog,
+      closeResumeDialog,
+      handleResume,
     }),
     [
       handleThemeSelect,
@@ -1733,6 +1755,10 @@ export const AppContainer = (props: AppContainerProps) => {
       // Subagent dialogs
       closeSubagentCreateDialog,
       closeAgentsManagerDialog,
+      // Resume session dialog
+      openResumeDialog,
+      closeResumeDialog,
+      handleResume,
     ],
   );
 

@@ -77,6 +77,8 @@ export type ContentGeneratorConfig = {
   };
   proxy?: string | undefined;
   userAgent?: string;
+  // Schema compliance mode for tool definitions
+  schemaCompliance?: 'auto' | 'openapi_30';
 };
 
 export function createContentGeneratorConfig(
@@ -220,7 +222,6 @@ export async function createContentGenerator(
   }
 
   if (config.authType === AuthType.XHS_SSO) {
-    // XHS SSO 复用 OpenAI 兼容客户端
     // API Key 和配置在启动时已经写入 settings.json
     if (!config.apiKey) {
       throw new Error(
