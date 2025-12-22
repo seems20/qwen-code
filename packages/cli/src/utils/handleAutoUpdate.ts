@@ -12,6 +12,7 @@ import type { HistoryItem } from '../ui/types.js';
 import { MessageType } from '../ui/types.js';
 import { spawnWrapper } from './spawnWrapper.js';
 import type { spawn } from 'node:child_process';
+import { t } from '../i18n/index.js';
 
 export function handleAutoUpdate(
   info: UpdateObject | null,
@@ -62,8 +63,7 @@ export function handleAutoUpdate(
   updateProcess.on('close', (code) => {
     if (code === 0) {
       updateEventEmitter.emit('update-success', {
-        message:
-          'Update successful! The new version will be used on your next run.',
+        message: t('Update successful! The new version will be used on your next run.'),
       });
     } else {
       updateEventEmitter.emit('update-failed', {
@@ -119,7 +119,7 @@ export function setUpdateHandler(
     addItem(
       {
         type: MessageType.INFO,
-        text: `Update successful! The new version will be used on your next run.`,
+        text: t('Update successful! The new version will be used on your next run.'),
       },
       Date.now(),
     );
