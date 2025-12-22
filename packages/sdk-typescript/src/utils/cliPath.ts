@@ -2,24 +2,16 @@
  * CLI path auto-detection and subprocess spawning utilities
  *
  * Supports multiple execution modes:
- * 1. Native binary: 'rdmind' (production)
- * 2. Node.js bundle: 'node /path/to/cli.js' (production validation)
+ * 1. Bundled CLI: Node.js bundle included in the SDK package (default)
+ * 2. Node.js bundle: 'node /path/to/cli.js' (custom path)
  * 3. Bun bundle: 'bun /path/to/cli.js' (alternative runtime)
  * 4. TypeScript source: 'tsx /path/to/index.ts' (development)
- *
- * Auto-detection locations for native binary:
- * 1. RDMIND_CODE_CLI_PATH environment variable
- * 2. ~/.volta/bin/rdmind
- * 3. ~/.npm-global/bin/rdmind
- * 4. /usr/local/bin/rdmind
- * 5. ~/.local/bin/rdmind
- * 6. ~/node_modules/.bin/rdmind
- * 7. ~/.yarn/bin/rdmind
  */
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Executable types supported by the SDK
@@ -40,49 +32,38 @@ export type SpawnInfo = {
   originalInput: string;
 };
 
-export function findNativeCliPath(): string {
-  const homeDir = process.env['HOME'] || process.env['USERPROFILE'] || '';
+function getBundledCliPath(): string | null {
+  try {
+    const currentFile =
+      typeof __filename !== 'undefined'
+        ? __filename
+        : fileURLToPath(import.meta.url);
 
-  const candidates: Array<string | undefined> = [
-    // 1. Environment variable (highest priority)
-    process.env['RDMIND_CODE_CLI_PATH'],
+    const currentDir = path.dirname(currentFile);
 
-    // 2. Volta bin
-    path.join(homeDir, '.volta', 'bin', 'rdmind'),
+    const bundledCliPath = path.join(currentDir, 'cli', 'cli.js');
 
-    // 3. Global npm installations
-    path.join(homeDir, '.npm-global', 'bin', 'rdmind'),
-
-    // 4. Common Unix binary locations
-    '/usr/local/bin/rdmind',
-
-    // 5. User local bin
-    path.join(homeDir, '.local', 'bin', 'rdmind'),
-
-    // 6. Node modules bin in home directory
-    path.join(homeDir, 'node_modules', '.bin', 'rdmind'),
-
-    // 7. Yarn global bin
-    path.join(homeDir, '.yarn', 'bin', 'rdmind'),
-  ];
-
-  // Find first existing candidate
-  for (const candidate of candidates) {
-    if (candidate && fs.existsSync(candidate)) {
-      return path.resolve(candidate);
+    if (fs.existsSync(bundledCliPath)) {
+      return bundledCliPath;
     }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function findNativeCliPath(): string {
+  const bundledCli = getBundledCliPath();
+  if (bundledCli) {
+    return bundledCli;
   }
 
-  // Not found - throw helpful error
   throw new Error(
-    'RDMind CLI not found. Please:\n' +
-      '  1. Install RDMind globally: npm install -g @rdmind/rdmind\n' +
-      '  2. Or provide explicit executable: query({ pathToQwenExecutable: "/path/to/rdmind" })\n' +
-      '  3. Or set environment variable: RDMIND_CODE_CLI_PATH="/path/to/rdmind"\n' +
-      '\n' +
-      'For development/testing, you can also use:\n' +
+    'Bundled rdmind CLI not found. The CLI should be included in the SDK package.\n' +
+      'If you need to use a custom CLI, provide explicit executable:\n' +
+      '  • query({ pathToQwenExecutable: "/path/to/cli.js" })\n' +
       '  • TypeScript source: query({ pathToQwenExecutable: "/path/to/index.ts" })\n' +
-      '  • Node.js bundle: query({ pathToQwenExecutable: "/path/to/cli.js" })\n' +
       '  • Force specific runtime: query({ pathToQwenExecutable: "bun:/path/to/cli.js" })',
   );
 }
