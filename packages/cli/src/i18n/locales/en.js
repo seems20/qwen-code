@@ -872,7 +872,8 @@ export default {
   'add files': 'add files',
   Input: 'Input',
   'for help,': 'for help,',
-  'open documentation': 'open documentation',
+  'open documentation,': 'open documentation,',
+  'switch model': 'switch model',
   Create: 'Create',
   'to customize your interactions with RDMind':
     'to customize your interactions with RDMind',
@@ -1139,6 +1140,68 @@ export default {
   'Have you tried turning it off and on again? (The loading screen, not me.)':
     'Have you tried turning it off and on again? (The loading screen, not me.)',
   'Constructing additional pylons...': 'Constructing additional pylons...',
+  'Summoning the soul of programmers...':
+    'Summoning the soul of programmers...',
+  "Fixing that bug that's not a bug, it's a feature...":
+    "Fixing that bug that's not a bug, it's a feature...",
+  'Removing pinyin comments from code...':
+    'Removing pinyin comments from code...',
+  'Debating whether array index starts from 0 or 1...':
+    'Debating whether array index starts from 0 or 1...',
+  'Thinking about refactoring...': 'Thinking about refactoring...',
+  'Cleaning up stack overflow...': 'Cleaning up stack overflow...',
+  'Naming variables properly...': 'Naming variables properly...',
+  'Commenting code written 3 months ago...':
+    'Commenting code written 3 months ago...',
+  'Praying for no bugs...': 'Praying for no bugs...',
+  "That's not a bug, it's an undocumented feature...":
+    "That's not a bug, it's an undocumented feature...",
+  'Resolving dependencies...': 'Resolving dependencies...',
+  'Waiting for product manager to change requirements...':
+    'Waiting for product manager to change requirements...',
+  'Postponing project deadline...': 'Postponing project deadline...',
+  'Preparing another "almost done"...':
+    'Preparing another "almost done"...',
+  'Taking a break...': 'Taking a break...',
+  'Making goji berry tea...': 'Making goji berry tea...',
+  'Ordering takeout...': 'Ordering takeout...',
+  'Pretending to be busy...': 'Pretending to be busy...',
+  'Recharging faith...': 'Recharging faith...',
+  'Downloading more RAM...': 'Downloading more RAM...',
+  'Feeding the server...': 'Feeding the server...',
+  'Waking up sleeping code...': 'Waking up sleeping code...',
+  'Feeding data to AI...': 'Feeding data to AI...',
+  'Opening imagination...': 'Opening imagination...',
+  'Boiling water for tea...': 'Boiling water for tea...',
+  'Waiting for the elevator...': 'Waiting for the elevator...',
+  'Taking a number in queue...': 'Taking a number in queue...',
+  'Waiting for traffic light...': 'Waiting for traffic light...',
+  'Charging...': 'Charging...',
+  'Buffering life...': 'Buffering life...',
+  'Contemplating the meaning of life...':
+    'Contemplating the meaning of life...',
+  'What to eat today? Thinking...': 'What to eat today? Thinking...',
+  'Pretending to work...': 'Pretending to work...',
+  'Let me think, just a moment...': 'Let me think, just a moment...',
+  'Brewing inspiration...': 'Brewing inspiration...',
+  'Take a deep breath, almost done...':
+    'Take a deep breath, almost done...',
+  "Don't worry, good things take time...":
+    "Don't worry, good things take time...",
+  'Stay calm, exciting things coming...':
+    'Stay calm, exciting things coming...',
+  'Greeting the server...': 'Greeting the server...',
+  'Organizing thoughts...': 'Organizing thoughts...',
+  'Preparing my words...': 'Preparing my words...',
+  'Looking up information...': 'Looking up information...',
+  'Sorting out my thoughts...': 'Sorting out my thoughts...',
+  'Analyzing the problem...': 'Analyzing the problem...',
+  'Looking for the best solution...': 'Looking for the best solution...',
+  'Loading...': 'Loading...',
+  'Processing, please wait...': 'Processing, please wait...',
+  'Almost there...': 'Almost there...',
+  'Working hard...': 'Working hard...',
+  'Almost... almost...': 'Almost... almost...',
   'Initialize OpenSpec in a project with RDMind integration':
     'Initialize OpenSpec in a project with RDMind integration',
   'Initialize OpenSpec in the current directory':

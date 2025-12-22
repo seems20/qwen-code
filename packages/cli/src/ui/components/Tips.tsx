@@ -49,7 +49,11 @@ export const Tips: React.FC<TipsProps> = ({ config }) => {
         <Text bold color={theme.text.accent}>
           /docs
         </Text>{' '}
-        {t('open documentation')}
+        {t('open documentation,')}{' '}
+        <Text bold color={theme.text.accent}>
+          /model
+        </Text>{' '}
+        {t('switch model')}
       </Text>
       {geminiMdFileCount === 0 && (
         <Text color={theme.text.primary}>
