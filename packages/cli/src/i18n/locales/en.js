@@ -1154,8 +1154,6 @@ export default {
   'Commenting code written 3 months ago...':
     'Commenting code written 3 months ago...',
   'Praying for no bugs...': 'Praying for no bugs...',
-  "That's not a bug, it's an undocumented feature...":
-    "That's not a bug, it's an undocumented feature...",
   'Resolving dependencies...': 'Resolving dependencies...',
   'Waiting for product manager to change requirements...':
     'Waiting for product manager to change requirements...',

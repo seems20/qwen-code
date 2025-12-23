@@ -1074,8 +1074,6 @@ export default {
   'Naming variables properly...': '正在给变量起个好名字...',
   'Commenting code written 3 months ago...': '正在注释三个月前写的代码...',
   'Praying for no bugs...': '正在祈祷不要有 bug...',
-  "That's not a bug, it's an undocumented feature...":
-    '这不是 bug，是未记录的功能...',
   'Resolving dependencies...': '正在解决依赖关系...',
   'Waiting for product manager to change requirements...':
     '正在等待产品经理改需求...',
