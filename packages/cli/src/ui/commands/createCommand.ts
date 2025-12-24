@@ -30,11 +30,12 @@ function validateProjectName(name: string): boolean {
  * 验证IDL项目名称（需要符合Java包名规范）
  */
 function validateIdlProjectName(name: string): boolean {
-  // 更严格的Java包名规范：
-  // 1. 只能包含字母和数字
-  // 2. 不能包含任何特殊符号（包括连字符、下划线、点等）
-  // 3. 不能以数字开头
-  return /^[a-z][a-z0-9]*$/.test(name);
+  // Java包名规范：
+  // 1. 只能包含小写字母、数字和连字符
+  // 2. 不能包含其他特殊符号（下划线、点等）
+  // 3. 不能以数字或连字符开头
+  // 4. 不能以连字符结尾
+  return /^[a-z][a-z0-9-]*[a-z0-9]$|^[a-z]$/.test(name);
 }
 
 /**
@@ -687,9 +688,10 @@ async function createIdlCommand(
         type: MessageType.ERROR,
         text:
           '❌ IDL项目名称无效。\n' +
-          '• 只能包含小写字母和数字\n' +
-          '• 不能包含任何特殊符号（连字符、下划线、点等）\n' +
-          '• 不能以数字开头',
+          '• 只能包含小写字母、数字和连字符\n' +
+          '• 不能包含其他特殊符号（下划线、点等）\n' +
+          '• 不能以数字或连字符开头\n' +
+          '• 不能以连字符结尾',
       },
       Date.now(),
     );
