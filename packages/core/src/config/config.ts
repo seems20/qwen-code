@@ -54,6 +54,7 @@ import { canUseRipgrep } from '../utils/ripgrepUtils.js';
 import { RipGrepTool } from '../tools/ripGrep.js';
 import { ShellTool } from '../tools/shell.js';
 import { SmartEditTool } from '../tools/smart-edit.js';
+import { SkillTool } from '../tools/skill.js';
 import { TaskTool } from '../tools/task.js';
 import { TodoWriteTool } from '../tools/todoWrite.js';
 import {
@@ -70,6 +71,7 @@ import { WriteFileTool } from '../tools/write-file.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import { InputFormat, OutputFormat } from '../output/types.js';
 import { PromptRegistry } from '../prompts/prompt-registry.js';
+import { SkillManager } from '../skills/skill-manager.js';
 import { SubagentManager } from '../subagents/subagent-manager.js';
 import type { SubagentConfig } from '../subagents/types.js';
 import {
@@ -310,6 +312,7 @@ export interface ConfigParameters {
   extensionContextFilePaths?: string[];
   maxSessionTurns?: number;
   sessionTokenLimit?: number;
+  experimentalSkills?: boolean;
   experimentalZedIntegration?: boolean;
   listExtensions?: boolean;
   extensions?: GeminiCLIExtension[];
@@ -394,6 +397,7 @@ export class Config {
   private toolRegistry!: ToolRegistry;
   private promptRegistry!: PromptRegistry;
   private subagentManager!: SubagentManager;
+  private skillManager!: SkillManager;
   private fileSystemService: FileSystemService;
   private contentGeneratorConfig!: ContentGeneratorConfig;
   private contentGenerator!: ContentGenerator;
@@ -463,6 +467,7 @@ export class Config {
     | undefined;
   private readonly cliVersion?: string;
   private readonly experimentalZedIntegration: boolean = false;
+  private readonly experimentalSkills: boolean = false;
   private readonly chatRecordingEnabled: boolean;
   private readonly loadMemoryFromIncludeDirectories: boolean = false;
   private readonly webSearch?: {
@@ -562,6 +567,7 @@ export class Config {
     this.sessionTokenLimit = params.sessionTokenLimit ?? -1;
     this.experimentalZedIntegration =
       params.experimentalZedIntegration ?? false;
+    this.experimentalSkills = params.experimentalSkills ?? false;
     this.listExtensions = params.listExtensions ?? false;
     this._extensions = params.extensions ?? [];
     this._blockedMcpServers = params.blockedMcpServers ?? [];
@@ -649,6 +655,7 @@ export class Config {
     }
     this.promptRegistry = new PromptRegistry();
     this.subagentManager = new SubagentManager(this);
+    this.skillManager = new SkillManager(this);
 
     // Load session subagents if they were provided before initialization
     if (this.sessionSubagents.length > 0) {
@@ -1071,6 +1078,10 @@ export class Config {
     return this.experimentalZedIntegration;
   }
 
+  getExperimentalSkills(): boolean {
+    return this.experimentalSkills;
+  }
+
   getListExtensions(): boolean {
     return this.listExtensions;
   }
@@ -1301,6 +1312,10 @@ export class Config {
     return this.subagentManager;
   }
 
+  getSkillManager(): SkillManager {
+    return this.skillManager;
+  }
+
   async createToolRegistry(
     sendSdkMcpMessage?: SendSdkMcpMessage,
   ): Promise<ToolRegistry> {
@@ -1343,6 +1358,9 @@ export class Config {
     };
 
     registerCoreTool(TaskTool, this);
+    if (this.getExperimentalSkills()) {
+      registerCoreTool(SkillTool, this);
+    }
     registerCoreTool(LSTool, this);
     registerCoreTool(ReadFileTool, this);
 

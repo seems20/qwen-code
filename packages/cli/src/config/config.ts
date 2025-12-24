@@ -114,6 +114,7 @@ export interface CliArgs {
   allowedMcpServerNames: string[] | undefined;
   allowedTools: string[] | undefined;
   experimentalAcp: boolean | undefined;
+  experimentalSkills: boolean | undefined;
   extensions: string[] | undefined;
   listExtensions: boolean | undefined;
   openaiLogging: boolean | undefined;
@@ -308,6 +309,11 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('experimental-acp', {
           type: 'boolean',
           description: 'Starts the agent in ACP mode',
+        })
+        .option('experimental-skills', {
+          type: 'boolean',
+          description: 'Enable experimental Skills feature',
+          default: false,
         })
         .option('channel', {
           type: 'string',
@@ -967,6 +973,7 @@ export async function loadCliConfig(
     maxSessionTurns:
       argv.maxSessionTurns ?? settings.model?.maxSessionTurns ?? -1,
     experimentalZedIntegration: argv.experimentalAcp || false,
+    experimentalSkills: argv.experimentalSkills || false,
     listExtensions: argv.listExtensions || false,
     extensions: allExtensions,
     blockedMcpServers,
