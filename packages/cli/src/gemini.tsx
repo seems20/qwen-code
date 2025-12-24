@@ -7,7 +7,6 @@
 import type { Config } from '@rdmind/rdmind-core';
 import {
   AuthType,
-  getOauthClient,
   InputFormat,
   logUserPrompt,
   logRDMindStart,
@@ -427,15 +426,6 @@ export async function main() {
     let initializationResult: InitializationResult | undefined;
     if (inputFormat !== InputFormat.STREAM_JSON) {
       initializationResult = await initializeApp(config, settings);
-    }
-
-    if (
-      settings.merged.security?.auth?.selectedType ===
-        AuthType.LOGIN_WITH_GOOGLE &&
-      config.isBrowserLaunchSuppressed()
-    ) {
-      // Do oauth before app renders to make copying the link possible.
-      await getOauthClient(settings.merged.security.auth.selectedType, config);
     }
 
     if (config.getExperimentalZedIntegration()) {

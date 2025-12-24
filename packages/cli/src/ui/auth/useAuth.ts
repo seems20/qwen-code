@@ -386,7 +386,11 @@ export const useAuthCommand = (
           'Invalid RDMind_DEFAULT_AUTH_TYPE value: "{{value}}". Valid values are: {{validValues}}',
           {
             value: defaultAuthType,
-            validValues: [AuthType.QWEN_OAUTH, AuthType.USE_OPENAI].join(', '),
+            validValues: [
+              AuthType.QWEN_OAUTH,
+              AuthType.USE_OPENAI,
+              AuthType.XHS_SSO,
+            ].join(', '),
           },
         ),
       );

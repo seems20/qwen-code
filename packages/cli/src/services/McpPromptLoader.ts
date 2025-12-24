@@ -120,12 +120,10 @@ export class McpPromptLoader implements ICommandLoader {
                 };
               }
 
-              const firstContent = result.messages?.[0]?.content;
-              if (
-                !firstContent ||
-                firstContent.type !== 'text' ||
-                !firstContent.text
-              ) {
+              const firstMessage = result.messages?.[0];
+              const content = firstMessage?.content;
+
+              if (content?.type !== 'text') {
                 return {
                   type: 'message',
                   messageType: 'error',
@@ -136,7 +134,7 @@ export class McpPromptLoader implements ICommandLoader {
 
               return {
                 type: 'submit_prompt',
-                content: JSON.stringify(firstContent.text),
+                content: JSON.stringify(content.text),
               };
             } catch (error) {
               return {

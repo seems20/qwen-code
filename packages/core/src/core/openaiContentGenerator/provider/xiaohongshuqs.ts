@@ -1,3 +1,4 @@
+import type { GenerateContentConfig } from '@google/genai';
 import OpenAI from 'openai';
 import type { Config } from '../../../config/config.js';
 import type { ContentGeneratorConfig } from '../../contentGenerator.js';
@@ -87,5 +88,12 @@ export class XiaohongshuOpenAICompatibleProvider
 
     // Preserve all original parameters including sampling params
     return normalizedRequest;
+  }
+
+  getDefaultGenerationConfig(): GenerateContentConfig {
+    return {
+      temperature: 0.7,
+      topP: 0.8,
+    };
   }
 }

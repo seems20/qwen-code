@@ -47,6 +47,7 @@ import { mcpCommand } from '../commands/mcp.js';
 import { isWorkspaceTrusted } from './trustedFolders.js';
 import type { ExtensionEnablementManager } from './extensions/extensionEnablement.js';
 import { buildWebSearchConfig } from './webSearch.js';
+import { t } from '../i18n/index.js';
 
 // Simple console logger for now - replace with actual logger if available
 const logger = {
@@ -461,7 +462,12 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         })
         .option('auth-type', {
           type: 'string',
-          choices: [AuthType.USE_OPENAI, AuthType.QWEN_OAUTH],
+          choices: [
+            AuthType.USE_OPENAI,
+            AuthType.QWEN_OAUTH,
+            AuthType.USE_GEMINI,
+            AuthType.USE_VERTEX_AI,
+          ],
           description: 'Authentication type',
         })
         .deprecateOption(
@@ -903,7 +909,10 @@ export async function loadCliConfig(
       sessionId = argv.resume;
       sessionData = await sessionService.loadSession(argv.resume);
       if (!sessionData) {
-        const message = `No saved session found with ID ${argv.resume}. Run \`rdmind --resume\` without an ID to choose from existing sessions.`;
+        const message = t(
+          'No saved session found with ID {{sessionId}}. Run `rdmind --resume` without an ID to choose from existing sessions.',
+          { sessionId: argv.resume },
+        );
         console.log(message);
         process.exit(1);
       }

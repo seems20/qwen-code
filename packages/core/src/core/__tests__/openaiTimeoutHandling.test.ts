@@ -74,6 +74,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
       }),
       buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
       buildRequest: vi.fn().mockImplementation((req) => req),
+      getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
     };
 
     // Create generator instance
@@ -301,6 +302,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
         }),
         buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
         buildRequest: vi.fn().mockImplementation((req) => req),
+        getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
       };
 
       new OpenAIContentGenerator(
@@ -336,6 +338,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
         }),
         buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
         buildRequest: vi.fn().mockImplementation((req) => req),
+        getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
       };
 
       new OpenAIContentGenerator(

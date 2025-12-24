@@ -102,6 +102,12 @@ export default {
   'Theme "{{themeName}}" not found in selected scope.':
     '在所选作用域中未找到主题 "{{themeName}}"。',
   'clear the screen and conversation history': '清屏并清除对话历史',
+  'Resume a previous session': '恢复之前的会话',
+  '(empty prompt)': '(空提示词)',
+  'No sessions found. Start a new session with {{cmd}}.':
+    '未发现会话。请使用 {{cmd}} 开始新会话。',
+  'No saved session found with ID {{sessionId}}. Run `rdmind --resume` without an ID to choose from existing sessions.':
+    '未发现 ID 为 {{sessionId}} 的已保存会话。请运行不带 ID 的 `rdmind --resume` 以从现有会话中选择。',
   'Clear conversation history and free up context': '清除对话历史',
   'Compresses the context by replacing it with a summary.':
     '通过用摘要替换来压缩上下文',

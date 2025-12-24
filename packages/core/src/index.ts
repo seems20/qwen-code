@@ -14,7 +14,6 @@ export * from './output/json-formatter.js';
 // Export Core Logic
 export * from './core/client.js';
 export * from './core/contentGenerator.js';
-export * from './core/loggingContentGenerator.js';
 export * from './core/geminiChat.js';
 export * from './core/logger.js';
 export * from './core/prompts.js';
@@ -26,11 +25,7 @@ export * from './core/nonInteractiveToolExecutor.js';
 
 export * from './fallback/types.js';
 
-export * from './code_assist/codeAssist.js';
-export * from './code_assist/oauth2.js';
 export * from './qwen/qwenOAuth2.js';
-export * from './code_assist/server.js';
-export * from './code_assist/types.js';
 
 // Export XHS SSO
 export * from './xhs-sso/index.js';

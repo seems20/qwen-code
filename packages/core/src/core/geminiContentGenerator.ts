@@ -13,7 +13,6 @@ import {
   type GenerateContentResponse,
   ThinkingLevel,
 } from '@google/genai';
-import type { UserTierId } from '../code_assist/types.js';
 import type {
   ContentGenerator,
   ContentGeneratorConfig,
@@ -33,7 +32,6 @@ export class GeminiContentGenerator implements ContentGenerator {
   private readonly baseUrl: string;
   private readonly apiKey: string;
   private readonly samplingParams?: ContentGeneratorConfig['samplingParams'];
-  userTier?: UserTierId;
   private telemetryService: TelemetryService;
   private errorHandler: ErrorHandler;
 
@@ -458,5 +456,9 @@ export class GeminiContentGenerator implements ContentGenerator {
     const url = this.getRequestUrl('embedContent');
     const response = await this.fetchApi(url, request);
     return (await response.json()) as EmbedContentResponse;
+  }
+
+  useSummarizedThinking(): boolean {
+    return false;
   }
 }

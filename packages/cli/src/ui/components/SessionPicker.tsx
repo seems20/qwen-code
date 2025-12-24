@@ -81,7 +81,7 @@ function SessionListItemView({
         ? prefixChars.scrollDown
         : prefixChars.normal;
 
-  const promptText = session.prompt || '(empty prompt)';
+  const promptText = session.prompt || t('(empty prompt)');
   const truncatedPrompt = truncateText(promptText, maxPromptWidth);
 
   return (

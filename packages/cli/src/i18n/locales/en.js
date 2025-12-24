@@ -104,6 +104,12 @@ export default {
     'Theme "{{themeName}}" not found in selected scope.',
   'clear the screen and conversation history':
     'clear the screen and conversation history',
+  'Resume a previous session': 'Resume a previous session',
+  '(empty prompt)': '(empty prompt)',
+  'No sessions found. Start a new session with {{cmd}}.':
+    'No sessions found. Start a new session with {{cmd}}.',
+  'No saved session found with ID {{sessionId}}. Run `rdmind --resume` without an ID to choose from existing sessions.':
+    'No saved session found with ID {{sessionId}}. Run `rdmind --resume` without an ID to choose from existing sessions.',
   'Clear conversation history and free up context':
     'Clear conversation history and free up context',
   'Compresses the context by replacing it with a summary.':

@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.1.8-alpha.3",
+  "version": "0.1.8-alpha.5",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -9,14 +9,11 @@
     "packages/*"
   ],
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.1.8-alpha.3"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.1.8-alpha.5"
   },
   "scripts": {
     "start": "cross-env node scripts/start.js",
     "debug": "cross-env DEBUG=1 node --inspect-brk scripts/start.js",
-    "auth:npm": "npx google-artifactregistry-auth",
-    "auth:docker": "gcloud auth configure-docker us-west1-docker.pkg.dev",
-    "auth": "npm run auth:npm && npm run auth:docker",
     "generate": "node scripts/generate-git-commit-info.js",
     "build": "node scripts/build.js",
     "build-and-start": "npm run build && npm run start",
@@ -97,6 +94,7 @@
     "glob": "^10.5.0",
     "globals": "^16.0.0",
     "google-artifactregistry-auth": "^3.4.0",
+    "husky": "^9.1.7",
     "json": "^11.0.0",
     "memfs": "^4.42.0",
     "mnemonist": "^0.40.3",
