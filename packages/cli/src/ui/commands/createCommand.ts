@@ -31,11 +31,10 @@ function validateProjectName(name: string): boolean {
  */
 function validateIdlProjectName(name: string): boolean {
   // Java包名规范：
-  // 1. 只能包含小写字母、数字和连字符
-  // 2. 不能包含其他特殊符号（下划线、点等）
-  // 3. 不能以数字或连字符开头
-  // 4. 不能以连字符结尾
-  return /^[a-z][a-z0-9-]*[a-z0-9]$|^[a-z]$/.test(name);
+  // 1. 只能包含小写字母、数字、连字符和下划线
+  // 2. 不能包含其他特殊符号（点等）
+  // 3. 不能以数字、连字符或下划线开头
+  return /^[a-z][a-z0-9_-]*$|^[a-z]$/.test(name);
 }
 
 /**
@@ -588,8 +587,8 @@ async function createIdlProject(
     return;
   }
 
-  // 项目目录名使用 [projectName]-idl 格式
-  const projectDirectoryName = `${projectName}-idl`;
+  // 项目目录名直接使用 projectName
+  const projectDirectoryName = projectName;
 
   // 检查目标项目是否已经存在
   const targetPath = path.join(process.cwd(), projectDirectoryName);
@@ -688,10 +687,9 @@ async function createIdlCommand(
         type: MessageType.ERROR,
         text:
           '❌ IDL项目名称无效。\n' +
-          '• 只能包含小写字母、数字和连字符\n' +
-          '• 不能包含其他特殊符号（下划线、点等）\n' +
-          '• 不能以数字或连字符开头\n' +
-          '• 不能以连字符结尾',
+          '• 只能包含小写字母、数字、连字符和下划线\n' +
+          '• 不能包含其他特殊符号（点等）\n' +
+          '• 不能以数字、连字符或下划线开头',
       },
       Date.now(),
     );

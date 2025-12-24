@@ -49,6 +49,7 @@ npm run publish 0.0.13-alpha.0 -- --tag alpha
 
 # 发布 alpha 版本（递增）
 npm run publish prerelease -- --tag alpha
+
 ```
 
 ### 3. 发布其他标签版本
