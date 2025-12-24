@@ -163,6 +163,7 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   [/^glm-4\.5-air(?:-.*)?$/, LIMITS['128k']],
   [/^glm-4\.5(?:-.*)?$/, LIMITS['128k']],
   [/^glm-4\.6(?:-.*)?$/, 202_752 as unknown as TokenCount], // exact limit from the model config file
+  [/^glm-4\.7(?:-.*)?$/, LIMITS['200k']], // GLM-4.7: 200K context window
 
   // -------------------
   // DeepSeek
@@ -217,6 +218,12 @@ const OUTPUT_PATTERNS: Array<[RegExp, TokenCount]> = [
 
   // Deepseek-reasoner: 64k max tokens
   [/^deepseek-reasoner$/, LIMITS['64k']],
+
+  // -------------------
+  // Zhipu GLM
+  // -------------------
+  // GLM-4.7: 128K max output tokens
+  [/^glm-4\.7(?:-.*)?$/, LIMITS['128k']],
 ];
 
 /**
