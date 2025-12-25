@@ -377,9 +377,14 @@ export const useAuthCommand = (
     const defaultAuthType = process.env['QWEN_DEFAULT_AUTH_TYPE'];
     if (
       defaultAuthType &&
-      ![AuthType.QWEN_OAUTH, AuthType.USE_OPENAI, AuthType.XHS_SSO].includes(
-        defaultAuthType as AuthType,
-      )
+      ![
+        AuthType.QWEN_OAUTH,
+        AuthType.USE_OPENAI,
+        AuthType.XHS_SSO,
+        AuthType.USE_ANTHROPIC,
+        AuthType.USE_GEMINI,
+        AuthType.USE_VERTEX_AI,
+      ].includes(defaultAuthType as AuthType)
     ) {
       onAuthError(
         t(
@@ -390,6 +395,9 @@ export const useAuthCommand = (
               AuthType.QWEN_OAUTH,
               AuthType.USE_OPENAI,
               AuthType.XHS_SSO,
+              AuthType.USE_ANTHROPIC,
+              AuthType.USE_GEMINI,
+              AuthType.USE_VERTEX_AI,
             ].join(', '),
           },
         ),

@@ -19,14 +19,147 @@ import type {
 } from './contentGenerator.js';
 import type { Config } from '../config/config.js';
 import {
-  DefaultTelemetryService,
-  type RequestContext,
-  type TelemetryService,
-} from './openaiContentGenerator/index.js';
-import {
   EnhancedErrorHandler,
   type ErrorHandler,
-} from './openaiContentGenerator/index.js';
+  type RequestContext,
+} from './openaiContentGenerator/errorHandler.js';
+import { logApiError, logApiResponse } from '../telemetry/loggers.js';
+import { ApiErrorEvent, ApiResponseEvent } from '../telemetry/types.js';
+import { OpenAILogger } from '../utils/openaiLogger.js';
+import type { GenerateContentResponseUsageMetadata } from '@google/genai';
+
+// Define TelemetryService interface locally since telemetryService.ts was removed
+interface TelemetryService {
+  logSuccess(
+    context: RequestContext,
+    response: GenerateContentResponse,
+    openaiRequest?: unknown,
+    openaiResponse?: unknown,
+  ): Promise<void>;
+
+  logError(
+    context: RequestContext,
+    error: unknown,
+    openaiRequest?: unknown,
+  ): Promise<void>;
+
+  logStreamingSuccess(
+    context: RequestContext,
+    responses: GenerateContentResponse[],
+    openaiRequest?: unknown,
+    openaiChunks?: unknown[],
+    combinedResponse?: unknown,
+  ): Promise<void>;
+}
+
+// Define extended response type to handle potential extra properties like responseId
+type ExtendedGenerateContentResponse = GenerateContentResponse & {
+  responseId?: string;
+};
+
+// Define error interface for better type safety
+interface ApiErrorWithMetadata {
+  requestID?: string;
+  type?: string;
+  code?: string | number;
+  message: string;
+}
+
+// Local implementation of DefaultTelemetryService
+class DefaultTelemetryService implements TelemetryService {
+  private logger: OpenAILogger;
+
+  constructor(
+    private config: Config,
+    private enableOpenAILogging: boolean = false,
+    openAILoggingDir?: string,
+  ) {
+    this.logger = new OpenAILogger(openAILoggingDir);
+  }
+
+  async logSuccess(
+    context: RequestContext,
+    response: GenerateContentResponse,
+    openaiRequest?: unknown,
+    openaiResponse?: unknown,
+  ): Promise<void> {
+    const extendedResponse = response as ExtendedGenerateContentResponse;
+    const responseEvent = new ApiResponseEvent(
+      extendedResponse.responseId || 'unknown',
+      context.model,
+      context.duration,
+      context.userPromptId,
+      context.authType,
+      response.usageMetadata as GenerateContentResponseUsageMetadata | undefined,
+    );
+
+    logApiResponse(this.config, responseEvent);
+
+    if (this.enableOpenAILogging && openaiRequest && openaiResponse) {
+      await this.logger.logInteraction(openaiRequest, openaiResponse);
+    }
+  }
+
+  async logError(
+    context: RequestContext,
+    error: unknown,
+    openaiRequest?: unknown,
+  ): Promise<void> {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const apiError = error as ApiErrorWithMetadata;
+
+    const errorEvent = new ApiErrorEvent(
+      apiError?.requestID || 'unknown',
+      context.model,
+      errorMessage,
+      context.duration,
+      context.userPromptId,
+      context.authType,
+      apiError?.type,
+      apiError?.code,
+    );
+    logApiError(this.config, errorEvent);
+
+    if (this.enableOpenAILogging && openaiRequest) {
+      await this.logger.logInteraction(
+        openaiRequest,
+        undefined,
+        error as Error,
+      );
+    }
+  }
+
+  async logStreamingSuccess(
+    context: RequestContext,
+    responses: GenerateContentResponse[],
+    openaiRequest?: unknown,
+    _openaiChunks?: unknown[],
+    combinedResponse?: unknown,
+  ): Promise<void> {
+    const finalUsageMetadata = responses
+      .slice()
+      .reverse()
+      .find((r) => r.usageMetadata)?.usageMetadata;
+
+    const lastResponse = responses[
+      responses.length - 1
+    ] as ExtendedGenerateContentResponse;
+    const responseEvent = new ApiResponseEvent(
+      lastResponse?.responseId || 'unknown',
+      context.model,
+      context.duration,
+      context.userPromptId,
+      context.authType,
+      finalUsageMetadata as GenerateContentResponseUsageMetadata | undefined,
+    );
+
+    logApiResponse(this.config, responseEvent);
+
+    if (this.enableOpenAILogging && openaiRequest && combinedResponse) {
+      await this.logger.logInteraction(openaiRequest, combinedResponse);
+    }
+  }
+}
 
 export class GeminiContentGenerator implements ContentGenerator {
   private readonly baseUrl: string;

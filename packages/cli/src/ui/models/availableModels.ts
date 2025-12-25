@@ -61,6 +61,12 @@ export function getOpenAIAvailableModelFromEnv(): AvailableModel | null {
 }
 
 // 如果是xhs-sso 模型选择不用这个方法 相关文件ModelDialog.tsx、XhsSsoModel
+
+export function getAnthropicAvailableModelFromEnv(): AvailableModel | null {
+  const id = process.env['ANTHROPIC_MODEL']?.trim();
+  return id ? { id, label: id } : null;
+}
+
 export function getAvailableModelsForAuthType(
   authType: AuthType,
 ): AvailableModel[] {
@@ -70,6 +76,10 @@ export function getAvailableModelsForAuthType(
     case AuthType.USE_OPENAI: {
       const openAIModel = getOpenAIAvailableModelFromEnv();
       return openAIModel ? [openAIModel] : [];
+    }
+    case AuthType.USE_ANTHROPIC: {
+      const anthropicModel = getAnthropicAvailableModelFromEnv();
+      return anthropicModel ? [anthropicModel] : [];
     }
     default:
       // For other auth types, return empty array for now

@@ -470,6 +470,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           type: 'string',
           choices: [
             AuthType.USE_OPENAI,
+            AuthType.USE_ANTHROPIC,
             AuthType.QWEN_OAUTH,
             AuthType.USE_GEMINI,
             AuthType.USE_VERTEX_AI,
@@ -878,17 +879,43 @@ export async function loadCliConfig(
     );
   }
 
+  const selectedAuthType =
+    (argv.authType as AuthType | undefined) ||
+    settings.security?.auth?.selectedType;
+
   // For xhs-sso, prioritize settings over environment variables
-  const isXhsSso = settings.security?.auth?.selectedType === 'xhs-sso';
+  const isXhsSso = selectedAuthType === AuthType.XHS_SSO;
+
+  const apiKey =
+    (selectedAuthType === AuthType.USE_OPENAI
+      ? argv.openaiApiKey ||
+        process.env['OPENAI_API_KEY'] ||
+        settings.security?.auth?.apiKey
+      : isXhsSso
+        ? settings.security?.auth?.apiKey || process.env['OPENAI_API_KEY']
+        : '') || '';
+
+  const baseUrl =
+    (selectedAuthType === AuthType.USE_OPENAI
+      ? argv.openaiBaseUrl ||
+        process.env['OPENAI_BASE_URL'] ||
+        settings.security?.auth?.baseUrl
+      : isXhsSso
+        ? settings.security?.auth?.baseUrl || process.env['OPENAI_BASE_URL']
+        : '') || '';
+
   const resolvedModel =
     argv.model ||
     (isXhsSso
       ? settings.model?.name ||
         process.env['OPENAI_MODEL'] ||
         process.env['QWEN_MODEL']
-      : process.env['OPENAI_MODEL'] ||
-        process.env['QWEN_MODEL'] ||
-        settings.model?.name);
+      : selectedAuthType === AuthType.USE_OPENAI
+        ? process.env['OPENAI_MODEL'] ||
+          process.env['QWEN_MODEL'] ||
+          settings.model?.name
+        : '') ||
+    '';
 
   const sandboxConfig = await loadSandboxConfig(settings, argv);
   const screenReader =
@@ -978,9 +1005,7 @@ export async function loadCliConfig(
     extensions: allExtensions,
     blockedMcpServers,
     noBrowser: !!process.env['NO_BROWSER'],
-    authType:
-      (argv.authType as AuthType | undefined) ||
-      settings.security?.auth?.selectedType,
+    authType: selectedAuthType,
     inputFormat,
     outputFormat,
     includePartialMessages,
@@ -989,22 +1014,13 @@ export async function loadCliConfig(
       model: resolvedModel,
       apiKey: (() => {
         // 对于 xhs-sso，优先使用配置文件中的 key，即使环境变量存在也不使用
-        const rawApiKey =
-          argv.openaiApiKey ||
-          (isXhsSso
-            ? settings.security?.auth?.apiKey || process.env['OPENAI_API_KEY']
-            : process.env['OPENAI_API_KEY'] || settings.security?.auth?.apiKey);
         // 如果 rawApiKey 是加密格式（xhs_enc:开头），需要解密
-        if (rawApiKey && rawApiKey.startsWith('xhs_enc:')) {
-          return decryptApiKey(rawApiKey);
+        if (apiKey && apiKey.startsWith('xhs_enc:')) {
+          return decryptApiKey(apiKey);
         }
-        return rawApiKey;
+        return apiKey;
       })(),
-      baseUrl:
-        argv.openaiBaseUrl ||
-        (isXhsSso
-          ? settings.security?.auth?.baseUrl || process.env['OPENAI_BASE_URL']
-          : process.env['OPENAI_BASE_URL'] || settings.security?.auth?.baseUrl),
+      baseUrl,
       enableOpenAILogging:
         (typeof argv.openaiLogging === 'undefined'
           ? settings.model?.enableOpenAILogging
