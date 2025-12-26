@@ -69,4 +69,11 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     contextWindow: '1M',
     description: 'Google 高速智能模型(思考时间长)',
   },
+  {
+    id: 'glm-4.7',
+    displayName: 'glm-4.7',
+    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/zhipu/paas/v4/',
+    contextWindow: '200K',
+    description: '智谱最新旗舰模型，面向 Agentic Coding 场景强化',
+  },
 ];
