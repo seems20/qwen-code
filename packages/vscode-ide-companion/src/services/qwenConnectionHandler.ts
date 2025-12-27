@@ -13,10 +13,13 @@
 import type { AcpConnection } from './acpConnection.js';
 import { isAuthenticationRequiredError } from '../utils/authErrors.js';
 import { authMethod } from '../types/acpTypes.js';
+import { extractModelInfoFromNewSessionResult } from '../utils/acpModelInfo.js';
+import type { ModelInfo } from '../types/acpTypes.js';
 
 export interface QwenConnectionResult {
   sessionCreated: boolean;
   requiresAuth: boolean;
+  modelInfo?: ModelInfo;
 }
 
 /**
@@ -44,6 +47,7 @@ export class QwenConnectionHandler {
     const autoAuthenticate = options?.autoAuthenticate ?? true;
     let sessionCreated = false;
     let requiresAuth = false;
+    let modelInfo: ModelInfo | undefined;
 
     // Build extra CLI arguments (only essential parameters)
     const extraArgs: string[] = [];
@@ -64,13 +68,15 @@ export class QwenConnectionHandler {
         console.log(
           '[AgentManager] Creating new session (letting CLI handle authentication)...',
         );
-        await this.newSessionWithRetry(
+        const newSessionResult = await this.newSessionWithRetry(
           connection,
           workingDir,
           3,
           authMethod,
           autoAuthenticate,
         );
+        modelInfo =
+          extractModelInfoFromNewSessionResult(newSessionResult) || undefined;
         console.log('[AgentManager] New session created successfully');
         sessionCreated = true;
       } catch (sessionError) {
@@ -97,7 +103,7 @@ export class QwenConnectionHandler {
     console.log(`\n========================================`);
     console.log(`[AgentManager] ✅ CONNECT() COMPLETED SUCCESSFULLY`);
     console.log(`========================================\n`);
-    return { sessionCreated, requiresAuth };
+    return { sessionCreated, requiresAuth, modelInfo };
   }
 
   /**
@@ -113,15 +119,15 @@ export class QwenConnectionHandler {
     maxRetries: number,
     authMethod: string,
     autoAuthenticate: boolean,
-  ): Promise<void> {
+  ): Promise<unknown> {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(
           `[AgentManager] Creating session (attempt ${attempt}/${maxRetries})...`,
         );
-        await connection.newSession(workingDir);
+        const res = await connection.newSession(workingDir);
         console.log('[AgentManager] Session created successfully');
-        return;
+        return res;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -153,11 +159,11 @@ export class QwenConnectionHandler {
               '[AgentManager] newSessionWithRetry Authentication successful',
             );
             // Retry immediately after successful auth
-            await connection.newSession(workingDir);
+            const res = await connection.newSession(workingDir);
             console.log(
               '[AgentManager] Session created successfully after auth',
             );
-            return;
+            return res;
           } catch (authErr) {
             console.error('[AgentManager] Re-authentication failed:', authErr);
             // Fall through to retry logic below
@@ -175,5 +181,7 @@ export class QwenConnectionHandler {
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
+
+    throw new Error('Session creation failed unexpectedly');
   }
 }

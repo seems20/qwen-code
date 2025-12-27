@@ -39,6 +39,10 @@ vi.mock('node:os', async (importOriginal) => {
   };
 });
 
+vi.mock('@rdmind/rdmind-core/src/ide/detect-ide.js', () => ({
+  detectIdeFromEnv: vi.fn(() => ({ name: 'vscode', displayName: 'VS Code' })),
+}));
+
 const vscodeMock = vi.hoisted(() => ({
   workspace: {
     workspaceFolders: [
@@ -58,6 +62,13 @@ const vscodeMock = vi.hoisted(() => ({
 }));
 
 vi.mock('vscode', () => vscodeMock);
+
+vi.mock('@rdmind/rdmind-core/src/ide/detect-ide.js', () => ({
+  detectIdeFromEnv: vi.fn(() => ({
+    name: 'vscode',
+    displayName: 'VS Code',
+  })),
+}));
 
 vi.mock('./open-files-manager', () => {
   const OpenFilesManager = vi.fn();

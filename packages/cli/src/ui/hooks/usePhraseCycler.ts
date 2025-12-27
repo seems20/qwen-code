@@ -5,9 +5,9 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { t } from '../../i18n/index.js';
+import { t, ta } from '../../i18n/index.js';
 
-export const WITTY_LOADING_PHRASES = [
+export const WITTY_LOADING_PHRASES: string[] = [
   // 编程/技术相关
   'Summoning the soul of programmers...',
   "Fixing that bug that's not a bug, it's a feature...",
@@ -92,14 +92,16 @@ export const usePhraseCycler = (
   isWaiting: boolean,
   customPhrases?: string[],
 ) => {
-  // Translate all phrases at once if using default phrases
-  const loadingPhrases = useMemo(
-    () =>
-      customPhrases && customPhrases.length > 0
-        ? customPhrases
-        : WITTY_LOADING_PHRASES.map((phrase) => t(phrase)),
-    [customPhrases],
-  );
+  // Get phrases from translations if available
+  const loadingPhrases = useMemo(() => {
+    if (customPhrases && customPhrases.length > 0) {
+      return customPhrases;
+    }
+    const translatedPhrases = ta('WITTY_LOADING_PHRASES');
+    return translatedPhrases.length > 0
+      ? translatedPhrases
+      : WITTY_LOADING_PHRASES;
+  }, [customPhrases]);
 
   const [currentLoadingPhrase, setCurrentLoadingPhrase] = useState(
     loadingPhrases[0],
