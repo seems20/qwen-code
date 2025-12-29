@@ -127,7 +127,7 @@ export function createContentGeneratorConfig(
 
     return {
       ...newContentGeneratorConfig,
-      model: newContentGeneratorConfig?.model || 'qwen3-coder-plus',
+      model: newContentGeneratorConfig?.model || 'gemini-3-flash-preview(low)',
     } as ContentGeneratorConfig;
   }
 

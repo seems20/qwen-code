@@ -38,8 +38,8 @@ const DEFAULT_API_TIMEOUT_MS = 5000; // 5秒
 // 向后兼容：保留 COMPANY_DEFAULT_CONFIG 导出但不再使用
 // 使用第一个模型作为默认值（仅用于兼容性）
 export const COMPANY_DEFAULT_CONFIG = {
-  baseUrl: 'https://runway.devops.xiaohongshu.com/openai/qwen/v1',
-  model: 'qwen3-coder-plus',
+  baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+  model: 'gemini-3-flash-preview(low)',
 };
 
 /**

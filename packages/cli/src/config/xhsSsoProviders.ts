@@ -21,13 +21,6 @@ export interface XhsSsoModel {
  */
 export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
-    id: 'kimi-k2-turbo-preview',
-    displayName: 'kimi-k2-turbo-preview',
-    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/moonshot/v1',
-    contextWindow: '256K',
-    description: 'kimi k2 的高速版本',
-  },
-  {
     id: 'qwen3-coder-plus',
     displayName: 'qwen3-coder-plus',
     baseUrl: 'https://runway.devops.xiaohongshu.com/openai/qwen/v1',
