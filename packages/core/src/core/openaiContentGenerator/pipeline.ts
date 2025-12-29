@@ -46,15 +46,16 @@ export class ContentGenerationPipeline {
       false,
       async (openaiRequest) => {
         // Enable interleaved thinking for GLM-4.7
-        const extraBody =
-          this.contentGeneratorConfig.model?.toLowerCase().includes('glm-4.7')
-            ? {
-                thinking: {
-                  type: 'enabled' as const,
-                  clear_thinking: false, // Enable preserved/interleaved thinking
-                },
-              }
-            : undefined;
+        const extraBody = this.contentGeneratorConfig.model
+          ?.toLowerCase()
+          .includes('glm-4.7')
+          ? {
+              thinking: {
+                type: 'enabled' as const,
+                clear_thinking: false, // Enable preserved/interleaved thinking
+              },
+            }
+          : undefined;
 
         const openaiResponse = (await this.client.chat.completions.create(
           openaiRequest,
@@ -82,15 +83,16 @@ export class ContentGenerationPipeline {
       true,
       async (openaiRequest, context) => {
         // Enable interleaved thinking for GLM-4.7
-        const extraBody =
-          this.contentGeneratorConfig.model?.toLowerCase().includes('glm-4.7')
-            ? {
-                thinking: {
-                  type: 'enabled' as const,
-                  clear_thinking: false, // Enable preserved/interleaved thinking
-                },
-              }
-            : undefined;
+        const extraBody = this.contentGeneratorConfig.model
+          ?.toLowerCase()
+          .includes('glm-4.7')
+          ? {
+              thinking: {
+                type: 'enabled' as const,
+                clear_thinking: false, // Enable preserved/interleaved thinking
+              },
+            }
+          : undefined;
 
         // Stage 1: Create OpenAI stream
         const stream = (await this.client.chat.completions.create(

@@ -71,7 +71,11 @@ export async function showResumeSessionPicker(
   const sessionService = new SessionService(cwd);
   const hasSession = await sessionService.loadLastSession();
   if (!hasSession) {
-    console.log(t('No sessions found. Start a new session with {{cmd}}.', { cmd: 'rdmind' }));
+    console.log(
+      t('No sessions found. Start a new session with {{cmd}}.', {
+        cmd: 'rdmind',
+      }),
+    );
     return undefined;
   }
 

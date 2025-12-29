@@ -90,7 +90,9 @@ class DefaultTelemetryService implements TelemetryService {
       context.duration,
       context.userPromptId,
       context.authType,
-      response.usageMetadata as GenerateContentResponseUsageMetadata | undefined,
+      response.usageMetadata as
+        | GenerateContentResponseUsageMetadata
+        | undefined,
     );
 
     logApiResponse(this.config, responseEvent);

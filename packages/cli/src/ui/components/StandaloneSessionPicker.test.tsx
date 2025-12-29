@@ -8,10 +8,7 @@ import { render } from 'ink-testing-library';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { KeypressProvider } from '../contexts/KeypressContext.js';
 import { SessionPicker } from './SessionPicker.js';
-import type {
-  SessionListItem,
-  ListSessionsResult,
-} from '@rdmind/rdmind-core';
+import type { SessionListItem, ListSessionsResult } from '@rdmind/rdmind-core';
 
 vi.mock('@rdmind/rdmind-core', async () => {
   const actual = await vi.importActual('@rdmind/rdmind-core');

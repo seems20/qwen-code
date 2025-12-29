@@ -6,11 +6,7 @@
 
 import type { PartListUnion } from '@google/genai';
 import { parseSlashCommand } from './utils/commands.js';
-import {
-  Logger,
-  uiTelemetryService,
-  type Config,
-} from '@rdmind/rdmind-core';
+import { Logger, uiTelemetryService, type Config } from '@rdmind/rdmind-core';
 import { CommandService } from './services/CommandService.js';
 import { BuiltinCommandLoader } from './services/BuiltinCommandLoader.js';
 import { FileCommandLoader } from './services/FileCommandLoader.js';

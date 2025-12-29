@@ -63,7 +63,9 @@ export function handleAutoUpdate(
   updateProcess.on('close', (code) => {
     if (code === 0) {
       updateEventEmitter.emit('update-success', {
-        message: t('Update successful! The new version will be used on your next run.'),
+        message: t(
+          'Update successful! The new version will be used on your next run.',
+        ),
       });
     } else {
       updateEventEmitter.emit('update-failed', {
@@ -119,7 +121,9 @@ export function setUpdateHandler(
     addItem(
       {
         type: MessageType.INFO,
-        text: t('Update successful! The new version will be used on your next run.'),
+        text: t(
+          'Update successful! The new version will be used on your next run.',
+        ),
       },
       Date.now(),
     );
