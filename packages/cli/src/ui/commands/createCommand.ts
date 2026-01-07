@@ -858,26 +858,38 @@ export { getIdlExamplePath, getTemplatePath };
 
 export const createCommand: SlashCommand = {
   name: 'create',
-  description: '创建项目脚手架，用法：/create java sns <项目名>',
+  description: '创建项目脚手架，用法：/create java sns <项目名> 或 /create idl <项目名>',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaCommand, idlCommand],
   action: async (
     context: CommandContext,
     args: string,
   ): Promise<SlashCommandActionReturn | void> => {
-    const parts = args.trim().split(/\s+/);
-
-    if (parts.length === 0 || !parts[0]) {
+    const trimmedArgs = args.trim();
+    
+    // 如果没有参数，显示帮助信息
+    if (!trimmedArgs) {
       context.ui.addItem(
         {
-          type: MessageType.ERROR,
-          text: '❌ 请选择项目类型。\n\n可用的项目类型：\n• java - Java项目\n• idl - IDL项目\n\n使用格式：\n• /create java sns <项目名>\n• /create java fls <项目名>\n• /create idl <项目名>',
+          type: MessageType.INFO,
+          text: '📋 创建项目脚手架\n\n' +
+                '可用的项目类型：\n' +
+                '• java - Java项目（DDD架构）\n' +
+                '• idl - IDL项目（Thrift接口定义）\n\n' +
+                '使用格式：\n' +
+                '• /create java sns <项目名>\n' +
+                '• /create java fls <项目名>\n' +
+                '• /create idl <项目名>\n\n' +
+                '示例：\n' +
+                '• /create java sns user-service\n' +
+                '• /create idl angelos_idl',
         },
         Date.now(),
       );
       return;
     }
-
+    
+    const parts = trimmedArgs.split(/\s+/);
     const firstArg = parts[0].toLowerCase();
 
     // 如果第一个参数是 java，则调用 java 子命令
