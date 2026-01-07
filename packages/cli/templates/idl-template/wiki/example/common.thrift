@@ -1,4 +1,4 @@
-namespace java com.xiaohongshu.sns.angelosadmin.api.common
+namespace java com.xiaohongshu.sns.demo.api.common
 
 include "../base/base.thrift"
 
@@ -36,36 +36,4 @@ struct PageResp {
     * 总条数
     **/
     4:optional i32 totalCount;
-}
-
-/**
-* 登录用户信息
-**/
-struct UserInfo {
-    /**
-    * 用户工作邮箱
-    **/
-    1:optional string userEmail;
-    /**
-    * 名称
-    **/
-    2:optional string name;
-    /**
-    * 显示名
-    **/
-    3:optional string displayName;
-}
-
-/**
-* 基础响应
-**/
-struct BaseResponse {
-    /**
-    * 基础返回结果
-    **/
-    1: required base.Result result;
-    /**
-    * 基础分页返回结果
-    **/
-    2: optional PageResp pageResp;
 }

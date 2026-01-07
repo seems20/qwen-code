@@ -1,4 +1,4 @@
-namespace java com.xiaohongshu.sns.angelosadmin.api.dto
+namespace java com.xiaohongshu.sns.demo.api.enum
 
 /**
  * 客户端条件类型

@@ -1,4 +1,4 @@
-namespace java com.xiaohongshu.sns.angelosadmin.api.dto
+namespace java com.xiaohongshu.sns.demo.api.dto
 
 include "enum.thrift"
 
