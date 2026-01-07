@@ -32,3 +32,7 @@ gen
 
 # thrift generated files
 maven_project/src/main/java/com/xiaohongshu/sns/rpc/
+maven_project/src/main/java/com/xiaohongshu/infra/rpc/
+
+# maven 替换文件
+.flattened-pom.xml

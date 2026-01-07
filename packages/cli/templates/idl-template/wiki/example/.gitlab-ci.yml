@@ -1,26 +1,12 @@
+image: docker-reg.devops.xiaohongshu.com/shequ/sns-sdk-ci:latest
+
 stages:
   - build
-# 根据项目类型保留需要build的stage 并删掉其他stage
+
 build:java:
   stage: build
-  image: docker-reg.devops.xiaohongshu.com/shequ/sns-sdk-ci:latest
   script:
     - skr -p ${CI_PROJECT_NAME} -c ${CI_COMMIT_REF_NAME}
   only:
     - branches
     - /^\d+\.\d+\.\d+$/
-
-build:go:
-  stage: build
-  image: docker-reg.devops.xiaohongshu.com/shequ/sns-gosdk-ci:latest
-  script:
-    - skr -p ${CI_PROJECT_NAME} -c ${CI_COMMIT_REF_NAME}
-  only:
-    - branches
-    - /^\d+\.\d+\.\d+$/
-
-build:node:
-  stage: build
-  image: docker-reg.devops.xiaohongshu.com/fe/ts-generator:latest
-  script:
-    - DEBUG=common-bin tsGen build --branch ${CI_COMMIT_REF_NAME} --userEmail ${GITLAB_USER_EMAIL} --ciId ${CI_COMMIT_SHA:0:8} --pId ${CI_PROJECT_ID}

@@ -49,8 +49,6 @@ thrift idl开发参考[Thrift IDL开发规范](./README.md)
 
 Java sdk会以`maven_project`目录作为打包的基础目录，因此可以在目录中添加代码来定制sdk的功能。
 
-例如，使用[SpringBoot AutoConfiguration](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html)为sdk开发自动配置功能，参考[例子](example)。
-
 ## 常见问题
 
 1. Invalid remote: origin
