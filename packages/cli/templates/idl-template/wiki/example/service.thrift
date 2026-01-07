@@ -1,4 +1,4 @@
-namespace java com.xiaohongshu.sns.angelosadmin.api.service
+namespace java com.xiaohongshu.sns.demo.api.service
 
 include "../base/base.thrift"
 include "./req.thrift"

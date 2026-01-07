@@ -99,20 +99,38 @@ function replaceIdlProjectNames(
   oldName: string,
   newName: string,
 ): string {
+  // 生成 artifactId：将下划线转为连字符，并去除 _idl 或 -idl 后缀
+  // 例如：angelos_idl -> angelos-api, angelos-idl -> angelos-api
+  //      angelos_admin_idl -> angelos-admin-api, angelos-admin-idl -> angelos-admin-api
+  const artifactId = newName.replace(/[-_]idl$/, '').replace(/_/g, '-');
+  
+  // 生成包名/namespace 用的名称：去除 _idl 或 -idl 后缀
+  // 例如：angelos_idl -> angelos, angelos-idl -> angelos
+  //      angelos_admin_idl -> angelos_admin, angelos-admin-idl -> angelos-admin
+  const packageName = newName.replace(/[-_]idl$/, '');
+
   return (
     content
-      // 处理 hello.thrift 文件名
-      .replace(new RegExp(`${oldName}\\.thrift`, 'g'), `${newName}.thrift`)
+      // 处理 demo-api artifactId
+      .replace(new RegExp(`<artifactId>${oldName}-api</artifactId>`, 'g'), `<artifactId>${artifactId}-api</artifactId>`)
+      .replace(new RegExp(`<artifactId>${oldName}</artifactId>`, 'g'), `<artifactId>${artifactId}</artifactId>`)
+      // 处理 demo 相关的包名（com.xiaohongshu.sns.demo.api.*）
+      .replace(
+        new RegExp(`com\\.xiaohongshu\\.sns\\.demo`, 'g'),
+        `com.xiaohongshu.sns.${packageName}`,
+      )
+      // 处理 demo 目录名和引用
+      .replace(new RegExp(`/demo/`, 'g'), `/${packageName}/`)
       // 处理 hello 相关的包名和类名
       .replace(
         new RegExp(`com\\.xiaohongshu\\.sns\\.rpc\\.${oldName}`, 'g'),
-        `com.xiaohongshu.sns.rpc.${newName}`,
+        `com.xiaohongshu.sns.rpc.${packageName}`,
       )
-      .replace(new RegExp(`${oldName}Service`, 'g'), `${newName}Service`)
-      .replace(new RegExp(`${oldName}Request`, 'g'), `${newName}Request`)
-      .replace(new RegExp(`${oldName}Response`, 'g'), `${newName}Response`)
+      .replace(new RegExp(`${oldName}Service`, 'g'), `${packageName}Service`)
+      .replace(new RegExp(`${oldName}Request`, 'g'), `${packageName}Request`)
+      .replace(new RegExp(`${oldName}Response`, 'g'), `${packageName}Response`)
       // 处理 hello 相关的文件名和引用
-      .replace(new RegExp(oldName, 'g'), newName)
+      .replace(new RegExp(oldName, 'g'), packageName)
   );
 }
 
@@ -289,8 +307,42 @@ async function copyAndReplaceDir(
     let destItemName = item;
 
     // 处理不同类型的名称替换
-    if (item === 'demo') {
-      // 特殊处理：将 demo 目录替换为项目名去掉业务模块前缀后的部分
+    if (item === 'demo' && isIdlProject) {
+      // IDL 项目：将 demo 目录替换为用户提供的项目名
+      destItemName = newName;
+
+      // 如果包名包含连字符，需要创建多层目录结构
+      if (newName.includes('-')) {
+        const pathParts = newName.split('-');
+        const currentDestPath = destDir;
+
+        // 创建多层目录结构
+        for (let i = 0; i < pathParts.length; i++) {
+          const partPath = path.join(
+            currentDestPath,
+            ...pathParts.slice(0, i + 1),
+          );
+          if (i === pathParts.length - 1) {
+            // 最后一层，复制内容
+            await copyAndReplaceDir(
+              srcPath,
+              partPath,
+              oldName,
+              newName,
+              businessModule,
+              isIdlProject,
+            );
+          } else {
+            // 中间层，只创建目录
+            if (!fs.existsSync(partPath)) {
+              fs.mkdirSync(partPath, { recursive: true });
+            }
+          }
+        }
+        continue; // 跳过后续处理
+      }
+    } else if (item === 'demo') {
+      // 非 IDL 项目：特殊处理，将 demo 目录替换为项目名去掉业务模块前缀后的部分
       // 对于包结构，需要处理连字符：如sns-circle变成circle，sns-user-service变成user-service
       const projectPrefix = `${businessModule}-`;
       const packageDirName = newName.startsWith(projectPrefix)
@@ -331,13 +383,11 @@ async function copyAndReplaceDir(
     } else if (item === 'sns') {
       // 特殊处理：将 sns 目录替换为新的业务模块名
       destItemName = businessModule;
-    } else if (item === 'hello.thrift') {
-      // 特殊处理：将 hello.thrift 文件名替换为新项目名.thrift
-      destItemName = `${newName}.thrift`;
     } else {
       // 使用与文件内容替换相同的逻辑
       if (isIdlProject) {
-        destItemName = item.replace(/hello/g, newName);
+        const packageName = newName.replace(/[-_]idl$/, '');
+        destItemName = item.replace(/demo/g, packageName);
       } else {
         destItemName = item.replace(/sns-demo/g, newName);
       }
@@ -612,15 +662,26 @@ async function createIdlProject(
       Date.now(),
     );
 
-    // 复制模板并替换名称，仍然使用原始的projectName作为内部名称
+    // 复制模板并替换名称
     await copyAndReplaceDir(
       templatePath,
       targetPath,
-      'hello',
+      'demo', // 模板中的占位名称
       projectName,
       'sns', // 默认业务模块
       true, // 标记为IDL项目
     );
+
+    // 生成搜索关键词：将下划线转为连字符，并去除 _idl 或 -idl 后缀
+    // 例如：angelos_idl -> angelos-sdk, angelos-idl -> angelos-sdk
+    //      angelos_admin_idl -> angelos-admin-sdk, angelos-admin-idl -> angelos-admin-sdk
+    const searchKeyword = projectName.replace(/[-_]idl$/, '').replace(/_/g, '-');
+    
+    // 检查项目名是否以 idl 结尾，如果不是则给出提示
+    const hasIdlSuffix = /[-_]idl$/.test(projectName);
+    const namingTip = hasIdlSuffix 
+      ? `\n💡 已自动处理项目名后缀：\n   • Maven artifactId: ${searchKeyword}-api\n   • 搜索关键词: ${searchKeyword}-sdk`
+      : `\n💡 提示：建议IDL项目名以 _idl 或 -idl 结尾（如：${projectName}_idl）\n   这样可以自动优化生成的 artifactId 和搜索关键词`;
 
     context.ui.addItem(
       {
@@ -629,14 +690,22 @@ async function createIdlProject(
 📁 位置：${targetPath}
 
 ✨ 已自动过滤构建产物和IDE配置文件
+${namingTip}
 
 项目结构：
 ${projectDirectoryName}/
 ├── .gitignore
 ├── .gitlab-ci.yml
 ├── gen-java.sh
-├── ${projectName}.thrift
+├── base.thrift
+├── common.thrift
+├── dto.thrift
+├── enum.thrift
+├── req.thrift
+├── res.thrift
+├── service.thrift
 ├── maven_project/
+│   └── pom.xml
 ├── sdk-spec.yml
 └── README.md
 
@@ -646,7 +715,7 @@ ${projectDirectoryName}/
 2. 参考文档配置流水线: https://docs.xiaohongshu.com/doc/57be8d2fb7c584798d5b6135060b2c94
 3. 运行流水线成功后可在以下地址搜索获取maven包:
    https://artifactory.devops.xiaohongshu.com/ui/packages/
-   搜索关键词: "${projectName}-sdk"
+   搜索关键词: "${searchKeyword}-sdk"
 ────────────────────────────────────`,
       },
       Date.now(),
@@ -686,10 +755,16 @@ async function createIdlCommand(
       {
         type: MessageType.ERROR,
         text:
-          '❌ IDL项目名称无效。\n' +
+          '❌ IDL项目名称无效。\n\n' +
+          '命名规范：\n' +
+          '• 建议以 _idl 或 -idl 结尾（如：angelos_idl 或 angelos-idl）\n' +
           '• 只能包含小写字母、数字、连字符和下划线\n' +
           '• 不能包含其他特殊符号（点等）\n' +
-          '• 不能以数字、连字符或下划线开头',
+          '• 不能以数字、连字符或下划线开头\n\n' +
+          '示例：\n' +
+          '• /create idl angelos_idl\n' +
+          '• /create idl angelos-idl\n' +
+          '• /create idl user_service_idl',
       },
       Date.now(),
     );
@@ -704,7 +779,7 @@ async function createIdlCommand(
  */
 const idlCommand: SlashCommand = {
   name: 'idl',
-  description: 'IDL 项目脚手架',
+  description: 'IDL 项目脚手架（建议项目名以 _idl 或 -idl 结尾）',
   kind: CommandKind.BUILT_IN,
   action: async (
     context: CommandContext,
@@ -715,7 +790,14 @@ const idlCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: '❌ 请提供项目名称。\n\n使用格式：/create idl <项目名>\n例如：/create idl my-service',
+          text: 
+            '❌ 请提供项目名称。\n\n' +
+            '使用格式：/create idl <项目名>\n\n' +
+            '💡 建议项目名以 _idl 或 -idl 结尾，例如：\n' +
+            '• /create idl angelos_idl\n' +
+            '• /create idl angelos-idl\n' +
+            '• /create idl user_service_idl\n\n' +
+            '这样生成的 artifactId 会自动去除 _idl/-idl 后缀。',
         },
         Date.now(),
       );

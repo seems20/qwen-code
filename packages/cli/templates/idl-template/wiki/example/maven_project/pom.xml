@@ -1,114 +1,114 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.xiaohongshu.sns</groupId>
-  <artifactId>demo-api</artifactId>
+    <groupId>com.xiaohongshu.sns</groupId>
+    <artifactId>demo-api</artifactId>
 
-  <!-- 无须动,ci的时候会自动覆盖的   -->
-  <version>${sdk.version}</version>
+    <!-- 无须动,ci的时候会自动覆盖的   -->
+    <version>${sdk.version}</version>
 
-  <properties>
-    <midware.version>3.3.11-RELEASE</midware.version>
-    <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
-    <!--这里换成jdk11 david解析不了，不支持-->
-    <maven.compiler.source>8</maven.compiler.source>
-    <maven.compiler.target>8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+    <properties>
+        <midware.version>3.3.11-RELEASE</midware.version>
+        <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+        <!--这里换成jdk11 david解析不了，不支持-->
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-  <dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.xiaohongshu</groupId>
+                <artifactId>midware-dependencies</artifactId>
+                <version>${midware.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-      <dependency>
-        <groupId>com.xiaohongshu</groupId>
-        <artifactId>midware-dependencies</artifactId>
-        <version>${midware.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <dependency>
+            <groupId>com.xiaohongshu</groupId>
+            <artifactId>rpc-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.xiaohongshu</groupId>
+            <artifactId>thrift-springboot</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
 
     </dependencies>
-  </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.xiaohongshu</groupId>
-      <artifactId>rpc-context</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.xiaohongshu</groupId>
-      <artifactId>thrift-springboot</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-autoconfigure</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.thrift</groupId>
-      <artifactId>libthrift</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>snapshots</id>
-      <name>nexus snapshot repository</name>
-      <url>
-        https://artifactory.devops.xiaohongshu.com/artifactory/maven-snapshots/
-      </url>
-    </snapshotRepository>
-    <repository>
-      <id>releases</id>
-      <name>nexus repository</name>
-      <url>
-        https://artifactory.devops.xiaohongshu.com/artifactory/maven-releases/
-      </url>
-    </repository>
-  </distributionManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>nexus snapshot repository</name>
+            <url>
+                https://artifactory.devops.xiaohongshu.com/artifactory/maven-snapshots/
+            </url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <name>nexus repository</name>
+            <url>
+                https://artifactory.devops.xiaohongshu.com/artifactory/maven-releases/
+            </url>
+        </repository>
+    </distributionManagement>
 </project>

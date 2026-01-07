@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <property name="LOG_LEVEL" value="INFO"/>
-  <include resource="logback-xray-base.xml"/>
+    <property name="LOG_LEVEL" value="INFO"/>
+    <include resource="logback-xray-base.xml"/>
 
-  <logger name="org.apache.ibatis" level="INFO"></logger>
-  <logger name="org.apache.catalina" level="ERROR"></logger>
-  <logger name="org.apache.zookeeper" level="INFO"></logger>
-  <logger name="org.springframework" level="INFO"></logger>
-  <logger name="com.xiaohongshu.infra" level="ERROR"></logger>
-  <logger name="com.xiaohongshu.racing" level="WARN"></logger>
-  <logger name="com.dianping.cat" level="INFO"></logger>
-  <logger name="red.midware.shaded" level="INFO"></logger>
-  <logger name="com.xiaohongshu.infra.xds.cds.CDSSharedStubWrapper" level="ERROR"></logger>
-  <logger name="events" level="INFO"></logger>
-  <logger name="com.zaxxer.hikari.HikariConfig" level="WARN"></logger>
-  <logger name="com.zaxxer.hikari.HikariDataSource" level="WARN"></logger>
-  <logger name="com.xiaohongshu.infra.rpc.core.registry.eds.MultiRegionsEdsThriftAddressSubscriberProvider" level="off"/>
+    <logger name="org.apache.ibatis" level="INFO"></logger>
+    <logger name="org.apache.catalina" level="ERROR"></logger>
+    <logger name="org.apache.zookeeper" level="INFO"></logger>
+    <logger name="org.springframework" level="INFO"></logger>
+    <logger name="com.xiaohongshu.infra" level="ERROR"></logger>
+    <logger name="com.xiaohongshu.racing" level="WARN"></logger>
+    <logger name="com.dianping.cat" level="INFO"></logger>
+    <logger name="red.midware.shaded" level="INFO"></logger>
+    <logger name="com.xiaohongshu.infra.xds.cds.CDSSharedStubWrapper" level="ERROR"></logger>
+    <logger name="events" level="INFO"></logger>
+    <logger name="com.zaxxer.hikari.HikariConfig" level="WARN"></logger>
+    <logger name="com.zaxxer.hikari.HikariDataSource" level="WARN"></logger>
+    <logger name="com.xiaohongshu.infra.rpc.core.registry.eds.MultiRegionsEdsThriftAddressSubscriberProvider" level="off"/>
 </configuration>
