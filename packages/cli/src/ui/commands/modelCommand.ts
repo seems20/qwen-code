@@ -11,8 +11,6 @@ import type {
   MessageActionReturn,
 } from './types.js';
 import { CommandKind } from './types.js';
-import { getAvailableModelsForAuthType } from '../models/availableModels.js';
-import { AuthType } from '@rdmind/rdmind-core';
 import { t } from '../../i18n/index.js';
 
 export const modelCommand: SlashCommand = {
@@ -31,7 +29,7 @@ export const modelCommand: SlashCommand = {
       return {
         type: 'message',
         messageType: 'error',
-        content: 'Configuration not available.',
+        content: t('Configuration not available.'),
       };
     }
 
@@ -53,33 +51,6 @@ export const modelCommand: SlashCommand = {
       };
     }
 
-    // For auth types with multi-level configuration flow (OpenAI, XHS_SSO),
-    // directly open the dialog without checking available models
-    // The actual model configuration is handled in ModelDialog
-    if (authType === AuthType.USE_OPENAI || authType === AuthType.XHS_SSO) {
-      return {
-        type: 'dialog',
-        dialog: 'model',
-      };
-    }
-
-    // For other auth types, check if models are available
-    const availableModels = getAvailableModelsForAuthType(authType);
-
-    if (availableModels.length === 0) {
-      return {
-        type: 'message',
-        messageType: 'error',
-        content: t(
-          'No models available for the current authentication type ({{authType}}).',
-          {
-            authType,
-          },
-        ),
-      };
-    }
-
-    // Trigger model selection dialog
     return {
       type: 'dialog',
       dialog: 'model',

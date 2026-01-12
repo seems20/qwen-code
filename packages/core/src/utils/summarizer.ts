@@ -11,7 +11,7 @@ import type {
   GenerateContentResponse,
 } from '@google/genai';
 import type { GeminiClient } from '../core/client.js';
-import { DEFAULT_GEMINI_FLASH_LITE_MODEL } from '../config/models.js';
+import { DEFAULT_QWEN_MODEL } from '../config/models.js';
 import { getResponseText, partToString } from './partUtils.js';
 
 /**
@@ -66,6 +66,7 @@ export async function summarizeToolOutput(
   geminiClient: GeminiClient,
   abortSignal: AbortSignal,
   maxOutputTokens: number = 2000,
+  model?: string,
 ): Promise<string> {
   // There is going to be a slight difference here since we are comparing length of string with maxOutputTokens.
   // This is meant to be a ballpark estimation of if we need to summarize the tool output.
@@ -82,11 +83,13 @@ export async function summarizeToolOutput(
     maxOutputTokens,
   };
   try {
+    // Use the provided model or fallback to DEFAULT_QWEN_MODEL
+    // Caller should pass config.getModel() to ensure compatibility with XHS_SSO and other auth types
     const parsedResponse = (await geminiClient.generateContent(
       contents,
       toolOutputSummarizerConfig,
       abortSignal,
-      DEFAULT_GEMINI_FLASH_LITE_MODEL,
+      model || DEFAULT_QWEN_MODEL,
     )) as unknown as GenerateContentResponse;
     return getResponseText(parsedResponse) || textToSummarize;
   } catch (error) {

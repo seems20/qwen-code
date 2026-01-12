@@ -60,6 +60,7 @@ describe('ShellTool', () => {
         .fn()
         .mockReturnValue(createMockWorkspaceContext('/test/dir')),
       getGeminiClient: vi.fn(),
+      getModel: vi.fn().mockReturnValue('test-model'),
       getGitCoAuthor: vi.fn().mockReturnValue({
         enabled: true,
         name: 'RDMind',
@@ -473,6 +474,7 @@ describe('ShellTool', () => {
         mockConfig.getGeminiClient(),
         expect.any(AbortSignal),
         1000,
+        'test-model',
       );
       expect(result.llmContent).toBe('summarized output');
       expect(result.returnDisplay).toBe('long output');

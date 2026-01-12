@@ -16,7 +16,6 @@ import {
   setGeminiMdFilename as setServerGeminiMdFilename,
   resolveTelemetrySettings,
   FatalConfigError,
-  decryptApiKey,
   Storage,
   InputFormat,
   OutputFormat,
@@ -32,6 +31,10 @@ import {
 } from '@rdmind/rdmind-core';
 import { extensionsCommand } from '../commands/extensions.js';
 import type { Settings } from './settings.js';
+import {
+  resolveCliGenerationConfig,
+  getAuthTypeFromEnv,
+} from '../utils/modelConfigUtils.js';
 import yargs, { type Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as fs from 'node:fs';
@@ -483,6 +486,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
             AuthType.QWEN_OAUTH,
             AuthType.USE_GEMINI,
             AuthType.USE_VERTEX_AI,
+            AuthType.XHS_SSO,
           ],
           description: 'Authentication type',
         })
@@ -926,41 +930,25 @@ export async function loadCliConfig(
 
   const selectedAuthType =
     (argv.authType as AuthType | undefined) ||
-    settings.security?.auth?.selectedType;
+    settings.security?.auth?.selectedType ||
+    /* getAuthTypeFromEnv means no authType was explicitly provided, we infer the authType from env vars */
+    getAuthTypeFromEnv();
 
-  // For xhs-sso, prioritize settings over environment variables
-  const isXhsSso = selectedAuthType === AuthType.XHS_SSO;
+  // Unified resolution of generation config with source attribution
+  const resolvedCliConfig = resolveCliGenerationConfig({
+    argv: {
+      model: argv.model,
+      openaiApiKey: argv.openaiApiKey,
+      openaiBaseUrl: argv.openaiBaseUrl,
+      openaiLogging: argv.openaiLogging,
+      openaiLoggingDir: argv.openaiLoggingDir,
+    },
+    settings,
+    selectedAuthType,
+    env: process.env as Record<string, string | undefined>,
+  });
 
-  const apiKey =
-    (selectedAuthType === AuthType.USE_OPENAI
-      ? argv.openaiApiKey ||
-        process.env['OPENAI_API_KEY'] ||
-        settings.security?.auth?.apiKey
-      : isXhsSso
-        ? settings.security?.auth?.apiKey || process.env['OPENAI_API_KEY']
-        : '') || '';
-
-  const baseUrl =
-    (selectedAuthType === AuthType.USE_OPENAI
-      ? argv.openaiBaseUrl ||
-        process.env['OPENAI_BASE_URL'] ||
-        settings.security?.auth?.baseUrl
-      : isXhsSso
-        ? settings.security?.auth?.baseUrl || process.env['OPENAI_BASE_URL']
-        : '') || '';
-
-  const resolvedModel =
-    argv.model ||
-    (isXhsSso
-      ? settings.model?.name ||
-        process.env['OPENAI_MODEL'] ||
-        process.env['QWEN_MODEL']
-      : selectedAuthType === AuthType.USE_OPENAI
-        ? process.env['OPENAI_MODEL'] ||
-          process.env['QWEN_MODEL'] ||
-          settings.model?.name
-        : '') ||
-    '';
+  const { model: resolvedModel } = resolvedCliConfig;
 
   const sandboxConfig = await loadSandboxConfig(settings, argv);
   const screenReader =
@@ -996,6 +984,8 @@ export async function loadCliConfig(
       }
     }
   }
+
+  const modelProvidersConfig = settings.modelProviders;
 
   return new Config({
     sessionId,
@@ -1054,31 +1044,11 @@ export async function loadCliConfig(
     inputFormat,
     outputFormat,
     includePartialMessages,
-    generationConfig: {
-      ...(settings.model?.generationConfig || {}),
-      model: resolvedModel,
-      apiKey: (() => {
-        // 对于 xhs-sso，优先使用配置文件中的 key，即使环境变量存在也不使用
-        // 如果 rawApiKey 是加密格式（xhs_enc:开头），需要解密
-        if (apiKey && apiKey.startsWith('xhs_enc:')) {
-          return decryptApiKey(apiKey);
-        }
-        return apiKey;
-      })(),
-      baseUrl,
-      enableOpenAILogging:
-        (typeof argv.openaiLogging === 'undefined'
-          ? settings.model?.enableOpenAILogging
-          : argv.openaiLogging) ?? false,
-      openAILoggingDir:
-        argv.openaiLoggingDir || settings.model?.openAILoggingDir,
-    },
+    modelProvidersConfig,
+    generationConfigSources: resolvedCliConfig.sources,
+    generationConfig: resolvedCliConfig.generationConfig,
     cliVersion: await getCliVersion(),
-    webSearch: buildWebSearchConfig(
-      argv,
-      settings,
-      settings.security?.auth?.selectedType,
-    ),
+    webSearch: buildWebSearchConfig(argv, settings, selectedAuthType),
     summarizeToolOutput: settings.model?.summarizeToolOutput,
     ideMode,
     chatCompression: settings.model?.chatCompression,

@@ -372,6 +372,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       currentContent,
       this.config.getBaseLlmClient(),
       abortSignal,
+      this.config.getModel(),
     );
 
     if (fixedEdit.noChangesRequired) {

@@ -40,10 +40,16 @@ export class ContentGenerationPipeline {
     request: GenerateContentParameters,
     userPromptId: string,
   ): Promise<GenerateContentResponse> {
+    // For OpenAI-compatible providers, the configured model is the single source of truth.
+    // We intentionally ignore request.model because upstream callers may pass a model string
+    // that is not valid/available for the OpenAI-compatible backend.
+    const effectiveModel = this.contentGeneratorConfig.model;
+    this.converter.setModel(effectiveModel);
     return this.executeWithErrorHandling(
       request,
       userPromptId,
       false,
+      effectiveModel,
       async (openaiRequest) => {
         // Enable interleaved thinking for GLM-4.7
         const extraBody = this.contentGeneratorConfig.model
@@ -77,10 +83,13 @@ export class ContentGenerationPipeline {
     request: GenerateContentParameters,
     userPromptId: string,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
+    const effectiveModel = this.contentGeneratorConfig.model;
+    this.converter.setModel(effectiveModel);
     return this.executeWithErrorHandling(
       request,
       userPromptId,
       true,
+      effectiveModel,
       async (openaiRequest, context) => {
         // Enable interleaved thinking for GLM-4.7
         const extraBody = this.contentGeneratorConfig.model
@@ -250,12 +259,13 @@ export class ContentGenerationPipeline {
     request: GenerateContentParameters,
     userPromptId: string,
     streaming: boolean = false,
+    effectiveModel: string,
   ): Promise<OpenAI.Chat.ChatCompletionCreateParams> {
     const messages = this.converter.convertGeminiRequestToOpenAI(request);
 
     // Apply provider-specific enhancements
     const baseRequest: OpenAI.Chat.ChatCompletionCreateParams = {
-      model: this.contentGeneratorConfig.model,
+      model: effectiveModel,
       messages,
       ...this.buildGenerateContentConfig(request),
     };
@@ -368,18 +378,24 @@ export class ContentGenerationPipeline {
     request: GenerateContentParameters,
     userPromptId: string,
     isStreaming: boolean,
+    effectiveModel: string,
     executor: (
       openaiRequest: OpenAI.Chat.ChatCompletionCreateParams,
       context: RequestContext,
     ) => Promise<T>,
   ): Promise<T> {
-    const context = this.createRequestContext(userPromptId, isStreaming);
+    const context = this.createRequestContext(
+      userPromptId,
+      isStreaming,
+      effectiveModel,
+    );
 
     try {
       const openaiRequest = await this.buildRequest(
         request,
         userPromptId,
         isStreaming,
+        effectiveModel,
       );
 
       // 调用大模型前的日志 - 只在debug模式下打印简化的API调用信息
@@ -418,10 +434,11 @@ export class ContentGenerationPipeline {
   private createRequestContext(
     userPromptId: string,
     isStreaming: boolean,
+    effectiveModel: string,
   ): RequestContext {
     return {
       userPromptId,
-      model: this.contentGeneratorConfig.model,
+      model: effectiveModel,
       authType: this.contentGeneratorConfig.authType || 'unknown',
       startTime: Date.now(),
       duration: 0,

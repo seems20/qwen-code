@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import { type Content, Type } from '@google/genai';
 import { type BaseLlmClient } from '../core/baseLlmClient.js';
 import { LruCache } from './LruCache.js';
-import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
+import { DEFAULT_QWEN_MODEL } from '../config/models.js';
 import { promptIdContext } from './promptIdContext.js';
 
 const MAX_CACHE_SIZE = 50;
@@ -108,6 +108,7 @@ export async function FixLLMEditWithInstruction(
   current_content: string,
   baseLlmClient: BaseLlmClient,
   abortSignal: AbortSignal,
+  model?: string,
 ): Promise<SearchReplaceEdit> {
   let promptId = promptIdContext.getStore();
   if (!promptId) {
@@ -145,11 +146,13 @@ export async function FixLLMEditWithInstruction(
     },
   ];
 
+  // Use the provided model or fallback to DEFAULT_QWEN_MODEL
+  // Caller should pass config.getModel() to ensure compatibility with XHS_SSO and other auth types
   const result = (await baseLlmClient.generateJson({
     contents,
     schema: SearchReplaceEditSchema,
     abortSignal,
-    model: DEFAULT_GEMINI_FLASH_MODEL,
+    model: model || DEFAULT_QWEN_MODEL,
     systemInstruction: EDIT_SYS_PROMPT,
     promptId,
     maxAttempts: 1,

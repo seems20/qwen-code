@@ -77,10 +77,8 @@ vi.mock('read-package-up', () => ({
   ),
 }));
 
-vi.mock('@rdmind/rdmind-core', async () => {
-  const actualServer = await vi.importActual<typeof ServerConfig>(
-    '@rdmind/rdmind-core',
-  );
+vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
+  const actualServer = await importOriginal<typeof ServerConfig>();
   return {
     ...actualServer,
     IdeClient: {

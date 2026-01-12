@@ -335,6 +335,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           this.config.getGeminiClient(),
           signal,
           summarizeConfig[ShellTool.Name].tokenBudget,
+          this.config.getModel(),
         );
         return {
           llmContent: summary,
