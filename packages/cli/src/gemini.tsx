@@ -356,6 +356,7 @@ export async function main() {
       extensionEnablementManager,
       argv,
     );
+    registerCleanup(() => config.shutdown());
     configForTelemetry = config;
 
     // 记录RDMind启动事件

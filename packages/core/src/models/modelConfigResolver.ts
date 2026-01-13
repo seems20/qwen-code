@@ -42,7 +42,7 @@ import {
   QWEN_OAUTH_ALLOWED_MODELS,
   MODEL_GENERATION_CONFIG_FIELDS,
 } from './constants.js';
-import type { ResolvedModelConfig } from './types.js';
+import type { ModelConfig as ModelProviderConfig } from './types.js';
 export {
   validateModelConfig,
   type ModelConfigValidationResult,
@@ -87,8 +87,8 @@ export interface ModelConfigSourcesInput {
   /** Environment variables (injected for testability) */
   env: Record<string, string | undefined>;
 
-  /** Resolved model from ModelProviders (explicit selection, highest priority) */
-  modelProvider?: ResolvedModelConfig;
+  /** Model from ModelProviders (explicit selection, highest priority) */
+  modelProvider?: ModelProviderConfig;
 
   /** Proxy URL (computed from Config) */
   proxy?: string;
@@ -283,7 +283,7 @@ function resolveQwenOAuthConfig(
   input: ModelConfigSourcesInput,
   warnings: string[],
 ): ModelConfigResolutionResult {
-  const { cli, settings, proxy } = input;
+  const { cli, settings, proxy, modelProvider } = input;
   const sources: ConfigSources = {};
 
   // Qwen OAuth only allows specific models
@@ -317,10 +317,10 @@ function resolveQwenOAuthConfig(
     sources['proxy'] = computedSource('Config.getProxy()');
   }
 
-  // Resolve generation config from settings
+  // Resolve generation config from settings and modelProvider
   const generationConfig = resolveGenerationConfig(
     settings?.generationConfig,
-    undefined,
+    modelProvider?.generationConfig,
     AuthType.QWEN_OAUTH,
     resolvedModel,
     sources,
@@ -415,7 +415,7 @@ function resolveGenerationConfig(
   const result: Partial<ContentGeneratorConfig> = {};
 
   for (const field of MODEL_GENERATION_CONFIG_FIELDS) {
-    // ModelProvider config takes priority
+    // ModelProvider config takes priority over settings config
     if (authType && modelProviderConfig && field in modelProviderConfig) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (result as any)[field] = modelProviderConfig[field];
