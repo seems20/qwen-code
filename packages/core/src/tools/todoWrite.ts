@@ -14,7 +14,7 @@ import * as process from 'process';
 
 import { QWEN_DIR } from '../utils/paths.js';
 import type { Config } from '../config/config.js';
-import { ToolNames } from './tool-names.js';
+import { ToolNames, ToolDisplayNames } from './tool-names.js';
 
 export interface TodoItem {
   id: string;
@@ -72,7 +72,7 @@ const todoWriteToolDescription = `
 Use this tool to create and manage a structured task list for your current coding session. This helps you track progress, organize complex tasks, and demonstrate thoroughness to the user.
 It also helps the user understand the progress of the task and overall progress of their requests.
 
-You can customize the display title of the todo list by providing a 'title' parameter. If no title is provided, it will default to '流程Todo'.
+You can customize the display title of the todo list by providing a 'title' parameter. If no title is provided, it will default to 'TodoWrite'.
 
 ## When to Use This Tool
 Use this tool proactively in these scenarios:
@@ -346,12 +346,12 @@ class TodoWriteToolInvocation extends BaseToolInvocation<
       const todoResultDisplay = {
         type: 'todo_list' as const,
         todos: finalTodos,
-        title: title || '流程Todo',
+        title: title || ToolDisplayNames.TODO_WRITE,
       };
 
       // Create plain string format with system reminder
       const todosData = {
-        title: title || '流程Todo',
+        title: title || ToolDisplayNames.TODO_WRITE,
         todos: finalTodos,
       };
       const todosJson = JSON.stringify(todosData);
@@ -363,7 +363,7 @@ class TodoWriteToolInvocation extends BaseToolInvocation<
 
 <system-reminder>
 Your todo list is now empty. DO NOT mention this explicitly to the user. You have no pending tasks in your todo list.
-Title: ${title || '流程Todo'}
+Title: ${title || ToolDisplayNames.TODO_WRITE}
 </system-reminder>`;
       } else {
         // Normal message for todos with items
@@ -443,8 +443,7 @@ export class TodoWriteTool extends BaseDeclarativeTool<
   constructor(private readonly config: Config) {
     super(
       TodoWriteTool.Name,
-      // 'Todo Write',
-      '流程Todo',
+      ToolDisplayNames.TODO_WRITE,
       todoWriteToolDescription,
       Kind.Think,
       todoWriteToolSchemaData.parametersJsonSchema as Record<string, unknown>,
@@ -452,7 +451,7 @@ export class TodoWriteTool extends BaseDeclarativeTool<
   }
 
   getDisplayName(params?: TodoWriteParams): string {
-    return params?.title || '流程Todo';
+    return params?.title || ToolDisplayNames.TODO_WRITE;
   }
 
   override validateToolParams(params: TodoWriteParams): string | null {

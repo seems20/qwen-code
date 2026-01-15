@@ -211,13 +211,26 @@ export const useAuthCommand = (
 
       await clearCachedCredentialFile();
 
-      // 如果从 XHS_SSO 切换到其他认证方式，清除 XHS_SSO 相关配置
       const previousAuthType = settings.merged.security?.auth?.selectedType;
+      
+      // 如果从 XHS_SSO 切换到其他认证方式，清除 XHS_SSO 相关配置
       if (
         previousAuthType === AuthType.XHS_SSO &&
         authType !== AuthType.XHS_SSO
       ) {
         // 清除 apiKey、baseUrl 和 model.name
+        settings.setValue(scope, 'security.auth.apiKey', undefined);
+        settings.setValue(scope, 'security.auth.baseUrl', undefined);
+        settings.setValue(scope, 'model.name', undefined);
+      }
+
+      // 如果从其他认证方式切换到 XHS_SSO，清除旧配置以使用 XHS_SSO 默认配置
+      if (
+        previousAuthType &&
+        previousAuthType !== AuthType.XHS_SSO &&
+        authType === AuthType.XHS_SSO
+      ) {
+        // 清除 apiKey、baseUrl 和 model.name，让 XHS_SSO 使用默认配置
         settings.setValue(scope, 'security.auth.apiKey', undefined);
         settings.setValue(scope, 'security.auth.baseUrl', undefined);
         settings.setValue(scope, 'model.name', undefined);
