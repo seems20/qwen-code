@@ -302,8 +302,8 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // This is a bit brittle, but it's the best way to check which item is selected.
-      expect(lastFrame()).toContain('● 3. OpenAI');
+      // OpenAI 现在是第 2 项（因为 Qwen OAuth 被隐藏了）
+      expect(lastFrame()).toContain('● 2. OpenAI');
     });
 
     it('should fall back to default if QWEN_DEFAULT_AUTH_TYPE is not set', () => {
@@ -342,8 +342,8 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // Default is Qwen OAuth (first option)
-      expect(lastFrame()).toContain('● 2. Qwen OAuth');
+      // 默认是 XHS_SSO（第一项，因为 Qwen OAuth 被隐藏了）
+      expect(lastFrame()).toContain('● 1. 小红书 SSO');
     });
 
     it('should show an error and fall back to default if QWEN_DEFAULT_AUTH_TYPE is invalid', () => {
@@ -384,9 +384,8 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // Since the auth dialog doesn't show QWEN_DEFAULT_AUTH_TYPE errors anymore,
-      // it will just show the default Qwen OAuth option
-      expect(lastFrame()).toContain('● 2. Qwen OAuth');
+      // Qwen OAuth 已隐藏，默认是 XHS_SSO（第一项）
+      expect(lastFrame()).toContain('● 1. 小红书 SSO');
     });
   });
 

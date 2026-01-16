@@ -34,6 +34,8 @@ export function AuthDialog(): React.JSX.Element {
   const config = useConfig();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // selectedIndex 用于 handleHighlight，虽然现在不直接使用，但保留以供将来扩展
+  // @ts-expect-error - selectedIndex used in handleHighlight callback
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const items = [
@@ -42,11 +44,12 @@ export function AuthDialog(): React.JSX.Element {
       label: t('小红书 SSO'),
       value: AuthType.XHS_SSO,
     },
-    {
-      key: AuthType.QWEN_OAUTH,
-      label: t('Qwen OAuth'),
-      value: AuthType.QWEN_OAUTH,
-    },
+    // 暂时隐藏 Qwen OAuth
+    // {
+    //   key: AuthType.QWEN_OAUTH,
+    //   label: t('Qwen OAuth'),
+    //   value: AuthType.QWEN_OAUTH,
+    // },
     {
       key: AuthType.USE_OPENAI,
       label: t('OpenAI'),
@@ -76,16 +79,17 @@ export function AuthDialog(): React.JSX.Element {
         return item.value === defaultAuthType;
       }
 
-      // Priority 4: default to QWEN_OAUTH
-      return item.value === AuthType.QWEN_OAUTH;
+      // Priority 4: default to XHS_SSO (Qwen OAuth is hidden)
+      return item.value === AuthType.XHS_SSO;
     }),
   );
 
-  const hasApiKey = Boolean(config.getContentGeneratorConfig()?.apiKey);
-  const currentSelectedAuthType =
-    selectedIndex !== null
-      ? items[selectedIndex]?.value
-      : items[initialAuthIndex]?.value;
+  // Qwen OAuth 已隐藏，暂时不需要这些变量
+  // const hasApiKey = Boolean(config.getContentGeneratorConfig()?.apiKey);
+  // const currentSelectedAuthType =
+  //   selectedIndex !== null
+  //     ? items[selectedIndex]?.value
+  //     : items[initialAuthIndex]?.value;
 
   const handleAuthSelect = async (authMethod: AuthType) => {
     setErrorMessage(null);
@@ -148,7 +152,8 @@ export function AuthDialog(): React.JSX.Element {
       <Box marginTop={1}>
         <Text color={Colors.AccentPurple}>{t('(Use Enter to Set Auth)')}</Text>
       </Box>
-      {hasApiKey && currentSelectedAuthType === AuthType.QWEN_OAUTH && (
+      {/* Qwen OAuth 已隐藏，相关提示也隐藏 */}
+      {/* {hasApiKey && currentSelectedAuthType === AuthType.QWEN_OAUTH && (
         <Box marginTop={1}>
           <Text color={Colors.Gray}>
             {t(
@@ -156,7 +161,7 @@ export function AuthDialog(): React.JSX.Element {
             )}
           </Text>
         </Box>
-      )}
+      )} */}
       <Box marginTop={1}>
         <Text>{t('Welcome to RDMind')}</Text>
       </Box>
