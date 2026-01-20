@@ -1222,7 +1222,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: true,
         default: false,
         description:
-          'Enable experimental Agent Skills feature. When enabled, Qwen Code can use Skills from .qwen/skills/ and ~/.qwen/skills/.',
+          'Enable experimental Agent Skills feature. When enabled, RDMind can use Skills from .rdmind/skills/ and ~/.rdmind/skills/.',
         showInDialog: true,
       },
       extensionManagement: {
