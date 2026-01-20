@@ -33,6 +33,7 @@ export const EVENT_MODEL_SLASH_COMMAND = 'rdmind.slash_command.model';
 export const EVENT_SUBAGENT_EXECUTION = 'rdmind.subagent_execution';
 export const EVENT_SKILL_LAUNCH = 'rdmind.skill_launch';
 export const EVENT_AUTH = 'rdmind.auth';
+export const EVENT_USER_FEEDBACK = 'rdmind.user_feedback';
 
 // Performance Events
 export const EVENT_STARTUP_PERFORMANCE = 'rdmind.startup.performance';

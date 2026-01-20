@@ -7,15 +7,14 @@
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
-import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { bfsFileSearch } from './bfsFileSearch.js';
+import { homedir } from 'node:os';
 import { getAllGeminiMdFilenames } from '../tools/memoryTool.js';
 import type { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { processImports } from './memoryImportProcessor.js';
+import { QWEN_DIR } from './paths.js';
 import type { FileFilteringOptions } from '../config/constants.js';
 import { DEFAULT_MEMORY_FILE_FILTERING_OPTIONS } from '../config/constants.js';
-import { QWEN_DIR } from './paths.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -115,8 +114,8 @@ async function getGeminiMdFilePathsInternal(
   fileService: FileDiscoveryService,
   extensionContextFilePaths: string[] = [],
   folderTrust: boolean,
-  fileFilteringOptions: FileFilteringOptions,
-  maxDirs: number,
+  fileFilteringOptions?: FileFilteringOptions,
+  maxDirs?: number,
 ): Promise<string[]> {
   const dirs = new Set<string>([
     ...includeDirectoriesToReadGemini,
@@ -183,8 +182,8 @@ async function getGeminiMdFilePathsInternalForEachDir(
   fileService: FileDiscoveryService,
   extensionContextFilePaths: string[] = [],
   folderTrust: boolean,
-  fileFilteringOptions: FileFilteringOptions,
-  maxDirs: number,
+  fileFilteringOptions?: FileFilteringOptions,
+  maxDirs?: number,
 ): Promise<string[]> {
   const allPaths = new Set<string>();
   const geminiMdFilenames = getAllGeminiMdFilenames();
@@ -237,11 +236,11 @@ async function getGeminiMdFilePathsInternalForEachDir(
         allPaths,
         debugMode,
         fileService,
-        fileFilteringOptions,
-        maxDirs,
+        fileFilteringOptions || DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
+        maxDirs || 0,
       );
     } else if (dir && folderTrust) {
-      // FIX: Only perform the workspace search (upward and downward scans)
+      // FIX: Only perform the workspace search (upward scan from CWD to project root)
       // if a valid currentWorkingDirectory is provided and it's not the home directory.
       const resolvedCwd = path.resolve(dir);
       if (debugMode)
@@ -281,23 +280,6 @@ async function getGeminiMdFilePathsInternalForEachDir(
         currentDir = path.dirname(currentDir);
       }
       upwardPaths.forEach((p) => allPaths.add(p));
-
-      const mergedOptions: FileFilteringOptions = {
-        ...DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
-        ...fileFilteringOptions,
-      };
-
-      const downwardPaths = await bfsFileSearch(resolvedCwd, {
-        fileName: geminiMdFilename,
-        maxDirs,
-        debug: debugMode,
-        fileService,
-        fileFilteringOptions: mergedOptions,
-      });
-      downwardPaths.sort();
-      for (const dPath of downwardPaths) {
-        allPaths.add(dPath);
-      }
     }
   }
 
@@ -521,8 +503,8 @@ export async function loadServerHierarchicalMemory(
   extensionContextFilePaths: string[] = [],
   folderTrust: boolean,
   importFormat: 'flat' | 'tree' = 'tree',
-  fileFilteringOptions?: FileFilteringOptions,
-  maxDirs: number = 200,
+  _fileFilteringOptions?: FileFilteringOptions,
+  _maxDirs?: number,
 ): Promise<LoadServerHierarchicalMemoryResponse> {
   if (debugMode)
     logger.debug(
@@ -540,8 +522,8 @@ export async function loadServerHierarchicalMemory(
     fileService,
     extensionContextFilePaths,
     folderTrust,
-    fileFilteringOptions || DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
-    maxDirs,
+    _fileFilteringOptions,
+    _maxDirs,
   );
   if (filePaths.length === 0) {
     if (debugMode) logger.debug('No RDMind.md files found in hierarchy.');
@@ -557,6 +539,14 @@ export async function loadServerHierarchicalMemory(
     contentsWithPaths,
     currentWorkingDirectory,
   );
+
+  // Only count files that match configured memory filenames (e.g., QWEN.md),
+  // excluding system context files like output-language.md
+  const memoryFilenames = new Set(getAllGeminiMdFilenames());
+  const fileCount = contentsWithPaths.filter((item) =>
+    memoryFilenames.has(path.basename(item.filePath)),
+  ).length;
+
   if (debugMode)
     logger.debug(
       `Combined instructions length: ${combinedInstructions.length}`,
@@ -567,6 +557,6 @@ export async function loadServerHierarchicalMemory(
     );
   return {
     memoryContent: combinedInstructions,
-    fileCount: contentsWithPaths.length,
+    fileCount, // Only count the context files
   };
 }

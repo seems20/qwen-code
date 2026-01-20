@@ -33,6 +33,9 @@ vi.mock('../hooks/useCommandCompletion.js');
 vi.mock('../hooks/useInputHistory.js');
 vi.mock('../hooks/useReverseSearchCompletion.js');
 vi.mock('../utils/clipboardUtils.js');
+vi.mock('../contexts/UIStateContext.js', () => ({
+  useUIState: vi.fn(() => ({ isFeedbackDialogOpen: false })),
+}));
 
 const mockSlashCommands: SlashCommand[] = [
   {
@@ -278,7 +281,7 @@ describe('InputPrompt', () => {
     unmount();
   });
 
-  it('should call completion.navigateUp for both up arrow and Ctrl+P when suggestions are showing', async () => {
+  it('should call completion.navigateUp for up arrow when suggestions are showing', async () => {
     mockedUseCommandCompletion.mockReturnValue({
       ...mockCommandCompletion,
       showSuggestions: true,
@@ -293,19 +296,22 @@ describe('InputPrompt', () => {
     const { stdin, unmount } = renderWithProviders(<InputPrompt {...props} />);
     await wait();
 
-    // Test up arrow
+    // Test up arrow for completion navigation
     stdin.write('\u001B[A'); // Up arrow
     await wait();
+    expect(mockCommandCompletion.navigateUp).toHaveBeenCalledTimes(1);
+    expect(mockCommandCompletion.navigateDown).not.toHaveBeenCalled();
 
+    // Ctrl+P should navigate history, not completion
     stdin.write('\u0010'); // Ctrl+P
     await wait();
-    expect(mockCommandCompletion.navigateUp).toHaveBeenCalledTimes(2);
-    expect(mockCommandCompletion.navigateDown).not.toHaveBeenCalled();
+    expect(mockCommandCompletion.navigateUp).toHaveBeenCalledTimes(1);
+    expect(mockInputHistory.navigateUp).toHaveBeenCalled();
 
     unmount();
   });
 
-  it('should call completion.navigateDown for both down arrow and Ctrl+N when suggestions are showing', async () => {
+  it('should call completion.navigateDown for down arrow when suggestions are showing', async () => {
     mockedUseCommandCompletion.mockReturnValue({
       ...mockCommandCompletion,
       showSuggestions: true,
@@ -319,14 +325,17 @@ describe('InputPrompt', () => {
     const { stdin, unmount } = renderWithProviders(<InputPrompt {...props} />);
     await wait();
 
-    // Test down arrow
+    // Test down arrow for completion navigation
     stdin.write('\u001B[B'); // Down arrow
     await wait();
+    expect(mockCommandCompletion.navigateDown).toHaveBeenCalledTimes(1);
+    expect(mockCommandCompletion.navigateUp).not.toHaveBeenCalled();
 
+    // Ctrl+N should navigate history, not completion
     stdin.write('\u000E'); // Ctrl+N
     await wait();
-    expect(mockCommandCompletion.navigateDown).toHaveBeenCalledTimes(2);
-    expect(mockCommandCompletion.navigateUp).not.toHaveBeenCalled();
+    expect(mockCommandCompletion.navigateDown).toHaveBeenCalledTimes(1);
+    expect(mockInputHistory.navigateDown).toHaveBeenCalled();
 
     unmount();
   });
@@ -763,8 +772,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -791,8 +807,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -819,8 +842,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -847,8 +877,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -875,8 +912,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -904,8 +948,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -932,8 +983,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -961,8 +1019,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -990,8 +1055,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -1019,8 +1091,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -1048,8 +1127,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -1079,8 +1165,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -1108,8 +1201,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();
@@ -1139,8 +1239,15 @@ describe('InputPrompt', () => {
         mockSlashCommands,
         mockCommandContext,
         false,
-        expect.any(Object),
+        expect.objectContaining({
+          getProjectRoot: expect.any(Function),
+          getTargetDir: expect.any(Function),
+          getVimMode: expect.any(Function),
+          getWorkspaceContext: expect.any(Function),
+        }),
         false,
+        // active parameter: completion enabled when not just navigated history
+        true,
       );
 
       unmount();

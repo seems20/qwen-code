@@ -59,9 +59,7 @@ describe('directoryCommand', () => {
       services: {
         config: mockConfig,
         settings: {
-          merged: {
-            memoryDiscoveryMaxDirs: 1000,
-          },
+          merged: {},
         },
       },
       ui: {

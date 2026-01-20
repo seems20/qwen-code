@@ -432,6 +432,16 @@ const SETTINGS_SCHEMA = {
           'Show welcome back dialog when returning to a project with conversation history.',
         showInDialog: true,
       },
+      enableUserFeedback: {
+        type: 'boolean',
+        label: 'Enable User Feedback',
+        category: 'UI',
+        requiresRestart: false,
+        default: true,
+        description:
+          'Show optional feedback dialog after conversations to help improve Qwen performance.',
+        showInDialog: true,
+      },
       accessibility: {
         type: 'object',
         label: 'Accessibility',
@@ -461,6 +471,15 @@ const SETTINGS_SCHEMA = {
             showInDialog: true,
           },
         },
+      },
+      feedbackLastShownTimestamp: {
+        type: 'number',
+        label: 'Feedback Last Shown Timestamp',
+        category: 'UI',
+        requiresRestart: false,
+        default: 0,
+        description: 'The last time the feedback dialog was shown.',
+        showInDialog: false,
       },
     },
   },
@@ -719,15 +738,6 @@ const SETTINGS_SCHEMA = {
         default: undefined as MemoryImportFormat | undefined,
         description: 'The format to use when importing memory.',
         showInDialog: false,
-      },
-      discoveryMaxDirs: {
-        type: 'number',
-        label: 'Memory Discovery Max Dirs',
-        category: 'Context',
-        requiresRestart: false,
-        default: 200,
-        description: 'Maximum number of directories to search for memory.',
-        showInDialog: true,
       },
       includeDirectories: {
         type: 'array',
@@ -1205,6 +1215,16 @@ const SETTINGS_SCHEMA = {
     description: 'Setting to enable experimental features',
     showInDialog: false,
     properties: {
+      skills: {
+        type: 'boolean',
+        label: 'Skills',
+        category: 'Experimental',
+        requiresRestart: true,
+        default: false,
+        description:
+          'Enable experimental Agent Skills feature. When enabled, Qwen Code can use Skills from .qwen/skills/ and ~/.qwen/skills/.',
+        showInDialog: true,
+      },
       extensionManagement: {
         type: 'boolean',
         label: 'Extension Management',

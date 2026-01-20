@@ -383,7 +383,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
         persistModelSelection(settingsHook, effectiveModelId);
         persistAuthTypeSelection(settingsHook, effectiveAuthType);
 
-        const baseUrl = after?.baseUrl ?? '(default)';
+        const baseUrl = after?.baseUrl ?? t('(default)');
         const maskedKey = maskApiKey(after?.apiKey);
         uiState?.historyManager.addItem(
           {
@@ -430,7 +430,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
             <>
               <ConfigRow
                 label="Base URL"
-                value={effectiveConfig?.baseUrl ?? ''}
+                value={effectiveConfig?.baseUrl ?? t('(default)')}
                 badge={formatSourceBadge(sources['baseUrl'])}
               />
               <ConfigRow

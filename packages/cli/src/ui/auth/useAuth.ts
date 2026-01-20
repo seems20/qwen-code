@@ -4,7 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Config, ModelProvidersConfig } from '@rdmind/rdmind-core';
+import type {
+  Config,
+  ContentGeneratorConfig,
+  ModelProvidersConfig,
+} from '@rdmind/rdmind-core';
 import {
   AuthEvent,
   AuthType,
@@ -212,7 +216,7 @@ export const useAuthCommand = (
       await clearCachedCredentialFile();
 
       const previousAuthType = settings.merged.security?.auth?.selectedType;
-      
+
       // 如果从 XHS_SSO 切换到其他认证方式，清除 XHS_SSO 相关配置
       if (
         previousAuthType === AuthType.XHS_SSO &&
@@ -354,34 +358,20 @@ export const useAuthCommand = (
 
       if (authType === AuthType.USE_OPENAI) {
         if (credentials) {
-          // 用户输入了新的 credentials
-          config.updateCredentials({
-            apiKey: credentials.apiKey,
-            baseUrl: credentials.baseUrl,
-            model: credentials.model,
-          });
+          // Pass settings.model.generationConfig to updateCredentials so it can be merged
+          // after clearing provider-sourced config. This ensures settings.json generationConfig
+          // fields (e.g., samplingParams, timeout) are preserved.
+          const settingsGenerationConfig = settings.merged.model
+            ?.generationConfig as Partial<ContentGeneratorConfig> | undefined;
+          config.updateCredentials(
+            {
+              apiKey: credentials.apiKey,
+              baseUrl: credentials.baseUrl,
+              model: credentials.model,
+            },
+            settingsGenerationConfig,
+          );
           await performAuth(authType, credentials);
-        } else {
-          // 没有新 credentials，从环境变量或 settings 中读取
-          const apiKey =
-            process.env['OPENAI_API_KEY'] ||
-            settings.merged.security?.auth?.apiKey ||
-            '';
-          const baseUrl =
-            process.env['OPENAI_BASE_URL'] ||
-            settings.merged.security?.auth?.baseUrl ||
-            '';
-          const model =
-            process.env['OPENAI_MODEL'] || settings.merged.model?.name || '';
-
-          if (apiKey) {
-            config.updateCredentials({
-              apiKey,
-              baseUrl,
-              model,
-            });
-          }
-          await performAuth(authType, { apiKey, baseUrl, model });
         }
         return;
       }
@@ -390,13 +380,10 @@ export const useAuthCommand = (
     },
     [
       config,
-      settings,
-      setAuthState,
-      onAuthError,
       performAuth,
-      handleAuthFailure,
-      addItem,
       isProviderManagedModel,
+      onAuthError,
+      settings.merged.model?.generationConfig,
     ],
   );
 

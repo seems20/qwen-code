@@ -2,7 +2,7 @@
   "name": "rdmind-vscode-ide-companion",
   "displayName": "RDMind Companion",
   "description": "Enable RDMind with direct access to your VS Code workspace.",
-  "version": "0.2.0",
+  "version": "0.2.1-alpha.0",
   "publisher": "RDMind",
   "icon": "assets/icon.png",
   "engines": {

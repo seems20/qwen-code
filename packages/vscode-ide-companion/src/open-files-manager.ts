@@ -5,10 +5,7 @@
  */
 
 import * as vscode from 'vscode';
-import type {
-  File,
-  IdeContext,
-} from '@rdmind/rdmind-core/src/ide/types.js';
+import type { File, IdeContext } from '@rdmind/rdmind-core/src/ide/types.js';
 import {
   isFileUri,
   isNotebookFileUri,

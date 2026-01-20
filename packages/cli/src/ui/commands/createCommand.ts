@@ -103,7 +103,7 @@ function replaceIdlProjectNames(
   // 例如：angelos_idl -> angelos-api, angelos-idl -> angelos-api
   //      angelos_admin_idl -> angelos-admin-api, angelos-admin-idl -> angelos-admin-api
   const artifactId = newName.replace(/[-_]idl$/, '').replace(/_/g, '-');
-  
+
   // 生成包名/namespace 用的名称：去除 _idl 或 -idl 后缀
   // 例如：angelos_idl -> angelos, angelos-idl -> angelos
   //      angelos_admin_idl -> angelos_admin, angelos-admin-idl -> angelos-admin
@@ -112,8 +112,14 @@ function replaceIdlProjectNames(
   return (
     content
       // 处理 demo-api artifactId
-      .replace(new RegExp(`<artifactId>${oldName}-api</artifactId>`, 'g'), `<artifactId>${artifactId}-api</artifactId>`)
-      .replace(new RegExp(`<artifactId>${oldName}</artifactId>`, 'g'), `<artifactId>${artifactId}</artifactId>`)
+      .replace(
+        new RegExp(`<artifactId>${oldName}-api</artifactId>`, 'g'),
+        `<artifactId>${artifactId}-api</artifactId>`,
+      )
+      .replace(
+        new RegExp(`<artifactId>${oldName}</artifactId>`, 'g'),
+        `<artifactId>${artifactId}</artifactId>`,
+      )
       // 处理 demo 相关的包名（com.xiaohongshu.sns.demo.api.*）
       .replace(
         new RegExp(`com\\.xiaohongshu\\.sns\\.demo`, 'g'),
@@ -675,11 +681,13 @@ async function createIdlProject(
     // 生成搜索关键词：将下划线转为连字符，并去除 _idl 或 -idl 后缀
     // 例如：angelos_idl -> angelos-sdk, angelos-idl -> angelos-sdk
     //      angelos_admin_idl -> angelos-admin-sdk, angelos-admin-idl -> angelos-admin-sdk
-    const searchKeyword = projectName.replace(/[-_]idl$/, '').replace(/_/g, '-');
-    
+    const searchKeyword = projectName
+      .replace(/[-_]idl$/, '')
+      .replace(/_/g, '-');
+
     // 检查项目名是否以 idl 结尾，如果不是则给出提示
     const hasIdlSuffix = /[-_]idl$/.test(projectName);
-    const namingTip = hasIdlSuffix 
+    const namingTip = hasIdlSuffix
       ? `\n💡 已自动处理项目名后缀：\n   • Maven artifactId: ${searchKeyword}-api\n   • 搜索关键词: ${searchKeyword}-sdk`
       : `\n💡 提示：建议IDL项目名以 _idl 或 -idl 结尾（如：${projectName}_idl）\n   这样可以自动优化生成的 artifactId 和搜索关键词`;
 
@@ -790,7 +798,7 @@ const idlCommand: SlashCommand = {
       context.ui.addItem(
         {
           type: MessageType.ERROR,
-          text: 
+          text:
             '❌ 请提供项目名称。\n\n' +
             '使用格式：/create idl <项目名>\n\n' +
             '💡 建议项目名以 _idl 或 -idl 结尾，例如：\n' +
@@ -858,7 +866,8 @@ export { getIdlExamplePath, getTemplatePath };
 
 export const createCommand: SlashCommand = {
   name: 'create',
-  description: '创建项目脚手架，用法：/create java sns <项目名> 或 /create idl <项目名>',
+  description:
+    '创建项目脚手架，用法：/create java sns <项目名> 或 /create idl <项目名>',
   kind: CommandKind.BUILT_IN,
   subCommands: [javaCommand, idlCommand],
   action: async (
@@ -866,29 +875,30 @@ export const createCommand: SlashCommand = {
     args: string,
   ): Promise<SlashCommandActionReturn | void> => {
     const trimmedArgs = args.trim();
-    
+
     // 如果没有参数，显示帮助信息
     if (!trimmedArgs) {
       context.ui.addItem(
         {
           type: MessageType.INFO,
-          text: '📋 创建项目脚手架\n\n' +
-                '可用的项目类型：\n' +
-                '• java - Java项目（DDD架构）\n' +
-                '• idl - IDL项目（Thrift接口定义）\n\n' +
-                '使用格式：\n' +
-                '• /create java sns <项目名>\n' +
-                '• /create java fls <项目名>\n' +
-                '• /create idl <项目名>\n\n' +
-                '示例：\n' +
-                '• /create java sns user-service\n' +
-                '• /create idl angelos_idl',
+          text:
+            '📋 创建项目脚手架\n\n' +
+            '可用的项目类型：\n' +
+            '• java - Java项目（DDD架构）\n' +
+            '• idl - IDL项目（Thrift接口定义）\n\n' +
+            '使用格式：\n' +
+            '• /create java sns <项目名>\n' +
+            '• /create java fls <项目名>\n' +
+            '• /create idl <项目名>\n\n' +
+            '示例：\n' +
+            '• /create java sns user-service\n' +
+            '• /create idl angelos_idl',
         },
         Date.now(),
       );
       return;
     }
-    
+
     const parts = trimmedArgs.split(/\s+/);
     const firstArg = parts[0].toLowerCase();
 

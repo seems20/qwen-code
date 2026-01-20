@@ -46,6 +46,8 @@ export function useCommandCompletion(
   reverseSearchActive: boolean = false,
   config?: Config,
   shellModeActive: boolean = false,
+  // When false, suppresses showing suggestions (e.g., after history navigation)
+  active: boolean = true,
 ): UseCommandCompletionReturn {
   const {
     suggestions,
@@ -158,7 +160,11 @@ export function useCommandCompletion(
   }, [suggestions, setActiveSuggestionIndex, setVisibleStartIndex]);
 
   useEffect(() => {
-    if (completionMode === CompletionMode.IDLE || reverseSearchActive) {
+    if (
+      completionMode === CompletionMode.IDLE ||
+      reverseSearchActive ||
+      !active
+    ) {
       resetCompletionState();
       return;
     }
@@ -169,6 +175,7 @@ export function useCommandCompletion(
     suggestions.length,
     isLoadingSuggestions,
     reverseSearchActive,
+    active,
     resetCompletionState,
     setShowSuggestions,
   ]);

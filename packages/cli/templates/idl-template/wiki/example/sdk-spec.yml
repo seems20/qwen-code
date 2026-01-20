@@ -1,6 +1,6 @@
 dependencies:
-  sns-idls/base: 1.1.7      # 依赖sns-idls/base项目，tag为1.1.7
+  sns-idls/base: 1.1.7 # 依赖sns-idls/base项目，tag为1.1.7
 build:
   go:
-    enabled: false           # 是否开启go编译 [gosdk](https://wiki.xiaohongshu.com/pages/viewpage.action?pageId=43487207)
-  recurse: true    # 是否递归编译引用的thrift文件（默认会将com.xiaohongshu.infra.rpc.base包删除）
+    enabled: false # 是否开启go编译 [gosdk](https://wiki.xiaohongshu.com/pages/viewpage.action?pageId=43487207)
+  recurse: true # 是否递归编译引用的thrift文件（默认会将com.xiaohongshu.infra.rpc.base包删除）
