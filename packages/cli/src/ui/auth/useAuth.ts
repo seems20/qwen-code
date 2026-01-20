@@ -358,6 +358,7 @@ export const useAuthCommand = (
 
       if (authType === AuthType.USE_OPENAI) {
         if (credentials) {
+          // 用户输入了新的 credentials
           // Pass settings.model.generationConfig to updateCredentials so it can be merged
           // after clearing provider-sourced config. This ensures settings.json generationConfig
           // fields (e.g., samplingParams, timeout) are preserved.
@@ -372,6 +373,32 @@ export const useAuthCommand = (
             settingsGenerationConfig,
           );
           await performAuth(authType, credentials);
+        } else {
+          // 没有新 credentials，从环境变量或 settings 中读取
+          const apiKey =
+            process.env['OPENAI_API_KEY'] ||
+            settings.merged.security?.auth?.apiKey ||
+            '';
+          const baseUrl =
+            process.env['OPENAI_BASE_URL'] ||
+            settings.merged.security?.auth?.baseUrl ||
+            '';
+          const model =
+            process.env['OPENAI_MODEL'] || settings.merged.model?.name || '';
+
+          if (apiKey) {
+            const settingsGenerationConfig = settings.merged.model
+              ?.generationConfig as Partial<ContentGeneratorConfig> | undefined;
+            config.updateCredentials(
+              {
+                apiKey,
+                baseUrl,
+                model,
+              },
+              settingsGenerationConfig,
+            );
+          }
+          await performAuth(authType, { apiKey, baseUrl, model });
         }
         return;
       }
