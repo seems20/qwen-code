@@ -312,7 +312,7 @@ class GeminiAgent {
     const selectedType = this.settings.merged.security?.auth?.selectedType;
     if (!selectedType) {
       throw acp.RequestError.authRequired(
-        'Use Qwen Code CLI to authenticate first.',
+        'Use RDMind CLI to authenticate first.',
       );
     }
 

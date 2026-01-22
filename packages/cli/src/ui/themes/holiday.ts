@@ -16,6 +16,8 @@ const holidayColors: ColorsTheme = {
   AccentCyan: '#33F9FF',
   AccentGreen: '#3CB371',
   AccentYellow: '#FFEE8C',
+  AccentYellowDim: '#8B7000',
+  AccentRedDim: '#993333',
   AccentRed: '#FF6347',
   DiffAdded: '#2E8B57',
   DiffRemoved: '#CD5C5C',

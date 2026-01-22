@@ -4,80 +4,36 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type React from 'react';
+import { useMemo } from 'react';
 import { Box, Text } from 'ink';
-import Link from 'ink-link';
 import { theme } from '../semantic-colors.js';
-import { type Config } from '@rdmind/rdmind-core';
 import { t } from '../../i18n/index.js';
 
-interface TipsProps {
-  config: Config;
-}
+const startupTips = [
+  'Use /compress when the conversation gets long to summarize history and free up context.',
+  'Start a fresh idea with /clear or /new; the previous session stays available in history.',
+  'Use /doc to view documentation, changelog and practice sharing.',
+  'Switch auth type quickly with /auth.',
+  'You can run any shell commands from RDMind using ! (e.g. !ls).',
+  'Type / to open the command popup; Tab autocompletes slash commands and saved prompts.',
+  'You can resume a previous conversation by running rdmind --continue or rdmind --resume.',
+  'You can switch permission mode quickly with Shift+Tab or /approval-mode.',
+  'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.',
+  'Try asking RDMind to help you commit code.',
+  'RDMind can read REDoc. Please do not upload documents involving user privacy and core algorithms.',
+] as const;
 
-export const Tips: React.FC<TipsProps> = ({ config }) => {
-  const geminiMdFileCount = config.getGeminiMdFileCount();
+export const Tips: React.FC = () => {
+  const selectedTip = useMemo(() => {
+    const randomIndex = Math.floor(Math.random() * startupTips.length);
+    return startupTips[randomIndex];
+  }, []);
+
   return (
-    <Box flexDirection="column">
-      <Text color={theme.text.primary}> - {t('Inspired By REDer Mind')}</Text>
-      <Text color={theme.text.primary}>
-        {' '}
-        {t('Official website:')}{' '}
-        <Link url="https://rdmind.devops.xiaohongshu.com/apps/reddevmind-web">
-          https://rdmind.devops.xiaohongshu.com/apps/reddevmind-web
-        </Link>
-      </Text>
-      <Text color={theme.text.primary}> </Text>
-      <Text color={theme.text.primary}>{t('Usage Guide:')}</Text>
-      <Text color={theme.text.primary}>
-        1.{' '}
-        <Text bold color={theme.text.accent}>
-          /
-        </Text>{' '}
-        {t('use commands,')}{' '}
-        <Text bold color={theme.text.accent}>
-          @
-        </Text>{' '}
-        {t('add files')}
-      </Text>
-      <Text color={theme.text.primary}>
-        2. {t('Input')}{' '}
-        <Text bold color={theme.text.accent}>
-          /help
-        </Text>{' '}
-        {t('for help,')}{' '}
-        <Text bold color={theme.text.accent}>
-          /docs
-        </Text>{' '}
-        {t('open documentation,')}{' '}
-        <Text bold color={theme.text.accent}>
-          /model
-        </Text>{' '}
-        {t('switch model')}
-      </Text>
-      {geminiMdFileCount === 0 && (
-        <Text color={theme.text.primary}>
-          3. {t('Create')}{' '}
-          <Text bold color={theme.text.accent}>
-            RDMind.md
-          </Text>{' '}
-          {t('to customize your interactions with RDMind')}
-        </Text>
-      )}
-      <Text color={theme.text.primary}>
-        {geminiMdFileCount === 0 ? '4.' : '3.'} {t('Press')}{' '}
-        <Text bold color={theme.text.accent}>
-          Esc
-        </Text>{' '}
-        {t('twice to clear input,')}{' '}
-        <Text bold color={theme.text.accent}>
-          Shift + Enter
-        </Text>{' '}
-        {t('for new line,')}{' '}
-        <Text bold color={theme.text.accent}>
-          Ctrl + C
-        </Text>{' '}
-        {t('to exit RDMind')}
+    <Box marginLeft={2} marginRight={2}>
+      <Text color={theme.text.secondary}>
+        {t('Tips: ')}
+        {t(selectedTip)}
       </Text>
     </Box>
   );

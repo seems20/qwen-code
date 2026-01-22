@@ -31,7 +31,7 @@ describe('ToolConfirmationMessage', () => {
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
-        terminalWidth={80}
+        contentWidth={80}
       />,
     );
 
@@ -55,7 +55,7 @@ describe('ToolConfirmationMessage', () => {
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
-        terminalWidth={80}
+        contentWidth={80}
       />,
     );
 
@@ -78,7 +78,7 @@ describe('ToolConfirmationMessage', () => {
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
-        terminalWidth={80}
+        contentWidth={80}
       />,
     );
 
@@ -159,7 +159,7 @@ describe('ToolConfirmationMessage', () => {
             confirmationDetails={details}
             config={mockConfig}
             availableTerminalHeight={30}
-            terminalWidth={80}
+            contentWidth={80}
           />,
         );
 
@@ -177,7 +177,7 @@ describe('ToolConfirmationMessage', () => {
             confirmationDetails={details}
             config={mockConfig}
             availableTerminalHeight={30}
-            terminalWidth={80}
+            contentWidth={80}
           />,
         );
 
@@ -209,7 +209,7 @@ describe('ToolConfirmationMessage', () => {
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
-          terminalWidth={80}
+          contentWidth={80}
         />,
         {
           settings: {
@@ -232,7 +232,7 @@ describe('ToolConfirmationMessage', () => {
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
-          terminalWidth={80}
+          contentWidth={80}
         />,
         {
           settings: {

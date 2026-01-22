@@ -240,10 +240,16 @@ describe('handleAutoUpdate', () => {
 
     handleAutoUpdate(mockUpdateInfo, mockSettings, '/root', mockSpawn);
 
-    expect(mockSpawn).toHaveBeenCalledWith('npm i -g @rdmind/rdmind@nightly', {
-      shell: true,
-      stdio: 'pipe',
-    });
+    expect(mockSpawn).toHaveBeenCalledWith(
+      expect.stringMatching(/^(bash|cmd\.exe)$/),
+      expect.arrayContaining([
+        expect.stringMatching(/^(-c|\/c)$/),
+        'npm i -g @rdmind/rdmind@nightly',
+      ]),
+      {
+        stdio: 'pipe',
+      },
+    );
   });
 
   it('should emit "update-success" when the update process succeeds', async () => {
