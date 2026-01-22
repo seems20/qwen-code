@@ -712,7 +712,7 @@ const SETTINGS_SCHEMA = {
             description: 'Respect .gitignore files when searching',
             showInDialog: true,
           },
-          respectQwenIgnore: {
+          respectRdmindIgnore: {
             type: 'boolean',
             label: 'Respect .rdmindignore',
             category: 'Context',

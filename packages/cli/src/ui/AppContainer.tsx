@@ -376,7 +376,7 @@ export const AppContainer = (props: AppContainerProps) => {
     handleAuthSelect,
     openAuthDialog,
     cancelAuthentication,
-  } = useAuthCommand(settings, config, historyManager.addItem);
+  } = useAuthCommand(settings, config, historyManager.addItem, refreshStatic);
 
   // Auto SSO authentication (小红书 SSO)
   // 在建联后触发 SSO 认证流程，然后轮询检查文件
@@ -530,6 +530,9 @@ export const AppContainer = (props: AppContainerProps) => {
                 'success',
               );
               logAuth(config, successEvent);
+
+              // Refresh static content to update header with new auth type
+              refreshStatic();
             } catch (error) {
               // 获取/保存失败
               if (config.getDebugMode()) {

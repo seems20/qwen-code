@@ -34,7 +34,7 @@ export interface LSToolParams {
    */
   file_filtering_options?: {
     respect_git_ignore?: boolean;
-    respect_qwen_ignore?: boolean;
+    respect_rdmind_ignore?: boolean;
   };
 }
 
@@ -176,10 +176,10 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
             this.params.file_filtering_options?.respect_git_ignore ??
             this.config.getFileFilteringOptions().respectGitIgnore ??
             DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
-          respectQwenIgnore:
-            this.params.file_filtering_options?.respect_qwen_ignore ??
-            this.config.getFileFilteringOptions().respectQwenIgnore ??
-            DEFAULT_FILE_FILTERING_OPTIONS.respectQwenIgnore,
+          respectRdmindIgnore:
+            this.params.file_filtering_options?.respect_rdmind_ignore ??
+            this.config.getFileFilteringOptions().respectRdmindIgnore ??
+            DEFAULT_FILE_FILTERING_OPTIONS.respectRdmindIgnore,
         });
 
       const entries = [];
@@ -286,7 +286,7 @@ export class LSTool extends BaseDeclarativeTool<LSToolParams, ToolResult> {
                   'Optional: Whether to respect .gitignore patterns when listing files. Only available in git repositories. Defaults to true.',
                 type: 'boolean',
               },
-              respect_qwen_ignore: {
+              respect_rdmind_ignore: {
                 description:
                   'Optional: Whether to respect .rdmindignore patterns when listing files. Defaults to true.',
                 type: 'boolean',

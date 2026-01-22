@@ -189,7 +189,7 @@ class GrepToolInvocation extends BaseToolInvocation<
       rgArgs.push('--no-ignore-vcs');
     }
 
-    if (filteringOptions.respectQwenIgnore) {
+    if (filteringOptions.respectRdmindIgnore) {
       const rdmindIgnorePath = path.join(
         this.config.getTargetDir(),
         '.rdmindignore',
@@ -221,9 +221,9 @@ class GrepToolInvocation extends BaseToolInvocation<
       respectGitIgnore:
         options?.respectGitIgnore ??
         DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
-      respectQwenIgnore:
-        options?.respectQwenIgnore ??
-        DEFAULT_FILE_FILTERING_OPTIONS.respectQwenIgnore,
+      respectRdmindIgnore:
+        options?.respectRdmindIgnore ??
+        DEFAULT_FILE_FILTERING_OPTIONS.respectRdmindIgnore,
     };
   }
 

@@ -98,11 +98,11 @@ vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
     ),
     DEFAULT_MEMORY_FILE_FILTERING_OPTIONS: {
       respectGitIgnore: false,
-      respectQwenIgnore: true,
+      respectRdmindIgnore: true,
     },
     DEFAULT_FILE_FILTERING_OPTIONS: {
       respectGitIgnore: true,
-      respectQwenIgnore: true,
+      respectRdmindIgnore: true,
     },
   };
 });
@@ -3132,13 +3132,13 @@ describe('loadCliConfig fileFiltering', () => {
       value: false,
     },
     {
-      property: 'respectQwenIgnore',
-      getter: (c) => c.getFileFilteringRespectQwenIgnore(),
+      property: 'respectRdmindIgnore',
+      getter: (c) => c.getFileFilteringRespectRdmindIgnore(),
       value: true,
     },
     {
-      property: 'respectQwenIgnore',
-      getter: (c) => c.getFileFilteringRespectQwenIgnore(),
+      property: 'respectRdmindIgnore',
+      getter: (c) => c.getFileFilteringRespectRdmindIgnore(),
       value: false,
     },
     {

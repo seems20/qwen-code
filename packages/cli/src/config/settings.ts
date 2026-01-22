@@ -929,6 +929,35 @@ export function migrateDeprecatedSettings(
       );
       loadedSettings.setValue(scope, 'experimental.skills', legacySkills);
     }
+
+    // Migrate respectQwenIgnore to respectRdmindIgnore
+    const legacyRespectQwenIgnore = (
+      settings.context?.fileFiltering as
+        | { respectQwenIgnore?: boolean }
+        | undefined
+    )?.respectQwenIgnore;
+    if (
+      legacyRespectQwenIgnore !== undefined &&
+      settings.context?.fileFiltering?.respectRdmindIgnore === undefined
+    ) {
+      console.log(
+        `Migrating deprecated context.fileFiltering.respectQwenIgnore setting from ${scope} settings...`,
+      );
+      loadedSettings.setValue(
+        scope,
+        'context.fileFiltering.respectRdmindIgnore',
+        legacyRespectQwenIgnore,
+      );
+      // Remove the old key
+      if (settings.context?.fileFiltering) {
+        const newFileFiltering = {
+          ...settings.context.fileFiltering,
+        };
+        delete (newFileFiltering as { respectQwenIgnore?: boolean })
+          .respectQwenIgnore;
+        loadedSettings.setValue(scope, 'context.fileFiltering', newFileFiltering);
+      }
+    }
   };
 
   processScope(SettingScope.User);

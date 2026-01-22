@@ -38,6 +38,7 @@ export const useAuthCommand = (
   settings: LoadedSettings,
   config: Config,
   addItem: (item: Omit<HistoryItem, 'id'>, timestamp: number) => void,
+  refreshStatic?: () => void,
 ) => {
   const unAuthenticated = config.getAuthType() === undefined;
 
@@ -164,8 +165,13 @@ export const useAuthCommand = (
         },
         Date.now(),
       );
+
+      // Refresh static content to update header with new auth type
+      if (refreshStatic) {
+        refreshStatic();
+      }
     },
-    [settings, handleAuthFailure, config, addItem],
+    [settings, handleAuthFailure, config, addItem, refreshStatic],
   );
 
   const performAuth = useCallback(
@@ -278,6 +284,11 @@ export const useAuthCommand = (
                   },
                   Date.now(),
                 );
+
+                // Refresh static content to update header with new auth type
+                if (refreshStatic) {
+                  refreshStatic();
+                }
               },
             });
           } catch (error) {
@@ -329,6 +340,11 @@ export const useAuthCommand = (
             },
             Date.now(),
           );
+
+          // Refresh static content to update header with new auth type
+          if (refreshStatic) {
+            refreshStatic();
+          }
         } catch (error) {
           handleAuthFailure(error);
         }
@@ -411,6 +427,9 @@ export const useAuthCommand = (
       isProviderManagedModel,
       onAuthError,
       settings.merged.model?.generationConfig,
+      refreshStatic,
+      addItem,
+      settings,
     ],
   );
 
