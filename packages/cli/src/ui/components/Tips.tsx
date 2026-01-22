@@ -13,7 +13,6 @@ const startupTips = [
   'Use /compress when the conversation gets long to summarize history and free up context.',
   'Start a fresh idea with /clear or /new; the previous session stays available in history.',
   'Use /doc to view documentation, changelog and practice sharing.',
-  'Switch auth type quickly with /auth.',
   'You can run any shell commands from RDMind using ! (e.g. !ls).',
   'Type / to open the command popup; Tab autocompletes slash commands and saved prompts.',
   'You can resume a previous conversation by running rdmind --continue or rdmind --resume.',
