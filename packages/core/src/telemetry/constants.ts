@@ -17,6 +17,7 @@ export const EVENT_EXTENSION_DISABLE = 'rdmind.extension_disable';
 export const EVENT_EXTENSION_ENABLE = 'rdmind.extension_enable';
 export const EVENT_EXTENSION_INSTALL = 'rdmind.extension_install';
 export const EVENT_EXTENSION_UNINSTALL = 'rdmind.extension_uninstall';
+export const EVENT_EXTENSION_UPDATE = 'rdmind.extension_update';
 export const EVENT_FLASH_FALLBACK = 'rdmind.flash_fallback';
 export const EVENT_RIPGREP_FALLBACK = 'rdmind.ripgrep_fallback';
 export const EVENT_NEXT_SPEAKER_CHECK = 'rdmind.next_speaker_check';

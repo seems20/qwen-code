@@ -136,18 +136,16 @@ async function addMcpServer(
 
 export const addCommand: CommandModule = {
   command: 'add <name> <commandOrUrl> [args...]',
-  describe: '添加 MCP 服务',
+  describe: 'Add a server',
   builder: (yargs) =>
     yargs
-      .usage(
-        '使用方法: rdmind mcp add [options] <name> <commandOrUrl> [args...]',
-      )
+      .usage('Usage: rdmind mcp add [options] <name> <commandOrUrl> [args...]')
       .parserConfiguration({
         'unknown-options-as-args': true, // Pass unknown options as server args
         'populate--': true, // Populate server args after -- separator
       })
       .positional('name', {
-        describe: 'MCP 服务名称',
+        describe: 'Name of the server',
         type: 'string',
         demandOption: true,
       })
@@ -158,50 +156,51 @@ export const addCommand: CommandModule = {
       })
       .option('scope', {
         alias: 's',
-        describe: '配置范围（user or project）',
+        describe: 'Configuration scope (user or project)',
         type: 'string',
         default: 'project',
         choices: ['user', 'project'],
       })
       .option('transport', {
         alias: 't',
-        describe: '传输类型（stdio, sse, http）',
+        describe: 'Transport type (stdio, sse, http)',
         type: 'string',
         default: 'stdio',
         choices: ['stdio', 'sse', 'http'],
       })
       .option('env', {
         alias: 'e',
-        describe: '设置环境变量（例如 -e KEY=value）',
+        describe: 'Set environment variables (e.g. -e KEY=value)',
         type: 'array',
         string: true,
       })
       .option('header', {
         alias: 'H',
         describe:
-          '为 SSE 和 HTTP 传输设置 HTTP 头（例如 -H "X-Api-Key: abc123" -H "Authorization: Bearer abc123"）',
+          'Set HTTP headers for SSE and HTTP transports (e.g. -H "X-Api-Key: abc123" -H "Authorization: Bearer abc123")',
         type: 'array',
         string: true,
       })
       .option('timeout', {
-        describe: '设置连接超时时间（毫秒）',
+        describe: 'Set connection timeout in milliseconds',
         type: 'number',
       })
       .option('trust', {
-        describe: '信任服务器（绕过所有工具调用确认提示）',
+        describe:
+          'Trust the server (bypass all tool call confirmation prompts)',
         type: 'boolean',
       })
       .option('description', {
-        describe: '设置 MCP 服务描述',
+        describe: 'Set the description for the server',
         type: 'string',
       })
       .option('include-tools', {
-        describe: '要包含的工具列表（逗号分隔）',
+        describe: 'A comma-separated list of tools to include',
         type: 'array',
         string: true,
       })
       .option('exclude-tools', {
-        describe: '要排除的工具列表（逗号分隔）',
+        describe: 'A comma-separated list of tools to exclude',
         type: 'array',
         string: true,
       })

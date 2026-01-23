@@ -83,6 +83,8 @@ export * from './utils/subagentGenerator.js';
 export * from './utils/projectSummary.js';
 export * from './utils/promptIdContext.js';
 export * from './utils/thoughtUtils.js';
+export * from './utils/toml-to-markdown-converter.js';
+export * from './utils/yaml-parser.js';
 export * from './utils/apiKeyEncryption.js';
 export * from './utils/gitUtils.js';
 
@@ -118,6 +120,9 @@ export * from './subagents/index.js';
 // Export skills
 export * from './skills/index.js';
 
+// Export extension
+export * from './extension/index.js';
+
 // Export prompt logic
 export * from './prompts/mcp-prompts.js';
 
@@ -151,6 +156,7 @@ export type {
   OAuthCredentials,
 } from './mcp/token-storage/types.js';
 export { MCPOAuthTokenStorage } from './mcp/oauth-token-storage.js';
+export { KeychainTokenStorage } from './mcp/token-storage/keychain-token-storage.js';
 export type { MCPOAuthConfig } from './mcp/oauth-provider.js';
 export type {
   OAuthAuthorizationServerMetadata,

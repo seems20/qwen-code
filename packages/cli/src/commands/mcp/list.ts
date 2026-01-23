@@ -8,10 +8,13 @@
 import type { CommandModule } from 'yargs';
 import { loadSettings } from '../../config/settings.js';
 import type { MCPServerConfig } from '@rdmind/rdmind-core';
-import { MCPServerStatus, createTransport } from '@rdmind/rdmind-core';
+import {
+  MCPServerStatus,
+  createTransport,
+  ExtensionManager,
+} from '@rdmind/rdmind-core';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { ExtensionStorage, loadExtensions } from '../../config/extension.js';
-import { ExtensionEnablementManager } from '../../config/extensions/extensionEnablement.js';
+import { isWorkspaceTrusted } from '../../config/trustedFolders.js';
 
 const COLOR_GREEN = '\u001b[32m';
 const COLOR_YELLOW = '\u001b[33m';
@@ -22,22 +25,27 @@ async function getMcpServersFromConfig(): Promise<
   Record<string, MCPServerConfig>
 > {
   const settings = loadSettings();
-  const extensions = loadExtensions(
-    new ExtensionEnablementManager(ExtensionStorage.getUserExtensionsDir()),
-  );
+  const extensionManager = new ExtensionManager({
+    isWorkspaceTrusted: !!isWorkspaceTrusted(settings.merged),
+    telemetrySettings: settings.merged.telemetry,
+  });
+  await extensionManager.refreshCache();
+  const extensions = extensionManager.getLoadedExtensions();
   const mcpServers = { ...(settings.merged.mcpServers || {}) };
   for (const extension of extensions) {
-    Object.entries(extension.config.mcpServers || {}).forEach(
-      ([key, server]) => {
-        if (mcpServers[key]) {
-          return;
-        }
-        mcpServers[key] = {
-          ...server,
-          extensionName: extension.config.name,
-        };
-      },
-    );
+    if (extension.isActive) {
+      Object.entries(extension.config.mcpServers || {}).forEach(
+        ([key, server]) => {
+          if (mcpServers[key]) {
+            return;
+          }
+          mcpServers[key] = {
+            ...server,
+            extensionName: extension.config.name,
+          };
+        },
+      );
+    }
   }
   return mcpServers;
 }
@@ -132,7 +140,7 @@ export async function listMcpServers(): Promise<void> {
 
 export const listCommand: CommandModule = {
   command: 'list',
-  describe: '列出所有已配置的 MCP 服务',
+  describe: 'List all configured MCP servers',
   handler: async () => {
     await listMcpServers();
   },

@@ -540,7 +540,7 @@ export async function loadServerHierarchicalMemory(
     currentWorkingDirectory,
   );
 
-  // Only count files that match configured memory filenames (e.g., QWEN.md),
+  // Only count files that match configured memory filenames (e.g., RDMind.md),
   // excluding system context files like output-language.md
   const memoryFilenames = new Set(getAllGeminiMdFilenames());
   const fileCount = contentsWithPaths.filter((item) =>

@@ -464,7 +464,7 @@ function setupAcpTest(
       expect(initCommand?.description).toBeTruthy();
 
       // Note: We don't test /init execution here because it triggers a complex
-      // multi-step process (listing files, reading up to 10 files, generating QWEN.md)
+      // multi-step process (listing files, reading up to 10 files, generating RDMind.md)
       // that can take 30-60+ seconds, exceeding the request timeout.
       // The slash command execution path is tested via simpler prompts in other tests.
     } catch (e) {
