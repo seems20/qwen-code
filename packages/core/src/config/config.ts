@@ -118,6 +118,7 @@ import {
   type ModelProvidersConfig,
   type AvailableModel,
 } from '../models/index.js';
+import type { ClaudeMarketplaceConfig } from '../extension/claude-converter.js';
 
 // Re-export types
 export type { AnyToolInvocation, FileFilteringOptions, MCPOAuthConfig };
@@ -215,10 +216,8 @@ export interface ExtensionInstallMetadata {
   ref?: string;
   autoUpdate?: boolean;
   allowPreRelease?: boolean;
-  marketplace?: {
-    marketplaceSource: string;
-    pluginName: string;
-  };
+  marketplaceConfig?: ClaudeMarketplaceConfig;
+  pluginName?: string;
 }
 
 export const DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD = 25_000;

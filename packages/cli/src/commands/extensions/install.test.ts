@@ -35,6 +35,7 @@ vi.mock('@rdmind/rdmind-core', () => ({
 vi.mock('./consent.js', () => ({
   requestConsentNonInteractive: mockRequestConsentNonInteractive,
   requestConsentOrFail: mockRequestConsentOrFail,
+  requestChoicePluginNonInteractive: vi.fn(),
 }));
 
 vi.mock('../../config/trustedFolders.js', () => ({
