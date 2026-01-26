@@ -19,13 +19,14 @@ import { CommandKind } from '../ui/commands/types.js';
 import { t } from '../i18n/index.js';
 
 /**
- * Schema for validating YAML front matter in markdown command files
+ * Schema for validating YAML front matter in OpenSpec markdown command files.
+ * OpenSpec commands always have a name field in their frontmatter.
  */
 const MarkdownCommandDefSchema = z.object({
   name: z.string(),
   id: z.string().optional(),
   category: z.string().optional(),
-  description: z.string(),
+  description: z.string().optional(),
 });
 
 /**
@@ -45,6 +46,8 @@ export class MarkdownCommandLoader implements ICommandLoader {
 
   /**
    * Loads all markdown commands from OpenSpec directories.
+   * Only loads commands that are specifically marked as OpenSpec commands
+   * (either by category: OpenSpec in frontmatter or filename starting with 'openspec-').
    */
   async loadCommands(signal: AbortSignal): Promise<SlashCommand[]> {
     if (this.folderTrustEnabled && !this.folderTrust) {
@@ -63,7 +66,8 @@ export class MarkdownCommandLoader implements ICommandLoader {
     const commandDirs = this.getOpenSpecCommandDirectories();
     for (const dirPath of commandDirs) {
       try {
-        const files = await glob('**/*.md', {
+        // Only load files that start with 'openspec-' (OpenSpec command naming convention)
+        const files = await glob('**/openspec-*.md', {
           ...globOptions,
           cwd: dirPath,
         });
@@ -144,13 +148,24 @@ export class MarkdownCommandLoader implements ICommandLoader {
 
     const validDef = validationResult.data;
 
-    // Extract command name from front matter
+    // Only process OpenSpec commands: check if category is 'OpenSpec' or id starts with 'openspec-'
+    const isOpenSpecCommand =
+      validDef.category === 'OpenSpec' ||
+      (typeof validDef.id === 'string' && validDef.id.startsWith('openspec-')) ||
+      path.basename(filePath, '.md').startsWith('openspec-');
+
+    if (!isOpenSpecCommand) {
+      // Skip non-OpenSpec commands - they should be handled by FileCommandLoader
+      return null;
+    }
+
+    // Extract command name from front matter (OpenSpec commands always have name)
     const commandName = validDef.name.startsWith('/')
       ? validDef.name.substring(1)
       : validDef.name;
 
     // Translate OpenSpec command descriptions
-    let description = validDef.description;
+    let description = validDef.description || '';
     if (commandName === 'openspec-proposal') {
       description = t('Scaffold a new OpenSpec change and validate strictly.');
     } else if (commandName === 'openspec-apply') {
