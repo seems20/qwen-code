@@ -71,24 +71,6 @@ for (const dir of templateDirs) {
   }
 }
 
-// Copy examples directory (extension boilerplate templates)
-// Note: examples is in a different location (src/commands/extensions/)
-console.log('Copying examples directory...');
-const examplesSourcePath = path.join(
-  cliDir,
-  'src',
-  'commands',
-  'extensions',
-  'examples',
-);
-const examplesDestPath = path.join(distDir, 'examples');
-if (fs.existsSync(examplesSourcePath)) {
-  copyRecursiveSync(examplesSourcePath, examplesDestPath);
-  console.log('Copied examples/');
-} else {
-  console.warn(`Warning: examples not found at ${examplesSourcePath}`);
-}
-
 // Copy locales folder
 console.log('Copying locales folder...');
 const localesSourceDir = path.join(
