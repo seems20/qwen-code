@@ -11,6 +11,7 @@ import { useKeypress } from '../hooks/useKeypress.js';
 import { DescriptiveRadioButtonSelect } from './shared/DescriptiveRadioButtonSelect.js';
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { SettingsContext } from '../contexts/SettingsContext.js';
+import { UIActionsContext } from '../contexts/UIActionsContext.js';
 import type { Config } from '@rdmind/rdmind-core';
 import { AuthType } from '@rdmind/rdmind-core';
 import type { LoadedSettings } from '../../config/settings.js';
@@ -47,6 +48,10 @@ const renderComponent = (
     setValue: vi.fn(),
   } as unknown as LoadedSettings;
 
+  const mockUIActions = {
+    refreshStatic: vi.fn(),
+  };
+
   const mockConfig = contextValue
     ? ({
         // --- Functions used by ModelDialog ---
@@ -73,11 +78,13 @@ const renderComponent = (
     : undefined;
 
   const renderResult = render(
-    <SettingsContext.Provider value={mockSettings}>
-      <ConfigContext.Provider value={mockConfig}>
-        <ModelDialog {...combinedProps} />
-      </ConfigContext.Provider>
-    </SettingsContext.Provider>,
+    <UIActionsContext.Provider value={mockUIActions as any}>
+      <SettingsContext.Provider value={mockSettings}>
+        <ConfigContext.Provider value={mockConfig}>
+          <ModelDialog {...combinedProps} />
+        </ConfigContext.Provider>
+      </SettingsContext.Provider>
+    </UIActionsContext.Provider>,
   );
 
   return {
@@ -85,6 +92,7 @@ const renderComponent = (
     props: combinedProps,
     mockConfig,
     mockSettings,
+    mockUIActions,
   };
 };
 
@@ -313,19 +321,24 @@ describe('<ModelDialog />', () => {
       workspace: { settings: {} },
       setValue: vi.fn(),
     } as unknown as LoadedSettings;
+    const mockUIActions = {
+      refreshStatic: vi.fn(),
+    };
     const { rerender } = render(
-      <SettingsContext.Provider value={mockSettings}>
-        <ConfigContext.Provider
-          value={
-            {
-              getModel: mockGetModel,
-              getAuthType: mockGetAuthType,
-            } as unknown as Config
-          }
-        >
-          <ModelDialog onClose={vi.fn()} />
-        </ConfigContext.Provider>
-      </SettingsContext.Provider>,
+      <UIActionsContext.Provider value={mockUIActions as any}>
+        <SettingsContext.Provider value={mockSettings}>
+          <ConfigContext.Provider
+            value={
+              {
+                getModel: mockGetModel,
+                getAuthType: mockGetAuthType,
+              } as unknown as Config
+            }
+          >
+            <ModelDialog onClose={vi.fn()} />
+          </ConfigContext.Provider>
+        </SettingsContext.Provider>
+      </UIActionsContext.Provider>,
     );
 
     expect(mockedSelect.mock.calls[0][0].initialIndex).toBe(0);
@@ -337,11 +350,13 @@ describe('<ModelDialog />', () => {
     } as unknown as Config;
 
     rerender(
-      <SettingsContext.Provider value={mockSettings}>
-        <ConfigContext.Provider value={newMockConfig}>
-          <ModelDialog onClose={vi.fn()} />
-        </ConfigContext.Provider>
-      </SettingsContext.Provider>,
+      <UIActionsContext.Provider value={mockUIActions as any}>
+        <SettingsContext.Provider value={mockSettings}>
+          <ConfigContext.Provider value={newMockConfig}>
+            <ModelDialog onClose={vi.fn()} />
+          </ConfigContext.Provider>
+        </SettingsContext.Provider>
+      </UIActionsContext.Provider>,
     );
 
     // Should be called at least twice: initial render + re-render after context change

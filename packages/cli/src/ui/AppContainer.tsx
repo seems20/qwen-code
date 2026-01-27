@@ -884,7 +884,7 @@ export const AppContainer = (props: AppContainerProps) => {
     try {
       const { memoryContent, fileCount } = await loadHierarchicalGeminiMemory(
         process.cwd(),
-        settings.merged.context?.loadMemoryFromIncludeDirectories
+        settings.merged.context?.loadFromIncludeDirectories
           ? config.getWorkspaceContext().getDirectories()
           : [],
         config.getDebugMode(),
@@ -1611,6 +1611,7 @@ export const AppContainer = (props: AppContainerProps) => {
     isFeedbackDialogOpen,
     openFeedbackDialog,
     closeFeedbackDialog,
+    temporaryCloseFeedbackDialog,
     submitFeedback,
   } = useFeedbackDialog({
     config,
@@ -1871,6 +1872,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // Feedback dialog
       openFeedbackDialog,
       closeFeedbackDialog,
+      temporaryCloseFeedbackDialog,
       submitFeedback,
     }),
     [
@@ -1914,6 +1916,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // Feedback dialog
       openFeedbackDialog,
       closeFeedbackDialog,
+      temporaryCloseFeedbackDialog,
       submitFeedback,
     ],
   );

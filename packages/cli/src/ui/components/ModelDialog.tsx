@@ -22,6 +22,7 @@ import { theme } from '../semantic-colors.js';
 import { DescriptiveRadioButtonSelect } from './shared/DescriptiveRadioButtonSelect.js';
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { UIStateContext } from '../contexts/UIStateContext.js';
+import { useUIActions } from '../contexts/UIActionsContext.js';
 import { useSettings } from '../contexts/SettingsContext.js';
 import { SettingsContext } from '../contexts/SettingsContext.js';
 import {
@@ -147,6 +148,7 @@ function ConfigRow({
 export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   const config = useContext(ConfigContext);
   const uiState = useContext(UIStateContext);
+  const uiActions = useUIActions();
   const settings = useContext(SettingsContext);
   const settingsHook = useSettings();
 
@@ -197,12 +199,16 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
         // Set the model
         await config.setModel(model);
+
+        // Refresh static content to update header with new model
+        uiActions.refreshStatic();
+
         const event = new ModelSlashCommandEvent(model);
         logModelSlashCommand(config, event);
       }
       onClose();
     },
-    [config, settings, onClose],
+    [config, settings, onClose, uiActions],
   );
 
   // Handle XHS SSO model configuration with multi-level menu
@@ -240,12 +246,16 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
         // Set the model
         await config.setModel(xhsSsoConfig.model);
+
+        // Refresh static content to update header with new model
+        uiActions.refreshStatic();
+
         const event = new ModelSlashCommandEvent(xhsSsoConfig.model);
         logModelSlashCommand(config, event);
       }
       onClose();
     },
-    [config, settings, onClose],
+    [config, settings, onClose, uiActions],
   );
 
   // For OpenAI auth type, show configuration prompt
@@ -383,6 +393,9 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
         persistModelSelection(settingsHook, effectiveModelId);
         persistAuthTypeSelection(settingsHook, effectiveAuthType);
 
+        // Refresh static content to update header with new model
+        uiActions.refreshStatic();
+
         const baseUrl = after?.baseUrl ?? t('(default)');
         const maskedKey = maskApiKey(after?.apiKey);
         uiState?.historyManager.addItem(
@@ -399,7 +412,15 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       }
       onClose();
     },
-    [authType, config, onClose, settingsHook, uiState, setErrorMessage],
+    [
+      authType,
+      config,
+      onClose,
+      settingsHook,
+      uiState,
+      setErrorMessage,
+      uiActions,
+    ],
   );
 
   const hasModels = MODEL_OPTIONS.length > 0;

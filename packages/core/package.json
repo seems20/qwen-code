@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind-core",
-  "version": "0.2.2-alpha.2",
+  "version": "0.2.2-alpha.4",
   "description": "RDMind Core",
   "type": "module",
   "main": "dist/index.js",
@@ -76,8 +76,7 @@
     "@lydell/node-pty-darwin-x64": "1.1.0",
     "@lydell/node-pty-linux-x64": "1.1.0",
     "@lydell/node-pty-win32-arm64": "1.1.0",
-    "@lydell/node-pty-win32-x64": "1.1.0",
-    "node-pty": "^1.0.0"
+    "@lydell/node-pty-win32-x64": "1.1.0"
   },
   "devDependencies": {
     "@rdmind/rdmind-test-utils": "file:../test-utils",
