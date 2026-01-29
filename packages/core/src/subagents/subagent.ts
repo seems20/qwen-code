@@ -39,7 +39,6 @@ import type {
   SubAgentStartEvent,
   SubAgentToolCallEvent,
   SubAgentToolResultEvent,
-  SubAgentStreamTextEvent,
   SubAgentErrorEvent,
   SubAgentUsageEvent,
 } from './subagent-events.js';
@@ -416,15 +415,17 @@ export class SubAgentScope {
             const hadFunctionCallsFromHelper =
               resp.functionCalls && resp.functionCalls.length > 0;
             for (const p of parts) {
-              const txt = (p as Part & { text?: string }).text;
-              if (txt) roundText += txt;
+              const txt = p.text;
+              const isThought = p.thought ?? false;
+              if (txt && !isThought) roundText += txt;
               if (txt)
                 this.eventEmitter?.emit(SubAgentEventType.STREAM_TEXT, {
                   subagentId: this.subagentId,
                   round: turnCounter,
                   text: txt,
+                  thought: isThought,
                   timestamp: Date.now(),
-                } as SubAgentStreamTextEvent);
+                });
               // Also check for function calls in parts (some models like gemini-3-pro-preview
               // and gemini-3-flash-preview may return functionCall in candidates[0].content.parts
               // instead of resp.functionCalls)

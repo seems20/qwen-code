@@ -151,7 +151,8 @@ export class MarkdownCommandLoader implements ICommandLoader {
     // Only process OpenSpec commands: check if category is 'OpenSpec' or id starts with 'openspec-'
     const isOpenSpecCommand =
       validDef.category === 'OpenSpec' ||
-      (typeof validDef.id === 'string' && validDef.id.startsWith('openspec-')) ||
+      (typeof validDef.id === 'string' &&
+        validDef.id.startsWith('openspec-')) ||
       path.basename(filePath, '.md').startsWith('openspec-');
 
     if (!isOpenSpecCommand) {

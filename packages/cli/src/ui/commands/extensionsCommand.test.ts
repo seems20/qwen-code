@@ -24,8 +24,7 @@ import {
 } from '@rdmind/rdmind-core';
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...actual,
     parseInstallSource: vi.fn(),

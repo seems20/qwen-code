@@ -84,7 +84,7 @@ export default {
   // ============================================================================
   // System Information Fields
   // ============================================================================
-  'RDMind': 'RDMind',
+  RDMind: 'RDMind',
   Runtime: 'Runtime',
   OS: 'OS',
   Auth: 'Auth',

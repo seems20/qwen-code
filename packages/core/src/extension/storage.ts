@@ -45,6 +45,8 @@ export class ExtensionStorage {
   }
 
   static async createTmpDir(): Promise<string> {
-    return await fs.promises.mkdtemp(path.join(os.tmpdir(), 'rdmind-extension'));
+    return await fs.promises.mkdtemp(
+      path.join(os.tmpdir(), 'rdmind-extension'),
+    );
   }
 }

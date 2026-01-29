@@ -938,7 +938,11 @@ export function migrateDeprecatedSettings(
         };
         delete (newFileFiltering as { respectQwenIgnore?: boolean })
           .respectQwenIgnore;
-        loadedSettings.setValue(scope, 'context.fileFiltering', newFileFiltering);
+        loadedSettings.setValue(
+          scope,
+          'context.fileFiltering',
+          newFileFiltering,
+        );
       }
     }
   };

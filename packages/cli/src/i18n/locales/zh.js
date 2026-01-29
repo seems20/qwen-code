@@ -83,7 +83,7 @@ export default {
   // ============================================================================
   // System Information Fields
   // ============================================================================
-  'RDMind': 'RDMind',
+  RDMind: 'RDMind',
   Runtime: '运行环境',
   OS: '操作系统',
   Auth: '认证',
@@ -1080,8 +1080,7 @@ export default {
     '按 Shift+Tab 或输入 /approval-mode 可快速切换权限模式。',
   'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.':
     'RDMind 现已支持自定义命令、子代理、技能等特性，查阅文档获得使用帮助。',
-  'Try asking RDMind to help you commit code.':
-    '试试让 RDMind 帮你提交代码。',
+  'Try asking RDMind to help you commit code.': '试试让 RDMind 帮你提交代码。',
   'RDMind can read REDoc. Please do not upload documents involving user privacy and core algorithms.':
     'RDMind 可以读懂 REDoc，注意不要上传涉及用户隐私和核心算法的文档。',
 
