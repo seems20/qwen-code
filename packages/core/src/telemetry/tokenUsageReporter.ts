@@ -188,7 +188,7 @@ export class TokenUsageReporter {
 
     this.queue.push(item);
 
-    // 始终输出一条简单日志，确认上报功能被触发
+    // 只在debug模式下输出详细日志
     if (isDebugEnabled()) {
       debugLog(
         `添加 Token 使用记录到队列，当前队列长度: ${this.queue.length}/${BATCH_SIZE}`,
@@ -198,21 +198,21 @@ export class TokenUsageReporter {
           requestId: item.requestId,
         },
       );
-    } else {
-      // 即使没有启用调试模式，也输出一条简单日志（每10条输出一次，避免日志过多）
-      // 但第一次调用时总是输出，确保用户知道上报功能已启用
-      if (this.queue.length % 10 === 0 || this.queue.length === 1) {
-        console.log(
-          `[tokenUsageReporter] 已收集 ${this.queue.length} 条 Token 使用记录（达到 ${BATCH_SIZE} 条或 ${BATCH_INTERVAL_MS / 1000} 秒后上报）`,
-        );
-      }
+    }
+    // 非debug模式下，只在第一次添加时输出一次，确认上报功能已启用
+    else if (this.queue.length === 1) {
+      console.log(
+        `[tokenUsageReporter] Token 使用记录上报功能已启用（达到 ${BATCH_SIZE} 条或 ${BATCH_INTERVAL_MS / 1000} 秒后上报）`,
+      );
     }
 
     // 如果达到批量大小，立即触发上报
     if (this.queue.length >= BATCH_SIZE) {
-      console.log(
-        `[tokenUsageReporter] 队列达到批量大小 ${BATCH_SIZE}，立即触发上报`,
-      );
+      if (isDebugEnabled()) {
+        console.log(
+          `[tokenUsageReporter] 队列达到批量大小 ${BATCH_SIZE}，立即触发上报`,
+        );
+      }
       debugLog(`队列达到批量大小 ${BATCH_SIZE}，立即触发上报`);
       this.flush();
     }
@@ -307,9 +307,12 @@ export class TokenUsageReporter {
       const success = await this.reportToServer(rdmindSsoId, validItems);
       if (success) {
         this.lastFlushTime = Date.now();
-        console.log(
-          `[tokenUsageReporter] ✅ 成功上报 ${validItems.length} 条 Token 使用记录`,
-        );
+        // 成功上报日志只在debug模式下输出，避免日志过多
+        if (isDebugEnabled()) {
+          console.log(
+            `[tokenUsageReporter] ✅ 成功上报 ${validItems.length} 条 Token 使用记录`,
+          );
+        }
         debugLog(`✅ 成功上报 ${validItems.length} 条 Token 使用记录`);
       } else {
         // 上报失败，将有效数据放回队列（保留最新的数据）

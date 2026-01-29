@@ -300,7 +300,10 @@ export class WebSocketClient {
               type: 'server_heart_pong',
             });
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-              console.log(`[ws-send:server_heart_pong] ${serverHeartPong}`);
+              // 心跳响应日志只在debug模式下输出，避免日志过多
+              if (this.options.debug) {
+                console.debug(`[ws-send:server_heart_pong] ${serverHeartPong}`);
+              }
               this.ws.send(serverHeartPong);
             }
           } catch (err) {
@@ -496,7 +499,10 @@ export class WebSocketClient {
       if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
       try {
         const heartbeatMsg = JSON.stringify({ type: 'client_heart_ping' });
-        console.log(`[ws-send:client_heart_ping] ${heartbeatMsg}`);
+        // 心跳日志只在debug模式下输出，避免日志过多
+        if (this.options.debug) {
+          console.debug(`[ws-send:client_heart_ping] ${heartbeatMsg}`);
+        }
         this.ws.send(heartbeatMsg);
         this.armHeartbeatTimeout();
       } catch (err) {
