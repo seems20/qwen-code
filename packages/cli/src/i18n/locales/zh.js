@@ -1083,6 +1083,8 @@ export default {
   'Try asking RDMind to help you commit code.': '试试让 RDMind 帮你提交代码。',
   'RDMind can read REDoc. Please do not upload documents involving user privacy and core algorithms.':
     'RDMind 可以读懂 REDoc，注意不要上传涉及用户隐私和核心算法的文档。',
+  'If you find RDMind useful, feel free to recommend it to your colleagues~':
+    '如果觉得 RDMind 好用，欢迎向同事推荐~',
 
   // ============================================================================
   // Exit Screen / Stats

@@ -173,6 +173,7 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   // -------------------
   // Moonshot / Kimi
   // -------------------
+  [/^kimi-k2\.5.*$/, LIMITS['256k']], // Kimi-k2.5: 256K context
   [/^kimi-k2-0905$/, LIMITS['256k']], // Kimi-k2-0905-preview: 256K context
   [/^kimi-k2-turbo.*$/, LIMITS['256k']], // Kimi-k2-turbo-preview: 256K context
   [/^kimi-k2-0711$/, LIMITS['128k']], // Kimi-k2-0711-preview: 128K context

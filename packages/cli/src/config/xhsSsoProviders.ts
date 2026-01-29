@@ -69,4 +69,11 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     contextWindow: '200K',
     description: '智谱最新旗舰模型，面向 Agentic Coding 场景强化',
   },
+  {
+    id: 'kimi-k2.5',
+    displayName: 'kimi-k2.5',
+    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/moonshot/v1',
+    contextWindow: '256K',
+    description: '在 Agent、代码、视觉理解及一系列通用智能任务上取得开源 SoTA 表现',
+  },
 ];

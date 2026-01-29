@@ -69,6 +69,10 @@ describe('normalize', () => {
     expect(normalize('kimi-k2-0711-preview')).toBe('kimi-k2-0711');
     expect(normalize('kimi-k2-turbo-preview')).toBe('kimi-k2-turbo');
   });
+  it('should preserve version number for kimi-k2.5', () => {
+    expect(normalize('kimi-k2.5')).toBe('kimi-k2.5');
+    expect(normalize('kimi-k2.5-preview')).toBe('kimi-k2.5');
+  });
 
   it('should remove date like suffixes', () => {
     expect(normalize('deepseek-r1-0528')).toBe('deepseek-r1');
@@ -255,6 +259,9 @@ describe('tokenLimit', () => {
     });
     it('should return the correct limit for kimi-k2-instruct', () => {
       expect(tokenLimit('kimi-k2-instruct')).toBe(131072); // 128K
+    });
+    it('should return the correct limit for kimi-k2.5', () => {
+      expect(tokenLimit('kimi-k2.5')).toBe(262144); // 256K
     });
   });
 

@@ -20,6 +20,7 @@ const startupTips = [
   'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.',
   'Try asking RDMind to help you commit code.',
   'RDMind can read REDoc. Please do not upload documents involving user privacy and core algorithms.',
+  'If you find RDMind useful, feel free to recommend it to your colleagues~',
 ] as const;
 
 export const Tips: React.FC = () => {
