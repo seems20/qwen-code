@@ -13,13 +13,17 @@
 import type { AcpConnection } from './acpConnection.js';
 import { isAuthenticationRequiredError } from '../utils/authErrors.js';
 import { authMethod } from '../types/acpTypes.js';
-import { extractModelInfoFromNewSessionResult } from '../utils/acpModelInfo.js';
+import {
+  extractModelInfoFromNewSessionResult,
+  extractSessionModelState,
+} from '../utils/acpModelInfo.js';
 import type { ModelInfo } from '../types/acpTypes.js';
 
 export interface QwenConnectionResult {
   sessionCreated: boolean;
   requiresAuth: boolean;
   modelInfo?: ModelInfo;
+  availableModels?: ModelInfo[];
 }
 
 /**
@@ -48,6 +52,7 @@ export class QwenConnectionHandler {
     let sessionCreated = false;
     let requiresAuth = false;
     let modelInfo: ModelInfo | undefined;
+    let availableModels: ModelInfo[] | undefined;
 
     // Build extra CLI arguments (only essential parameters)
     const extraArgs: string[] = [];
@@ -77,6 +82,20 @@ export class QwenConnectionHandler {
         );
         modelInfo =
           extractModelInfoFromNewSessionResult(newSessionResult) || undefined;
+
+        // Extract available models from session/new response
+        const modelState = extractSessionModelState(newSessionResult);
+        if (
+          modelState?.availableModels &&
+          modelState.availableModels.length > 0
+        ) {
+          availableModels = modelState.availableModels;
+          console.log(
+            '[AgentManager] Extracted availableModels from session/new:',
+            availableModels.map((m) => m.modelId),
+          );
+        }
+
         console.log('[AgentManager] New session created successfully');
         sessionCreated = true;
       } catch (sessionError) {
@@ -103,7 +122,7 @@ export class QwenConnectionHandler {
     console.log(`\n========================================`);
     console.log(`[AgentManager] ✅ CONNECT() COMPLETED SUCCESSFULLY`);
     console.log(`========================================\n`);
-    return { sessionCreated, requiresAuth, modelInfo };
+    return { sessionCreated, requiresAuth, modelInfo, availableModels };
   }
 
   /**

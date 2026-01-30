@@ -15,10 +15,10 @@ import {
   qwenOAuth2Events,
   MCPServerConfig,
   SessionService,
+  tokenLimit,
   type Config,
   type ConversationRecord,
   type DeviceAuthorizationData,
-  tokenLimit,
 } from '@rdmind/rdmind-core';
 import type { ApprovalModeValue } from './schema.js';
 import * as acp from './acp.js';
@@ -384,7 +384,7 @@ class GeminiAgent {
       name: model.label,
       description: model.description ?? null,
       _meta: {
-        contextLimit: tokenLimit(model.id),
+        contextLimit: model.contextWindowSize ?? tokenLimit(model.id),
       },
     }));
 
@@ -392,12 +392,15 @@ class GeminiAgent {
       currentModelId &&
       !mappedAvailableModels.some((model) => model.modelId === currentModelId)
     ) {
+      const currentContextWindowSize =
+        config.getContentGeneratorConfig()?.contextWindowSize ??
+        tokenLimit(currentModelId);
       mappedAvailableModels.unshift({
         modelId: currentModelId,
         name: currentModelId,
         description: null,
         _meta: {
-          contextLimit: tokenLimit(currentModelId),
+          contextLimit: currentContextWindowSize,
         },
       });
     }
