@@ -285,7 +285,7 @@ export async function buildSystemMessage(
     model: config.getModel(),
     permission_mode: permissionMode,
     slash_commands: slashCommands,
-    qwen_code_version: config.getCliVersion() || 'unknown',
+    rdmind_version: config.getCliVersion() || 'unknown',
     agents: agentNames,
   };
 

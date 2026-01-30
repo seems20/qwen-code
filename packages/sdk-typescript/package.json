@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/sdk",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "TypeScript SDK for programmatic access to RDMind CLI",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

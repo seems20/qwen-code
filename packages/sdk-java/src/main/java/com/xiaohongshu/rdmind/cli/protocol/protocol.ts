@@ -1,17 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { SubagentConfig } from '@rdmind/rdmind-core';
 
-/**
- * Annotation for attaching metadata to content blocks
- */
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 export interface Annotation {
   type: string;
   value: string;
 }
 
-/**
- * Usage information types
- */
 export interface Usage {
   input_tokens: number;
   output_tokens: number;
@@ -40,18 +34,12 @@ export interface ModelUsage {
   contextWindow: number;
 }
 
-/**
- * Permission denial information
- */
 export interface CLIPermissionDenial {
   tool_name: string;
   tool_use_id: string;
   tool_input: unknown;
 }
 
-/**
- * Content block types from Anthropic SDK
- */
 export interface TextBlock {
   type: 'text';
   text: string;
@@ -87,9 +75,6 @@ export type ContentBlock =
   | ToolUseBlock
   | ToolResultBlock;
 
-/**
- * Anthropic SDK Message types
- */
 export interface APIUserMessage {
   role: 'user';
   content: string | ContentBlock[];
@@ -105,10 +90,7 @@ export interface APIAssistantMessage {
   usage: Usage;
 }
 
-/**
- * CLI Message wrapper types
- */
-export interface CLIUserMessage {
+export interface SDKUserMessage {
   type: 'user';
   uuid?: string;
   session_id: string;
@@ -117,7 +99,7 @@ export interface CLIUserMessage {
   options?: Record<string, unknown>;
 }
 
-export interface CLIAssistantMessage {
+export interface SDKAssistantMessage {
   type: 'assistant';
   uuid: string;
   session_id: string;
@@ -125,7 +107,7 @@ export interface CLIAssistantMessage {
   parent_tool_use_id: string | null;
 }
 
-export interface CLISystemMessage {
+export interface SDKSystemMessage {
   type: 'system';
   subtype: string;
   uuid: string;
@@ -151,7 +133,7 @@ export interface CLISystemMessage {
   };
 }
 
-export interface CLIResultMessageSuccess {
+export interface SDKResultMessageSuccess {
   type: 'result';
   subtype: 'success';
   uuid: string;
@@ -167,7 +149,7 @@ export interface CLIResultMessageSuccess {
   [key: string]: unknown;
 }
 
-export interface CLIResultMessageError {
+export interface SDKResultMessageError {
   type: 'result';
   subtype: 'error_max_turns' | 'error_during_execution';
   uuid: string;
@@ -187,11 +169,8 @@ export interface CLIResultMessageError {
   [key: string]: unknown;
 }
 
-export type CLIResultMessage = CLIResultMessageSuccess | CLIResultMessageError;
+export type SDKResultMessage = SDKResultMessageSuccess | SDKResultMessageError;
 
-/**
- * Stream event types for real-time message updates
- */
 export interface MessageStartStreamEvent {
   type: 'message_start';
   message: {
@@ -243,7 +222,7 @@ export type StreamEvent =
   | ContentBlockStopEvent
   | MessageStopStreamEvent;
 
-export interface CLIPartialAssistantMessage {
+export interface SDKPartialAssistantMessage {
   type: 'stream_event';
   uuid: string;
   session_id: string;
@@ -254,7 +233,6 @@ export interface CLIPartialAssistantMessage {
 export type PermissionMode = 'default' | 'plan' | 'auto-edit' | 'yolo';
 
 /**
- * Permission suggestion for tool use requests
  * TODO: Align with `ToolCallConfirmationDetails`
  */
 export interface PermissionSuggestion {
@@ -264,17 +242,11 @@ export interface PermissionSuggestion {
   modifiedInput?: unknown;
 }
 
-/**
- * Hook callback placeholder for future implementation
- */
 export interface HookRegistration {
   event: string;
   callback_id: string;
 }
 
-/**
- * Hook callback result placeholder for future implementation
- */
 export interface HookCallbackResult {
   shouldSkip?: boolean;
   shouldInterrupt?: boolean;
@@ -295,20 +267,13 @@ export interface CLIControlPermissionRequest {
   blocked_path: string | null;
 }
 
-/**
- * Wire format for SDK MCP server config in initialization request.
- * The actual Server instance stays in the SDK process.
- */
-export interface SDKMcpServerConfig {
-  type: 'sdk';
-  name: string;
+export enum AuthProviderType {
+  DYNAMIC_DISCOVERY = 'dynamic_discovery',
+  GOOGLE_CREDENTIALS = 'google_credentials',
+  SERVICE_ACCOUNT_IMPERSONATION = 'service_account_impersonation',
 }
 
-/**
- * Wire format for external MCP server config in initialization request.
- * Represents stdio/SSE/HTTP/TCP transports that must run in the CLI process.
- */
-export interface CLIMcpServerConfig {
+export interface MCPServerConfig {
   command?: string;
   args?: string[];
   env?: Record<string, string>;
@@ -323,25 +288,37 @@ export interface CLIMcpServerConfig {
   includeTools?: string[];
   excludeTools?: string[];
   extensionName?: string;
-  oauth?: {
-    enabled?: boolean;
-    clientId?: string;
-    clientSecret?: string;
-    authorizationUrl?: string;
-    tokenUrl?: string;
-    scopes?: string[];
-    audiences?: string[];
-    redirectUri?: string;
-    tokenParamName?: string;
-    registrationUrl?: string;
-  };
-  authProviderType?:
-    | 'dynamic_discovery'
-    | 'google_credentials'
-    | 'service_account_impersonation';
+  oauth?: Record<string, unknown>;
+  authProviderType?: AuthProviderType;
   targetAudience?: string;
   targetServiceAccount?: string;
 }
+
+/**
+ * SDK MCP Server configuration
+ *
+ * SDK MCP servers run in the SDK process and are connected via in-memory transport.
+ * Tool calls are routed through the control plane between SDK and CLI.
+ */
+export interface SDKMcpServerConfig {
+  /**
+   * Type identifier for SDK MCP servers
+   */
+  type: 'sdk';
+  /**
+   * Server name for identification and routing
+   */
+  name: string;
+  /**
+   * The MCP Server instance created by createSdkMcpServer()
+   */
+  instance: McpServer;
+}
+
+/**
+ * Wire format for SDK MCP servers sent to the CLI
+ */
+export type WireSDKMcpServerConfig = Omit<SDKMcpServerConfig, 'instance'>;
 
 export interface CLIControlInitializeRequest {
   subtype: 'initialize';
@@ -351,12 +328,11 @@ export interface CLIControlInitializeRequest {
    * These are MCP servers running in the SDK process, connected via control plane.
    * External MCP servers are configured separately in settings, not via initialization.
    */
-  sdkMcpServers?: Record<string, Omit<SDKMcpServerConfig, 'instance'>>;
+  sdkMcpServers?: Record<string, WireSDKMcpServerConfig>;
   /**
-   * External MCP servers that the SDK wants the CLI to manage.
-   * These run outside the SDK process and require CLI-side transport setup.
+   * External MCP servers that should be managed by the CLI.
    */
-  mcpServers?: Record<string, CLIMcpServerConfig>;
+  mcpServers?: Record<string, MCPServerConfig>;
   agents?: SubagentConfig[];
 }
 
@@ -413,9 +389,6 @@ export interface CLIControlRequest {
   request: ControlRequestPayload;
 }
 
-/**
- * Permission approval result
- */
 export interface PermissionApproval {
   allowed: boolean;
   reason?: string;
@@ -450,26 +423,22 @@ export type ControlMessage =
   | ControlCancelRequest;
 
 /**
- * Union of all CLI message types
+ * Union of all SDK message types
  */
-export type CLIMessage =
-  | CLIUserMessage
-  | CLIAssistantMessage
-  | CLISystemMessage
-  | CLIResultMessage
-  | CLIPartialAssistantMessage;
+export type SDKMessage =
+  | SDKUserMessage
+  | SDKAssistantMessage
+  | SDKSystemMessage
+  | SDKResultMessage
+  | SDKPartialAssistantMessage;
 
-/**
- * Type guard functions for message discrimination
- */
-
-export function isCLIUserMessage(msg: any): msg is CLIUserMessage {
+export function isSDKUserMessage(msg: any): msg is SDKUserMessage {
   return (
     msg && typeof msg === 'object' && msg.type === 'user' && 'message' in msg
   );
 }
 
-export function isCLIAssistantMessage(msg: any): msg is CLIAssistantMessage {
+export function isSDKAssistantMessage(msg: any): msg is SDKAssistantMessage {
   return (
     msg &&
     typeof msg === 'object' &&
@@ -481,7 +450,7 @@ export function isCLIAssistantMessage(msg: any): msg is CLIAssistantMessage {
   );
 }
 
-export function isCLISystemMessage(msg: any): msg is CLISystemMessage {
+export function isSDKSystemMessage(msg: any): msg is SDKSystemMessage {
   return (
     msg &&
     typeof msg === 'object' &&
@@ -492,7 +461,7 @@ export function isCLISystemMessage(msg: any): msg is CLISystemMessage {
   );
 }
 
-export function isCLIResultMessage(msg: any): msg is CLIResultMessage {
+export function isSDKResultMessage(msg: any): msg is SDKResultMessage {
   return (
     msg &&
     typeof msg === 'object' &&
@@ -505,9 +474,9 @@ export function isCLIResultMessage(msg: any): msg is CLIResultMessage {
   );
 }
 
-export function isCLIPartialAssistantMessage(
+export function isSDKPartialAssistantMessage(
   msg: any,
-): msg is CLIPartialAssistantMessage {
+): msg is SDKPartialAssistantMessage {
   return (
     msg &&
     typeof msg === 'object' &&
@@ -547,10 +516,6 @@ export function isControlCancel(msg: any): msg is ControlCancelRequest {
   );
 }
 
-/**
- * Content block type guards
- */
-
 export function isTextBlock(block: any): block is TextBlock {
   return block && typeof block === 'object' && block.type === 'text';
 }
@@ -565,4 +530,65 @@ export function isToolUseBlock(block: any): block is ToolUseBlock {
 
 export function isToolResultBlock(block: any): block is ToolResultBlock {
   return block && typeof block === 'object' && block.type === 'tool_result';
+}
+
+export type SubagentLevel = 'session';
+
+export interface ModelConfig {
+  model?: string;
+  temp?: number;
+  top_p?: number;
+}
+
+export interface RunConfig {
+  max_time_minutes?: number;
+  max_turns?: number;
+}
+
+export interface SubagentConfig {
+  name: string;
+  description: string;
+  tools?: string[];
+  systemPrompt: string;
+  level: SubagentLevel;
+  filePath?: string;
+  modelConfig?: Partial<ModelConfig>;
+  runConfig?: Partial<RunConfig>;
+  color?: string;
+  readonly isBuiltin?: boolean;
+}
+
+/**
+ * @license
+ * Copyright 2025 Xiaohongshu RDMind Team
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * Control Request Types
+ *
+ * Centralized enum for all control request subtypes supported by the CLI.
+ * This enum should be kept in sync with the controllers in:
+ * - packages/cli/src/services/control/controllers/systemController.ts
+ * - packages/cli/src/services/control/controllers/permissionController.ts
+ * - packages/cli/src/services/control/controllers/mcpController.ts
+ * - packages/cli/src/services/control/controllers/hookController.ts
+ */
+export enum ControlRequestType {
+  // SystemController requests
+  INITIALIZE = 'initialize',
+  INTERRUPT = 'interrupt',
+  SET_MODEL = 'set_model',
+  SUPPORTED_COMMANDS = 'supported_commands',
+
+  // PermissionController requests
+  CAN_USE_TOOL = 'can_use_tool',
+  SET_PERMISSION_MODE = 'set_permission_mode',
+
+  // MCPController requests
+  MCP_MESSAGE = 'mcp_message',
+  MCP_SERVER_STATUS = 'mcp_server_status',
+
+  // HookController requests
+  HOOK_CALLBACK = 'hook_callback',
 }
