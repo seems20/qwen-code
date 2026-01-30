@@ -36,9 +36,10 @@ if (!versionType) {
 // 2. Bump the version in the root and all workspace package.json files.
 run(`npm version ${versionType} --no-git-tag-version --allow-same-version`);
 
-// 3. Get all workspaces and filter out the one we don't want to version.
-// We intend to maintain sdk version independently.
-const workspacesToExclude = ['@rdmind/sdk'];
+// 3. Get all workspaces and filter out the ones we don't want to version.
+// We intend to maintain sdk and webui versions independently.
+// Note: sdk-java is not in workspaces as it uses Maven, so no need to exclude it here.
+const workspacesToExclude = ['@rdmind/sdk', '@rdmind/webui'];
 let lsOutput;
 try {
   lsOutput = JSON.parse(
