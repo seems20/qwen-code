@@ -171,7 +171,7 @@ export const InputForm: FC<InputFormProps> = ({
   completionItems,
   onCompletionSelect,
   onCompletionClose,
-  placeholder = 'Ask Qwen Code …',
+  placeholder = 'Ask RDMind …',
 }) => {
   const composerDisabled = isStreaming || isWaitingForResponse;
   const completionItemsResolved = completionItems ?? [];
