@@ -17,12 +17,16 @@ import {
 import { ApprovalMode, type Config } from '@rdmind/rdmind-core';
 import { getResponseText } from '../utils/partUtils.js';
 import { DEFAULT_QWEN_MODEL } from '../config/models.js';
+import type { Part } from '@google/genai';
+import mime from 'mime/lite';
 
 const REDOC_API_TIMEOUT_MS = 10000;
 const REDOC_API_URL =
   'https://athena-next.devops.xiaohongshu.com/api/media/query/redoc';
 const REDOC_URL_PATTERN =
   /^https:\/\/docs\.xiaohongshu\.com\/doc\/([a-f0-9]+)$/;
+const IMAGE_DOWNLOAD_TIMEOUT_MS = 30000; // 30秒超时
+const MAX_IMAGE_SIZE_MB = 20; // 最大图片大小
 
 /**
  * RedocFetch 工具的参数接口
@@ -163,6 +167,349 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
     }
   }
 
+  /**
+   * 解析文档内容并构建包含文本和图片（按原始顺序）的结构
+   */
+  private async buildContentWithImages(
+    content: string,
+    signal: AbortSignal,
+  ): Promise<{
+    parts: Part[];
+    textContent: string;
+    imageCount: number;
+    successCount: number;
+  }> {
+    try {
+      const contentObj = JSON.parse(content);
+      
+      if (!contentObj.children || !Array.isArray(contentObj.children)) {
+        // 不是结构化内容，返回纯文本
+        return {
+          parts: [{ text: content }],
+          textContent: content,
+          imageCount: 0,
+          successCount: 0,
+        };
+      }
+
+      const parts: Part[] = [];
+      let textBuffer: string[] = [];
+      let imageCount = 0;
+      let successCount = 0;
+
+      // 递归处理节点，支持嵌套结构
+      const processNode = async (node: any, depth: number = 0): Promise<void> => {
+        if (!node) return;
+
+        // 处理图片节点
+        if (node.type === 'image' && node.url) {
+          imageCount++;
+          
+          // 在遇到图片前，先把累积的文本作为一个 part
+          if (textBuffer.length > 0) {
+            parts.push({ text: textBuffer.join('\n') });
+            textBuffer = [];
+          }
+
+          // 下载图片
+          console.debug(
+            `[RedocFetchTool] Downloading image ${imageCount} (depth ${depth}): ${node.url}`,
+          );
+          
+          const imageData = await this.downloadImageAsBase64(node.url, signal);
+          
+          if (imageData) {
+            // 成功下载，添加图片说明和图片数据
+            const imageCaption = `\n[图片 ${imageCount}${node.width && node.height ? ` (${node.width}x${node.height})` : ''}]\n`;
+            parts.push({ text: imageCaption });
+            parts.push({
+              inlineData: {
+                data: imageData.data,
+                mimeType: imageData.mimeType,
+              },
+            });
+            successCount++;
+            console.debug(
+              `[RedocFetchTool] Image ${imageCount} downloaded successfully`,
+            );
+          } else {
+            // 下载失败，添加占位符
+            const placeholder = `\n[图片 ${imageCount} - 下载失败: ${node.url}]\n`;
+            parts.push({ text: placeholder });
+            console.warn(
+              `[RedocFetchTool] Failed to download image ${imageCount}: ${node.url}`,
+            );
+          }
+          return;
+        }
+
+        // 处理嵌套容器节点（columns, column, table-cell-block 等）
+        if (node.children && Array.isArray(node.children)) {
+          // 对于某些容器类型，添加结构提示
+          if (node.type === 'columns') {
+            textBuffer.push('\n[多栏布局]');
+          } else if (node.type === 'column') {
+            textBuffer.push('\n[栏目]');
+          }
+
+          // 递归处理子节点
+          for (const child of node.children) {
+            await processNode(child, depth + 1);
+          }
+          return;
+        }
+
+        // 提取文本内容
+        const textContent = this.extractTextFromNode(node);
+        if (textContent) {
+          textBuffer.push(textContent);
+        }
+      };
+
+      // 遍历所有顶层子节点
+      for (const child of contentObj.children) {
+        await processNode(child, 0);
+      }
+
+      // 添加最后剩余的文本
+      if (textBuffer.length > 0) {
+        parts.push({ text: textBuffer.join('\n') });
+      }
+
+      // 生成纯文本内容用于日志（递归提取）
+      const extractAllText = (node: any): string => {
+        if (!node) return '';
+        if (node.type === 'image') return ''; // 忽略图片
+        
+        const nodeText = this.extractTextFromNode(node);
+        let childrenText = '';
+        
+        if (node.children && Array.isArray(node.children)) {
+          childrenText = node.children
+            .map((child: any) => extractAllText(child))
+            .filter((text: string) => text)
+            .join('\n');
+        }
+        
+        return [nodeText, childrenText].filter(Boolean).join('\n');
+      };
+
+      const textContent = contentObj.children
+        .map((child: any) => extractAllText(child))
+        .filter((text: string) => text)
+        .join('\n');
+
+      return {
+        parts,
+        textContent,
+        imageCount,
+        successCount,
+      };
+    } catch {
+      // 解析失败，返回原始内容
+      return {
+        parts: [{ text: content }],
+        textContent: content,
+        imageCount: 0,
+        successCount: 0,
+      };
+    }
+  }
+
+  /**
+   * 从文档节点中提取文本内容（支持递归）
+   */
+  private extractTextFromNode(node: any): string {
+    if (!node) return '';
+
+    // 跳过图片节点（图片单独处理）
+    if (node.type === 'image') return '';
+
+    switch (node.type) {
+      case 'title':
+        return this.extractTextFromChildren(node.children, '# ');
+      case 'h1':
+        return this.extractTextFromChildren(node.children, '## ');
+      case 'h2':
+        return this.extractTextFromChildren(node.children, '### ');
+      case 'h3':
+        return this.extractTextFromChildren(node.children, '#### ');
+      case 'paragraph':
+        return this.extractTextFromChildren(node.children);
+      case 'code':
+        return `\`\`\`\n${this.extractTextFromChildren(node.children)}\n\`\`\``;
+      case 'numbered-list':
+      case 'list':
+        return this.extractTextFromChildren(node.children, '- ');
+      case 'block-quote':
+        return `> ${this.extractTextFromChildren(node.children)}`;
+      case 'table':
+        return this.extractTableContent(node);
+      case 'columns':
+      case 'column':
+      case 'table-cell-block':
+        // 递归处理容器节点的子节点
+        if (node.children && Array.isArray(node.children)) {
+          return node.children
+            .map((child: any) => this.extractTextFromNode(child))
+            .filter((text: string) => text)
+            .join('\n');
+        }
+        return '';
+      default:
+        if (node.children) {
+          return this.extractTextFromChildren(node.children);
+        }
+        if (node.text) {
+          return node.text;
+        }
+        return '';
+    }
+  }
+
+  /**
+   * 从表格节点中提取文本内容
+   */
+  private extractTableContent(tableNode: any): string {
+    if (!tableNode.children || !Array.isArray(tableNode.children)) {
+      return '';
+    }
+
+    const rows: string[] = [];
+    for (const row of tableNode.children) {
+      if (row.type === 'tr' && row.children) {
+        const cells = row.children
+          .map((cell: any) => {
+            if (cell.type === 'td') {
+              return this.extractTextFromNode(cell);
+            }
+            return '';
+          })
+          .filter((text: string) => text);
+        
+        if (cells.length > 0) {
+          rows.push('| ' + cells.join(' | ') + ' |');
+        }
+      }
+    }
+
+    return rows.join('\n');
+  }
+
+  /**
+   * 从子节点数组中提取文本
+   */
+  private extractTextFromChildren(
+    children: any[],
+    prefix: string = '',
+  ): string {
+    if (!children || !Array.isArray(children)) return '';
+    
+    return children
+      .map((child) => {
+        if (typeof child === 'string') return child;
+        if (child.text) return prefix + child.text;
+        return this.extractTextFromNode(child);
+      })
+      .join('');
+  }
+
+  /**
+   * 下载图片并转换为 Base64
+   */
+  private async downloadImageAsBase64(
+    url: string,
+    signal: AbortSignal,
+  ): Promise<{ data: string; mimeType: string } | null> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      IMAGE_DOWNLOAD_TIMEOUT_MS,
+    );
+
+    try {
+      console.debug(`[RedocFetchTool] Downloading image from: ${url}`);
+
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; RDMind/1.0)',
+        },
+      });
+
+      if (!response.ok) {
+        console.warn(
+          `[RedocFetchTool] Failed to download image: ${response.status} ${response.statusText}`,
+        );
+        return null;
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      const contentLength = response.headers.get('content-length');
+
+      // 检查文件大小
+      if (contentLength) {
+        const sizeMB = parseInt(contentLength) / (1024 * 1024);
+        if (sizeMB > MAX_IMAGE_SIZE_MB) {
+          console.warn(
+            `[RedocFetchTool] Image too large: ${sizeMB.toFixed(2)}MB (max: ${MAX_IMAGE_SIZE_MB}MB)`,
+          );
+          return null;
+        }
+      }
+
+      // 检查是否是图片类型
+      if (!contentType.startsWith('image/')) {
+        console.warn(
+          `[RedocFetchTool] URL does not return an image: ${contentType}`,
+        );
+        return null;
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // 再次检查实际大小
+      const actualSizeMB = buffer.length / (1024 * 1024);
+      if (actualSizeMB > MAX_IMAGE_SIZE_MB) {
+        console.warn(
+          `[RedocFetchTool] Downloaded image too large: ${actualSizeMB.toFixed(2)}MB`,
+        );
+        return null;
+      }
+
+      const base64Data = buffer.toString('base64');
+
+      // 尝试从 URL 或 Content-Type 获取 MIME 类型
+      let mimeType = contentType;
+      if (!mimeType || mimeType === 'application/octet-stream') {
+        const urlPath = new URL(url).pathname;
+        const detectedMime = mime.getType(urlPath);
+        if (detectedMime) {
+          mimeType = detectedMime;
+        }
+      }
+
+      console.debug(
+        `[RedocFetchTool] Successfully downloaded image: ${actualSizeMB.toFixed(2)}MB, type: ${mimeType}`,
+      );
+
+      return {
+        data: base64Data,
+        mimeType,
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.warn(
+          `[RedocFetchTool] Error downloading image from ${url}: ${error.message}`,
+        );
+      }
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
   override getDescription(): string {
     const displayPrompt =
       this.params.prompt.length > 100
@@ -214,34 +561,45 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         `[RedocFetchTool] Processing content with prompt: "${this.params.prompt}"`,
       );
 
+      // 构建包含文本和图片的内容（按原始顺序）
+      const { parts, imageCount, successCount } =
+        await this.buildContentWithImages(content, signal);
+
+      console.debug(
+        `[RedocFetchTool] Content parsed: ${imageCount} images found, ${successCount} downloaded successfully`,
+      );
+
       const geminiClient = this.config.getGeminiClient();
-      // 尝试解析 content 字段，如果是 JSON 则进行格式化处理
-      let processedContent = content;
-      try {
-        const contentObj = JSON.parse(content);
-        if (contentObj.children && Array.isArray(contentObj.children)) {
-          // 这是结构化文档内容，提取主要文本信息
-          processedContent = `文档结构化内容（包含 ${contentObj.children.length} 个内容块）：\n${content}`;
-        }
-      } catch (_e) {
-        // 如果不是 JSON，直接使用原始内容
-        processedContent = content;
-      }
-      const fallbackPrompt = `请根据用户的问题分析以下文档内容：
+
+      // 构建提示词
+      const imageInfo =
+        imageCount > 0
+          ? `\n\n注意：文档中包含 ${imageCount} 张图片（成功加载 ${successCount} 张），图片已按原始位置插入到文档内容中，请结合上下文和图片内容进行分析。`
+          : '';
+
+      const promptPart: Part = {
+        text: `请根据用户的问题分析以下文档内容：
 
 用户问题：${this.params.prompt}
 
 文档来源：${this.params.url}
+${imageInfo}
 
-文档内容：
----
-${processedContent}
----
+文档内容如下（文本和图片按原始顺序排列）：
+---`,
+      };
 
-请根据上述文档内容回答用户的问题。`;
+      const endPart: Part = {
+        text: `---
+
+请根据上述文档内容（包括文本和图片）回答用户的问题。`,
+      };
+
+      // 组合所有 parts：开头提示 + 文档内容（文本+图片交替） + 结尾提示
+      const allParts: Part[] = [promptPart, ...parts, endPart];
 
       const result = await geminiClient.generateContent(
-        [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
+        [{ role: 'user', parts: allParts }],
         {},
         signal,
         this.config.getModel() || DEFAULT_QWEN_MODEL,
@@ -252,9 +610,14 @@ ${processedContent}
         `[RedocFetchTool] Successfully processed Redoc content from ${this.params.url}`,
       );
 
+      const displayMessage =
+        imageCount > 0
+          ? `Redoc document from ${this.params.url} processed successfully (${successCount}/${imageCount} images loaded).`
+          : `Redoc document from ${this.params.url} processed successfully.`;
+
       return {
         llmContent: resultText,
-        returnDisplay: `Redoc document from ${this.params.url} processed successfully.`,
+        returnDisplay: displayMessage,
       };
     } catch (e) {
       const error = e as Error;
@@ -281,7 +644,7 @@ export class RedocFetchTool extends BaseDeclarativeTool<
     super(
       RedocFetchTool.Name,
       'RedocFetch',
-      '从小红书 Redoc 文档获取内容并使用 AI 模型处理\n- 接受 Redoc 文档 URL 和提示词作为输入\n- 从 URL 中提取文档 ID 并通过 Redoc API 获取内容\n- 使用 AI 模型处理文档内容并回答用户问题\n- 返回模型对内容的响应\n- 适用于各种类型的小红书 Redoc 文档（技术文档、产品文档、设计文档等）\n\n使用说明:\n  - 此工具专门针对格式为 https://docs.xiaohongshu.com/doc/{doc_id} 的 URL\n  - URL 必须包含有效的文档 ID（32 位十六进制字符串）\n  - 提示词应该清晰描述用户想了解文档的哪些方面\n  - 此工具为只读工具，不会修改任何文件\n  - 如果内容很大，结果可能会被摘要',
+      '从小红书 Redoc 文档获取内容并使用 AI 模型处理\n- 接受 Redoc 文档 URL 和提示词作为输入\n- 从 URL 中提取文档 ID 并通过 Redoc API 获取内容\n- 自动提取文档中的图片并下载，支持图片理解\n- 使用 AI 模型处理文档内容（包含文本和图片）并回答用户问题\n- 返回模型对内容的响应\n- 适用于各种类型的小红书 Redoc 文档（技术文档、产品文档、设计文档等）\n\n使用说明:\n  - 此工具专门针对格式为 https://docs.xiaohongshu.com/doc/{doc_id} 的 URL\n  - URL 必须包含有效的文档 ID（32 位十六进制字符串）\n  - 提示词应该清晰描述用户想了解文档的哪些方面\n  - 此工具为只读工具，不会修改任何文件\n  - 如果文档包含图片，会自动下载并发送给模型进行理解\n  - 支持的图片格式：PNG、JPEG、GIF、WEBP 等\n  - 单张图片最大 20MB',
       Kind.Fetch,
       {
         properties: {
