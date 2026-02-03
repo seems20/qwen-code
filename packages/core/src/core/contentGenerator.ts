@@ -340,6 +340,17 @@ export async function createContentGenerator(
         './geminiContentGenerator.js'
       );
       baseGenerator = new GeminiContentGenerator(generatorConfig, config);
+    } else if (model.startsWith('claude')) {
+      // 使用 Vertex AI Anthropic API 格式的 Claude 模型
+      // 支持 claude-opus-4-5 等 Claude 系列模型
+      // 使用 Vertex AI 的 :rawPredict 和 :streamRawPredict 端点
+      const { VertexAnthropicContentGenerator } = await import(
+        './vertexAnthropicContentGenerator.js'
+      );
+      baseGenerator = new VertexAnthropicContentGenerator(
+        generatorConfig,
+        config,
+      );
     } else {
       // 默认使用 OpenAI 兼容客户端
       const { createOpenAIContentGenerator } = await import(

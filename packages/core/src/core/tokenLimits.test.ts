@@ -157,6 +157,12 @@ describe('tokenLimit', () => {
     it('should return the correct limit for Claude Opus 4', () => {
       expect(tokenLimit('claude-opus-4')).toBe(1048576);
     });
+    it('should return the correct limit for Claude Opus 4.5', () => {
+      expect(tokenLimit('claude-opus-4-5@20251101')).toBe(1048576);
+    });
+    it('should return the correct limit for Claude Haiku 4.5', () => {
+      expect(tokenLimit('claude-haiku-4-5@20251001')).toBe(200000);
+    });
   });
 
   describe('Alibaba Qwen', () => {

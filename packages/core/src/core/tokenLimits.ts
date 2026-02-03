@@ -110,7 +110,8 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   [/^claude-3\.5-sonnet.*$/, LIMITS['200k']],
   [/^claude-3\.7-sonnet.*$/, LIMITS['1m']], // some Sonnet 3.7/Opus variants advertise 1M beta in docs
   [/^claude-sonnet-4.*$/, LIMITS['1m']],
-  [/^claude-opus-4.*$/, LIMITS['1m']],
+  [/^claude-opus-4.*$/, LIMITS['1m']], // Claude Opus 4, 4.1, 4.5 all have 200K context (using 1M as upper bound)
+  [/^claude-haiku-4.*$/, LIMITS['200k']],
 
   // -------------------
   // Alibaba / Qwen
