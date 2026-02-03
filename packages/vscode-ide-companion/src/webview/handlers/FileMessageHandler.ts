@@ -13,7 +13,7 @@ import {
   ensureLeftGroupOfChatWebview,
 } from '../../utils/editorGroupUtils.js';
 import { ReadonlyFileSystemProvider } from '../../services/readonlyFileSystemProvider.js';
-import { FileDiscoveryService } from '@qwen-code/qwen-code-core/src/services/fileDiscoveryService.js';
+import { FileDiscoveryService } from '@rdmind/rdmind-core/src/services/fileDiscoveryService.js';
 
 /**
  * File message handler
@@ -247,7 +247,7 @@ export class FileMessageHandler extends BaseMessageHandler {
           if (
             discovery.shouldIgnoreFile(uri.fsPath, {
               respectGitIgnore: true,
-              respectQwenIgnore: false,
+              respectRdmindIgnore: false,
             })
           ) {
             return;

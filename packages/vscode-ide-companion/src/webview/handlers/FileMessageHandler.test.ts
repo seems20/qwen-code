@@ -41,7 +41,7 @@ const vscodeMock = vi.hoisted(() => {
 
 vi.mock('vscode', () => vscodeMock);
 vi.mock(
-  '@qwen-code/qwen-code-core/src/services/fileDiscoveryService.js',
+  '@rdmind/rdmind-core/src/services/fileDiscoveryService.js',
   () => ({
     FileDiscoveryService: class {
       shouldIgnoreFile(filePath: string, options?: unknown) {
@@ -96,7 +96,7 @@ describe('FileMessageHandler', () => {
     );
     expect(shouldIgnoreFileMock).toHaveBeenCalledWith(ignoredPath, {
       respectGitIgnore: true,
-      respectQwenIgnore: false,
+      respectRdmindIgnore: false,
     });
 
     expect(sendToWebView).toHaveBeenCalledTimes(1);
