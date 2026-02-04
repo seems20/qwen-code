@@ -22,6 +22,7 @@ export default {
   'auto-accept edits': '自动接受编辑',
   'Accepting edits': '接受编辑',
   '(shift + tab to cycle)': '(shift + tab 切换)',
+  '(tab to cycle)': '(按 tab 切换)',
   'Execute shell commands via {{symbol}} (e.g., {{example1}}) or use natural language (e.g., {{example2}}).':
     '通过 {{symbol}} 执行 shell 命令（例如，{{example1}}）或使用自然语言（例如，{{example2}}）',
   '!': '!',
@@ -1078,6 +1079,8 @@ export default {
     '运行 rdmind --continue 或 rdmind --resume 可继续之前的会话。',
   'You can switch permission mode quickly with Shift+Tab or /approval-mode.':
     '按 Shift+Tab 或输入 /approval-mode 可快速切换权限模式。',
+  'You can switch permission mode quickly with Tab or /approval-mode.':
+    '按 Tab 或输入 /approval-mode 可快速切换权限模式。',
   'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.':
     'RDMind 现已支持自定义命令、子代理、技能等特性，查阅文档获得使用帮助。',
   'Try asking RDMind to help you commit code.': '试试让 RDMind 帮你提交代码。',

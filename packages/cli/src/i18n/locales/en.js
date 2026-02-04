@@ -23,6 +23,7 @@ export default {
   'auto-accept edits': 'auto-accept edits',
   'Accepting edits': 'Accepting edits',
   '(shift + tab to cycle)': '(shift + tab to cycle)',
+  '(tab to cycle)': '(tab to cycle)',
   'Execute shell commands via {{symbol}} (e.g., {{example1}}) or use natural language (e.g., {{example2}}).':
     'Execute shell commands via {{symbol}} (e.g., {{example1}}) or use natural language (e.g., {{example2}}).',
   '!': '!',
@@ -1142,6 +1143,8 @@ export default {
     'You can resume a previous conversation by running rdmind --continue or rdmind --resume.',
   'You can switch permission mode quickly with Shift+Tab or /approval-mode.':
     'You can switch permission mode quickly with Shift+Tab or /approval-mode.',
+  'You can switch permission mode quickly with Tab or /approval-mode.':
+    'You can switch permission mode quickly with Tab or /approval-mode.',
   'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.':
     'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.',
   'Try asking RDMind to help you commit code.':
