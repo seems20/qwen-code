@@ -38,7 +38,7 @@ export const useAuthCommand = (
   settings: LoadedSettings,
   config: Config,
   addItem: (item: Omit<HistoryItem, 'id'>, timestamp: number) => void,
-  refreshStatic?: () => void,
+  onAuthChange?: () => void,
 ) => {
   const unAuthenticated = config.getAuthType() === undefined;
 
@@ -151,11 +151,10 @@ export const useAuthCommand = (
       setIsAuthDialogOpen(false);
       setIsAuthenticating(false);
 
-      // Log authentication success
-      const authEvent = new AuthEvent(authType, 'manual', 'success');
-      logAuth(config, authEvent);
+      // Trigger UI refresh to update header information
+      onAuthChange?.();
 
-      // Show success message
+      // Add success message to history
       addItem(
         {
           type: MessageType.INFO,
@@ -166,12 +165,11 @@ export const useAuthCommand = (
         Date.now(),
       );
 
-      // Refresh static content to update header with new auth type
-      if (refreshStatic) {
-        refreshStatic();
-      }
+      // Log authentication success
+      const authEvent = new AuthEvent(authType, 'manual', 'success');
+      logAuth(config, authEvent);
     },
-    [settings, handleAuthFailure, config, addItem, refreshStatic],
+    [settings, handleAuthFailure, config, addItem, onAuthChange],
   );
 
   const performAuth = useCallback(
@@ -285,10 +283,8 @@ export const useAuthCommand = (
                   Date.now(),
                 );
 
-                // Refresh static content to update header with new auth type
-                if (refreshStatic) {
-                  refreshStatic();
-                }
+                // Trigger UI refresh to update header with new auth type
+                onAuthChange?.();
               },
             });
           } catch (error) {
@@ -341,10 +337,8 @@ export const useAuthCommand = (
             Date.now(),
           );
 
-          // Refresh static content to update header with new auth type
-          if (refreshStatic) {
-            refreshStatic();
-          }
+          // Trigger UI refresh to update header with new auth type
+          onAuthChange?.();
         } catch (error) {
           handleAuthFailure(error);
         }
@@ -427,7 +421,7 @@ export const useAuthCommand = (
       isProviderManagedModel,
       onAuthError,
       settings.merged.model?.generationConfig,
-      refreshStatic,
+      onAuthChange,
       addItem,
       settings,
     ],
