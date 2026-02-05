@@ -433,10 +433,10 @@ export class TokenUsageReporter {
         }
         throw fetchError; // 重新抛出其他错误
       }
-    } catch (error) {
-      console.error('[tokenUsageReporter] 上报请求异常:', error);
-      return false;
-    }
+      } catch (error) {
+        debugLog('上报请求异常:', error);
+        return false;
+      }
   }
 
   /**
