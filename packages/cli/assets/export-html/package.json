@@ -1,0 +1,14 @@
+{
+  "name": "@rdmind/cli-export-html",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@rdmind/webui": "file:../../../../webui"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

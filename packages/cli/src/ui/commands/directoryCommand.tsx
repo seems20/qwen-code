@@ -114,7 +114,6 @@ export const directoryCommand: SlashCommand = {
                   ...config.getWorkspaceContext().getDirectories(),
                   ...pathsToAdd,
                 ],
-                config.getDebugMode(),
                 config.getFileService(),
                 config.getExtensionContextFilePaths(),
                 config.getFolderTrust(),
@@ -259,7 +258,6 @@ export const directoryCommand: SlashCommand = {
               await loadServerHierarchicalMemory(
                 config.getWorkingDir(),
                 config.getWorkspaceContext().getDirectories(),
-                config.getDebugMode(),
                 config.getFileService(),
                 config.getExtensionContextFilePaths(),
                 config.getFolderTrust(),

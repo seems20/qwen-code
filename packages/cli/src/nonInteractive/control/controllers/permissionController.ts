@@ -225,11 +225,9 @@ export class PermissionController extends BaseController {
     this.context.permissionMode = mode;
     this.context.config.setApprovalMode(mode as ApprovalMode);
 
-    if (this.context.debugMode) {
-      console.error(
-        `[PermissionController] Permission mode updated to: ${mode}`,
-      );
-    }
+    this.debugLogger.info(
+      `[PermissionController] Permission mode updated to: ${mode}`,
+    );
 
     return { status: 'updated', mode };
   }
@@ -460,12 +458,10 @@ export class PermissionController extends BaseController {
         );
       }
     } catch (error) {
-      if (this.context.debugMode) {
-        console.error(
-          '[PermissionController] Outgoing permission failed:',
-          error,
-        );
-      }
+      this.debugLogger.error(
+        '[PermissionController] Outgoing permission failed:',
+        error,
+      );
 
       // Extract error message
       const errorMessage =

@@ -25,13 +25,14 @@ export function handleAutoUpdate(
     return;
   }
 
-  if (settings.merged.general?.disableUpdateNag) {
-    return;
-  }
+  // enableAutoUpdate is checked in gemini.tsx before calling this function,
+  // so if we get here, auto-update is enabled (or undefined, which defaults to enabled).
+  const isAutoUpdateEnabled =
+    settings.merged.general?.enableAutoUpdate !== false;
 
   const installationInfo = getInstallationInfo(
     projectRoot,
-    settings.merged.general?.disableAutoUpdate ?? false,
+    isAutoUpdateEnabled,
   );
 
   let combinedMessage = info.message;
@@ -43,10 +44,8 @@ export function handleAutoUpdate(
     message: combinedMessage,
   });
 
-  if (
-    !installationInfo.updateCommand ||
-    settings.merged.general?.disableAutoUpdate
-  ) {
+  // Don't automatically run the update if auto-update is disabled or no update command
+  if (!installationInfo.updateCommand || !isAutoUpdateEnabled) {
     return;
   }
   const isNightly = info.update.latest.includes('nightly');

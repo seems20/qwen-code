@@ -20,13 +20,18 @@ import type {
   Status as CoreStatus,
   EditorType,
 } from '@rdmind/rdmind-core';
-import { CoreToolScheduler } from '@rdmind/rdmind-core';
+import {
+  CoreToolScheduler,
+  createDebugLogger,
+} from '@rdmind/rdmind-core';
 import { useCallback, useState, useMemo } from 'react';
 import type {
   HistoryItemToolGroup,
   IndividualToolCallDisplay,
 } from '../types.js';
 import { ToolCallStatus } from '../types.js';
+
+const debugLogger = createDebugLogger('REACT_TOOL_SCHEDULER');
 
 export type ScheduleFn = (
   request: ToolCallRequestInfo | ToolCallRequestInfo[],
@@ -198,7 +203,7 @@ function mapCoreStatusToDisplayStatus(coreStatus: CoreStatus): ToolCallStatus {
       return ToolCallStatus.Pending;
     default: {
       const exhaustiveCheck: never = coreStatus;
-      console.warn(`Unknown core status encountered: ${exhaustiveCheck}`);
+      debugLogger.warn(`Unknown core status encountered: ${exhaustiveCheck}`);
       return ToolCallStatus.Error;
     }
   }

@@ -20,6 +20,7 @@ COPY . /home/node/app
 WORKDIR /home/node/app
 
 # Install dependencies and build packages
+# Use scripts/build.js which handles workspace dependencies in correct order
 RUN npm ci \
   && npm run build --workspaces \
   && npm pack -w @rdmind/rdmind --pack-destination ./packages/cli/dist \

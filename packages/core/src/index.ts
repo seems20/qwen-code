@@ -63,6 +63,10 @@ export * from './core/nonInteractiveToolExecutor.js';
 export * from './core/prompts.js';
 export * from './core/tokenLimits.js';
 export * from './core/turn.js';
+export * from './core/geminiRequest.js';
+export * from './core/coreToolScheduler.js';
+export * from './core/nonInteractiveToolExecutor.js';
+export * from './tools/tool-names.js';
 
 // ============================================================================
 // Tools
@@ -79,12 +83,10 @@ export * from './tools/grep.js';
 export * from './tools/ls.js';
 export * from './tools/lsp.js';
 export * from './tools/memoryTool.js';
-export * from './tools/read-knowledge-ext.js';
 export * from './tools/mcp-client.js';
 export * from './tools/mcp-client-manager.js';
 export * from './tools/mcp-tool.js';
 export * from './tools/read-file.js';
-export * from './tools/read-many-files.js';
 export * from './tools/ripGrep.js';
 export * from './tools/sdk-control-client-transport.js';
 export * from './tools/shell.js';
@@ -110,20 +112,8 @@ export * from './services/sessionService.js';
 export * from './services/shellExecutionService.js';
 
 // ============================================================================
-// IDE & LSP Support
+// LSP Support
 // ============================================================================
-
-// IDE integration
-export * from './ide/constants.js';
-export {
-  IDE_DEFINITIONS,
-  type IdeInfo,
-  detectIdeFromEnv,
-} from './ide/detect-ide.js';
-export * from './ide/ide-client.js';
-export * from './ide/ide-installer.js';
-export * from './ide/ideContext.js';
-export * from './ide/types.js';
 
 // LSP support
 export * from './lsp/constants.js';
@@ -158,7 +148,6 @@ export type {
 // Telemetry
 // ============================================================================
 
-export { ClearcutLogger } from './telemetry/clearcut-logger/clearcut-logger.js';
 export { QwenLogger } from './telemetry/qwen-logger/qwen-logger.js';
 export * from './telemetry/index.js';
 export {
@@ -189,11 +178,23 @@ export * from './skills/index.js';
 export * from './subagents/index.js';
 
 // ============================================================================
+// IDE Support
+// ============================================================================
+
+export * from './ide/ide-client.js';
+export * from './ide/ideContext.js';
+export * from './ide/ide-installer.js';
+export { IDE_DEFINITIONS, type IdeInfo } from './ide/detect-ide.js';
+export * from './ide/constants.js';
+export * from './ide/types.js';
+
+// ============================================================================
 // Utilities
 // ============================================================================
 
 export * from './utils/apiKeyEncryption.js';
 export * from './utils/browser.js';
+export * from './utils/debugLogger.js';
 export * from './utils/editor.js';
 export * from './utils/errorParsing.js';
 export * from './utils/errors.js';
@@ -214,6 +215,7 @@ export * from './utils/paths.js';
 export * from './utils/promptIdContext.js';
 export * from './utils/projectSummary.js';
 export * from './utils/quotaErrorDetection.js';
+export * from './utils/readManyFiles.js';
 export * from './utils/request-tokenizer/supportedImageFormats.js';
 export * from './utils/retry.js';
 export * from './utils/ripgrepUtils.js';
@@ -235,15 +237,6 @@ export * from './utils/yaml-parser.js';
 // ============================================================================
 
 export * from './qwen/qwenOAuth2.js';
-
-// ============================================================================
-// OpenSpec (feature/language branch)
-// ============================================================================
-
-export * from './openspec/configurators/base.js';
-export * from './openspec/configurators/rdmind.js';
-export * from './openspec/core/schemas/index.js';
-export * from './openspec/core/parsers/markdown-parser.js';
 
 // ============================================================================
 // Testing Utilities

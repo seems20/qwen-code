@@ -29,6 +29,7 @@ import {
   ShellTool,
   WriteFileTool,
   NativeLspClient,
+  createDebugLogger,
   NativeLspService,
 } from '@rdmind/rdmind-core';
 import { extensionsCommand } from '../commands/extensions.js';
@@ -51,17 +52,9 @@ import { mcpCommand } from '../commands/mcp.js';
 
 import { isWorkspaceTrusted } from './trustedFolders.js';
 import { buildWebSearchConfig } from './webSearch.js';
-import { t } from '../i18n/index.js';
+import { writeStderrLine } from '../utils/stdioHelpers.js';
 
-// Simple console logger for now - replace with actual logger if available
-const logger = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  debug: (...args: any[]) => console.debug('[DEBUG]', ...args),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  warn: (...args: any[]) => console.warn('[WARN]', ...args),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: (...args: any[]) => console.error('[ERROR]', ...args),
-};
+const debugLogger = createDebugLogger('CONFIG');
 
 const VALID_APPROVAL_MODE_VALUES = [
   'plan',
@@ -104,7 +97,6 @@ export interface CliArgs {
   debug: boolean | undefined;
   prompt: string | undefined;
   promptInteractive: string | undefined;
-  allFiles: boolean | undefined;
   yolo: boolean | undefined;
   approvalMode: string | undefined;
   telemetry: boolean | undefined;
@@ -134,7 +126,6 @@ export interface CliArgs {
   webSearchDefault: string | undefined;
   screenReader: boolean | undefined;
   vlmSwitchMode: string | undefined;
-  useSmartEdit: boolean | undefined;
   inputFormat?: string | undefined;
   outputFormat: string | undefined;
   includePartialMessages?: boolean;
@@ -291,12 +282,6 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
         .option('sandbox-image', {
           type: 'string',
           description: 'Sandbox image URI.',
-        })
-        .option('all-files', {
-          alias: ['a'],
-          type: 'boolean',
-          description: 'Include ALL files in context?',
-          default: false,
         })
         .option('yolo', {
           alias: 'y',
@@ -516,16 +501,12 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
           'Use the "general.checkpointing.enabled" setting in settings.json instead. This flag will be removed in a future version.',
         )
         .deprecateOption(
-          'all-files',
-          'Use @ includes in the application instead. This flag will be removed in a future version.',
-        )
-        .deprecateOption(
           'prompt',
           'Use the positional prompt instead. This flag will be removed in a future version.',
         )
         // Ensure validation flows through .fail() for clean UX
         .fail((msg: string, err: Error | undefined, yargs: Argv) => {
-          console.error(msg || err?.message || 'Unknown error');
+          writeStderrLine(msg || err?.message || 'Unknown error');
           yargs.showHelp();
           process.exit(1);
         })
@@ -617,7 +598,7 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
 
   // Handle deprecated --experimental-acp flag
   if (result['experimentalAcp']) {
-    console.warn(
+    writeStderrLine(
       '\x1b[33m⚠ Warning: --experimental-acp is deprecated and will be removed in a future release. Please use --acp instead.\x1b[0m',
     );
     // Map experimental-acp to acp if acp is not explicitly set
@@ -640,7 +621,6 @@ export async function parseArguments(settings: Settings): Promise<CliArgs> {
 export async function loadHierarchicalGeminiMemory(
   currentWorkingDirectory: string,
   includeDirectoriesToReadGemini: readonly string[] = [],
-  debugMode: boolean,
   fileService: FileDiscoveryService,
   extensionContextFilePaths: string[] = [],
   folderTrust: boolean,
@@ -655,17 +635,10 @@ export async function loadHierarchicalGeminiMemory(
   // function to signal that it should skip the workspace search.
   const effectiveCwd = isHomeDirectory ? '' : currentWorkingDirectory;
 
-  if (debugMode) {
-    logger.debug(
-      `CLI: Delegating hierarchical memory load to server for CWD: ${currentWorkingDirectory} (memoryImportFormat: ${memoryImportFormat})`,
-    );
-  }
-
   // Directly call the server function with the corrected path.
   return loadServerHierarchicalMemory(
     effectiveCwd,
     includeDirectoriesToReadGemini,
-    debugMode,
     fileService,
     extensionContextFilePaths,
     folderTrust,
@@ -712,11 +685,7 @@ export async function loadCliConfig(
     'output-language.md',
   );
   if (fs.existsSync(outputLanguageFilePath)) {
-    if (debugMode) {
-      logger.debug(
-        `Found output-language.md, adding to context files: ${outputLanguageFilePath}`,
-      );
-    }
+    // output-language.md found - will be added to context files
   } else {
     outputLanguageFilePath = undefined;
   }
@@ -766,7 +735,7 @@ export async function loadCliConfig(
     approvalMode !== ApprovalMode.DEFAULT &&
     approvalMode !== ApprovalMode.PLAN
   ) {
-    logger.warn(
+    writeStderrLine(
       `Approval mode overridden to "default" because the current folder is not trusted.`,
     );
     approvalMode = ApprovalMode.DEFAULT;
@@ -932,11 +901,8 @@ export async function loadCliConfig(
       sessionId = argv.resume;
       sessionData = await sessionService.loadSession(argv.resume);
       if (!sessionData) {
-        const message = t(
-          'No saved session found with ID {{sessionId}}. Run `rdmind --resume` without an ID to choose from existing sessions.',
-          { sessionId: argv.resume },
-        );
-        console.log(message);
+        const message = `No saved session found with ID ${argv.resume}. Run \`rdmind --resume\` without an ID to choose from existing sessions.`;
+        writeStderrLine(message);
         process.exit(1);
       }
     }
@@ -956,7 +922,6 @@ export async function loadCliConfig(
     importFormat: settings.context?.importFormat || 'tree',
     debugMode,
     question,
-    fullContext: argv.allFiles || false,
     coreTools: argv.coreTools || settings.tools?.core || undefined,
     allowedTools: argv.allowedTools || settings.tools?.allowed || undefined,
     excludeTools,
@@ -1025,7 +990,6 @@ export async function loadCliConfig(
     truncateToolOutputLines: settings.tools?.truncateToolOutputLines,
     enableToolOutputTruncation: settings.tools?.enableToolOutputTruncation,
     eventEmitter: appEvents,
-    useSmartEdit: argv.useSmartEdit ?? settings.useSmartEdit,
     gitCoAuthor: settings.general?.gitCoAuthor,
     output: {
       format: outputSettingsFormat,
@@ -1061,7 +1025,7 @@ export async function loadCliConfig(
       lspClient = new NativeLspClient(lspService);
       config.setLspClient(lspClient);
     } catch (err) {
-      logger.warn('Failed to initialize native LSP service:', err);
+      debugLogger.warn('Failed to initialize native LSP service:', err);
     }
   }
 

@@ -59,7 +59,7 @@ for (const file of filesToCopy) {
 
 // Copy template directories from packages/cli
 console.log('Copying template directories...');
-const templateDirs = ['template', 'templates', '.knowledge'];
+const templateDirs = ['template', 'templates'];
 for (const dir of templateDirs) {
   const sourcePath = path.join(cliDir, dir);
   const destPath = path.join(distDir, dir);
@@ -173,7 +173,6 @@ const distPackageJson = {
     'template',
     'templates',
     'examples',
-    '.knowledge',
     'README.md',
     'LICENSE',
     'locales',
@@ -218,7 +217,7 @@ function copyRecursiveSync(src, dest) {
 
     const entries = fs.readdirSync(src);
     for (const entry of entries) {
-      // Skip .DS_Store and other hidden files except .knowledge
+      // Skip .DS_Store and other hidden files
       if (entry === '.DS_Store') {
         continue;
       }

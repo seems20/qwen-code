@@ -9,7 +9,7 @@ import { render, Box, useApp } from 'ink';
 import { getGitBranch, SessionService } from '@rdmind/rdmind-core';
 import { KeypressProvider } from '../contexts/KeypressContext.js';
 import { SessionPicker } from './SessionPicker.js';
-import { t } from '../../i18n/index.js';
+import { writeStdoutLine } from '../../utils/stdioHelpers.js';
 
 interface StandalonePickerScreenProps {
   sessionService: SessionService;
@@ -71,11 +71,7 @@ export async function showResumeSessionPicker(
   const sessionService = new SessionService(cwd);
   const hasSession = await sessionService.loadLastSession();
   if (!hasSession) {
-    console.log(
-      t('No sessions found. Start a new session with {{cmd}}.', {
-        cmd: 'rdmind',
-      }),
-    );
+    writeStdoutLine('No sessions found. Start a new session with `rdmind`.');
     return undefined;
   }
 

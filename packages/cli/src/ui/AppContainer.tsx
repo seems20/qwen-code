@@ -35,6 +35,7 @@ import {
   type IdeContext,
   IdeClient,
   ideContextStore,
+  createDebugLogger,
   getErrorMessage,
   getAllGeminiMdFilenames,
   ShellExecutionService,
@@ -56,7 +57,6 @@ import { useApprovalModeCommand } from './hooks/useApprovalModeCommand.js';
 import { useResumeCommand } from './hooks/useResumeCommand.js';
 import { useSlashCommandProcessor } from './hooks/slashCommandProcessor.js';
 import { useVimMode } from './contexts/VimModeContext.js';
-import { useConsoleMessages } from './hooks/useConsoleMessages.js';
 import { useTerminalSize } from './hooks/useTerminalSize.js';
 import { calculatePromptWidths } from './components/InputPrompt.js';
 import { useStdin, useStdout } from 'ink';
@@ -64,6 +64,7 @@ import ansiEscapes from 'ansi-escapes';
 import * as fs from 'node:fs';
 import { basename } from 'node:path';
 import { computeWindowTitle } from '../utils/windowTitle.js';
+import { clearScreen } from '../utils/stdioHelpers.js';
 import { useTextBuffer } from './components/shared/text-buffer.js';
 import { useLogger } from './hooks/useLogger.js';
 import { useGeminiStream } from './hooks/useGeminiStream.js';
@@ -85,10 +86,8 @@ import { type IdeIntegrationNudgeResult } from './IdeIntegrationNudge.js';
 import { type CommandMigrationNudgeResult } from './CommandFormatMigrationNudge.js';
 import { useCommandMigration } from './hooks/useCommandMigration.js';
 import { migrateTomlCommands } from '../services/command-migration-tool.js';
-import { appEvents, AppEvent } from '../utils/events.js';
 import { type UpdateObject } from './utils/updateCheck.js';
 import { setUpdateHandler } from '../utils/handleAutoUpdate.js';
-import { ConsolePatcher } from './utils/ConsolePatcher.js';
 import { registerCleanup, runExitCleanup } from '../utils/cleanup.js';
 import { useMessageQueue } from './hooks/useMessageQueue.js';
 import { useAutoAcceptIndicator } from './hooks/useAutoAcceptIndicator.js';
@@ -130,6 +129,7 @@ import {
 import { getSocketId } from '../services/websocketSocketId.js';
 
 const CTRL_EXIT_PROMPT_DURATION_MS = 1000;
+const debugLogger = createDebugLogger('APP_CONTAINER');
 
 function isToolExecuting(pendingHistoryItems: HistoryItemWithoutId[]) {
   return pendingHistoryItems.some((item) => {
@@ -331,21 +331,6 @@ export const AppContainer = (props: AppContainerProps) => {
 
     return () => clearInterval(interval);
   }, [config, currentModel, getCurrentModel]);
-
-  const {
-    consoleMessages,
-    handleNewMessage,
-    clearConsoleMessages: clearConsoleMessagesState,
-  } = useConsoleMessages();
-
-  useEffect(() => {
-    const consolePatcher = new ConsolePatcher({
-      onNewMessage: handleNewMessage,
-      debugMode: config.getDebugMode(),
-    });
-    consolePatcher.patch();
-    registerCleanup(consolePatcher.cleanup);
-  }, [handleNewMessage, config]);
 
   // Derive widths for InputPrompt using shared helper
   const { inputWidth, suggestionsWidth } = useMemo(() => {
@@ -868,10 +853,13 @@ export const AppContainer = (props: AppContainerProps) => {
     [visionSwitchResolver],
   );
 
-  // onDebugMessage should log to console, not update footer debugMessage
-  const onDebugMessage = useCallback((message: string) => {
-    console.debug(message);
-  }, []);
+  // onDebugMessage should log to debug logfile, not update footer debugMessage
+  const onDebugMessage = useCallback(
+    (message: string) => {
+      config.getDebugLogger().debug(message);
+    },
+    [config],
+  );
 
   const performMemoryRefresh = useCallback(async () => {
     historyManager.addItem(
@@ -887,7 +875,6 @@ export const AppContainer = (props: AppContainerProps) => {
         settings.merged.context?.loadFromIncludeDirectories
           ? config.getWorkspaceContext().getDirectories()
           : [],
-        config.getDebugMode(),
         config.getFileService(),
         config.getExtensionContextFilePaths(),
         config.isTrustedFolder(),
@@ -909,14 +896,12 @@ export const AppContainer = (props: AppContainerProps) => {
         },
         Date.now(),
       );
-      if (config.getDebugMode()) {
-        console.log(
-          `[DEBUG] Refreshed memory content in config: ${memoryContent.substring(
-            0,
-            200,
-          )}...`,
-        );
-      }
+      debugLogger.debug(
+        `[DEBUG] Refreshed memory content in config: ${memoryContent.substring(
+          0,
+          200,
+        )}...`,
+      );
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       historyManager.addItem(
@@ -926,7 +911,7 @@ export const AppContainer = (props: AppContainerProps) => {
         },
         Date.now(),
       );
-      console.error('Error refreshing memory:', error);
+      debugLogger.error('Error refreshing memory:', error);
     }
   }, [config, historyManager, settings.merged]);
 
@@ -1030,10 +1015,9 @@ export const AppContainer = (props: AppContainerProps) => {
 
   const handleClearScreen = useCallback(() => {
     historyManager.clearItems();
-    clearConsoleMessagesState();
-    console.clear();
+    clearScreen();
     refreshStatic();
-  }, [historyManager, clearConsoleMessagesState, refreshStatic]);
+  }, [historyManager, refreshStatic]);
 
   const { handleInput: vimHandleInput } = useVim(buffer, handleFinalSubmit);
 
@@ -1161,7 +1145,6 @@ export const AppContainer = (props: AppContainerProps) => {
     setShowMigrationNudge: setShowCommandMigrationNudge,
   } = useCommandMigration(settings, config.storage);
 
-  const [showErrorDetails, setShowErrorDetails] = useState<boolean>(false);
   const [showToolDescriptions, setShowToolDescriptions] =
     useState<boolean>(false);
 
@@ -1211,28 +1194,6 @@ export const AppContainer = (props: AppContainerProps) => {
     setIdeContextState(ideContextStore.get());
     return unsubscribe;
   }, []);
-
-  useEffect(() => {
-    const openDebugConsole = () => {
-      setShowErrorDetails(true);
-      setConstrainHeight(false);
-    };
-    appEvents.on(AppEvent.OpenDebugConsole, openDebugConsole);
-
-    const logErrorHandler = (errorMessage: unknown) => {
-      handleNewMessage({
-        type: 'error',
-        content: String(errorMessage),
-        count: 1,
-      });
-    };
-    appEvents.on(AppEvent.LogError, logErrorHandler);
-
-    return () => {
-      appEvents.off(AppEvent.OpenDebugConsole, openDebugConsole);
-      appEvents.off(AppEvent.LogError, logErrorHandler);
-    };
-  }, [handleNewMessage]);
 
   const handleEscapePromptChange = useCallback((showPrompt: boolean) => {
     setShowEscapePrompt(showPrompt);
@@ -1441,7 +1402,7 @@ export const AppContainer = (props: AppContainerProps) => {
     (key: Key) => {
       // Debug log keystrokes if enabled
       if (settings.merged.general?.debugKeystrokeLogging) {
-        console.log('[DEBUG] Keystroke:', JSON.stringify(key));
+        debugLogger.debug('[DEBUG] Keystroke:', JSON.stringify(key));
       }
 
       if (keyMatchers[Command.QUIT](key)) {
@@ -1475,9 +1436,7 @@ export const AppContainer = (props: AppContainerProps) => {
         setConstrainHeight(true);
       }
 
-      if (keyMatchers[Command.SHOW_ERROR_DETAILS](key)) {
-        setShowErrorDetails((prev) => !prev);
-      } else if (keyMatchers[Command.TOGGLE_TOOL_DESCRIPTIONS](key)) {
+      if (keyMatchers[Command.TOGGLE_TOOL_DESCRIPTIONS](key)) {
         const newValue = !showToolDescriptions;
         setShowToolDescriptions(newValue);
 
@@ -1505,7 +1464,6 @@ export const AppContainer = (props: AppContainerProps) => {
     [
       constrainHeight,
       setConstrainHeight,
-      setShowErrorDetails,
       showToolDescriptions,
       setShowToolDescriptions,
       config,
@@ -1563,22 +1521,6 @@ export const AppContainer = (props: AppContainerProps) => {
     settings.merged.ui?.hideWindowTitle,
     stdout,
   ]);
-
-  const filteredConsoleMessages = useMemo(() => {
-    if (config.getDebugMode()) {
-      return consoleMessages;
-    }
-    return consoleMessages.filter((msg) => msg.type !== 'debug');
-  }, [consoleMessages, config]);
-
-  // Computed values
-  const errorCount = useMemo(
-    () =>
-      filteredConsoleMessages
-        .filter((msg) => msg.type === 'error')
-        .reduce((total, msg) => total + msg.count, 0),
-    [filteredConsoleMessages],
-  );
 
   const nightly = props.version.includes('nightly');
 
@@ -1679,8 +1621,6 @@ export const AppContainer = (props: AppContainerProps) => {
       isFolderTrustDialogOpen: isFolderTrustDialogOpen ?? false,
       isTrustedFolder,
       constrainHeight,
-      showErrorDetails,
-      filteredConsoleMessages,
       ideContextState,
       showToolDescriptions,
       ctrlCPressedOnce,
@@ -1694,7 +1634,6 @@ export const AppContainer = (props: AppContainerProps) => {
       showAutoAcceptIndicator,
       currentModel,
       contextFileNames,
-      errorCount,
       availableTerminalHeight,
       mainAreaWidth,
       staticAreaMaxItemHeight,
@@ -1777,8 +1716,6 @@ export const AppContainer = (props: AppContainerProps) => {
       isFolderTrustDialogOpen,
       isTrustedFolder,
       constrainHeight,
-      showErrorDetails,
-      filteredConsoleMessages,
       ideContextState,
       showToolDescriptions,
       ctrlCPressedOnce,
@@ -1791,7 +1728,6 @@ export const AppContainer = (props: AppContainerProps) => {
       messageQueue,
       showAutoAcceptIndicator,
       contextFileNames,
-      errorCount,
       availableTerminalHeight,
       mainAreaWidth,
       staticAreaMaxItemHeight,

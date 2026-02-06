@@ -300,11 +300,8 @@ describe('extractUsageFromGeminiClient', () => {
         throw new Error('Test error');
       }),
     };
-    const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     const result = extractUsageFromGeminiClient(client);
     expect(result).toBeUndefined();
-    expect(consoleSpy).toHaveBeenCalled();
-    consoleSpy.mockRestore();
   });
 
   it('should skip responses without usageMetadata', () => {

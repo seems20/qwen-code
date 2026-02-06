@@ -446,6 +446,8 @@ export default {
     'This extension will install the following subagents:',
   'Installation cancelled for "{{name}}".':
     'Installation cancelled for "{{name}}".',
+  'You are installing an extension from {{originSource}}. Some features may not work perfectly with Qwen Code.':
+    'You are installing an extension from {{originSource}}. Some features may not work perfectly with Qwen Code.',
   '--ref and --auto-update are not applicable for marketplace extensions.':
     '--ref and --auto-update are not applicable for marketplace extensions.',
   'Extension "{{name}}" installed successfully and enabled.':
@@ -1361,20 +1363,6 @@ export default {
     'Have you tried turning it off and on again? (The loading screen, not me.)',
     'Constructing additional pylons...',
   ],
-
-  // ============================================================================
-  // OpenSpec Commands
-  // ============================================================================
-  'Initialize OpenSpec in a project with RDMind integration':
-    'Initialize OpenSpec in a project with RDMind integration',
-  'Initialize OpenSpec in the current directory':
-    'Initialize OpenSpec in the current directory',
-  'Scaffold a new OpenSpec change and validate strictly.':
-    'Scaffold a new OpenSpec change and validate strictly.',
-  'Implement an approved OpenSpec change and keep tasks in sync.':
-    'Implement an approved OpenSpec change and keep tasks in sync.',
-  'Archive a deployed OpenSpec change and update specs.':
-    'Archive a deployed OpenSpec change and update specs.',
 
   // ============================================================================
   // Update Messages

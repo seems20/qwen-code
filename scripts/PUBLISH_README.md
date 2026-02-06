@@ -104,14 +104,13 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 
 - 验证 `dist/cli.js` 和 `dist/vendor/` 存在
 - 复制 `README.md` 和 `LICENSE` 到 `dist/`
-- 复制模板和知识库文件：
+- 复制模板文件：
   - `packages/cli/template/` → `dist/template/`（Maven 项目模板）
   - `packages/cli/templates/` → `dist/templates/`（技术设计模板）
-  - `packages/cli/.knowledge/` → `dist/.knowledge/`（知识库文件）
 - 创建 `dist/package.json`，包含：
   - 基本元数据（name, version, description）
   - `bin: { rdmind: 'cli.js' }`
-  - `files: ['cli.js', 'vendor', '*.sb', 'template', 'templates', '.knowledge', 'README.md', 'LICENSE']`
+  - `files: ['cli.js', 'vendor', '*.sb', 'template', 'templates', 'README.md', 'LICENSE']`
   - 运行时依赖（仅 tiktoken）
   - 可选依赖（node-pty 系列）
 
@@ -138,11 +137,6 @@ npm run publish 0.0.13-nightly.20250115 -- --tag nightly
 ├── template/                   # 项目模板
 │   └── sns-demo/               # Maven 项目模板
 ├── templates/                  # 文档模板
-│   └── tech-design-template.md
-├── .knowledge/                 # 知识库文件
-│   ├── BMAD.md
-│   ├── coding.md
-│   └── .ext/
 ├── *.sb                        # macOS sandbox 配置
 ├── README.md
 ├── LICENSE
@@ -271,7 +265,6 @@ ls -lh dist/
 # 确保源文件存在
 ls -la packages/cli/template
 ls -la packages/cli/templates
-ls -la packages/cli/.knowledge
 
 # 重新运行准备脚本
 npm run prepare:package

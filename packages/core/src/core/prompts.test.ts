@@ -302,7 +302,9 @@ describe('Model-specific tool call formats', () => {
     // Should contain JSON-style tool calls
     expect(prompt).toContain('<tool_call>');
     expect(prompt).toContain('{"name": "run_shell_command"');
-    expect(prompt).toContain('"arguments": {"command": "node server.js &"}');
+    expect(prompt).toContain(
+      '"arguments": {"command": "node server.js &", "is_background": true}',
+    );
     expect(prompt).toContain('</tool_call>');
 
     // Should NOT contain bracket-style tool calls
@@ -649,7 +651,6 @@ describe('resolvePathFromEnv helper function', () => {
       vi.spyOn(os, 'homedir').mockImplementation(() => {
         throw new Error('Cannot resolve home directory');
       });
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = resolvePathFromEnv('~/documents/file.txt');
       expect(result).toEqual({
@@ -657,12 +658,6 @@ describe('resolvePathFromEnv helper function', () => {
         value: null,
         isDisabled: false,
       });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Could not resolve home directory for path: ~/documents/file.txt',
-        expect.any(Error),
-      );
-
-      consoleSpy.mockRestore();
     });
   });
 });

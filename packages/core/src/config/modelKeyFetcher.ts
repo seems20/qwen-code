@@ -5,6 +5,9 @@
  */
 
 import { fetchWithTimeout } from '../utils/fetch.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const logger = createDebugLogger('MODEL_KEY_FETCHER');
 
 /**
  * API 基础 URL
@@ -27,17 +30,11 @@ interface ModelKeyResponse {
 /**
  * 从 API 获取模型的 API Key
  * @param modelName 模型名称
- * @param debugMode 是否开启调试模式
  * @returns API Key
  * @throws Error 如果获取失败
  */
-export async function fetchModelKey(
-  modelName: string,
-  debugMode = false,
-): Promise<string> {
-  if (debugMode) {
-    console.debug(`[ModelKeyFetcher] 从 API 获取 key for ${modelName}`);
-  }
+export async function fetchModelKey(modelName: string): Promise<string> {
+  logger.debug(`从 API 获取 key for ${modelName}`);
 
   try {
     // 如果是 gemini 开头的模型，需要先做预处理，去除思考等级后缀
@@ -49,11 +46,9 @@ export async function fetchModelKey(
       const match = modelName.match(/^(.+?)\(\w+\)$/);
       if (match) {
         processedModelName = match[1];
-        if (debugMode) {
-          console.debug(
-            `[ModelKeyFetcher] gemini 模型预处理: ${modelName} -> ${processedModelName}`,
-          );
-        }
+        logger.debug(
+          `gemini 模型预处理: ${modelName} -> ${processedModelName}`,
+        );
       }
     }
 
@@ -81,17 +76,15 @@ export async function fetchModelKey(
 
     const apiKey = data.data.api_key;
 
-    if (debugMode) {
-      console.debug(
-        `[ModelKeyFetcher] 成功获取 key for ${modelName}: ${apiKey.substring(0, 8)}...`,
-      );
-    }
+    logger.debug(
+      `成功获取 key for ${modelName}: ${apiKey.substring(0, 8)}...`,
+    );
 
     return apiKey;
   } catch (error) {
-    if (debugMode) {
-      console.error(`[ModelKeyFetcher] 获取 key 失败 for ${modelName}:`, error);
-    }
+    logger.error(
+      `获取 key 失败 for ${modelName}: ${error instanceof Error ? error.message : String(error)}`,
+    );
     throw new Error(
       `无法获取模型 ${modelName} 的 API Key: ${error instanceof Error ? error.message : String(error)}`,
     );

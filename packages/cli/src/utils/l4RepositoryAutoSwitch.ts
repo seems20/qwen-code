@@ -106,7 +106,7 @@ export async function autoSwitchToQSModel(
     // 如果已经是 xhs-sso，只需要切换模型
     // 总是获取新的 apiKey 以确保使用正确的模型
     const { fetchModelKey } = await import('@rdmind/rdmind-core');
-    const newApiKey = await fetchModelKey(targetModel, config.getDebugMode());
+    const newApiKey = await fetchModelKey(targetModel);
     await applyXhsSsoConfig(config, settings, {
       apiKey: newApiKey,
       baseUrl: targetBaseUrl,
@@ -117,7 +117,7 @@ export async function autoSwitchToQSModel(
     // 如果不是 xhs-sso，需要切换到 xhs-sso 并设置模型
     // 首先需要获取 apiKey
     const { fetchModelKey } = await import('@rdmind/rdmind-core');
-    const apiKey = await fetchModelKey(targetModel, config.getDebugMode());
+    const apiKey = await fetchModelKey(targetModel);
 
     await applyXhsSsoConfig(config, settings, {
       apiKey,

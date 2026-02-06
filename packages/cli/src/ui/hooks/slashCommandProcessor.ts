@@ -10,6 +10,7 @@ import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import {
   type Logger,
   type Config,
+  createDebugLogger,
   GitService,
   logSlashCommand,
   makeSlashCommandEvent,
@@ -32,15 +33,16 @@ import { type CommandContext, type SlashCommand } from '../commands/types.js';
 import { CommandService } from '../../services/CommandService.js';
 import { BuiltinCommandLoader } from '../../services/BuiltinCommandLoader.js';
 import { FileCommandLoader } from '../../services/FileCommandLoader.js';
-import { MarkdownCommandLoader } from '../../services/MarkdownCommandLoader.js';
 import { McpPromptLoader } from '../../services/McpPromptLoader.js';
 import { parseSlashCommand } from '../../utils/commands.js';
+import { clearScreen } from '../../utils/stdioHelpers.js';
 import {
   type ExtensionUpdateAction,
   type ExtensionUpdateStatus,
 } from '../state/extensions.js';
 
 type SerializableHistoryItem = Record<string, unknown>;
+const debugLogger = createDebugLogger('SLASH_COMMAND_PROCESSOR');
 
 function serializeHistoryItemForRecording(
   item: Omit<HistoryItem, 'id'>,
@@ -202,7 +204,7 @@ export const useSlashCommandProcessor = (
         addItem,
         clear: () => {
           clearItems();
-          console.clear();
+          clearScreen();
           refreshStatic();
         },
         loadHistory,
@@ -274,7 +276,6 @@ export const useSlashCommandProcessor = (
         new McpPromptLoader(config),
         new BuiltinCommandLoader(config),
         new FileCommandLoader(config),
-        new MarkdownCommandLoader(config),
       ];
       const commandService = await CommandService.create(
         loaders,
@@ -610,12 +611,10 @@ export const useSlashCommandProcessor = (
               });
             }
           } catch (recordError) {
-            if (config.getDebugMode()) {
-              console.error(
-                '[slashCommand] Failed to record slash command:',
-                recordError,
-              );
-            }
+            debugLogger.error(
+              '[slashCommand] Failed to record slash command:',
+              recordError,
+            );
           }
         }
         if (config && resolvedCommandPath[0] && !hasError) {

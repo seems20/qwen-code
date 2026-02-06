@@ -11,9 +11,14 @@ import * as path from 'node:path';
 import * as childProcess from 'node:child_process';
 import { isGitRepository } from '@rdmind/rdmind-core';
 
-vi.mock('@rdmind/rdmind-core', () => ({
-  isGitRepository: vi.fn(),
-}));
+vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  return {
+    ...actual,
+    isGitRepository: vi.fn(),
+  };
+});
 
 vi.mock('fs', async (importOriginal) => {
   const actualFs = await importOriginal<typeof fs>();
@@ -58,8 +63,7 @@ describe('getInstallationInfo', () => {
     expect(info.packageManager).toBe(PackageManager.UNKNOWN);
   });
 
-  it('should return UNKNOWN and log error if realpathSync fails', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  it('should return UNKNOWN if realpathSync fails', () => {
     process.argv[1] = '/path/to/cli';
     const error = new Error('realpath failed');
     mockedRealPathSync.mockImplementation(() => {
@@ -69,8 +73,6 @@ describe('getInstallationInfo', () => {
     const info = getInstallationInfo(projectRoot, false);
 
     expect(info.packageManager).toBe(PackageManager.UNKNOWN);
-    expect(consoleSpy).toHaveBeenCalledWith(error);
-    consoleSpy.mockRestore();
   });
 
   it('should detect running from a local git clone', () => {
@@ -178,13 +180,15 @@ describe('getInstallationInfo', () => {
       throw new Error('Command failed');
     });
 
-    const info = getInstallationInfo(projectRoot, false);
+    // isAutoUpdateEnabled = true -> "Attempting to automatically update"
+    const info = getInstallationInfo(projectRoot, true);
     expect(info.packageManager).toBe(PackageManager.PNPM);
     expect(info.isGlobal).toBe(true);
     expect(info.updateCommand).toBe('pnpm add -g @rdmind/rdmind@latest');
     expect(info.updateMessage).toContain('Attempting to automatically update');
 
-    const infoDisabled = getInstallationInfo(projectRoot, true);
+    // isAutoUpdateEnabled = false -> "Please run..."
+    const infoDisabled = getInstallationInfo(projectRoot, false);
     expect(infoDisabled.updateMessage).toContain('Please run pnpm add');
   });
 
@@ -196,13 +200,15 @@ describe('getInstallationInfo', () => {
       throw new Error('Command failed');
     });
 
-    const info = getInstallationInfo(projectRoot, false);
+    // isAutoUpdateEnabled = true -> "Attempting to automatically update"
+    const info = getInstallationInfo(projectRoot, true);
     expect(info.packageManager).toBe(PackageManager.YARN);
     expect(info.isGlobal).toBe(true);
     expect(info.updateCommand).toBe('yarn global add @rdmind/rdmind@latest');
     expect(info.updateMessage).toContain('Attempting to automatically update');
 
-    const infoDisabled = getInstallationInfo(projectRoot, true);
+    // isAutoUpdateEnabled = false -> "Please run..."
+    const infoDisabled = getInstallationInfo(projectRoot, false);
     expect(infoDisabled.updateMessage).toContain('Please run yarn global add');
   });
 
@@ -214,13 +220,15 @@ describe('getInstallationInfo', () => {
       throw new Error('Command failed');
     });
 
-    const info = getInstallationInfo(projectRoot, false);
+    // isAutoUpdateEnabled = true -> "Attempting to automatically update"
+    const info = getInstallationInfo(projectRoot, true);
     expect(info.packageManager).toBe(PackageManager.BUN);
     expect(info.isGlobal).toBe(true);
     expect(info.updateCommand).toBe('bun add -g @rdmind/rdmind@latest');
     expect(info.updateMessage).toContain('Attempting to automatically update');
 
-    const infoDisabled = getInstallationInfo(projectRoot, true);
+    // isAutoUpdateEnabled = false -> "Please run..."
+    const infoDisabled = getInstallationInfo(projectRoot, false);
     expect(infoDisabled.updateMessage).toContain('Please run bun add');
   });
 
@@ -299,13 +307,15 @@ describe('getInstallationInfo', () => {
       throw new Error('Command failed');
     });
 
-    const info = getInstallationInfo(projectRoot, false);
+    // isAutoUpdateEnabled = true -> "Attempting to automatically update"
+    const info = getInstallationInfo(projectRoot, true);
     expect(info.packageManager).toBe(PackageManager.NPM);
     expect(info.isGlobal).toBe(true);
     expect(info.updateCommand).toBe('npm install -g @rdmind/rdmind@latest');
     expect(info.updateMessage).toContain('Attempting to automatically update');
 
-    const infoDisabled = getInstallationInfo(projectRoot, true);
+    // isAutoUpdateEnabled = false -> "Please run..."
+    const infoDisabled = getInstallationInfo(projectRoot, false);
     expect(infoDisabled.updateMessage).toContain('Please run npm install');
   });
 });

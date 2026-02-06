@@ -65,7 +65,6 @@ describe('runNonInteractive', () => {
   let mockToolRegistry: ToolRegistry;
   let mockCoreExecuteToolCall: Mock;
   let mockShutdownTelemetry: Mock;
-  let consoleErrorSpy: MockInstance;
   let processStdoutSpy: MockInstance;
   let processStderrSpy: MockInstance;
   let mockGeminiClient: {
@@ -82,7 +81,6 @@ describe('runNonInteractive', () => {
       getCommands: mockGetCommands,
     });
 
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     processStdoutSpy = vi
       .spyOn(process.stdout, 'write')
       .mockImplementation(() => true);
@@ -359,9 +357,6 @@ describe('runNonInteractive', () => {
       .mockReturnValueOnce(createStreamFromEvents([toolCallEvent]))
       .mockReturnValueOnce(createStreamFromEvents(finalResponse));
 
-    // Enable debug mode so handleToolError logs to console.error
-    (mockConfig.getDebugMode as Mock).mockReturnValue(true);
-
     await runNonInteractive(
       mockConfig,
       mockSettings,
@@ -370,9 +365,6 @@ describe('runNonInteractive', () => {
     );
 
     expect(mockCoreExecuteToolCall).toHaveBeenCalled();
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error executing tool errorTool: Execution failed',
-    );
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
       2,
@@ -442,9 +434,6 @@ describe('runNonInteractive', () => {
       .mockReturnValueOnce(createStreamFromEvents([toolCallEvent]))
       .mockReturnValueOnce(createStreamFromEvents(finalResponse));
 
-    // Enable debug mode so handleToolError logs to console.error
-    (mockConfig.getDebugMode as Mock).mockReturnValue(true);
-
     await runNonInteractive(
       mockConfig,
       mockSettings,
@@ -453,9 +442,6 @@ describe('runNonInteractive', () => {
     );
 
     expect(mockCoreExecuteToolCall).toHaveBeenCalled();
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error executing tool nonexistentTool: Tool "nonexistentTool" not found in registry.',
-    );
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(processStdoutSpy).toHaveBeenCalledWith(
       "Sorry, I can't find that tool.",
@@ -737,11 +723,6 @@ describe('runNonInteractive', () => {
       throw testError;
     });
 
-    // Mock console.error to capture JSON error output
-    const consoleErrorJsonSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-
     let thrownError: Error | null = null;
     try {
       await runNonInteractive(
@@ -759,19 +740,18 @@ describe('runNonInteractive', () => {
     // Should throw because of mocked process.exit
     expect(thrownError?.message).toBe('process.exit(1) called');
 
-    expect(consoleErrorJsonSpy).toHaveBeenCalledWith(
-      JSON.stringify(
-        {
-          error: {
-            type: 'Error',
-            message: 'Invalid input provided',
-            code: 1,
-          },
+    const jsonError = JSON.stringify(
+      {
+        error: {
+          type: 'Error',
+          message: 'Invalid input provided',
+          code: 1,
         },
-        null,
-        2,
-      ),
+      },
+      null,
+      2,
     );
+    expect(processStderrSpy).toHaveBeenCalledWith(`${jsonError}\n`);
   });
 
   it('should handle API errors in text mode and exit with error code', async () => {
@@ -829,11 +809,6 @@ describe('runNonInteractive', () => {
       throw fatalError;
     });
 
-    // Mock console.error to capture JSON error output
-    const consoleErrorJsonSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-
     let thrownError: Error | null = null;
     try {
       await runNonInteractive(
@@ -851,19 +826,18 @@ describe('runNonInteractive', () => {
     // Should throw because of mocked process.exit with custom exit code
     expect(thrownError?.message).toBe('process.exit(42) called');
 
-    expect(consoleErrorJsonSpy).toHaveBeenCalledWith(
-      JSON.stringify(
-        {
-          error: {
-            type: 'FatalInputError',
-            message: 'Invalid command syntax provided',
-            code: 42,
-          },
+    const jsonError = JSON.stringify(
+      {
+        error: {
+          type: 'FatalInputError',
+          message: 'Invalid command syntax provided',
+          code: 42,
         },
-        null,
-        2,
-      ),
+      },
+      null,
+      2,
     );
+    expect(processStderrSpy).toHaveBeenCalledWith(`${jsonError}\n`);
   });
 
   it('should execute a slash command that returns a prompt', async () => {

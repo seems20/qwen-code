@@ -12,7 +12,6 @@ import { agentsCommand } from '../ui/commands/agentsCommand.js';
 import { approvalModeCommand } from '../ui/commands/approvalModeCommand.js';
 import { authCommand } from '../ui/commands/authCommand.js';
 import { bugCommand } from '../ui/commands/bugCommand.js';
-import { bmadCommand } from '../ui/commands/bmadCommand.js';
 import { clearCommand } from '../ui/commands/clearCommand.js';
 import { compressCommand } from '../ui/commands/compressCommand.js';
 import { copyCommand } from '../ui/commands/copyCommand.js';
@@ -20,6 +19,7 @@ import { createCommand } from '../ui/commands/createCommand.js';
 import { docsCommand } from '../ui/commands/docsCommand.js';
 import { directoryCommand } from '../ui/commands/directoryCommand.js';
 import { editorCommand } from '../ui/commands/editorCommand.js';
+import { exportCommand } from '../ui/commands/exportCommand.js';
 import { extensionsCommand } from '../ui/commands/extensionsCommand.js';
 import { helpCommand } from '../ui/commands/helpCommand.js';
 import { ideCommand } from '../ui/commands/ideCommand.js';
@@ -31,7 +31,6 @@ import { memoryCommand } from '../ui/commands/memoryCommand.js';
 import { modelCommand } from '../ui/commands/modelCommand.js';
 import { quitCommand } from '../ui/commands/quitCommand.js';
 import { rdconfigCommand } from '../ui/commands/rdconfigCommand.js';
-import { rdflowCommand } from '../ui/commands/rdflowCommand.js';
 import { restoreCommand } from '../ui/commands/restoreCommand.js';
 import { resumeCommand } from '../ui/commands/resumeCommand.js';
 import { settingsCommand } from '../ui/commands/settingsCommand.js';
@@ -39,12 +38,10 @@ import { skillsCommand } from '../ui/commands/skillsCommand.js';
 import { ssoCommand } from '../ui/commands/ssoCommand.js';
 import { statsCommand } from '../ui/commands/statsCommand.js';
 import { summaryCommand } from '../ui/commands/summaryCommand.js';
-import { techDesignCommand } from '../ui/commands/techDesignCommand.js';
 import { terminalSetupCommand } from '../ui/commands/terminalSetupCommand.js';
 import { themeCommand } from '../ui/commands/themeCommand.js';
 import { toolsCommand } from '../ui/commands/toolsCommand.js';
 import { vimCommand } from '../ui/commands/vimCommand.js';
-import { openspecCommand } from '../ui/commands/openspecCommand.js';
 
 /**
  * Loads the core, hard-coded slash commands that are an integral part
@@ -67,7 +64,6 @@ export class BuiltinCommandLoader implements ICommandLoader {
       approvalModeCommand,
       authCommand,
       bugCommand,
-      bmadCommand,
       clearCommand,
       compressCommand,
       copyCommand,
@@ -75,13 +71,12 @@ export class BuiltinCommandLoader implements ICommandLoader {
       docsCommand,
       directoryCommand,
       editorCommand,
+      exportCommand,
       extensionsCommand,
       helpCommand,
       await ideCommand(),
       importCommand,
       initCommand,
-      openspecCommand,
-      rdflowCommand,
       rdconfigCommand,
       languageCommand,
       mcpCommand,
@@ -93,7 +88,6 @@ export class BuiltinCommandLoader implements ICommandLoader {
       ...(this.config?.getExperimentalSkills?.() ? [skillsCommand] : []),
       statsCommand,
       summaryCommand,
-      techDesignCommand,
       themeCommand,
       toolsCommand,
       settingsCommand,

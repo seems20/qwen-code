@@ -51,7 +51,7 @@ export async function resolveXhsSsoRuntimeConfig(
   if (!apiKey || apiKey.trim() === '') {
     try {
       const { fetchModelKey } = await import('@rdmind/rdmind-core');
-      apiKey = await fetchModelKey(model, config.getDebugMode());
+      apiKey = await fetchModelKey(model);
     } catch (error) {
       throw new Error(
         `无法获取默认模型 ${model} 的 API Key: ${

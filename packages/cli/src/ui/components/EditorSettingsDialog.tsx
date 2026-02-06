@@ -18,9 +18,14 @@ import { ScopeSelector } from './shared/ScopeSelector.js';
 import type { LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 import type { EditorType } from '@rdmind/rdmind-core';
-import { isEditorAvailable } from '@rdmind/rdmind-core';
+import {
+  createDebugLogger,
+  isEditorAvailable,
+} from '@rdmind/rdmind-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { t } from '../../i18n/index.js';
+
+const debugLogger = createDebugLogger('EDITOR_SETTINGS_DIALOG');
 
 interface EditorDialogProps {
   onSelect: (editorType: EditorType | undefined, scope: SettingScope) => void;
@@ -61,7 +66,7 @@ export function EditorSettingsDialog({
       )
     : 0;
   if (editorIndex === -1) {
-    console.error(`Editor is not supported: ${currentPreference}`);
+    debugLogger.error(`Editor is not supported: ${currentPreference}`);
     editorIndex = 0;
   }
 

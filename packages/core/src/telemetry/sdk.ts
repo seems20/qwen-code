@@ -36,9 +36,12 @@ import {
   FileMetricExporter,
   FileSpanExporter,
 } from './file-exporters.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
 
 // For troubleshooting, set the log level to DiagLogLevel.DEBUG
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+
+const debugLogger = createDebugLogger('OTEL');
 
 let sdk: NodeSDK | undefined;
 let telemetryInitialized = false;
@@ -159,29 +162,27 @@ export function initializeTelemetry(config: Config): void {
 
   try {
     sdk.start();
-    if (config.getDebugMode()) {
-      console.log('OpenTelemetry SDK started successfully.');
-    }
+    debugLogger.debug('OpenTelemetry SDK started successfully.');
     telemetryInitialized = true;
     initializeMetrics(config);
   } catch (error) {
-    console.error('Error starting OpenTelemetry SDK:', error);
+    debugLogger.error('Error starting OpenTelemetry SDK:', error);
   }
 
   // 处理退出信号，等待异步操作完成
   const handleShutdown = async (signal: string) => {
-    console.log(`[telemetry] 收到 ${signal} 信号，开始关闭 telemetry...`);
+    debugLogger.debug(`[telemetry] 收到 ${signal} 信号，开始关闭 telemetry...`);
     await shutdownTelemetry(config);
   };
 
   process.on('SIGTERM', () => {
     handleShutdown('SIGTERM').catch((error) => {
-      console.error('[telemetry] SIGTERM 处理失败:', error);
+      debugLogger.debug('[telemetry] SIGTERM 处理失败:', error);
     });
   });
   process.on('SIGINT', () => {
     handleShutdown('SIGINT').catch((error) => {
-      console.error('[telemetry] SIGINT 处理失败:', error);
+      debugLogger.debug('[telemetry] SIGINT 处理失败:', error);
     });
   });
   // exit 事件是同步的，不能等待异步操作，所以只做最后的清理
@@ -200,7 +201,7 @@ export async function shutdownTelemetry(config: Config): Promise<void> {
     await reporter.shutdown(true);
   } catch (error) {
     // 静默失败，不影响主流程
-    console.debug('[shutdownTelemetry] 关闭 TokenUsageReporter 失败:', error);
+    debugLogger.debug('[shutdownTelemetry] 关闭 TokenUsageReporter 失败:', error);
   }
 
   if (!telemetryInitialized || !sdk) {
@@ -208,11 +209,9 @@ export async function shutdownTelemetry(config: Config): Promise<void> {
   }
   try {
     await sdk.shutdown();
-    if (config.getDebugMode()) {
-      console.log('OpenTelemetry SDK shut down successfully.');
-    }
+    debugLogger.debug('OpenTelemetry SDK shut down successfully.');
   } catch (error) {
-    console.error('Error shutting down SDK:', error);
+    debugLogger.error('Error shutting down SDK:', error);
   } finally {
     telemetryInitialized = false;
   }

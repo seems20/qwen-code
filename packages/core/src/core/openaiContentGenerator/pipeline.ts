@@ -408,13 +408,6 @@ export class ContentGenerationPipeline {
         effectiveModel,
       );
 
-      // 调用大模型前的日志 - 只在debug模式下打印简化的API调用信息
-      if (this.config.cliConfig.getDebugMode()) {
-        console.log(
-          `[OpenAI-Pipeline] API Request: model=${openaiRequest.model}, messages=${openaiRequest.messages?.length || 0}, stream=${openaiRequest.stream || false}`,
-        );
-      }
-
       const result = await executor(openaiRequest, context);
 
       context.duration = Date.now() - context.startTime;

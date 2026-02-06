@@ -113,7 +113,7 @@ export function XhsSsoModelConfigFlow({
         apiKey = model.apiKey;
       } else {
         // 从 API 动态获取 key
-        apiKey = await fetchModelKey(model.id, true);
+        apiKey = await fetchModelKey(model.id);
       }
 
       onComplete({

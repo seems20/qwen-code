@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Config } from '@rdmind/rdmind-core';
 import {
   InputFormat,
+  isDebugLoggingDegraded,
   logUserPrompt,
+  Storage,
+  type Config,
+  createDebugLogger,
   logRDMindStart,
   logRDMindEnd,
 } from '@rdmind/rdmind-core';
@@ -36,7 +39,6 @@ import { SettingsContext } from './ui/contexts/SettingsContext.js';
 import { VimModeProvider } from './ui/contexts/VimModeContext.js';
 import { useKittyKeyboardProtocol } from './ui/hooks/useKittyKeyboardProtocol.js';
 import { themeManager } from './ui/themes/theme-manager.js';
-import { ConsolePatcher } from './ui/utils/ConsolePatcher.js';
 import { detectAndEnableKittyProtocol } from './ui/utils/kittyProtocolDetector.js';
 import { checkForUpdates } from './ui/utils/updateCheck.js';
 import {
@@ -55,10 +57,13 @@ import { start_sandbox } from './utils/sandbox.js';
 import { getStartupWarnings } from './utils/startupWarnings.js';
 import { getUserStartupWarnings } from './utils/userStartupWarnings.js';
 import { getCliVersion } from './utils/version.js';
+import { writeStderrLine } from './utils/stdioHelpers.js';
 import { computeWindowTitle } from './utils/windowTitle.js';
 import { validateNonInteractiveAuth } from './validateNonInterActiveAuth.js';
 import { showResumeSessionPicker } from './ui/components/StandaloneSessionPicker.js';
 import { initializeLlmOutputLanguage } from './utils/languageUtils.js';
+
+const debugLogger = createDebugLogger('STARTUP');
 
 export function validateDnsResolutionOrder(
   order: string | undefined,
@@ -71,7 +76,7 @@ export function validateDnsResolutionOrder(
     return order;
   }
   // We don't want to throw here, just warn and use the default.
-  console.warn(
+  writeStderrLine(
     `Invalid value for dnsResolutionOrder in settings: "${order}". Using default "${defaultValue}".`,
   );
   return defaultValue;
@@ -87,7 +92,7 @@ function getNodeMemoryArgs(isDebugMode: boolean): string[] {
   // Set target to 50% of total memory
   const targetMaxOldSpaceSizeInMB = Math.floor(totalMemoryMB * 0.5);
   if (isDebugMode) {
-    console.debug(
+    writeStderrLine(
       `Current heap size ${currentMaxOldSpaceSizeMb.toFixed(2)} MB`,
     );
   }
@@ -98,7 +103,7 @@ function getNodeMemoryArgs(isDebugMode: boolean): string[] {
 
   if (targetMaxOldSpaceSizeInMB > currentMaxOldSpaceSizeMb) {
     if (isDebugMode) {
-      console.debug(
+      writeStderrLine(
         `Need to relaunch with more memory: ${targetMaxOldSpaceSizeInMB.toFixed(2)} MB`,
       );
     }
@@ -187,16 +192,16 @@ export async function startInteractiveUI(
     },
   );
 
-  if (!settings.merged.general?.disableUpdateNag) {
+  // Check for updates only if enableAutoUpdate is not explicitly disabled.
+  // Using !== false ensures updates are enabled by default when undefined.
+  if (settings.merged.general?.enableAutoUpdate !== false) {
     checkForUpdates()
       .then((info) => {
         handleAutoUpdate(info, settings, config.getProjectRoot());
       })
       .catch((err) => {
         // Silently ignore update check errors.
-        if (config.getDebugMode()) {
-          console.error('Update check failed:', err);
-        }
+        debugLogger.warn(`Update check failed: ${err}`);
       });
   }
 
@@ -215,7 +220,7 @@ export async function main() {
 
   // Check for invalid input combinations early to prevent crashes
   if (argv.promptInteractive && !process.stdin.isTTY) {
-    console.error(
+    writeStderrLine(
       'Error: The --prompt-interactive flag cannot be used when input is piped from stdin.',
     );
     await runExitCleanup();
@@ -235,7 +240,9 @@ export async function main() {
     if (!themeManager.setActiveTheme(settings.merged.ui?.theme)) {
       // If the theme is not found during initial load, log a warning and continue.
       // The useThemeCommand hook in AppContainer.tsx will handle opening the dialog.
-      console.warn(`Warning: Theme "${settings.merged.ui?.theme}" not found.`);
+      writeStderrLine(
+        `Warning: Theme "${settings.merged.ui?.theme}" not found.`,
+      );
     }
   }
 
@@ -274,7 +281,7 @@ export async function main() {
             await partialConfig.refreshAuth(authType);
           }
         } catch (err) {
-          console.error('Error authenticating:', err);
+          writeStderrLine(`Error authenticating: ${err}`);
           await runExitCleanup();
           process.exit(1);
         }
@@ -373,15 +380,6 @@ export async function main() {
     //   }
     //   process.exit(0);
     // }
-
-    // Setup unified ConsolePatcher based on interactive mode
-    const isInteractive = config.isInteractive();
-    const consolePatcher = new ConsolePatcher({
-      stderr: isInteractive,
-      debugMode: isDebugMode,
-    });
-    consolePatcher.patch();
-    registerCleanup(consolePatcher.cleanup);
 
     const wasRaw = process.stdin.isRaw;
     let kittyProtocolDetectionComplete: Promise<boolean> | undefined;
@@ -496,6 +494,19 @@ export async function main() {
       return;
     }
 
+    // Print debug mode notice to stderr for non-interactive mode
+    if (config.getDebugMode()) {
+      writeStderrLine('Debug mode enabled');
+      writeStderrLine(
+        `Logging to: ${Storage.getDebugLogPath(config.getSessionId())}`,
+      );
+      if (isDebugLoggingDegraded()) {
+        writeStderrLine(
+          'Warning: Debug logging is degraded (write failures occurred)',
+        );
+      }
+    }
+
     // For non-stream-json mode, initialize config here
     if (inputFormat !== InputFormat.STREAM_JSON) {
       await config.initialize();
@@ -531,7 +542,7 @@ export async function main() {
     }
 
     if (!input) {
-      console.error(
+      writeStderrLine(
         `No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.`,
       );
       await runExitCleanup();
@@ -547,9 +558,7 @@ export async function main() {
       prompt_length: input.length,
     });
 
-    if (config.getDebugMode()) {
-      console.log('Session ID: %s', config.getSessionId());
-    }
+    debugLogger.debug(`Session ID: ${config.getSessionId()}`);
 
     await runNonInteractive(nonInteractiveConfig, settings, input, prompt_id);
 

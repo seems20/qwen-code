@@ -16,13 +16,22 @@ import {
 } from './modelConfigUtils.js';
 import type { Settings } from '../config/settings.js';
 
+const mockWriteStderrLine = vi.hoisted(() => vi.fn());
+
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const original =
+    await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...original,
     resolveModelConfig: vi.fn(),
   };
 });
+
+vi.mock('./stdioHelpers.js', () => ({
+  writeStderrLine: mockWriteStderrLine,
+  writeStdoutLine: vi.fn(),
+  clearScreen: vi.fn(),
+}));
 
 describe('modelConfigUtils', () => {
   describe('getAuthTypeFromEnv', () => {
@@ -121,17 +130,15 @@ describe('modelConfigUtils', () => {
 
   describe('resolveCliGenerationConfig', () => {
     const originalEnv = process.env;
-    const originalConsoleWarn = console.warn;
 
     beforeEach(() => {
       vi.resetModules();
       process.env = { ...originalEnv };
-      console.warn = vi.fn();
+      mockWriteStderrLine.mockClear();
     });
 
     afterEach(() => {
       process.env = originalEnv;
-      console.warn = originalConsoleWarn;
       vi.clearAllMocks();
     });
 
@@ -520,8 +527,8 @@ describe('modelConfigUtils', () => {
         selectedAuthType,
       });
 
-      expect(console.warn).toHaveBeenCalledWith('Warning 1');
-      expect(console.warn).toHaveBeenCalledWith('Warning 2');
+      expect(mockWriteStderrLine).toHaveBeenCalledWith('Warning 1');
+      expect(mockWriteStderrLine).toHaveBeenCalledWith('Warning 2');
     });
 
     it('should use custom env when provided', () => {

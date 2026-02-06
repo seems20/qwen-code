@@ -199,20 +199,9 @@ export class TokenUsageReporter {
         },
       );
     }
-    // 非debug模式下，只在第一次添加时输出一次，确认上报功能已启用
-    else if (this.queue.length === 1) {
-      console.log(
-        `[tokenUsageReporter] Token 使用记录上报功能已启用（达到 ${BATCH_SIZE} 条或 ${BATCH_INTERVAL_MS / 1000} 秒后上报）`,
-      );
-    }
 
     // 如果达到批量大小，立即触发上报
     if (this.queue.length >= BATCH_SIZE) {
-      if (isDebugEnabled()) {
-        console.log(
-          `[tokenUsageReporter] 队列达到批量大小 ${BATCH_SIZE}，立即触发上报`,
-        );
-      }
       debugLog(`队列达到批量大小 ${BATCH_SIZE}，立即触发上报`);
       this.flush();
     }
@@ -273,16 +262,12 @@ export class TokenUsageReporter {
       const filteredCount = items.length - validItems.length;
 
       if (filteredCount > 0) {
-        if (isDebugEnabled()) {
-          debugLog(`过滤掉 ${filteredCount} 条所有 token 字段都为 0 的记录`);
-        }
+        debugLog(`过滤掉 ${filteredCount} 条所有 token 字段都为 0 的记录`);
       }
 
       // 如果没有有效记录，直接返回
       if (validItems.length === 0) {
-        if (isDebugEnabled()) {
-          debugLog('没有有效的 Token 使用记录，跳过上报');
-        }
+        debugLog('没有有效的 Token 使用记录，跳过上报');
         return;
       }
 
@@ -298,21 +283,12 @@ export class TokenUsageReporter {
       }
 
       debugLog(
-        `[tokenUsageReporter] 开始上报 ${validItems.length} 条 Token 使用记录`,
-      );
-      debugLog(
         `开始上报 ${validItems.length} 条 Token 使用记录，rdmind_sso_id: ${rdmindSsoId}`,
       );
       // 正常上报使用默认超时（5秒），退出时会在 shutdown 中设置更短的超时
       const success = await this.reportToServer(rdmindSsoId, validItems);
       if (success) {
         this.lastFlushTime = Date.now();
-        // 成功上报日志只在debug模式下输出，避免日志过多
-        if (isDebugEnabled()) {
-          console.log(
-            `[tokenUsageReporter] ✅ 成功上报 ${validItems.length} 条 Token 使用记录`,
-          );
-        }
         debugLog(`✅ 成功上报 ${validItems.length} 条 Token 使用记录`);
       } else {
         // 上报失败，将有效数据放回队列（保留最新的数据）

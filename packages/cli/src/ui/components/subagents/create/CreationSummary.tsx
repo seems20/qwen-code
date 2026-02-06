@@ -7,12 +7,18 @@
 import { useCallback, useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import type { WizardStepProps } from '../types.js';
-import type { SubagentManager, SubagentConfig } from '@rdmind/rdmind-core';
+import type {
+  SubagentManager,
+  SubagentConfig,
+} from '@rdmind/rdmind-core';
+import { createDebugLogger } from '@rdmind/rdmind-core';
 import { theme } from '../../../semantic-colors.js';
 import { shouldShowColor, getColorForDisplay } from '../utils.js';
 import { useLaunchEditor } from '../../../hooks/useLaunchEditor.js';
 import { useKeypress } from '../../../hooks/useKeypress.js';
 import { t } from '../../../../i18n/index.js';
+
+const debugLogger = createDebugLogger('SUBAGENT_CREATION_SUMMARY');
 
 /**
  * Step 6: Final confirmation and actions.
@@ -84,7 +90,7 @@ export function CreationSummary({
         }
       } catch (error) {
         // Silently handle errors in warning checks
-        console.warn('Error checking subagent name availability:', error);
+        debugLogger.warn('Error checking subagent name availability:', error);
       }
 
       // Check length warnings

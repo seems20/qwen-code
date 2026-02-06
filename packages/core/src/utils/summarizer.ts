@@ -13,6 +13,9 @@ import type {
 import type { GeminiClient } from '../core/client.js';
 import { DEFAULT_QWEN_MODEL } from '../config/models.js';
 import { getResponseText, partToString } from './partUtils.js';
+import { createDebugLogger } from './debugLogger.js';
+
+const debugLogger = createDebugLogger('SUMMARIZER');
 
 /**
  * A function that summarizes the result of a tool execution.
@@ -93,7 +96,7 @@ export async function summarizeToolOutput(
     )) as unknown as GenerateContentResponse;
     return getResponseText(parsedResponse) || textToSummarize;
   } catch (error) {
-    console.error('Failed to summarize tool output.', error);
+    debugLogger.error('Failed to summarize tool output.', error);
     return textToSummarize;
   }
 }

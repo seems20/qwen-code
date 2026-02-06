@@ -15,7 +15,8 @@
     }
   },
   "scripts": {
-    "build": "node ../../scripts/build_package.js",
+    "build:assets": "node ./assets/parallel-build.mjs",
+    "build": "npm run build:assets && node ../../scripts/build_package.js",
     "start": "node dist/index.js",
     "debug": "node --inspect-brk dist/index.js",
     "lint": "eslint . --ext .ts,.tsx",
@@ -29,8 +30,7 @@
     "dist",
     "template",
     "templates",
-    "examples",
-    ".knowledge"
+    "examples"
   ],
   "publishConfig": {
     "access": "public"

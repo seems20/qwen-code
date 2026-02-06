@@ -9,8 +9,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { setSocketId } from './websocketSocketId.js';
-import { ssoAuthEvents, saveSSOCredentials } from '@rdmind/rdmind-core';
+import { ssoAuthEvents, saveSSOCredentials, createDebugLogger } from '@rdmind/rdmind-core';
 import { syncPlugins, setDebugMode } from '../core/pluginSync.js';
+
+const debugLogger = createDebugLogger('WEBSOCKET_CLIENT');
 
 export interface WebSocketClientOptions {
   url: string;
@@ -82,11 +84,11 @@ export class WebSocketClient {
     const { url } = this.options;
     try {
       if (this.options.debug) {
-        console.debug(`[ws] connecting to ${url}`);
+        debugLogger.debug(`[ws] connecting to ${url}`);
       }
       this.ws = new WebSocket(url);
     } catch (err) {
-      console.warn('[ws] failed to initiate connection:', err);
+      debugLogger.warn('[ws] failed to initiate connection:', err);
       this.scheduleReconnect();
       return;
     }
@@ -100,9 +102,9 @@ export class WebSocketClient {
   private onOpen() {
     this.reconnectAttempts = 0;
     if (this.options.debug) {
-      console.debug('[ws] connected');
+      debugLogger.debug('[ws] connected');
     } else {
-      console.info('[ws] connected');
+      debugLogger.info('[ws] connected');
     }
 
     // Send optional registration payload
@@ -119,7 +121,7 @@ export class WebSocketClient {
   private startPluginSync() {
     this.stopPluginSync(); // 先清理可能存在的定时器
 
-    // 每1秒执行一次插件同步
+    // 每3秒执行一次插件同步
     this.pluginSyncTimer = setInterval(() => {
       this.performPluginSync();
     }, 3000);
@@ -144,8 +146,8 @@ export class WebSocketClient {
 
     if (ssoLoggedIn) {
       if (this.options.debug) {
-        console.debug('[ws] 执行插件同步');
-        console.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
+        debugLogger.debug('[ws] 执行插件同步');
+        debugLogger.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
       }
 
       // WebSocket连接成功后调用插件同步
@@ -153,17 +155,17 @@ export class WebSocketClient {
         setDebugMode(true);
       }
       syncPlugins().catch((error) => {
-        console.error('插件同步失败:', error);
+        debugLogger.error('插件同步失败:', error);
       });
     } else if (this.options.debug) {
-      console.debug('[ws] 插件同步条件尚未满足');
-      console.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
+      debugLogger.debug('[ws] 插件同步条件尚未满足');
+      debugLogger.debug('[ws]   - SSO登录状态:', ssoLoggedIn);
     }
   }
 
   private onClose(code: number, reason: Buffer) {
     if (this.options.debug) {
-      console.debug(
+      debugLogger.debug(
         `[ws] closed code=${code} reason=${reason.toString('utf8')}`,
       );
     }
@@ -191,7 +193,7 @@ export class WebSocketClient {
       return fs.existsSync(credsPath);
     } catch (err) {
       if (this.options.debug) {
-        console.debug('[ws] 检查SSO登录状态时出错:', err);
+        debugLogger.debug('[ws] 检查SSO登录状态时出错:', err);
       }
       return false;
     }
@@ -207,7 +209,7 @@ export class WebSocketClient {
     rdmindSsoId?: string,
   ) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('[ws] ⚠️ WebSocket 未连接，无法发送 auth 请求');
+      debugLogger.warn('[ws] ⚠️ WebSocket 未连接，无法发送 auth 请求');
       return;
     }
 
@@ -228,12 +230,12 @@ export class WebSocketClient {
       }
 
       const messageStr = JSON.stringify(payload);
-      console.log(`[ws-send:auth] ${messageStr}`);
+      debugLogger.info(`[ws-send:auth] ${messageStr}`);
       this.ws.send(messageStr);
     } catch (err) {
-      console.error('[ws] ❌ 发送 auth 请求失败:', err);
+      debugLogger.error('[ws] ❌ 发送 auth 请求失败:', err);
       if (this.options.debug && err instanceof Error) {
-        console.error('[ws] 错误详情:', err.message);
+        debugLogger.error('[ws] 错误详情:', err.message);
       }
     }
   }
@@ -275,7 +277,7 @@ export class WebSocketClient {
           this.options.debug ||
           (type !== 'client_heart_pong' && type !== 'server_heart_ping')
         ) {
-          console.log(`[ws-receive:${type}] ${text}`);
+          debugLogger.info(`[ws-receive:${type}] ${text}`);
         }
 
         // Handle connection_established (连接建立，接收服务端下发的 socketId)
@@ -302,13 +304,13 @@ export class WebSocketClient {
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
               // 心跳响应日志只在debug模式下输出，避免日志过多
               if (this.options.debug) {
-                console.debug(`[ws-send:server_heart_pong] ${serverHeartPong}`);
+                debugLogger.debug(`[ws-send:server_heart_pong] ${serverHeartPong}`);
               }
               this.ws.send(serverHeartPong);
             }
           } catch (err) {
             if (this.options.debug) {
-              console.debug('[ws] failed to send server_heart_pong:', err);
+              debugLogger.debug('[ws] failed to send server_heart_pong:', err);
             }
           }
           return;
@@ -328,7 +330,7 @@ export class WebSocketClient {
             // 保存到 settings.json（原有逻辑）
             this.handleSsoBindSuccess(p.rdmind_sso_id, p.sso_name, p.message);
           } else {
-            console.warn(
+            debugLogger.warn(
               '[ws] ⚠️ SSO 绑定消息缺少必要字段:',
               JSON.stringify(p, null, 2),
             );
@@ -364,7 +366,7 @@ export class WebSocketClient {
       }
     } catch {
       // Not JSON; fall through and log raw text as unknown type
-      console.log(`[ws-receive:unknown] ${text}`);
+      debugLogger.info(`[ws-receive:unknown] ${text}`);
     }
   }
 
@@ -374,20 +376,20 @@ export class WebSocketClient {
     message?: string,
   ) {
     if (this.options.debug) {
-      console.debug('[ws] 🔄 开始处理 SSO 绑定成功消息...');
+      debugLogger.debug('[ws] 🔄 开始处理 SSO 绑定成功消息...');
     }
 
     try {
       // 显示绑定成功消息（这个总是显示，因为是用户反馈）
       if (message) {
-        console.log(`\n✅ ${message}\n`);
+        debugLogger.info(`\n✅ ${message}\n`);
       } else {
-        console.log(`\n✅ SSO 绑定成功！欢迎 ${ssoName}\n`);
+        debugLogger.info(`\n✅ SSO 绑定成功！欢迎 ${ssoName}\n`);
       }
 
       // 保存到独立文件 ~/.rdmind/xhs_sso_creds.json
       if (this.options.debug) {
-        console.debug('[ws] 💾 保存 SSO 凭证到独立文件...');
+        debugLogger.debug('[ws] 💾 保存 SSO 凭证到独立文件...');
       }
       await saveSSOCredentials(
         {
@@ -404,20 +406,20 @@ export class WebSocketClient {
       };
 
       if (this.options.debug) {
-        console.debug(`[ws] ✅ SSO 凭证已成功保存到独立文件`);
-        console.debug(`    🆔 rdmind_sso_id: ${rdmindSsoId}`);
-        console.debug(`    👤 sso_name: ${ssoName}\n`);
+        debugLogger.debug(`[ws] ✅ SSO 凭证已成功保存到独立文件`);
+        debugLogger.debug(`    🆔 rdmind_sso_id: ${rdmindSsoId}`);
+        debugLogger.debug(`    👤 sso_name: ${ssoName}\n`);
       }
 
       // 保存完成后，重新发起 auth 请求，携带新的 rdmind_sso_id
       if (this.options.debug) {
-        console.debug('[ws] 🔄 重新发送 auth 请求，携带新的 rdmind_sso_id...');
+        debugLogger.debug('[ws] 🔄 重新发送 auth 请求，携带新的 rdmind_sso_id...');
       }
       this.sendAuth(this.options.registrationPayload, rdmindSsoId);
     } catch (err) {
-      console.error('[ws] ❌ 处理 SSO 绑定成功消息失败:', err);
+      debugLogger.error('[ws] ❌ 处理 SSO 绑定成功消息失败:', err);
       if (err instanceof Error && err.stack && this.options.debug) {
-        console.error('[ws] 错误堆栈:', err.stack);
+        debugLogger.error('[ws] 错误堆栈:', err.stack);
       }
     }
   }
@@ -441,9 +443,9 @@ export class WebSocketClient {
       // Write content to file (or empty string if no content provided)
       const fileContent = content || '';
       fs.writeFileSync(filePath, fileContent, { flag: 'w' });
-      console.log(`[ws] created file: ${filePath}`);
+      debugLogger.info(`[ws] created file: ${filePath}`);
     } catch (err) {
-      console.error(`[ws] failed to create file ${filePath}:`, err);
+      debugLogger.error(`[ws] failed to create file ${filePath}:`, err);
     }
   }
 
@@ -457,20 +459,20 @@ export class WebSocketClient {
       // Check if file exists before attempting to delete
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
-        console.log(`[ws] deleted file: ${filePath}`);
+        debugLogger.info(`[ws] deleted file: ${filePath}`);
       } else {
-        console.log(`[ws] file not found, skipping delete: ${filePath}`);
+        debugLogger.info(`[ws] file not found, skipping delete: ${filePath}`);
       }
     } catch (err) {
-      console.error(`[ws] failed to delete file ${filePath}:`, err);
+      debugLogger.error(`[ws] failed to delete file ${filePath}:`, err);
     }
   }
 
   private onError(err: unknown) {
     if (this.options.debug) {
-      console.error('[ws] error:', err);
+      debugLogger.error('[ws] error:', err);
     } else {
-      console.warn('[ws] error');
+      debugLogger.warn('[ws] error');
     }
   }
 
@@ -480,13 +482,13 @@ export class WebSocketClient {
 
     const { retryMaxAttempts, retryBaseDelayMs } = this.options;
     if (retryMaxAttempts > 0 && this.reconnectAttempts >= retryMaxAttempts) {
-      console.warn('[ws] reached max reconnect attempts; giving up');
+      debugLogger.warn('[ws] reached max reconnect attempts; giving up');
       return;
     }
     const attempt = this.reconnectAttempts++;
     const delay = Math.min(30_000, retryBaseDelayMs * Math.pow(2, attempt));
     if (this.options.debug) {
-      console.debug(`[ws] reconnecting in ${delay}ms (attempt ${attempt + 1})`);
+      debugLogger.debug(`[ws] reconnecting in ${delay}ms (attempt ${attempt + 1})`);
     }
     this.reconnectTimer = setTimeout(() => this.connect(), delay);
   }
@@ -501,13 +503,13 @@ export class WebSocketClient {
         const heartbeatMsg = JSON.stringify({ type: 'client_heart_ping' });
         // 心跳日志只在debug模式下输出，避免日志过多
         if (this.options.debug) {
-          console.debug(`[ws-send:client_heart_ping] ${heartbeatMsg}`);
+          debugLogger.debug(`[ws-send:client_heart_ping] ${heartbeatMsg}`);
         }
         this.ws.send(heartbeatMsg);
         this.armHeartbeatTimeout();
       } catch (err) {
         if (this.options.debug) {
-          console.debug('[ws] heartbeat failed:', err);
+          debugLogger.debug('[ws] heartbeat failed:', err);
         }
       }
     }, this.options.heartbeatIntervalMs);
@@ -517,7 +519,7 @@ export class WebSocketClient {
     this.disarmHeartbeatTimeout();
     this.heartbeatTimeoutTimer = setTimeout(() => {
       if (this.options.debug) {
-        console.debug('[ws] heartbeat timeout; terminating connection');
+        debugLogger.debug('[ws] heartbeat timeout; terminating connection');
       }
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         try {

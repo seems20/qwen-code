@@ -6,12 +6,15 @@
 
 import type { PartListUnion } from '@google/genai';
 import { parseSlashCommand } from './utils/commands.js';
-import { Logger, uiTelemetryService, type Config } from '@rdmind/rdmind-core';
+import {
+  Logger,
+  uiTelemetryService,
+  type Config,
+  createDebugLogger,
+} from '@rdmind/rdmind-core';
 import { CommandService } from './services/CommandService.js';
 import { BuiltinCommandLoader } from './services/BuiltinCommandLoader.js';
 import { FileCommandLoader } from './services/FileCommandLoader.js';
-import { MarkdownCommandLoader } from './services/MarkdownCommandLoader.js';
-import type { ICommandLoader } from './services/types.js';
 import {
   CommandKind,
   type CommandContext,
@@ -22,6 +25,8 @@ import { createNonInteractiveUI } from './ui/noninteractive/nonInteractiveUi.js'
 import type { LoadedSettings } from './config/settings.js';
 import type { SessionStatsState } from './ui/contexts/SessionContext.js';
 import { t } from './i18n/index.js';
+
+const debugLogger = createDebugLogger('NON_INTERACTIVE_COMMANDS');
 
 /**
  * Built-in commands that are allowed in non-interactive modes (CLI and ACP).
@@ -180,7 +185,6 @@ function handleCommandResult(
  * Filters commands based on the allowed built-in command names.
  *
  * - Always includes FILE commands
- * - Always includes MARKDOWN commands (for OpenSpec support)
  * - Only includes BUILT_IN commands if their name is in the allowed set
  * - Excludes other command types (e.g., MCP_PROMPT) in non-interactive mode
  *
@@ -194,11 +198,6 @@ function filterCommandsForNonInteractive(
 ): SlashCommand[] {
   return commands.filter((cmd) => {
     if (cmd.kind === CommandKind.FILE) {
-      return true;
-    }
-
-    // Always allow MARKDOWN commands (for OpenSpec functionality)
-    if (cmd.kind === CommandKind.MARKDOWN) {
       return true;
     }
 
@@ -251,10 +250,9 @@ export const handleSlashCommand = async (
   const allowedBuiltinSet = new Set(allowedBuiltinCommandNames ?? []);
 
   // Load all commands to check if the command exists but is not allowed
-  const allLoaders: ICommandLoader[] = [
+  const allLoaders = [
     new BuiltinCommandLoader(config),
     new FileCommandLoader(config),
-    new MarkdownCommandLoader(config),
   ];
 
   const commandService = await CommandService.create(
@@ -365,16 +363,11 @@ export const getAvailableCommands = async (
   try {
     const allowedBuiltinSet = new Set(allowedBuiltinCommandNames ?? []);
 
-    // Always include FileCommandLoader and MarkdownCommandLoader for OpenSpec support
-    const loaders: ICommandLoader[] = [
-      new FileCommandLoader(config),
-      new MarkdownCommandLoader(config),
-    ];
-
-    // Only add BuiltinCommandLoader if there are allowed built-in commands
-    if (allowedBuiltinSet.size > 0) {
-      loaders.push(new BuiltinCommandLoader(config));
-    }
+    // Only load BuiltinCommandLoader if there are allowed built-in commands
+    const loaders =
+      allowedBuiltinSet.size > 0
+        ? [new BuiltinCommandLoader(config), new FileCommandLoader(config)]
+        : [new FileCommandLoader(config)];
 
     const commandService = await CommandService.create(loaders, abortSignal);
     const commands = commandService.getCommands();
@@ -387,7 +380,7 @@ export const getAvailableCommands = async (
     return filteredCommands.filter((cmd) => !cmd.hidden);
   } catch (error) {
     // Handle errors gracefully - log and return empty array
-    console.error('Error loading available commands:', error);
+    debugLogger.error('Error loading available commands:', error);
     return [];
   }
 };

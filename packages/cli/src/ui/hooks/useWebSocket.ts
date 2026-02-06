@@ -8,7 +8,9 @@ import { useEffect, useRef } from 'react';
 import { loadWebSocketRuntimeConfig } from '../../config/websocket.js';
 import { WebSocketClient } from '../../services/WebSocketClient.js';
 import * as os from 'node:os';
-import { readSSOCredentialsSync } from '@rdmind/rdmind-core';
+import { readSSOCredentialsSync, createDebugLogger } from '@rdmind/rdmind-core';
+
+const debugLogger = createDebugLogger('USE_WEBSOCKET');
 
 interface UseWebSocketOptions {
   onReloadCommands?: () => void;
@@ -40,7 +42,7 @@ export function useWebSocket({
     const wsRuntimeConfig = loadWebSocketRuntimeConfig(debug);
     if (!wsRuntimeConfig.enabled) {
       if (debug) {
-        console.debug(
+        debugLogger.debug(
           '[useWebSocket] WebSocket 未启用，请设置环境变量 RDMIND_WS_ENABLED=true',
         );
       }
@@ -48,7 +50,7 @@ export function useWebSocket({
     }
 
     if (debug) {
-      console.debug(
+      debugLogger.debug(
         `[useWebSocket] 开始建立 WebSocket 连接，URL: ${wsRuntimeConfig.url}`,
       );
     }
