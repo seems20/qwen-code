@@ -28,6 +28,7 @@ import { logApiError, logApiResponse } from '../telemetry/loggers.js';
 import { ApiErrorEvent, ApiResponseEvent } from '../telemetry/types.js';
 import { OpenAILogger } from '../utils/openaiLogger.js';
 import type { GenerateContentResponseUsageMetadata } from '@google/genai';
+import { StreamingToolCallParser } from './openaiContentGenerator/streamingToolCallParser.js';
 
 // --- Microsoft AI Foundry Create Response (Preview) 协议类型定义 ---
 
@@ -205,6 +206,7 @@ export class CodexContentGenerator implements ContentGenerator {
   private readonly cliConfig?: Config;
   private telemetryService: TelemetryService;
   private errorHandler: ErrorHandler;
+  private toolCallParser: StreamingToolCallParser;
 
   constructor(config: ContentGeneratorConfig, cliConfig?: Config) {
     this.baseUrl = config.baseUrl || '';
@@ -236,6 +238,7 @@ export class CodexContentGenerator implements ContentGenerator {
     }
 
     this.errorHandler = new EnhancedErrorHandler(() => false);
+    this.toolCallParser = new StreamingToolCallParser();
   }
 
   async generateContent(
@@ -607,17 +610,74 @@ export class CodexContentGenerator implements ContentGenerator {
                     ],
                   } as unknown as GenerateContentResponse;
                 }
+              } else if (lastEvent === 'response.tool_calls.delta') {
+                // 处理工具调用参数增量更新
+                const toolCallIndex = data.tool_call_index ?? 0;
+                const argumentsDelta = data.delta?.arguments;
+                const toolCallId = data.tool_call_id;
+                const toolCallName = data.delta?.name;
+
+                if (argumentsDelta || toolCallId || toolCallName) {
+                  this.toolCallParser.addChunk(
+                    toolCallIndex,
+                    argumentsDelta || '',
+                    toolCallId,
+                    toolCallName,
+                  );
+                }
+              } else if (lastEvent === 'response.output_item.done') {
+                // 输出项完成，检查是否有完成的工具调用
+                const item = data.item;
+                if (item?.type === 'tool_call' && item?.tool_call) {
+                  const toolCall = item.tool_call;
+                  const index = data.output_index ?? 0;
+
+                  // 如果 toolCall 中有完整参数，直接使用
+                  if (toolCall.arguments) {
+                    try {
+                      const args = JSON.parse(toolCall.arguments);
+                      yield {
+                        responseId: data.item_id || 'unknown',
+                        candidates: [
+                          {
+                            index: 0,
+                            content: {
+                              role: 'model',
+                              parts: [
+                                {
+                                  functionCall: {
+                                    id: toolCall.id || `call_${Date.now()}_${index}`,
+                                    name: toolCall.name || 'unknown',
+                                    args,
+                                  },
+                                },
+                              ],
+                            },
+                            safetyRatings: [],
+                          },
+                        ],
+                      } as unknown as GenerateContentResponse;
+                    } catch {
+                      // JSON 解析失败，忽略
+                    }
+                  }
+                }
               } else if (lastEvent === 'response.completed') {
                 const response = data.response;
                 const usage = response?.usage;
                 const parts: Part[] = [];
 
-                // 从 response.output 中提取 reasoning 和 message 内容
+                // 从 response.output 中提取 reasoning、message 和 tool_call 内容
                 if (response?.output && Array.isArray(response.output)) {
                   for (const item of response.output) {
                     const typedItem = item as {
                       type: string;
                       summary?: Array<{ text: string }>;
+                      tool_call?: {
+                        id: string;
+                        name: string;
+                        arguments: string;
+                      };
                     };
                     if (typedItem.type === 'reasoning') {
                       // 提取思考内容
@@ -637,6 +697,20 @@ export class CodexContentGenerator implements ContentGenerator {
                     } else if (typedItem.type === 'message') {
                       // 正文内容已经在 output_text.delta 事件中流式返回
                       // 这里不需要重复添加
+                    } else if (typedItem.type === 'tool_call' && typedItem.tool_call) {
+                      // 提取工具调用内容
+                      try {
+                        const args = JSON.parse(typedItem.tool_call.arguments);
+                        parts.push({
+                          functionCall: {
+                            id: typedItem.tool_call.id,
+                            name: typedItem.tool_call.name,
+                            args,
+                          },
+                        });
+                      } catch {
+                        // JSON 解析失败，忽略
+                      }
                     }
                   }
                 }
@@ -669,6 +743,7 @@ export class CodexContentGenerator implements ContentGenerator {
       }
     } finally {
       reader.releaseLock();
+      this.toolCallParser.reset();
     }
   }
 
