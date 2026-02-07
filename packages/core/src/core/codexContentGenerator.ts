@@ -37,11 +37,11 @@ import type { GenerateContentResponseUsageMetadata } from '@google/genai';
 
 interface CodexMessage {
   role?: 'user' | 'assistant' | 'developer';
-  type?: 'function_call' | 'function_call_output';
+  type?: 'function_call' | 'function_call_output' | 'message';
   name?: string;
   arguments?: string;
   call_id?: string;
-  content?: string;
+  content?: string | Array<{ type: 'input_text'; text: string } | { type: 'input_image'; image_url: string }>;
   output?: string;
 }
 
@@ -546,9 +546,12 @@ function buildCodexInput(
     messages.push(...codexMessages);
   }
 
-  // 如果只有一条用户消息，简化返回字符串
+  // 如果只有一条用户消息且内容是字符串，简化返回字符串
   if (messages.length === 1 && messages[0].role === 'user') {
-    return messages[0].content!;
+    const content = messages[0].content;
+    if (typeof content === 'string') {
+      return content;
+    }
   }
 
   return messages;
@@ -624,10 +627,134 @@ function convertContentToCodexMessages(content: unknown): CodexMessage[] {
           output,
         });
       }
+
+      // 处理 inlineData (base64 编码的图片、PDF 等)
+      if ('inlineData' in partObj && partObj['inlineData']) {
+        const inlineData = partObj['inlineData'] as {
+          mimeType: string;
+          data: string;
+          displayName?: string;
+        };
+        const mediaMsg = convertInlineDataToCodexMessage(inlineData);
+        if (mediaMsg) {
+          messages.push(mediaMsg);
+        }
+      }
+
+      // 处理 fileData (文件 URI)
+      if ('fileData' in partObj && partObj['fileData']) {
+        const fileData = partObj['fileData'] as {
+          mimeType: string;
+          fileUri: string;
+          displayName?: string;
+        };
+        const mediaMsg = convertFileDataToCodexMessage(fileData);
+        if (mediaMsg) {
+          messages.push(mediaMsg);
+        }
+      }
     }
   }
 
   return messages;
+}
+
+/**
+ * 将 inlineData 转换为 Codex 消息格式
+ * 注意：Codex 只支持 'message', 'function_call', 'function_call_output' 等类型
+ * 图像通过 message 类型的 content 数组传递
+ */
+function convertInlineDataToCodexMessage(inlineData: {
+  mimeType: string;
+  data: string;
+  displayName?: string;
+}): CodexMessage | null {
+  const mimeType = inlineData.mimeType;
+  const dataUrl = `data:${mimeType};base64,${inlineData.data}`;
+
+  // 图像类型 - 使用 message 类型，content 为数组格式
+  if (mimeType.startsWith('image/')) {
+    return {
+      role: 'user',
+      type: 'message',
+      content: [
+        { type: 'input_image', image_url: dataUrl },
+      ],
+    };
+  }
+
+  // PDF 文件 - Codex 可能不支持直接传递 PDF，转换为文本提示
+  if (mimeType === 'application/pdf') {
+    return {
+      role: 'user',
+      type: 'message',
+      content: `[PDF file: ${inlineData.displayName || 'document.pdf'}]`,
+    };
+  }
+
+  // 音频类型 - Codex 可能不支持直接传递音频，转换为文本提示
+  if (mimeType.startsWith('audio/')) {
+    return {
+      role: 'user',
+      type: 'message',
+      content: `[Audio file: ${inlineData.displayName || 'audio'} (${mimeType})]`,
+    };
+  }
+
+  // 不支持的类型，转换为文本提示
+  return {
+    role: 'user',
+    type: 'message',
+    content: `[Unsupported file: ${mimeType}${inlineData.displayName ? ` (${inlineData.displayName})` : ''}]`,
+  };
+}
+
+/**
+ * 将 fileData 转换为 Codex 消息格式
+ */
+function convertFileDataToCodexMessage(fileData: {
+  mimeType: string;
+  fileUri: string;
+  displayName?: string;
+}): CodexMessage | null {
+  const mimeType = fileData.mimeType;
+  const fileUri = fileData.fileUri;
+
+  // 图像类型 - 使用 message 类型，content 为数组格式
+  if (mimeType.startsWith('image/')) {
+    return {
+      role: 'user',
+      type: 'message',
+      content: [
+        { type: 'input_image', image_url: fileUri },
+      ],
+    };
+  }
+
+  // PDF 文件
+  if (mimeType === 'application/pdf') {
+    return {
+      role: 'user',
+      type: 'message',
+      content: `[PDF file: ${fileData.displayName || 'document.pdf'}]`,
+    };
+  }
+
+  // 音频类型
+  if (mimeType.startsWith('audio/')) {
+    return {
+      role: 'user',
+      type: 'message',
+      content: `[Audio file: ${fileData.displayName || 'audio'} (${mimeType})]`,
+    };
+  }
+
+  // 不支持的类型，转换为文本提示
+  return {
+    role: 'user',
+    type: 'message',
+    content: `[Unsupported file: ${mimeType}${fileData.displayName ? ` (${fileData.displayName})` : ''}]`,
+  };
 }
 
 function extractTextFromContent(content: unknown): string {
