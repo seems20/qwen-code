@@ -1131,6 +1131,10 @@ export function loadSettings(
     isTrusted,
     migratedInMemorScopes,
   );
+
+  migrateDeprecatedSettings(loadedSettings);
+
+  return loadedSettings;
 }
 
 export function migrateDeprecatedSettings(
