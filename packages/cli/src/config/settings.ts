@@ -1138,17 +1138,6 @@ export function migrateDeprecatedSettings(
 ): void {
   const processScope = (scope: SettingScope) => {
     const settings = loadedSettings.forScope(scope).settings;
-    const legacySkills = (
-      settings as Settings & {
-        tools?: { experimental?: { skills?: boolean } };
-      }
-    ).tools?.experimental?.skills;
-    if (
-      legacySkills !== undefined &&
-      settings.experimental?.skills === undefined
-    ) {
-      loadedSettings.setValue(scope, 'experimental.skills', legacySkills);
-    }
 
     // Migrate respectQwenIgnore to respectRdmindIgnore
     const legacyRespectQwenIgnore = (

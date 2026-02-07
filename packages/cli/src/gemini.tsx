@@ -213,7 +213,7 @@ export async function main() {
   const settings = loadSettings();
   await cleanupCheckpoints();
 
-  let argv = await parseArguments(settings.merged);
+  let argv = await parseArguments();
 
   // 记录RDMind启动事件
   let configForTelemetry: Config | null = null;
