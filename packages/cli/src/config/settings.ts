@@ -452,6 +452,19 @@ function migrateV2ToV3(
     }
   }
 
+  // Migrate context.fileFiltering.respectQwenIgnore to respectRdmindIgnore
+  const qwenIgnorePath = 'context.fileFiltering.respectQwenIgnore';
+  const rdmindIgnorePath = 'context.fileFiltering.respectRdmindIgnore';
+  const qwenIgnoreValue = getNestedProperty(result, qwenIgnorePath);
+  if (
+    typeof qwenIgnoreValue === 'boolean' &&
+    getNestedProperty(result, rdmindIgnorePath) === undefined
+  ) {
+    deleteNestedProperty(result, qwenIgnorePath);
+    setNestedProperty(result, rdmindIgnorePath, qwenIgnoreValue);
+    changed = true;
+  }
+
   if (changed) {
     result[SETTINGS_VERSION_KEY] = SETTINGS_VERSION;
     return result;
