@@ -72,8 +72,14 @@ interface CodexRequest {
 }
 
 interface CodexResponseUsage {
-  prompt_tokens: number;
-  completion_tokens: number;
+  input_tokens: number;
+  input_tokens_details?: {
+    cached_tokens?: number;
+  };
+  output_tokens: number;
+  output_tokens_details?: {
+    reasoning_tokens?: number;
+  };
   total_tokens: number;
 }
 
@@ -417,9 +423,11 @@ export class CodexContentGenerator implements ContentGenerator {
           FinishReason.STOP,
           response?.usage
             ? {
-                promptTokenCount: response.usage.prompt_tokens,
-                candidatesTokenCount: response.usage.completion_tokens,
+                promptTokenCount: response.usage.input_tokens,
+                candidatesTokenCount: response.usage.output_tokens,
                 totalTokenCount: response.usage.total_tokens,
+                cachedContentTokenCount: response.usage.input_tokens_details?.cached_tokens,
+                thoughtsTokenCount: response.usage.output_tokens_details?.reasoning_tokens,
               }
             : undefined,
         );
@@ -895,9 +903,11 @@ function convertCodexResponseToGemini(response: CodexResponse): GenerateContentR
     FinishReason.STOP,
     response.usage
       ? {
-          promptTokenCount: response.usage.prompt_tokens,
-          candidatesTokenCount: response.usage.completion_tokens,
+          promptTokenCount: response.usage.input_tokens,
+          candidatesTokenCount: response.usage.output_tokens,
           totalTokenCount: response.usage.total_tokens,
+          cachedContentTokenCount: response.usage.input_tokens_details?.cached_tokens,
+          thoughtsTokenCount: response.usage.output_tokens_details?.reasoning_tokens,
         }
       : undefined,
   );
@@ -911,6 +921,8 @@ function createGeminiResponse(
     promptTokenCount: number;
     candidatesTokenCount: number;
     totalTokenCount: number;
+    cachedContentTokenCount?: number;
+    thoughtsTokenCount?: number;
   },
 ): GenerateContentResponse {
   const response = new GenerateContentResponse();
