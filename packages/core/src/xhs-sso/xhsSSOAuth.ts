@@ -18,6 +18,9 @@ import {
   PALLAS_HTTP_BASE,
   RDMIND_SSO_WEB_URL,
 } from '../config/xhsApiConfig.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('xhsSSOAuth');
 
 /**
  * 小红书 SSO 自动认证核心逻辑
@@ -58,8 +61,8 @@ async function getRequestSSOId(
   const apiUrl = `${REQUEST_SSO_ID_API}?socketId=${encodeURIComponent(socketId)}`;
 
   if (debug) {
-    console.debug('[XHS-SSO-Auth] 步骤1：请求 request_sso_id');
-    console.debug('[XHS-SSO-Auth] API URL:', apiUrl);
+    debugLogger.debug('[XHS-SSO-Auth] 步骤1：请求 request_sso_id');
+    debugLogger.debug('[XHS-SSO-Auth] API URL:', apiUrl);
   }
 
   try {
@@ -75,7 +78,10 @@ async function getRequestSSOId(
     const data = (await response.json()) as RequestSSOIdResponse;
 
     if (debug) {
-      console.debug('[XHS-SSO-Auth] API 响应:', JSON.stringify(data, null, 2));
+      debugLogger.debug(
+        '[XHS-SSO-Auth] API 响应:',
+        JSON.stringify(data, null, 2),
+      );
     }
 
     // 提取 request_sso_id
@@ -91,7 +97,7 @@ async function getRequestSSOId(
     }
 
     if (debug) {
-      console.debug(
+      debugLogger.debug(
         '[XHS-SSO-Auth] ✅ 获取 request_sso_id 成功:',
         requestSsoId,
       );
@@ -100,7 +106,7 @@ async function getRequestSSOId(
     return requestSsoId;
   } catch (error) {
     if (debug) {
-      console.error('[XHS-SSO-Auth] ❌ 获取 request_sso_id 失败:', error);
+      debugLogger.error('[XHS-SSO-Auth] ❌ 获取 request_sso_id 失败:', error);
     }
     throw new Error(`获取 SSO 请求 ID 失败: ${(error as Error).message}`);
   }
@@ -115,7 +121,9 @@ async function saveRequestSSOId(
   debug: boolean,
 ): Promise<void> {
   if (debug) {
-    console.debug('[XHS-SSO-Auth] 步骤2：保存 request_sso_id 到 settings.json');
+    debugLogger.debug(
+      '[XHS-SSO-Auth] 步骤2：保存 request_sso_id 到 settings.json',
+    );
   }
 
   try {
@@ -130,11 +138,11 @@ async function saveRequestSSOId(
     );
 
     if (debug) {
-      console.debug('[XHS-SSO-Auth] ✅ request_sso_id 保存成功');
+      debugLogger.debug('[XHS-SSO-Auth] ✅ request_sso_id 保存成功');
     }
   } catch (error) {
     if (debug) {
-      console.error('[XHS-SSO-Auth] ❌ 保存 request_sso_id 失败:', error);
+      debugLogger.error('[XHS-SSO-Auth] ❌ 保存 request_sso_id 失败:', error);
     }
     throw error;
   }
@@ -150,22 +158,22 @@ async function openSSOBindPage(
   const bindUrl = `${SSO_BIND_URL}?rdmind_sso_id=${encodeURIComponent(requestSsoId)}`;
 
   if (debug) {
-    console.debug('[XHS-SSO-Auth] 步骤3：打开浏览器进行 SSO 绑定');
-    console.debug('[XHS-SSO-Auth] 绑定 URL:', bindUrl);
+    debugLogger.debug('[XHS-SSO-Auth] 步骤3：打开浏览器进行 SSO 绑定');
+    debugLogger.debug('[XHS-SSO-Auth] 绑定 URL:', bindUrl);
   }
 
   try {
     await openBrowserSecurely(bindUrl);
     if (debug) {
-      console.debug('[XHS-SSO-Auth] ✅ 浏览器已打开');
+      debugLogger.debug('[XHS-SSO-Auth] ✅ 浏览器已打开');
     }
   } catch (error) {
     // 非致命错误，用户可以手动打开
-    console.warn(
+    debugLogger.warn(
       '[XHS-SSO-Auth] ⚠️ 无法自动打开浏览器:',
       (error as Error).message,
     );
-    console.warn('[XHS-SSO-Auth] 请手动访问:', bindUrl);
+    debugLogger.warn('[XHS-SSO-Auth] 请手动访问:', bindUrl);
   }
 }
 
@@ -177,7 +185,7 @@ async function waitForSSOBindSuccess(
   debug: boolean,
 ): Promise<{ rdmind_sso_id: string; sso_name: string }> {
   if (debug) {
-    console.debug(
+    debugLogger.debug(
       `[XHS-SSO-Auth] 步骤4：等待 WebSocket sso_bind_success 消息 (超时: ${timeout}ms)`,
     );
   }
@@ -186,7 +194,7 @@ async function waitForSSOBindSuccess(
     const timeoutId = setTimeout(() => {
       ssoAuthEvents.removeAllListeners('sso_bind_success');
       if (debug) {
-        console.debug('[XHS-SSO-Auth] ⏰ 等待超时');
+        debugLogger.debug('[XHS-SSO-Auth] ⏰ 等待超时');
       }
       reject(new Error('SSO_TIMEOUT'));
     }, timeout);
@@ -195,9 +203,12 @@ async function waitForSSOBindSuccess(
       clearTimeout(timeoutId);
 
       if (debug) {
-        console.debug('[XHS-SSO-Auth] ✅ 收到 sso_bind_success 消息');
-        console.debug('[XHS-SSO-Auth] rdmind_sso_id:', message.rdmind_sso_id);
-        console.debug('[XHS-SSO-Auth] sso_name:', message.sso_name);
+        debugLogger.debug('[XHS-SSO-Auth] ✅ 收到 sso_bind_success 消息');
+        debugLogger.debug(
+          '[XHS-SSO-Auth] rdmind_sso_id:',
+          message.rdmind_sso_id,
+        );
+        debugLogger.debug('[XHS-SSO-Auth] sso_name:', message.sso_name);
       }
 
       resolve({
@@ -218,7 +229,9 @@ export async function saveSSOCredentialsAndAuthType(
   debug: boolean,
 ): Promise<void> {
   if (debug) {
-    console.debug('[XHS-SSO-Auth] 步骤5：保存 SSO 凭证和认证类型（第一部分）');
+    debugLogger.debug(
+      '[XHS-SSO-Auth] 步骤5：保存 SSO 凭证和认证类型（第一部分）',
+    );
   }
 
   try {
@@ -232,7 +245,7 @@ export async function saveSSOCredentialsAndAuthType(
     );
 
     if (debug) {
-      console.debug('[XHS-SSO-Auth] ✅ SSO 凭证已保存到独立文件');
+      debugLogger.debug('[XHS-SSO-Auth] ✅ SSO 凭证已保存到独立文件');
     }
 
     // 5.2 只保存认证类型到 settings.json（不保存 baseUrl 和 model）
@@ -249,11 +262,11 @@ export async function saveSSOCredentialsAndAuthType(
     );
 
     if (debug) {
-      console.debug('[XHS-SSO-Auth] ✅ 认证类型已保存到 settings.json');
+      debugLogger.debug('[XHS-SSO-Auth] ✅ 认证类型已保存到 settings.json');
     }
   } catch (error) {
     if (debug) {
-      console.error('[XHS-SSO-Auth] ❌ 保存配置失败:', error);
+      debugLogger.error('[XHS-SSO-Auth] ❌ 保存配置失败:', error);
     }
     throw error;
   }
@@ -268,7 +281,7 @@ export async function saveAPIKey(
   debug: boolean,
 ): Promise<void> {
   if (debug) {
-    console.debug('[XHS-SSO-Auth] 步骤7：保存 API Key（第二部分）');
+    debugLogger.debug('[XHS-SSO-Auth] 步骤7：保存 API Key（第二部分）');
   }
 
   try {
@@ -289,11 +302,11 @@ export async function saveAPIKey(
     );
 
     if (debug) {
-      console.debug('[XHS-SSO-Auth] ✅ API Key 保存成功（已加密）');
+      debugLogger.debug('[XHS-SSO-Auth] ✅ API Key 保存成功（已加密）');
     }
   } catch (error) {
     if (debug) {
-      console.error('[XHS-SSO-Auth] ❌ 保存 API Key 失败:', error);
+      debugLogger.error('[XHS-SSO-Auth] ❌ 保存 API Key 失败:', error);
     }
     throw error;
   }
@@ -318,12 +331,16 @@ export async function performAutoSSOAuth(
   } = config;
 
   if (debug) {
-    console.debug('[XHS-SSO-Auth] ========================================');
-    console.debug('[XHS-SSO-Auth] 开始自动 SSO 认证流程');
-    console.debug('[XHS-SSO-Auth] socketId:', socketId);
-    console.debug('[XHS-SSO-Auth] 超时设置:', timeout, 'ms');
-    console.debug('[XHS-SSO-Auth] API 超时:', apiTimeout, 'ms');
-    console.debug('[XHS-SSO-Auth] ========================================');
+    debugLogger.debug(
+      '[XHS-SSO-Auth] ========================================',
+    );
+    debugLogger.debug('[XHS-SSO-Auth] 开始自动 SSO 认证流程');
+    debugLogger.debug('[XHS-SSO-Auth] socketId:', socketId);
+    debugLogger.debug('[XHS-SSO-Auth] 超时设置:', timeout, 'ms');
+    debugLogger.debug('[XHS-SSO-Auth] API 超时:', apiTimeout, 'ms');
+    debugLogger.debug(
+      '[XHS-SSO-Auth] ========================================',
+    );
   }
 
   try {
@@ -339,11 +356,11 @@ export async function performAutoSSOAuth(
     } catch (error) {
       if ((error as Error).message === 'SSO_TIMEOUT') {
         if (debug) {
-          console.debug(
+          debugLogger.debug(
             '[XHS-SSO-Auth] ========================================',
           );
-          console.debug('[XHS-SSO-Auth] 认证流程超时');
-          console.debug(
+          debugLogger.debug('[XHS-SSO-Auth] 认证流程超时');
+          debugLogger.debug(
             '[XHS-SSO-Auth] ========================================',
           );
         }
@@ -370,11 +387,15 @@ export async function performAutoSSOAuth(
     // 用户需要在登录后选择模型，模型配置会在选择时保存
 
     if (debug) {
-      console.debug('[XHS-SSO-Auth] ========================================');
-      console.debug('[XHS-SSO-Auth] ✅ 自动 SSO 认证流程完成');
-      console.debug('[XHS-SSO-Auth] rdmind_sso_id:', rdmind_sso_id);
-      console.debug('[XHS-SSO-Auth] sso_name:', sso_name);
-      console.debug('[XHS-SSO-Auth] ========================================');
+      debugLogger.debug(
+        '[XHS-SSO-Auth] ========================================',
+      );
+      debugLogger.debug('[XHS-SSO-Auth] ✅ 自动 SSO 认证流程完成');
+      debugLogger.debug('[XHS-SSO-Auth] rdmind_sso_id:', rdmind_sso_id);
+      debugLogger.debug('[XHS-SSO-Auth] sso_name:', sso_name);
+      debugLogger.debug(
+        '[XHS-SSO-Auth] ========================================',
+      );
     }
 
     return {
@@ -387,10 +408,14 @@ export async function performAutoSSOAuth(
     };
   } catch (error) {
     if (debug) {
-      console.error('[XHS-SSO-Auth] ========================================');
-      console.error('[XHS-SSO-Auth] ❌ 自动 SSO 认证流程失败');
-      console.error('[XHS-SSO-Auth] 错误:', error);
-      console.error('[XHS-SSO-Auth] ========================================');
+      debugLogger.error(
+        '[XHS-SSO-Auth] ========================================',
+      );
+      debugLogger.error('[XHS-SSO-Auth] ❌ 自动 SSO 认证流程失败');
+      debugLogger.error('[XHS-SSO-Auth] 错误:', error);
+      debugLogger.error(
+        '[XHS-SSO-Auth] ========================================',
+      );
     }
 
     return {

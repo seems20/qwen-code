@@ -434,7 +434,9 @@ export const AppContainer = (props: AppContainerProps) => {
     }
 
     if (config.getDebugMode()) {
-      console.debug('[AppContainer] 检测到需要 SSO 认证，等待 WebSocket 建联');
+      debugLogger.debug(
+        '[AppContainer] 检测到需要 SSO 认证，等待 WebSocket 建联',
+      );
     }
 
     let isCleanedUp = false;
@@ -460,7 +462,7 @@ export const AppContainer = (props: AppContainerProps) => {
 
       if (!socketId) {
         if (config.getDebugMode()) {
-          console.debug('[AppContainer] ⏰ 等待 socketId 超时');
+          debugLogger.debug('[AppContainer] ⏰ 等待 socketId 超时');
         }
         const errorMsg = 'WebSocket 建联超时，请检查网络后重试';
         onAuthError(errorMsg);
@@ -477,7 +479,7 @@ export const AppContainer = (props: AppContainerProps) => {
       }
 
       if (config.getDebugMode()) {
-        console.debug(
+        debugLogger.debug(
           '[AppContainer] ✅ WebSocket 已建联，socketId:',
           socketId,
         );
@@ -488,11 +490,13 @@ export const AppContainer = (props: AppContainerProps) => {
         await triggerSSOAuth(socketId, config.getDebugMode());
 
         if (config.getDebugMode()) {
-          console.debug('[AppContainer] ✅ SSO 认证已触发，开始轮询等待凭证');
+          debugLogger.debug(
+            '[AppContainer] ✅ SSO 认证已触发，开始轮询等待凭证',
+          );
         }
       } catch (error) {
         if (config.getDebugMode()) {
-          console.error('[AppContainer] ❌ 触发 SSO 认证失败:', error);
+          debugLogger.error('[AppContainer] ❌ 触发 SSO 认证失败:', error);
         }
         const errorMsg = `触发 SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`;
         onAuthError(errorMsg);
@@ -529,7 +533,7 @@ export const AppContainer = (props: AppContainerProps) => {
           // 成功获取到 rdmind_sso_id，停止轮询
           if (pollTimer) clearInterval(pollTimer);
           if (config.getDebugMode()) {
-            console.debug(
+            debugLogger.debug(
               '[AppContainer] ✅ 检测到 rdmind_sso_id:',
               creds.rdmind_sso_id,
             );
@@ -539,7 +543,7 @@ export const AppContainer = (props: AppContainerProps) => {
           (async () => {
             try {
               if (config.getDebugMode()) {
-                console.debug('[AppContainer] 📝 保存 SSO 凭证和认证类型');
+                debugLogger.debug('[AppContainer] 📝 保存 SSO 凭证和认证类型');
               }
 
               await saveSSOCredentialsAndAuthType(
@@ -561,8 +565,8 @@ export const AppContainer = (props: AppContainerProps) => {
               });
 
               if (config.getDebugMode()) {
-                console.debug('[AppContainer] ✅ SSO 凭证和认证类型已保存');
-                console.debug(
+                debugLogger.debug('[AppContainer] ✅ SSO 凭证和认证类型已保存');
+                debugLogger.debug(
                   '[AppContainer] 🎉 自动 SSO 认证完成并已配置默认模型',
                 );
               }
@@ -583,7 +587,7 @@ export const AppContainer = (props: AppContainerProps) => {
             } catch (error) {
               // 获取/保存失败
               if (config.getDebugMode()) {
-                console.error('[AppContainer] ❌ SSO 认证流程失败:', error);
+                debugLogger.error('[AppContainer] ❌ SSO 认证流程失败:', error);
               }
 
               // TODO: 用户可以在这里提供兜底 Key
@@ -604,7 +608,7 @@ export const AppContainer = (props: AppContainerProps) => {
           // 5秒后仍然没有，说明用户未完成绑定
           if (pollTimer) clearInterval(pollTimer);
           if (config.getDebugMode()) {
-            console.debug(
+            debugLogger.debug(
               '[AppContainer] ⏰ 5秒内未检测到 rdmind_sso_id，认证超时',
             );
           }
@@ -625,7 +629,7 @@ export const AppContainer = (props: AppContainerProps) => {
     };
 
     performAuth().catch((error) => {
-      console.error('[AppContainer] SSO 认证流程异常:', error);
+      debugLogger.error('[AppContainer] SSO 认证流程异常:', error);
       const errorMsg = 'SSO 认证流程异常，请重试';
       onAuthError(errorMsg);
 
@@ -646,7 +650,7 @@ export const AppContainer = (props: AppContainerProps) => {
         clearInterval(pollTimer);
       }
     };
-  }, [settings, config, setAuthState, onAuthError]);
+  }, [settings, config, setAuthState, onAuthError, refreshStatic]);
 
   // Extract Qwen auth state from qwenAuthState
   const isQwenAuth = pendingAuthType === AuthType.QWEN_OAUTH;

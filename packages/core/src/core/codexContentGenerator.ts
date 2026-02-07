@@ -38,7 +38,7 @@ interface ChatResponseMessage {
 
 interface ChatResponseRequest {
   model: string;
-  input: string | ChatResponseMessage[]; 
+  input: string | ChatResponseMessage[];
   instructions?: string;
   max_output_tokens?: number;
   stream?: boolean;
@@ -124,7 +124,9 @@ class DefaultTelemetryService implements TelemetryService {
       context.duration,
       context.userPromptId,
       context.authType,
-      response.usageMetadata as GenerateContentResponseUsageMetadata | undefined,
+      response.usageMetadata as
+        | GenerateContentResponseUsageMetadata
+        | undefined,
     );
 
     logApiResponse(this.config, responseEvent);
@@ -140,7 +142,11 @@ class DefaultTelemetryService implements TelemetryService {
     request?: unknown,
   ): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const apiError = error as { requestID?: string; type?: string; code?: string | number };
+    const apiError = error as {
+      requestID?: string;
+      type?: string;
+      code?: string | number;
+    };
 
     const errorEvent = new ApiErrorEvent(
       apiError?.requestID || 'unknown',
@@ -200,10 +206,7 @@ export class CodexContentGenerator implements ContentGenerator {
   private telemetryService: TelemetryService;
   private errorHandler: ErrorHandler;
 
-  constructor(
-    config: ContentGeneratorConfig,
-    cliConfig?: Config,
-  ) {
+  constructor(config: ContentGeneratorConfig, cliConfig?: Config) {
     this.baseUrl = config.baseUrl || '';
     this.apiKey = config.apiKey || '';
     this.samplingParams = config.samplingParams;
@@ -232,9 +235,7 @@ export class CodexContentGenerator implements ContentGenerator {
       };
     }
 
-    this.errorHandler = new EnhancedErrorHandler(
-      () => false,
-    );
+    this.errorHandler = new EnhancedErrorHandler(() => false);
   }
 
   async generateContent(
@@ -253,12 +254,21 @@ export class CodexContentGenerator implements ContentGenerator {
 
     try {
       const body = await this.convertToChatResponseRequest(request);
-      const response = await this.fetchApi(this.baseUrl, body, request.config?.abortSignal);
+      const response = await this.fetchApi(
+        this.baseUrl,
+        body,
+        request.config?.abortSignal,
+      );
       const data = (await response.json()) as ChatResponseCompletedChunk;
 
       context.duration = Date.now() - startTime;
       const geminiResponse = this.convertChatResponseToGemini(data);
-      await this.telemetryService.logSuccess(context, geminiResponse, body, data);
+      await this.telemetryService.logSuccess(
+        context,
+        geminiResponse,
+        body,
+        data,
+      );
 
       return geminiResponse;
     } catch (error) {
@@ -289,7 +299,11 @@ export class CodexContentGenerator implements ContentGenerator {
         stream: true,
       };
 
-      const response = await this.fetchApi(this.baseUrl, body, request.config?.abortSignal);
+      const response = await this.fetchApi(
+        this.baseUrl,
+        body,
+        request.config?.abortSignal,
+      );
 
       if (!response.body) {
         throw new Error('Response body is null');
@@ -326,12 +340,16 @@ export class CodexContentGenerator implements ContentGenerator {
     }
   }
 
-  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
+  async countTokens(
+    request: CountTokensParameters,
+  ): Promise<CountTokensResponse> {
     const content = JSON.stringify(request.contents);
     return { totalTokens: Math.ceil(content.length / 4) };
   }
 
-  async embedContent(_request: EmbedContentParameters): Promise<EmbedContentResponse> {
+  async embedContent(
+    _request: EmbedContentParameters,
+  ): Promise<EmbedContentResponse> {
     throw new Error('EmbedContent not implemented for Codex');
   }
 
@@ -358,7 +376,9 @@ export class CodexContentGenerator implements ContentGenerator {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Codex API request failed: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Codex API request failed: ${response.status} - ${errorText}`,
+      );
     }
 
     return response;
@@ -374,7 +394,11 @@ export class CodexContentGenerator implements ContentGenerator {
       const instruction = request.config.systemInstruction;
       if (typeof instruction === 'string') {
         instructions = instruction;
-      } else if (instruction && 'parts' in instruction && Array.isArray(instruction.parts)) {
+      } else if (
+        instruction &&
+        'parts' in instruction &&
+        Array.isArray(instruction.parts)
+      ) {
         instructions = instruction.parts
           .map((p) => ('text' in p ? p.text : ''))
           .filter(Boolean)
@@ -382,26 +406,31 @@ export class CodexContentGenerator implements ContentGenerator {
       }
     }
 
-    const contents = Array.isArray(request.contents) ? request.contents : [request.contents];
+    const contents = Array.isArray(request.contents)
+      ? request.contents
+      : [request.contents];
     for (const content of contents) {
-      const anyContent = content as any;
-      const parts = anyContent.parts;
+      const typedContent = content as { parts: unknown; role: string };
+      const parts = typedContent.parts;
       if (!Array.isArray(parts)) continue;
 
-      const role = anyContent.role === 'model' ? 'assistant' : 'user';
+      const role = typedContent.role === 'model' ? 'assistant' : 'user';
       const text = parts
-        .map((p: any) => ('text' in p ? p.text : ''))
+        .map((p: { text?: string }) => ('text' in p ? p.text : ''))
         .filter(Boolean)
         .join('\n');
 
       inputMessages.push({ role, content: text });
     }
 
-    const { reasoningEffort } = this.parseModelWithReasoningEffort(request.model);
+    const { reasoningEffort } = this.parseModelWithReasoningEffort(
+      request.model,
+    );
 
     // 精准对齐您提供的 curl 参数
-    const reasoningEffortConfig = typeof this.reasoning === 'object' ? this.reasoning?.effort : undefined;
-    
+    const reasoningEffortConfig =
+      typeof this.reasoning === 'object' ? this.reasoning?.effort : undefined;
+
     const chatRequest: ChatResponseRequest = {
       model: 'gpt-5-codex',
       input: inputMessages,
@@ -409,11 +438,14 @@ export class CodexContentGenerator implements ContentGenerator {
       temperature: this.samplingParams?.temperature ?? 1,
       top_p: this.samplingParams?.top_p,
       reasoning: {
-        effort: reasoningEffort || (reasoningEffortConfig as any) || 'medium',
-        summary: 'detailed'
+        effort:
+          reasoningEffort ||
+          (reasoningEffortConfig as 'low' | 'medium' | 'high') ||
+          'medium',
+        summary: 'detailed',
       },
       text: {
-        verbosity: 'medium'
+        verbosity: 'medium',
       },
       store: true,
     };
@@ -443,31 +475,38 @@ export class CodexContentGenerator implements ContentGenerator {
     return { baseModel, reasoningEffort };
   }
 
-  private convertChatResponseToGemini(data: ChatResponseCompletedChunk): GenerateContentResponse {
+  private convertChatResponseToGemini(
+    data: ChatResponseCompletedChunk,
+  ): GenerateContentResponse {
     const parts: Part[] = [];
     const response = data.response;
 
     if (response?.output && Array.isArray(response.output)) {
       for (const item of response.output) {
-        if (item.type === 'reasoning') {
+        const typedItem = item as {
+          type: string;
+          summary?: Array<{ text: string }>;
+          content?: Array<{ text: string }>;
+        };
+        if (typedItem.type === 'reasoning') {
           // 推理内容解析
-          const summaryArr = (item as any).summary;
+          const summaryArr = typedItem.summary;
           if (Array.isArray(summaryArr)) {
             const summaryText = summaryArr
-              .map((s: any) => s.text)
+              .map((s) => s.text)
               .filter(Boolean)
               .join('');
             if (summaryText) {
               // 关键：确保标记为 thought，并且作为第一个 Part
-              parts.push({ text: summaryText, thought: true } as any);
+              parts.push({ text: summaryText, thought: true } as Part);
             }
           }
-        } else if (item.type === 'message') {
+        } else if (typedItem.type === 'message') {
           // 正文回复解析
-          const contentArr = (item as any).content;
+          const contentArr = typedItem.content;
           if (Array.isArray(contentArr)) {
             const text = contentArr
-              .map((c: any) => c.text)
+              .map((c) => c.text)
               .filter(Boolean)
               .join('');
             if (text) {
@@ -488,11 +527,13 @@ export class CodexContentGenerator implements ContentGenerator {
           safetyRatings: [],
         },
       ],
-      usageMetadata: response?.usage ? {
-        promptTokenCount: response.usage.prompt_tokens,
-        candidatesTokenCount: response.usage.completion_tokens,
-        totalTokenCount: response.usage.total_tokens,
-      } : undefined,
+      usageMetadata: response?.usage
+        ? {
+            promptTokenCount: response.usage.prompt_tokens,
+            candidatesTokenCount: response.usage.completion_tokens,
+            totalTokenCount: response.usage.total_tokens,
+          }
+        : undefined,
     };
 
     return result as GenerateContentResponse;
@@ -539,12 +580,17 @@ export class CodexContentGenerator implements ContentGenerator {
                 if (text) {
                   yield {
                     responseId: data.item_id || 'unknown',
-                    candidates: [{
-                      index: 0,
-                      content: { role: 'model', parts: [{ text, thought: true } as any] },
-                      finishReason: undefined,
-                      safetyRatings: [],
-                    }],
+                    candidates: [
+                      {
+                        index: 0,
+                        content: {
+                          role: 'model',
+                          parts: [{ text, thought: true }],
+                        },
+                        finishReason: undefined,
+                        safetyRatings: [],
+                      },
+                    ],
                   } as unknown as GenerateContentResponse;
                 }
               } else if (lastEvent === 'response.output_text.delta') {
@@ -552,11 +598,13 @@ export class CodexContentGenerator implements ContentGenerator {
                 if (text) {
                   yield {
                     responseId: data.item_id || 'unknown',
-                    candidates: [{
-                      index: 0,
-                      content: { role: 'model', parts: [{ text }] },
-                      safetyRatings: [],
-                    }],
+                    candidates: [
+                      {
+                        index: 0,
+                        content: { role: 'model', parts: [{ text }] },
+                        safetyRatings: [],
+                      },
+                    ],
                   } as unknown as GenerateContentResponse;
                 }
               } else if (lastEvent === 'response.completed') {
@@ -567,19 +615,26 @@ export class CodexContentGenerator implements ContentGenerator {
                 // 从 response.output 中提取 reasoning 和 message 内容
                 if (response?.output && Array.isArray(response.output)) {
                   for (const item of response.output) {
-                    if (item.type === 'reasoning') {
+                    const typedItem = item as {
+                      type: string;
+                      summary?: Array<{ text: string }>;
+                    };
+                    if (typedItem.type === 'reasoning') {
                       // 提取思考内容
-                      const summaryArr = (item as any).summary;
+                      const summaryArr = typedItem.summary;
                       if (Array.isArray(summaryArr)) {
                         const summaryText = summaryArr
-                          .map((s: any) => s.text)
+                          .map((s) => s.text)
                           .filter(Boolean)
                           .join('');
                         if (summaryText) {
-                          parts.push({ text: summaryText, thought: true } as any);
+                          parts.push({
+                            text: summaryText,
+                            thought: true,
+                          } as Part);
                         }
                       }
-                    } else if (item.type === 'message') {
+                    } else if (typedItem.type === 'message') {
                       // 正文内容已经在 output_text.delta 事件中流式返回
                       // 这里不需要重复添加
                     }
@@ -588,21 +643,25 @@ export class CodexContentGenerator implements ContentGenerator {
 
                 yield {
                   responseId: response?.id || 'final',
-                  usageMetadata: usage ? {
-                    promptTokenCount: usage.prompt_tokens,
-                    candidatesTokenCount: usage.completion_tokens,
-                    totalTokenCount: usage.total_tokens,
-                  } : undefined,
-                  candidates: [{
-                    index: 0,
-                    content: { role: 'model', parts },
-                    finishReason: FinishReason.STOP,
-                    safetyRatings: [],
-                  }],
+                  usageMetadata: usage
+                    ? {
+                        promptTokenCount: usage.prompt_tokens,
+                        candidatesTokenCount: usage.completion_tokens,
+                        totalTokenCount: usage.total_tokens,
+                      }
+                    : undefined,
+                  candidates: [
+                    {
+                      index: 0,
+                      content: { role: 'model', parts },
+                      finishReason: FinishReason.STOP,
+                      safetyRatings: [],
+                    },
+                  ],
                 } as unknown as GenerateContentResponse;
                 return;
               }
-            } catch (e) {
+            } catch (_e) {
               // Ignore parse errors
             }
           }
@@ -613,10 +672,12 @@ export class CodexContentGenerator implements ContentGenerator {
     }
   }
 
-  private combineResponses(responses: GenerateContentResponse[]): GenerateContentResponse {
+  private combineResponses(
+    responses: GenerateContentResponse[],
+  ): GenerateContentResponse {
     if (responses.length === 0) return {} as GenerateContentResponse;
     const last = responses[responses.length - 1];
-    
+
     const thoughtParts: Part[] = [];
     const textParts: Part[] = [];
 
@@ -624,7 +685,7 @@ export class CodexContentGenerator implements ContentGenerator {
       const parts = r.candidates?.[0]?.content?.parts;
       if (parts && Array.isArray(parts)) {
         for (const p of parts) {
-          if ('thought' in p && (p as any).thought) {
+          if ('thought' in p && (p as { thought: boolean }).thought) {
             thoughtParts.push(p);
           } else {
             textParts.push(p);
@@ -638,22 +699,26 @@ export class CodexContentGenerator implements ContentGenerator {
     const combinedParts: Part[] = [];
     if (thoughtParts.length > 0) {
       combinedParts.push({
-        text: thoughtParts.map(p => (p as any).text).join(''),
-        thought: true
-      } as any);
+        text: thoughtParts.map((p) => (p as { text: string }).text).join(''),
+        thought: true,
+      } as Part);
     }
     if (textParts.length > 0) {
       combinedParts.push({
-        text: textParts.map(p => (p as any).text).join('')
+        text: textParts.map((p) => (p as { text: string }).text).join(''),
       });
     }
 
     const result: Partial<GenerateContentResponse> = {
       ...last,
-      candidates: last.candidates ? [{
-        ...last.candidates[0],
-        content: { role: 'model', parts: combinedParts }
-      }] : undefined,
+      candidates: last.candidates
+        ? [
+            {
+              ...last.candidates[0],
+              content: { role: 'model', parts: combinedParts },
+            },
+          ]
+        : undefined,
     };
 
     return result as GenerateContentResponse;

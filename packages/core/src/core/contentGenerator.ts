@@ -351,6 +351,13 @@ export async function createContentGenerator(
         generatorConfig,
         config,
       );
+    } else if (model.includes('codex')) {
+      // 使用专门为 Codex 系列实现的 ContentGenerator
+      // 它遵循 Microsoft Chat Response 协议
+      const { CodexContentGenerator } = await import(
+        './codexContentGenerator.js'
+      );
+      baseGenerator = new CodexContentGenerator(generatorConfig, config);
     } else {
       // 默认使用 OpenAI 兼容客户端
       const { createOpenAIContentGenerator } = await import(

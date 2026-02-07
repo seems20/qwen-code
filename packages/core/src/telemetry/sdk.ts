@@ -192,7 +192,7 @@ export function initializeTelemetry(config: Config): void {
   });
 }
 
-export async function shutdownTelemetry(config: Config): Promise<void> {
+export async function shutdownTelemetry(_config: Config): Promise<void> {
   // 关闭 TokenUsageReporter（上报剩余数据）
   try {
     const { TokenUsageReporter } = await import('./tokenUsageReporter.js');
@@ -201,7 +201,10 @@ export async function shutdownTelemetry(config: Config): Promise<void> {
     await reporter.shutdown(true);
   } catch (error) {
     // 静默失败，不影响主流程
-    debugLogger.debug('[shutdownTelemetry] 关闭 TokenUsageReporter 失败:', error);
+    debugLogger.debug(
+      '[shutdownTelemetry] 关闭 TokenUsageReporter 失败:',
+      error,
+    );
   }
 
   if (!telemetryInitialized || !sdk) {

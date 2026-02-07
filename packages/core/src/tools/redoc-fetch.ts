@@ -19,6 +19,9 @@ import { getResponseText } from '../utils/partUtils.js';
 import { DEFAULT_QWEN_MODEL } from '../config/models.js';
 import type { Part } from '@google/genai';
 import mime from 'mime/lite';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('redoc-fetch');
 
 const REDOC_API_TIMEOUT_MS = 10000;
 const REDOC_API_URL =
@@ -81,7 +84,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
     docId: string,
     _signal: AbortSignal,
   ): Promise<string> {
-    console.debug(`[RedocFetchTool] Fetching content for doc_id: ${docId}`);
+    debugLogger.debug(`[RedocFetchTool] Fetching content for doc_id: ${docId}`);
 
     const requestBody = {
       doc_id: docId,
@@ -106,13 +109,13 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
       if (!response.ok) {
         const errorMessage = `Redoc API request failed with status code ${response.status} ${response.statusText}`;
-        console.error(`[RedocFetchTool] ${errorMessage}`);
+        debugLogger.error(`[RedocFetchTool] ${errorMessage}`);
         throw new Error(errorMessage);
       }
 
       const responseData: RedocApiResponse = await response.json();
 
-      console.debug(`[RedocFetchTool] API 响应详情:`, {
+      debugLogger.debug(`[RedocFetchTool] API 响应详情:`, {
         success: responseData.success,
         code: responseData.code,
         message: responseData.msg,
@@ -123,14 +126,14 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       // 检查API响应是否成功
       if (!responseData.success || responseData.code !== 0) {
         const errorMessage = `Redoc API returned error (code: ${responseData.code}): ${responseData.msg || 'Unknown error'}`;
-        console.error(`[RedocFetchTool] ${errorMessage}`, responseData);
+        debugLogger.error(`[RedocFetchTool] ${errorMessage}`, responseData);
         throw new Error(errorMessage);
       }
 
       if (!responseData.data) {
         const errorMessage = 'Redoc API response does not contain data field';
-        console.error(`[RedocFetchTool] ${errorMessage}`);
-        console.error(
+        debugLogger.error(`[RedocFetchTool] ${errorMessage}`);
+        debugLogger.error(
           `[RedocFetchTool] 完整响应数据:`,
           JSON.stringify(responseData, null, 2),
         );
@@ -140,16 +143,16 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       if (!responseData.data.content) {
         const errorMessage =
           'Redoc API response does not contain content field in data';
-        console.error(`[RedocFetchTool] ${errorMessage}`);
-        console.error(
+        debugLogger.error(`[RedocFetchTool] ${errorMessage}`);
+        debugLogger.error(
           `[RedocFetchTool] 完整响应数据:`,
           JSON.stringify(responseData, null, 2),
         );
-        console.error(
+        debugLogger.error(
           `[RedocFetchTool] data 字段内容:`,
           JSON.stringify(responseData.data, null, 2),
         );
-        console.error(
+        debugLogger.error(
           `[RedocFetchTool] data 字段的所有键:`,
           Object.keys(responseData.data),
         );
@@ -158,13 +161,33 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         );
       }
 
-      console.debug(
+      debugLogger.debug(
         `[RedocFetchTool] Successfully fetched content for doc_id: ${docId}, title: ${responseData.data.title}`,
       );
       return responseData.data.content;
     } finally {
       clearTimeout(timeoutId);
     }
+  }
+
+  // 类型守卫：检查节点是否为图片节点
+  private isImageNode(
+    n: unknown,
+  ): n is { type: 'image'; url: string; width?: number; height?: number } {
+    return (
+      typeof n === 'object' &&
+      n !== null &&
+      'type' in n &&
+      (n as { type: string }).type === 'image' &&
+      'url' in n
+    );
+  }
+
+  // 类型守卫：检查节点是否为容器节点
+  private isContainerNode(
+    n: unknown,
+  ): n is { type: string; children?: unknown[] } {
+    return typeof n === 'object' && n !== null && 'type' in n;
   }
 
   /**
@@ -181,7 +204,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
   }> {
     try {
       const contentObj = JSON.parse(content);
-      
+
       if (!contentObj.children || !Array.isArray(contentObj.children)) {
         // 不是结构化内容，返回纯文本
         return {
@@ -198,13 +221,16 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       let successCount = 0;
 
       // 递归处理节点，支持嵌套结构
-      const processNode = async (node: any, depth: number = 0): Promise<void> => {
+      const processNode = async (
+        node: unknown,
+        depth: number = 0,
+      ): Promise<void> => {
         if (!node) return;
 
         // 处理图片节点
-        if (node.type === 'image' && node.url) {
+        if (this.isImageNode(node)) {
           imageCount++;
-          
+
           // 在遇到图片前，先把累积的文本作为一个 part
           if (textBuffer.length > 0) {
             parts.push({ text: textBuffer.join('\n') });
@@ -212,12 +238,12 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
           }
 
           // 下载图片
-          console.debug(
+          debugLogger.debug(
             `[RedocFetchTool] Downloading image ${imageCount} (depth ${depth}): ${node.url}`,
           );
-          
+
           const imageData = await this.downloadImageAsBase64(node.url, signal);
-          
+
           if (imageData) {
             // 成功下载，添加图片说明和图片数据
             const imageCaption = `\n[图片 ${imageCount}${node.width && node.height ? ` (${node.width}x${node.height})` : ''}]\n`;
@@ -229,14 +255,14 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
               },
             });
             successCount++;
-            console.debug(
+            debugLogger.debug(
               `[RedocFetchTool] Image ${imageCount} downloaded successfully`,
             );
           } else {
             // 下载失败，添加占位符
             const placeholder = `\n[图片 ${imageCount} - 下载失败: ${node.url}]\n`;
             parts.push({ text: placeholder });
-            console.warn(
+            debugLogger.warn(
               `[RedocFetchTool] Failed to download image ${imageCount}: ${node.url}`,
             );
           }
@@ -244,7 +270,11 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         }
 
         // 处理嵌套容器节点（columns, column, table-cell-block 等）
-        if (node.children && Array.isArray(node.children)) {
+        if (
+          this.isContainerNode(node) &&
+          node.children &&
+          Array.isArray(node.children)
+        ) {
           // 对于某些容器类型，添加结构提示
           if (node.type === 'columns') {
             textBuffer.push('\n[多栏布局]');
@@ -277,25 +307,29 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       }
 
       // 生成纯文本内容用于日志（递归提取）
-      const extractAllText = (node: any): string => {
+      const extractAllText = (node: unknown): string => {
         if (!node) return '';
-        if (node.type === 'image') return ''; // 忽略图片
-        
+        if (this.isContainerNode(node) && node.type === 'image') return ''; // 忽略图片
+
         const nodeText = this.extractTextFromNode(node);
         let childrenText = '';
-        
-        if (node.children && Array.isArray(node.children)) {
+
+        if (
+          this.isContainerNode(node) &&
+          node.children &&
+          Array.isArray(node.children)
+        ) {
           childrenText = node.children
-            .map((child: any) => extractAllText(child))
+            .map((child: unknown) => extractAllText(child))
             .filter((text: string) => text)
             .join('\n');
         }
-        
+
         return [nodeText, childrenText].filter(Boolean).join('\n');
       };
 
       const textContent = contentObj.children
-        .map((child: any) => extractAllText(child))
+        .map((child: unknown) => extractAllText(child))
         .filter((text: string) => text)
         .join('\n');
 
@@ -319,49 +353,53 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
   /**
    * 从文档节点中提取文本内容（支持递归）
    */
-  private extractTextFromNode(node: any): string {
+  private extractTextFromNode(node: unknown): string {
     if (!node) return '';
 
     // 跳过图片节点（图片单独处理）
-    if (node.type === 'image') return '';
+    if (this.isContainerNode(node) && node.type === 'image') return '';
 
-    switch (node.type) {
+    const containerNode = this.isContainerNode(node)
+      ? node
+      : { type: 'unknown', children: undefined };
+
+    switch (containerNode.type) {
       case 'title':
-        return this.extractTextFromChildren(node.children, '# ');
+        return this.extractTextFromChildren(containerNode.children, '# ');
       case 'h1':
-        return this.extractTextFromChildren(node.children, '## ');
+        return this.extractTextFromChildren(containerNode.children, '## ');
       case 'h2':
-        return this.extractTextFromChildren(node.children, '### ');
+        return this.extractTextFromChildren(containerNode.children, '### ');
       case 'h3':
-        return this.extractTextFromChildren(node.children, '#### ');
+        return this.extractTextFromChildren(containerNode.children, '#### ');
       case 'paragraph':
-        return this.extractTextFromChildren(node.children);
+        return this.extractTextFromChildren(containerNode.children);
       case 'code':
-        return `\`\`\`\n${this.extractTextFromChildren(node.children)}\n\`\`\``;
+        return `\`\`\`\n${this.extractTextFromChildren(containerNode.children)}\n\`\`\``;
       case 'numbered-list':
       case 'list':
-        return this.extractTextFromChildren(node.children, '- ');
+        return this.extractTextFromChildren(containerNode.children, '- ');
       case 'block-quote':
-        return `> ${this.extractTextFromChildren(node.children)}`;
+        return `> ${this.extractTextFromChildren(containerNode.children)}`;
       case 'table':
         return this.extractTableContent(node);
       case 'columns':
       case 'column':
       case 'table-cell-block':
         // 递归处理容器节点的子节点
-        if (node.children && Array.isArray(node.children)) {
-          return node.children
-            .map((child: any) => this.extractTextFromNode(child))
+        if (containerNode.children && Array.isArray(containerNode.children)) {
+          return containerNode.children
+            .map((child: unknown) => this.extractTextFromNode(child))
             .filter((text: string) => text)
             .join('\n');
         }
         return '';
       default:
-        if (node.children) {
-          return this.extractTextFromChildren(node.children);
+        if (containerNode.children) {
+          return this.extractTextFromChildren(containerNode.children);
         }
-        if (node.text) {
-          return node.text;
+        if ('text' in (node as object) && (node as { text?: string }).text) {
+          return (node as { text: string }).text;
         }
         return '';
     }
@@ -370,23 +408,33 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
   /**
    * 从表格节点中提取文本内容
    */
-  private extractTableContent(tableNode: any): string {
-    if (!tableNode.children || !Array.isArray(tableNode.children)) {
+  private extractTableContent(tableNode: unknown): string {
+    if (
+      !this.isContainerNode(tableNode) ||
+      !tableNode.children ||
+      !Array.isArray(tableNode.children)
+    ) {
       return '';
     }
 
     const rows: string[] = [];
     for (const row of tableNode.children) {
-      if (row.type === 'tr' && row.children) {
-        const cells = row.children
-          .map((cell: any) => {
-            if (cell.type === 'td') {
+      const rowNode = this.isContainerNode(row)
+        ? row
+        : { type: 'unknown', children: undefined };
+      if (rowNode.type === 'tr' && rowNode.children) {
+        const cells = rowNode.children
+          .map((cell: unknown) => {
+            const cellNode = this.isContainerNode(cell)
+              ? cell
+              : { type: 'unknown' };
+            if (cellNode.type === 'td') {
               return this.extractTextFromNode(cell);
             }
             return '';
           })
           .filter((text: string) => text);
-        
+
         if (cells.length > 0) {
           rows.push('| ' + cells.join(' | ') + ' |');
         }
@@ -400,15 +448,16 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
    * 从子节点数组中提取文本
    */
   private extractTextFromChildren(
-    children: any[],
+    children: unknown,
     prefix: string = '',
   ): string {
     if (!children || !Array.isArray(children)) return '';
-    
+
     return children
       .map((child) => {
         if (typeof child === 'string') return child;
-        if (child.text) return prefix + child.text;
+        const childNode = child as { text?: string };
+        if (childNode.text) return prefix + childNode.text;
         return this.extractTextFromNode(child);
       })
       .join('');
@@ -419,7 +468,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
    */
   private async downloadImageAsBase64(
     url: string,
-    signal: AbortSignal,
+    _signal: AbortSignal,
   ): Promise<{ data: string; mimeType: string } | null> {
     const controller = new AbortController();
     const timeoutId = setTimeout(
@@ -428,7 +477,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
     );
 
     try {
-      console.debug(`[RedocFetchTool] Downloading image from: ${url}`);
+      debugLogger.debug(`[RedocFetchTool] Downloading image from: ${url}`);
 
       const response = await fetch(url, {
         signal: controller.signal,
@@ -438,7 +487,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       });
 
       if (!response.ok) {
-        console.warn(
+        debugLogger.warn(
           `[RedocFetchTool] Failed to download image: ${response.status} ${response.statusText}`,
         );
         return null;
@@ -449,9 +498,9 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
       // 检查文件大小
       if (contentLength) {
-        const sizeMB = parseInt(contentLength) / (1024 * 1024);
+        const sizeMB = parseInt(contentLength, 10) / (1024 * 1024);
         if (sizeMB > MAX_IMAGE_SIZE_MB) {
-          console.warn(
+          debugLogger.warn(
             `[RedocFetchTool] Image too large: ${sizeMB.toFixed(2)}MB (max: ${MAX_IMAGE_SIZE_MB}MB)`,
           );
           return null;
@@ -460,7 +509,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
       // 检查是否是图片类型
       if (!contentType.startsWith('image/')) {
-        console.warn(
+        debugLogger.warn(
           `[RedocFetchTool] URL does not return an image: ${contentType}`,
         );
         return null;
@@ -472,7 +521,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       // 再次检查实际大小
       const actualSizeMB = buffer.length / (1024 * 1024);
       if (actualSizeMB > MAX_IMAGE_SIZE_MB) {
-        console.warn(
+        debugLogger.warn(
           `[RedocFetchTool] Downloaded image too large: ${actualSizeMB.toFixed(2)}MB`,
         );
         return null;
@@ -490,7 +539,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
         }
       }
 
-      console.debug(
+      debugLogger.debug(
         `[RedocFetchTool] Successfully downloaded image: ${actualSizeMB.toFixed(2)}MB, type: ${mimeType}`,
       );
 
@@ -500,7 +549,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       };
     } catch (error) {
       if (error instanceof Error) {
-        console.warn(
+        debugLogger.warn(
           `[RedocFetchTool] Error downloading image from ${url}: ${error.message}`,
         );
       }
@@ -548,7 +597,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
     const docId = this.extractDocIdFromUrl(this.params.url);
     if (!docId) {
       const errorMessage = `Invalid Redoc URL format: ${this.params.url}`;
-      console.error(`[RedocFetchTool] ${errorMessage}`);
+      debugLogger.error(`[RedocFetchTool] ${errorMessage}`);
       return {
         llmContent: `Error: ${errorMessage}`,
         returnDisplay: `Error: ${errorMessage}`,
@@ -557,7 +606,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
 
     try {
       const content = await this.fetchRedocContent(docId, signal);
-      console.debug(
+      debugLogger.debug(
         `[RedocFetchTool] Processing content with prompt: "${this.params.prompt}"`,
       );
 
@@ -565,7 +614,7 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
       const { parts, imageCount, successCount } =
         await this.buildContentWithImages(content, signal);
 
-      console.debug(
+      debugLogger.debug(
         `[RedocFetchTool] Content parsed: ${imageCount} images found, ${successCount} downloaded successfully`,
       );
 
@@ -606,7 +655,7 @@ ${imageInfo}
       );
       const resultText = getResponseText(result) || '';
 
-      console.debug(
+      debugLogger.debug(
         `[RedocFetchTool] Successfully processed Redoc content from ${this.params.url}`,
       );
 
@@ -622,7 +671,7 @@ ${imageInfo}
     } catch (e) {
       const error = e as Error;
       const errorMessage = `Error during Redoc fetch for ${this.params.url}: ${error.message}`;
-      console.error(`[RedocFetchTool] ${errorMessage}`, error);
+      debugLogger.error(`[RedocFetchTool] ${errorMessage}`, error);
       return {
         llmContent: `Error: ${errorMessage}`,
         returnDisplay: `Error: ${errorMessage}`,

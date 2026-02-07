@@ -9,9 +9,12 @@ import {
   AuthType,
   isGitRepository,
   getGitRemoteUrl,
+  createDebugLogger,
 } from '@rdmind/rdmind-core';
 import type { LoadedSettings } from '../config/settings.js';
 import { applyXhsSsoConfig } from '../ui/auth/xhsSsoConfig.js';
+
+const debugLogger = createDebugLogger('l4Repository');
 
 /**
  * 检查当前目录是否是 L4 敏感仓库
@@ -33,14 +36,14 @@ export async function isL4Repository(workspaceRoot: string): Promise<boolean> {
 
     // 调试日志（可以通过环境变量控制）
     if (process.env['DEBUG'] || process.env['RDMIND_DEBUG']) {
-      console.debug('[L4Repository] Git remote URL:', remoteUrl);
-      console.debug('[L4Repository] Is L4 repository:', isL4);
+      debugLogger.debug('[L4Repository] Git remote URL:', remoteUrl);
+      debugLogger.debug('[L4Repository] Is L4 repository:', isL4);
     }
 
     return isL4;
   } catch (error) {
     if (process.env['DEBUG'] || process.env['RDMIND_DEBUG']) {
-      console.debug('[L4Repository] Error checking repository:', error);
+      debugLogger.debug('[L4Repository] Error checking repository:', error);
     }
     // 接口调用失败时返回false，不认为是L4仓库
     return false;
@@ -83,7 +86,7 @@ async function checkRepositoryRiskLevel(gitRepoUrl: string): Promise<boolean> {
     }
   } catch (error) {
     if (process.env['DEBUG'] || process.env['RDMIND_DEBUG']) {
-      console.debug('[L4Repository] API call failed:', error);
+      debugLogger.debug('[L4Repository] API call failed:', error);
     }
     throw error;
   }

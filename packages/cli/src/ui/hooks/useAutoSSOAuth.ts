@@ -9,10 +9,13 @@ import {
   performAutoSSOAuth,
   type SSOAuthResult,
   readSSOCredentialsSync,
+  createDebugLogger,
 } from '@rdmind/rdmind-core';
 import { USER_SETTINGS_PATH } from '../../config/settings.js';
 import type { LoadedSettings } from '../../config/settings.js';
 import { AuthType } from '@rdmind/rdmind-core';
+
+const debugLogger = createDebugLogger('useAutoSSOAuth');
 
 /**
  * 自动 SSO 认证状态
@@ -66,7 +69,10 @@ export function useAutoSSOAuth(debug: boolean) {
   const triggerAuth = useCallback(
     async (socketId: string) => {
       if (debug) {
-        console.debug('[AutoSSOAuth] 触发自动 SSO 认证, socketId:', socketId);
+        debugLogger.debug(
+          '[AutoSSOAuth] 触发自动 SSO 认证, socketId:',
+          socketId,
+        );
       }
 
       setState(AutoSSOAuthState.AUTHENTICATING);
@@ -85,27 +91,27 @@ export function useAutoSSOAuth(debug: boolean) {
 
         if (result.success) {
           if (debug) {
-            console.debug('[AutoSSOAuth] ✅ 认证成功');
-            console.debug('[AutoSSOAuth] 凭证:', result.credentials);
+            debugLogger.debug('[AutoSSOAuth] ✅ 认证成功');
+            debugLogger.debug('[AutoSSOAuth] 凭证:', result.credentials);
           }
           setState(AutoSSOAuthState.SUCCESS);
           setError(null);
         } else if (result.timeout) {
           if (debug) {
-            console.debug('[AutoSSOAuth] ⏰ 认证超时');
+            debugLogger.debug('[AutoSSOAuth] ⏰ 认证超时');
           }
           setState(AutoSSOAuthState.TIMEOUT);
           setError(result.error || '认证超时');
         } else {
           if (debug) {
-            console.debug('[AutoSSOAuth] ❌ 认证失败:', result.error);
+            debugLogger.debug('[AutoSSOAuth] ❌ 认证失败:', result.error);
           }
           setState(AutoSSOAuthState.FAILED);
           setError(result.error || '认证失败');
         }
       } catch (err) {
         if (debug) {
-          console.error('[AutoSSOAuth] ❌ 认证过程异常:', err);
+          debugLogger.error('[AutoSSOAuth] ❌ 认证过程异常:', err);
         }
         setState(AutoSSOAuthState.FAILED);
         setError((err as Error).message);

@@ -22,7 +22,10 @@ import {
   openBrowserSecurely,
   PALLAS_HTTP_BASE,
   RDMIND_SSO_WEB_URL,
+  createDebugLogger,
 } from '@rdmind/rdmind-core';
+
+const debugLogger = createDebugLogger('ssoCommand');
 
 const SSO_API_TIMEOUT_MS = 10000; // 10 秒超时
 
@@ -156,7 +159,7 @@ export const ssoCommand: SlashCommand = {
           >;
           originalSettings = (parsed || {}) as Settings;
         } catch (error) {
-          console.error('读取 settings.json 失败:', error);
+          debugLogger.error('读取 settings.json 失败:', error);
         }
       }
 
@@ -217,7 +220,7 @@ export const ssoCommand: SlashCommand = {
           },
           Date.now(),
         );
-        console.error('打开浏览器失败:', browserErrorMessage);
+        debugLogger.error('打开浏览器失败:', browserErrorMessage);
       }
     } catch (error) {
       const errorMessage =
@@ -232,9 +235,9 @@ export const ssoCommand: SlashCommand = {
       );
 
       // 在控制台输出更详细的错误信息以便调试
-      console.error('SSO 命令执行失败详情:', error);
+      debugLogger.error('SSO 命令执行失败详情:', error);
       if (error instanceof Error && error.stack) {
-        console.error('错误堆栈:', error.stack);
+        debugLogger.error('错误堆栈:', error.stack);
       }
     }
   },

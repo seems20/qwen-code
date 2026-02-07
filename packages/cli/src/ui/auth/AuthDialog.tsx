@@ -34,9 +34,7 @@ export function AuthDialog(): React.JSX.Element {
   const config = useConfig();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // selectedIndex 用于 handleHighlight，虽然现在不直接使用，但保留以供将来扩展
-  // @ts-expect-error - selectedIndex used in handleHighlight callback
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [_selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const items = [
     {

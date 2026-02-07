@@ -20,10 +20,7 @@ import type {
   Status as CoreStatus,
   EditorType,
 } from '@rdmind/rdmind-core';
-import {
-  CoreToolScheduler,
-  createDebugLogger,
-} from '@rdmind/rdmind-core';
+import { CoreToolScheduler, createDebugLogger } from '@rdmind/rdmind-core';
 import { useCallback, useState, useMemo } from 'react';
 import type {
   HistoryItemToolGroup,

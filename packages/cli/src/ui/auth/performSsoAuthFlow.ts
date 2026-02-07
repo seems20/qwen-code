@@ -10,9 +10,12 @@ import {
   triggerSSOAuth,
   readSSOCredentialsSync,
   saveSSOCredentialsAndAuthType,
+  createDebugLogger,
 } from '@rdmind/rdmind-core';
 import { getSocketId } from '../../services/websocketSocketId.js';
 import { AuthState } from '../types.js';
+
+const debugLogger = createDebugLogger('performSsoAuthFlow');
 
 export interface PerformSsoAuthFlowOptions {
   config: Config;
@@ -44,7 +47,7 @@ export async function performSsoAuthFlow(
   const maxWaitAttempts = 50; // 5秒，每100ms检查一次
 
   if (debug) {
-    console.debug('[PerformSsoAuthFlow] 步骤1：等待 WebSocket socketId');
+    debugLogger.debug('[PerformSsoAuthFlow] 步骤1：等待 WebSocket socketId');
   }
 
   while (waitAttempts < maxWaitAttempts) {
@@ -58,14 +61,14 @@ export async function performSsoAuthFlow(
 
   if (!socketId) {
     if (debug) {
-      console.debug('[PerformSsoAuthFlow] ⏰ 等待 socketId 超时');
+      debugLogger.debug('[PerformSsoAuthFlow] ⏰ 等待 socketId 超时');
     }
     onAuthError('WebSocket 建联超时，请检查网络后重试');
     return;
   }
 
   if (debug) {
-    console.debug(
+    debugLogger.debug(
       '[PerformSsoAuthFlow] ✅ WebSocket 已建联，socketId:',
       socketId,
     );
@@ -73,18 +76,20 @@ export async function performSsoAuthFlow(
 
   // 步骤2：触发 SSO 认证（调用 API + 打开浏览器）
   if (debug) {
-    console.debug('[PerformSsoAuthFlow] 步骤2：触发 SSO 认证');
+    debugLogger.debug('[PerformSsoAuthFlow] 步骤2：触发 SSO 认证');
   }
 
   try {
     await triggerSSOAuth(socketId, debug);
 
     if (debug) {
-      console.debug('[PerformSsoAuthFlow] ✅ SSO 认证已触发，开始轮询等待凭证');
+      debugLogger.debug(
+        '[PerformSsoAuthFlow] ✅ SSO 认证已触发，开始轮询等待凭证',
+      );
     }
   } catch (error) {
     if (debug) {
-      console.error('[PerformSsoAuthFlow] ❌ 触发 SSO 认证失败:', error);
+      debugLogger.error('[PerformSsoAuthFlow] ❌ 触发 SSO 认证失败:', error);
     }
     onAuthError(
       `触发 SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`,
@@ -94,7 +99,7 @@ export async function performSsoAuthFlow(
 
   // 步骤3：轮询等待凭证文件（5秒超时）
   if (debug) {
-    console.debug('[PerformSsoAuthFlow] 步骤3：轮询等待凭证文件');
+    debugLogger.debug('[PerformSsoAuthFlow] 步骤3：轮询等待凭证文件');
   }
 
   let pollAttempts = 0;
@@ -113,7 +118,7 @@ export async function performSsoAuthFlow(
         if (creds && creds.rdmind_sso_id) {
           clearInterval(pollTimer);
           if (debug) {
-            console.debug(
+            debugLogger.debug(
               '[PerformSsoAuthFlow] ✅ 检测到 rdmind_sso_id:',
               creds.rdmind_sso_id,
             );
@@ -122,7 +127,7 @@ export async function performSsoAuthFlow(
         } else if (pollAttempts >= maxPollAttempts) {
           clearInterval(pollTimer);
           if (debug) {
-            console.debug(
+            debugLogger.debug(
               '[PerformSsoAuthFlow] ⏰ 5秒内未检测到 rdmind_sso_id，认证超时',
             );
           }
@@ -141,7 +146,7 @@ export async function performSsoAuthFlow(
   // 步骤4：保存 SSO 凭证和认证类型
   try {
     if (debug) {
-      console.debug('[PerformSsoAuthFlow] 步骤4：保存 SSO 凭证和认证类型');
+      debugLogger.debug('[PerformSsoAuthFlow] 步骤4：保存 SSO 凭证和认证类型');
     }
 
     await saveSSOCredentialsAndAuthType(
@@ -152,8 +157,8 @@ export async function performSsoAuthFlow(
     );
 
     if (debug) {
-      console.debug('[PerformSsoAuthFlow] ✅ SSO 凭证和认证类型已保存');
-      console.debug(
+      debugLogger.debug('[PerformSsoAuthFlow] ✅ SSO 凭证和认证类型已保存');
+      debugLogger.debug(
         '[PerformSsoAuthFlow] 🎉 SSO 认证流程完成！用户需要选择模型后才能使用',
       );
     }
@@ -166,7 +171,7 @@ export async function performSsoAuthFlow(
     }
   } catch (error) {
     if (debug) {
-      console.error('[PerformSsoAuthFlow] ❌ SSO 认证流程失败:', error);
+      debugLogger.error('[PerformSsoAuthFlow] ❌ SSO 认证流程失败:', error);
     }
     onAuthError(
       `SSO 认证失败: ${error instanceof Error ? error.message : String(error)}`,

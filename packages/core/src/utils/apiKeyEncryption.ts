@@ -5,6 +5,9 @@
  */
 
 import * as crypto from 'node:crypto';
+import { createDebugLogger } from './debugLogger.js';
+
+const debugLogger = createDebugLogger('apiKeyEncryption');
 
 /**
  * 固定密钥（简化实现，避免主机名变化导致解密失败）
@@ -57,7 +60,7 @@ export function encryptApiKey(plaintext: string): string {
     return `xhs_enc:${ivBase64}:${authTagBase64}:${encryptedBase64}`;
   } catch (error) {
     // 如果加密失败，返回原始值（向后兼容）
-    console.warn('[ApiKeyEncryption] 加密失败，使用明文:', error);
+    debugLogger.warn('[ApiKeyEncryption] 加密失败，使用明文:', error);
     return plaintext;
   }
 }

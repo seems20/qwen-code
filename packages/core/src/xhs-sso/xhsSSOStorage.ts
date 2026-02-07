@@ -8,6 +8,9 @@ import { promises as fs } from 'node:fs';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('xhsSSOStorage');
 
 /**
  * 小红书 SSO 凭证存储管理
@@ -47,7 +50,7 @@ async function acquireLock(lockPath: string, debug = false): Promise<void> {
   for (let attempt = 1; attempt <= LOCK_MAX_ATTEMPTS; attempt++) {
     try {
       if (debug) {
-        console.debug(
+        debugLogger.debug(
           `[XHS-SSO-Lock] 尝试获取锁 (第 ${attempt}/${LOCK_MAX_ATTEMPTS} 次)...`,
         );
       }
@@ -56,7 +59,7 @@ async function acquireLock(lockPath: string, debug = false): Promise<void> {
       await fs.writeFile(lockPath, process.pid.toString(), { flag: 'wx' });
 
       if (debug) {
-        console.debug('[XHS-SSO-Lock] ✅ 成功获取锁');
+        debugLogger.debug('[XHS-SSO-Lock] ✅ 成功获取锁');
       }
       return; // 成功获取锁
     } catch (error) {
@@ -64,7 +67,7 @@ async function acquireLock(lockPath: string, debug = false): Promise<void> {
         // 锁文件已存在
         if (attempt < LOCK_MAX_ATTEMPTS) {
           if (debug) {
-            console.debug(
+            debugLogger.debug(
               `[XHS-SSO-Lock] 锁被占用，等待 ${LOCK_RETRY_INTERVAL_MS}ms 后重试...`,
             );
           }
@@ -95,13 +98,16 @@ async function releaseLock(lockPath: string, debug = false): Promise<void> {
   try {
     await fs.unlink(lockPath);
     if (debug) {
-      console.debug('[XHS-SSO-Lock] 🔓 释放锁成功');
+      debugLogger.debug('[XHS-SSO-Lock] 🔓 释放锁成功');
     }
   } catch (error) {
     // 忽略 ENOENT 错误（文件不存在）
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
       if (debug) {
-        console.warn('[XHS-SSO-Lock] ⚠️ 释放锁失败:', (error as Error).message);
+        debugLogger.warn(
+          '[XHS-SSO-Lock] ⚠️ 释放锁失败:',
+          (error as Error).message,
+        );
       }
     }
   }
@@ -152,8 +158,8 @@ export async function updateSettingsWithLock(
   debug = false,
 ): Promise<void> {
   if (debug) {
-    console.debug('[XHS-SSO-Storage] 准备更新 settings.json...');
-    console.debug(
+    debugLogger.debug('[XHS-SSO-Storage] 准备更新 settings.json...');
+    debugLogger.debug(
       '[XHS-SSO-Storage] 更新内容:',
       JSON.stringify(updates, null, 2),
     );
@@ -170,16 +176,16 @@ export async function updateSettingsWithLock(
       const content = await fs.readFile(settingsPath, 'utf-8');
       existingSettings = JSON.parse(content);
       if (debug) {
-        console.debug('[XHS-SSO-Storage] 读取现有配置成功');
+        debugLogger.debug('[XHS-SSO-Storage] 读取现有配置成功');
       }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn(
+        debugLogger.warn(
           '[XHS-SSO-Storage] 读取现有配置失败，将创建新文件:',
           error,
         );
       } else if (debug) {
-        console.debug('[XHS-SSO-Storage] 配置文件不存在，将创建新文件');
+        debugLogger.debug('[XHS-SSO-Storage] 配置文件不存在，将创建新文件');
       }
     }
 
@@ -191,7 +197,7 @@ export async function updateSettingsWithLock(
     await fs.writeFile(settingsPath, content, { mode: 0o600 });
 
     if (debug) {
-      console.debug('[XHS-SSO-Storage] ✅ settings.json 更新成功');
+      debugLogger.debug('[XHS-SSO-Storage] ✅ settings.json 更新成功');
     }
   }, debug);
 }
@@ -264,7 +270,7 @@ export async function readSSOCredentials(): Promise<{
     }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.warn('[XHS-SSO-Storage] 读取 SSO 凭证失败:', error);
+      debugLogger.warn('[XHS-SSO-Storage] 读取 SSO 凭证失败:', error);
     }
   }
 
@@ -298,7 +304,7 @@ export function readSSOCredentialsSync(): {
     }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.warn('[XHS-SSO-Storage] 读取 SSO 凭证失败:', error);
+      debugLogger.warn('[XHS-SSO-Storage] 读取 SSO 凭证失败:', error);
     }
   }
 
@@ -326,7 +332,7 @@ export async function saveSSOCredentials(
     await fs.writeFile(credPath, JSON.stringify(credentials, null, 2), 'utf-8');
 
     if (debug) {
-      console.debug(`[XHS-SSO-Storage] SSO 凭证已保存到 ${credPath}`);
+      debugLogger.debug(`[XHS-SSO-Storage] SSO 凭证已保存到 ${credPath}`);
     }
   }, debug);
 }

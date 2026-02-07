@@ -177,10 +177,7 @@ module.exports = {
 // Consumer's tailwind.config.js
 module.exports = {
   presets: [require('@rdmind/webui/tailwind.preset')],
-  content: [
-    './src/**/*.{ts,tsx}',
-    './node_modules/@rdmind/webui/dist/**/*.js',
-  ],
+  content: ['./src/**/*.{ts,tsx}', './node_modules/@rdmind/webui/dist/**/*.js'],
 };
 ```
 

@@ -7,7 +7,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { PALLAS_HTTP_BASE } from '@rdmind/rdmind-core';
+import { PALLAS_HTTP_BASE, createDebugLogger } from '@rdmind/rdmind-core';
+
+const debugLogger = createDebugLogger('plugin-sync');
+const debugLog = (...args: unknown[]) => debugLogger.debug(...args);
 
 /**
  * 插件同步请求数据结构
@@ -46,23 +49,8 @@ interface SsoCredentials {
 /**
  * 是否启用调试日志
  */
-let globalDebugMode = false;
-
-export function setDebugMode(enabled: boolean): void {
-  globalDebugMode = enabled;
-}
-
-function isDebugEnabled(): boolean {
-  return globalDebugMode || process.env['RDMIND_DEBUG_PLUGIN_SYNC'] === '1';
-}
-
-/**
- * 调试日志输出
- */
-function debugLog(message: string, ...args: unknown[]): void {
-  if (isDebugEnabled()) {
-    console.log(`[plugin-sync] ${message}`, ...args);
-  }
+export function setDebugMode(_enabled: boolean): void {
+  // 调试模式设置保留供将来使用
 }
 
 /**

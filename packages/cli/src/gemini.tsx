@@ -452,13 +452,13 @@ export async function main() {
       const isL4Repo = await isL4Repository(process.cwd());
       if (isL4Repo) {
         if (config.getDebugMode()) {
-          console.debug(
+          debugLogger.debug(
             '[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型',
           );
         }
         await autoSwitchToQSModel(config, settings);
         if (config.getDebugMode()) {
-          console.debug('[L4Repository] 成功切换到 QS 平台模型');
+          debugLogger.debug('[L4Repository] 成功切换到 QS 平台模型');
         }
       }
     } catch (error) {
@@ -468,7 +468,7 @@ export async function main() {
       }`;
       startupWarnings.push(errorMsg);
       if (config.getDebugMode()) {
-        console.error('[L4Repository]', errorMsg, error);
+        debugLogger.error('[L4Repository]', errorMsg, error);
       }
     }
 

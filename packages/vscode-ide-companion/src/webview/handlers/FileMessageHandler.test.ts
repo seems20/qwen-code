@@ -40,16 +40,13 @@ const vscodeMock = vi.hoisted(() => {
 });
 
 vi.mock('vscode', () => vscodeMock);
-vi.mock(
-  '@rdmind/rdmind-core/src/services/fileDiscoveryService.js',
-  () => ({
-    FileDiscoveryService: class {
-      shouldIgnoreFile(filePath: string, options?: unknown) {
-        return shouldIgnoreFileMock(filePath, options);
-      }
-    },
-  }),
-);
+vi.mock('@rdmind/rdmind-core/src/services/fileDiscoveryService.js', () => ({
+  FileDiscoveryService: class {
+    shouldIgnoreFile(filePath: string, options?: unknown) {
+      return shouldIgnoreFileMock(filePath, options);
+    }
+  },
+}));
 
 describe('FileMessageHandler', () => {
   beforeEach(() => {

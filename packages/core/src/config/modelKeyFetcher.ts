@@ -37,17 +37,21 @@ export async function fetchModelKey(modelName: string): Promise<string> {
   logger.debug(`从 API 获取 key for ${modelName}`);
 
   try {
-    // 如果是 gemini 开头的模型，需要先做预处理，去除思考等级后缀
+    // 如果是 gemini 开头的模型或 codex 模型，需要先做预处理，去除思考等级后缀
     // 例如 gemini-3-pro-preview(low) -> gemini-3-pro-preview
-    // 或 gemini-3-flash-preview(high) -> gemini-3-flash-preview
+    // 或 gpt-5-codex(high) -> gpt-5-codex
     let processedModelName = modelName;
-    if (modelName.toLowerCase().startsWith('gemini')) {
+    const modelNameLower = modelName.toLowerCase();
+    if (
+      modelNameLower.startsWith('gemini') ||
+      modelNameLower.includes('codex')
+    ) {
       // 匹配并去除括号内的思考等级后缀，例如 (low)、(high) 等
       const match = modelName.match(/^(.+?)\(\w+\)$/);
       if (match) {
         processedModelName = match[1];
         logger.debug(
-          `gemini 模型预处理: ${modelName} -> ${processedModelName}`,
+          `${modelNameLower.startsWith('gemini') ? 'gemini' : 'codex'} 模型预处理: ${modelName} -> ${processedModelName}`,
         );
       }
     }
@@ -76,9 +80,7 @@ export async function fetchModelKey(modelName: string): Promise<string> {
 
     const apiKey = data.data.api_key;
 
-    logger.debug(
-      `成功获取 key for ${modelName}: ${apiKey.substring(0, 8)}...`,
-    );
+    logger.debug(`成功获取 key for ${modelName}: ${apiKey.substring(0, 8)}...`);
 
     return apiKey;
   } catch (error) {

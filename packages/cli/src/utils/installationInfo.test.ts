@@ -12,8 +12,7 @@ import * as childProcess from 'node:child_process';
 import { isGitRepository } from '@rdmind/rdmind-core';
 
 vi.mock('@rdmind/rdmind-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@rdmind/rdmind-core')>();
+  const actual = await importOriginal<typeof import('@rdmind/rdmind-core')>();
   return {
     ...actual,
     isGitRepository: vi.fn(),

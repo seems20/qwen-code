@@ -25,6 +25,7 @@
 创建了 `VertexAnthropicContentGenerator` 类 (`packages/core/src/core/vertexAnthropicContentGenerator.ts`),专门处理 Vertex AI 格式的 Anthropic API 调用。
 
 **关键特性:**
+
 - 支持 Vertex AI 的 `:rawPredict` 和 `:streamRawPredict` 端点
 - 使用 `api-key` header 进行认证
 - 自动转换 Gemini 请求格式到 Vertex Anthropic 格式
@@ -82,11 +83,13 @@
 为了正确获取模型的 API Key，系统会对不同类型的模型名称进行预处理：
 
 #### Gemini 模型
+
 - 原始名称: `gemini-3-pro-preview(low)`
 - 处理后: `gemini-3-pro-preview`
 - 规则: 去除括号内的思考等级后缀
 
 #### Claude 模型
+
 - 原始名称: `claude-opus-4-5@20251101`
 - 处理后: `claude-opus-4-5`
 - 规则: 去除 `@` 符号及后面的版本号

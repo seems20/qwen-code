@@ -412,12 +412,12 @@ export async function runNonInteractive(
       process.removeListener('SIGTERM', shutdownHandler);
       if (isTelemetrySdkInitialized()) {
         if (config) {
-        await shutdownTelemetry(config);
-      } else {
-        // Fallback for cases where config initialization failed early
-        // but we still want to attempt a clean shutdown if possible.
-        // If shutdownTelemetry strictly requires a Config, we might need a dummy config here.
-      }
+          await shutdownTelemetry(config);
+        } else {
+          // Fallback for cases where config initialization failed early
+          // but we still want to attempt a clean shutdown if possible.
+          // If shutdownTelemetry strictly requires a Config, we might need a dummy config here.
+        }
       }
     }
   });

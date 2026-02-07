@@ -86,7 +86,7 @@ describe('RedocFetchTool', () => {
       // 这里只验证工具能正常创建
       const tool = new RedocFetchTool(mockConfig);
       expect(tool.name).toBe('redoc_fetch');
-      
+
       // 实际测试需要 mock fetch 和完整的文档结构
       // 留待集成测试验证嵌套图片提取功能
     });

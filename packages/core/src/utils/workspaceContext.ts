@@ -98,7 +98,7 @@ export class WorkspaceContext {
       this.directories.delete(resolved);
       this.notifyDirectoriesChanged();
     } catch (err) {
-      console.warn(
+      debugLogger.warn(
         `[WARN] Failed to remove directory: ${directory} (${err instanceof Error ? err.message : String(err)})`,
       );
       throw err;

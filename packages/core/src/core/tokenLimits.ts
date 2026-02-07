@@ -21,6 +21,7 @@ const LIMITS = {
   '64k': 65_536,
   '128k': 131_072,
   '200k': 200_000, // vendor-declared decimal, used by OpenAI, Anthropic, GLM etc.
+  '272k': 272_000, // gpt-5-codex context window
   '256k': 262_144,
   '512k': 524_288,
   '1m': 1_048_576,
@@ -102,6 +103,12 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   [/^gpt-4o-mini.*$/, LIMITS['128k']],
   [/^gpt-4o.*$/, LIMITS['128k']],
   [/^gpt-4.*$/, LIMITS['128k']],
+
+  // -------------------
+  // GPT-5 / Codex
+  // -------------------
+  [/^gpt-?5-codex.*$/, LIMITS['272k']],
+  [/^.*codex.*$/, LIMITS['272k']],
 
   // -------------------
   // Anthropic Claude

@@ -143,6 +143,7 @@ describe('DeepSeekOpenAICompatibleProvider', () => {
       const result = provider.buildRequest(originalRequest, userPromptId);
 
       expect(result).toHaveProperty('chat_template_kwargs');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result as any).chat_template_kwargs).toEqual({
         thinking: true,
       });

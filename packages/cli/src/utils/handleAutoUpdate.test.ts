@@ -100,8 +100,7 @@ describe('handleAutoUpdate', () => {
     mockSettings.merged.general!.enableAutoUpdate = false;
     mockGetInstallationInfo.mockReturnValue({
       updateCommand: 'npm i -g @rdmind/rdmind@latest',
-      updateMessage:
-        'Please run npm i -g @rdmind/rdmind@latest to update',
+      updateMessage: 'Please run npm i -g @rdmind/rdmind@latest to update',
       isGlobal: true,
       packageManager: PackageManager.NPM,
     });

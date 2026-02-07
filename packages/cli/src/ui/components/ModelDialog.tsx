@@ -24,8 +24,7 @@ import { DescriptiveRadioButtonSelect } from './shared/DescriptiveRadioButtonSel
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { UIStateContext, type UIState } from '../contexts/UIStateContext.js';
 import { useUIActions } from '../contexts/UIActionsContext.js';
-import { useSettings } from '../contexts/SettingsContext.js';
-import { SettingsContext } from '../contexts/SettingsContext.js';
+import { useSettings, SettingsContext } from '../contexts/SettingsContext.js';
 import { MAINLINE_CODER } from '../models/availableModels.js';
 import { OpenAIKeyPrompt } from './OpenAIKeyPrompt.js';
 import { XhsSsoModelConfigFlow } from './XhsSsoModelConfigFlow.js';
@@ -296,29 +295,13 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     [config, settings, onClose, uiActions],
   );
 
-  // For OpenAI auth type, show configuration prompt
-  if (authType === AuthType.USE_OPENAI) {
-    return (
-      <OpenAIKeyPrompt onSubmit={handleOpenAIConfigSubmit} onCancel={onClose} />
-    );
-  }
-
-  // For XHS SSO auth type, show multi-level configuration menu
-  if (authType === AuthType.XHS_SSO) {
-    const credentials = readSSOCredentialsSync();
-    const rdmindSsoId = credentials?.rdmind_sso_id || null;
-
-    return (
-      <XhsSsoModelConfigFlow
-        onComplete={handleXhsSsoConfigComplete}
-        onCancel={onClose}
-        rdmindSsoId={rdmindSsoId}
-      />
-    );
-  }
-
   // For other auth types, show the original model selection
+  // Note: Hooks must be called before any early returns
   const availableModelEntries = useMemo(() => {
+    // Skip processing for OpenAI and XHS_SSO auth types
+    if (authType === AuthType.USE_OPENAI || authType === AuthType.XHS_SSO) {
+      return [];
+    }
     const allModels = config ? config.getAllConfiguredModels() : [];
 
     // Separate runtime models from registry models
@@ -376,7 +359,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     }
 
     return result;
-  }, [config]);
+  }, [config, authType]);
 
   const MODEL_OPTIONS = useMemo(
     () =>
@@ -532,6 +515,27 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   );
 
   const hasModels = MODEL_OPTIONS.length > 0;
+
+  // For OpenAI auth type, show configuration prompt
+  if (authType === AuthType.USE_OPENAI) {
+    return (
+      <OpenAIKeyPrompt onSubmit={handleOpenAIConfigSubmit} onCancel={onClose} />
+    );
+  }
+
+  // For XHS SSO auth type, show multi-level configuration menu
+  if (authType === AuthType.XHS_SSO) {
+    const credentials = readSSOCredentialsSync();
+    const rdmindSsoId = credentials?.rdmind_sso_id || null;
+
+    return (
+      <XhsSsoModelConfigFlow
+        onComplete={handleXhsSsoConfigComplete}
+        onCancel={onClose}
+        rdmindSsoId={rdmindSsoId}
+      />
+    );
+  }
 
   return (
     <Box

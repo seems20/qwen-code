@@ -9,6 +9,7 @@ import { logs } from '@opentelemetry/api-logs';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import type { Config } from '../config/config.js';
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
 import {
   EVENT_API_ERROR,
   EVENT_API_CANCEL,
@@ -93,6 +94,8 @@ import type {
 } from './types.js';
 import type { UiEvent } from './uiTelemetry.js';
 import { uiTelemetryService } from './uiTelemetry.js';
+
+const debugLogger = createDebugLogger('loggers');
 
 const shouldLogUserPrompts = (config: Config): boolean =>
   config.getTelemetryLogPromptsEnabled();
@@ -441,10 +444,10 @@ export function logApiResponse(config: Config, event: ApiResponseEvent): void {
       // 在调试模式下输出详细错误，否则至少输出一条警告
       const isDebugMode = config.getDebugMode && config.getDebugMode();
       if (isDebugMode) {
-        console.error('[loggers] Token 使用量上报模块加载失败:', error);
+        debugLogger.error('[loggers] Token 使用量上报模块加载失败:', error);
       } else {
         // 即使非调试模式，也输出一条警告，确保用户知道上报功能可能未启用
-        console.warn(
+        debugLogger.warn(
           '[loggers] Token 使用量上报模块加载失败，上报功能可能不可用',
         );
       }

@@ -124,8 +124,8 @@ async function getGeminiMdFilePathsInternalForEachDir(
   fileService: FileDiscoveryService,
   extensionContextFilePaths: string[] = [],
   folderTrust: boolean,
-  fileFilteringOptions?: FileFilteringOptions,
-  maxDirs?: number,
+  _fileFilteringOptions?: FileFilteringOptions,
+  _maxDirs?: number,
 ): Promise<string[]> {
   const allPaths = new Set<string>();
   const geminiMdFilenames = getAllGeminiMdFilenames();

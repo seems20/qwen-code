@@ -9,6 +9,9 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { PALLAS_HTTP_BASE } from '../config/xhsApiConfig.js';
 import type { Config } from '../config/config.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('eventUsageReporter');
 
 // 声明全局 registerCleanup 函数类型
 declare global {
@@ -57,7 +60,7 @@ function isDebugEnabled(): boolean {
  */
 function debugLog(message: string, ...args: unknown[]): void {
   if (isDebugEnabled()) {
-    console.log(`[eventUsageReporter] ${message}`, ...args);
+    debugLogger.debug(`[eventUsageReporter] ${message}`, ...args);
   }
 }
 

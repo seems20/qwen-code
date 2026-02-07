@@ -9,6 +9,9 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { PALLAS_HTTP_BASE } from '../config/xhsApiConfig.js';
 import type { Config } from '../config/config.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('tokenUsageReporter');
 
 // 声明全局 registerCleanup 函数类型
 declare global {
@@ -65,7 +68,7 @@ function isDebugEnabled(): boolean {
  */
 function debugLog(message: string, ...args: unknown[]): void {
   if (isDebugEnabled()) {
-    console.log(`[tokenUsageReporter] ${message}`, ...args);
+    debugLogger.debug(`[tokenUsageReporter] ${message}`, ...args);
   }
 }
 
@@ -273,7 +276,7 @@ export class TokenUsageReporter {
 
       const rdmindSsoId = getRdmindSsoId();
       if (!rdmindSsoId) {
-        console.warn(
+        debugLogger.warn(
           `[tokenUsageReporter] ⚠️  rdmind_sso_id 不存在，跳过上报（${validItems.length} 条记录已放回队列）`,
         );
         debugLog('rdmind_sso_id 不存在，跳过上报');
@@ -297,7 +300,7 @@ export class TokenUsageReporter {
         if (this.queue.length + validItems.length > maxRetrySize) {
           const toKeep = maxRetrySize - this.queue.length;
           this.queue.unshift(...validItems.slice(-toKeep));
-          console.warn(
+          debugLogger.warn(
             `[tokenUsageReporter] 上报失败，队列已满，丢弃 ${validItems.length - toKeep} 条旧数据`,
           );
         } else {
@@ -306,7 +309,7 @@ export class TokenUsageReporter {
         }
       }
     } catch (error) {
-      console.error('[tokenUsageReporter] 上报异常:', error);
+      debugLogger.error('[tokenUsageReporter] 上报异常:', error);
       debugLog('上报异常详情:', error);
       // 异常情况下，将有效数据放回队列
       if (validItems.length > 0) {
@@ -383,7 +386,7 @@ export class TokenUsageReporter {
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');
-          console.error(
+          debugLogger.error(
             `[tokenUsageReporter] 上报失败，HTTP ${response.status}: ${errorText}`,
           );
           return false;
@@ -394,7 +397,7 @@ export class TokenUsageReporter {
         if (result.success === true) {
           return true;
         } else {
-          console.error(
+          debugLogger.error(
             `[tokenUsageReporter] 上报失败，服务器返回: ${result.message || 'Unknown error'}`,
           );
           return false;
@@ -402,17 +405,17 @@ export class TokenUsageReporter {
       } catch (fetchError: unknown) {
         clearTimeout(timeoutId);
         if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-          console.warn(
+          debugLogger.warn(
             `[tokenUsageReporter] 上报请求超时（${timeoutMs}ms），已取消`,
           );
           return false;
         }
         throw fetchError; // 重新抛出其他错误
       }
-      } catch (error) {
-        debugLog('上报请求异常:', error);
-        return false;
-      }
+    } catch (error) {
+      debugLog('上报请求异常:', error);
+      return false;
+    }
   }
 
   /**
@@ -450,11 +453,11 @@ export class TokenUsageReporter {
           debugLog('[tokenUsageReporter] 关闭时上报剩余数据完成');
         } catch (error) {
           if (error instanceof Error && error.message.includes('超时')) {
-            console.warn(
+            debugLogger.warn(
               `[tokenUsageReporter] 关闭时上报超时（${timeoutMs}ms），已取消上报`,
             );
           } else {
-            console.error(
+            debugLogger.error(
               '[tokenUsageReporter] 关闭时上报剩余数据失败:',
               error,
             );
@@ -463,7 +466,10 @@ export class TokenUsageReporter {
       } else {
         // 不等待完成（不推荐，可能导致数据丢失）
         this.flushWithTimeout(timeoutMs).catch((error) => {
-          console.error('[tokenUsageReporter] 关闭时上报剩余数据失败:', error);
+          debugLogger.error(
+            '[tokenUsageReporter] 关闭时上报剩余数据失败:',
+            error,
+          );
         });
       }
     }
@@ -516,7 +522,7 @@ export class TokenUsageReporter {
 
       const rdmindSsoId = getRdmindSsoId();
       if (!rdmindSsoId) {
-        console.warn(
+        debugLogger.warn(
           `[tokenUsageReporter] ⚠️  rdmind_sso_id 不存在，跳过上报（${validItems.length} 条记录已放回队列）`,
         );
         this.queue.unshift(...validItems);
@@ -543,7 +549,7 @@ export class TokenUsageReporter {
         debugLog(`上报失败，将 ${validItems.length} 条数据放回队列重试`);
       }
     } catch (error) {
-      console.error('[tokenUsageReporter] 上报异常:', error);
+      debugLogger.error('[tokenUsageReporter] 上报异常:', error);
       // 异常情况下，将有效数据放回队列
       if (validItems.length > 0) {
         this.queue.unshift(...validItems);

@@ -28,6 +28,9 @@ import {
 import { logApiError, logApiResponse } from '../telemetry/loggers.js';
 import { ApiErrorEvent, ApiResponseEvent } from '../telemetry/types.js';
 import { OpenAILogger } from '../utils/openaiLogger.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('vertexAnthropic');
 
 // Vertex AI Anthropic API 类型定义
 // Anthropic 内容块类型
@@ -107,7 +110,7 @@ interface VertexAnthropicResponse {
     type: string;
     text?: string;
     thinking?: string;
-    signature?: string;  // thinking 块的签名
+    signature?: string; // thinking 块的签名
     // tool_use 类型
     id?: string;
     name?: string;
@@ -170,7 +173,9 @@ class DefaultTelemetryService implements TelemetryService {
       context.duration,
       context.userPromptId,
       context.authType,
-      response.usageMetadata as GenerateContentResponseUsageMetadata | undefined,
+      response.usageMetadata as
+        | GenerateContentResponseUsageMetadata
+        | undefined,
     );
 
     logApiResponse(this.config, responseEvent);
@@ -186,7 +191,11 @@ class DefaultTelemetryService implements TelemetryService {
     request?: unknown,
   ): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const apiError = error as { requestID?: string; type?: string; code?: string | number };
+    const apiError = error as {
+      requestID?: string;
+      type?: string;
+      code?: string | number;
+    };
 
     const errorEvent = new ApiErrorEvent(
       apiError?.requestID || 'unknown',
@@ -248,10 +257,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
   private telemetryService: TelemetryService;
   private errorHandler: ErrorHandler;
 
-  constructor(
-    config: ContentGeneratorConfig,
-    cliConfig?: Config,
-  ) {
+  constructor(config: ContentGeneratorConfig, cliConfig?: Config) {
     this.baseUrl = config.baseUrl || '';
     this.apiKey = config.apiKey || '';
     this.samplingParams = config.samplingParams;
@@ -309,10 +315,10 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     };
 
     if (this.cliConfig?.getDebugMode()) {
-      console.debug(
+      debugLogger.debug(
         `[VertexAnthropicContentGenerator] Request URL: ${url}`,
       );
-      console.debug(
+      debugLogger.debug(
         `[VertexAnthropicContentGenerator] Request body:`,
         JSON.stringify(body, null, 2),
       );
@@ -328,7 +334,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     if (!response.ok) {
       const errorText = await response.text();
       if (this.cliConfig?.getDebugMode()) {
-        console.error(
+        debugLogger.error(
           `[VertexAnthropicContentGenerator] API Error (${response.status}):`,
           errorText,
         );
@@ -376,10 +382,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
 
         if (contentBlocks.length > 0) {
           // 如果只有一个文本块，使用简单字符串格式
-          if (
-            contentBlocks.length === 1 &&
-            contentBlocks[0].type === 'text'
-          ) {
+          if (contentBlocks.length === 1 && contentBlocks[0].type === 'text') {
             messages.push({ role, content: contentBlocks[0].text });
           } else {
             // 多个块或包含图片，使用数组格式
@@ -399,9 +402,9 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     // Anthropic 要求：max_tokens 必须大于 thinking.budget_tokens
     // 参考 SDK 版本默认值：max_tokens = 10_000，但 thinking 时需要更大的值
     // Claude 的输出上限是 128K，thinking 时建议 max_tokens = budget_tokens + 16_000
-    const defaultMaxTokens = thinking 
-      ? thinking.budget_tokens + 16_000  // 思考模式：budget + 16K 用于输出
-      : 10_000;                          // 非思考模式：与 SDK 保持一致
+    const defaultMaxTokens = thinking
+      ? thinking.budget_tokens + 16_000 // 思考模式：budget + 16K 用于输出
+      : 10_000; // 非思考模式：与 SDK 保持一致
     const maxTokens = this.samplingParams?.max_tokens ?? defaultMaxTokens;
 
     const vertexRequest: VertexAnthropicRequest = {
@@ -479,7 +482,9 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
   /**
    * 将 Gemini Part 数组转换为 Anthropic 内容块数组
    */
-  private convertPartsToAnthropicBlocks(parts: Part[]): AnthropicContentBlock[] {
+  private convertPartsToAnthropicBlocks(
+    parts: Part[],
+  ): AnthropicContentBlock[] {
     const blocks: AnthropicContentBlock[] = [];
 
     for (const part of parts) {
@@ -495,15 +500,21 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
   /**
    * 将单个 Gemini Part 转换为 Anthropic 内容块
    */
-  private convertPartToAnthropicBlock(part: Part): AnthropicContentBlock | null {
+  private convertPartToAnthropicBlock(
+    part: Part,
+  ): AnthropicContentBlock | null {
     // 处理思考块（assistant 的思考内容）
     if ('text' in part && 'thought' in part && part.thought) {
       const thinkingBlock: AnthropicContentBlock = {
         type: 'thinking',
         thinking: part.text || '',
       };
-      if ('thoughtSignature' in part && typeof part.thoughtSignature === 'string') {
-        (thinkingBlock as { signature?: string }).signature = part.thoughtSignature;
+      if (
+        'thoughtSignature' in part &&
+        typeof part.thoughtSignature === 'string'
+      ) {
+        (thinkingBlock as { signature?: string }).signature =
+          part.thoughtSignature;
       }
       return thinkingBlock;
     }
@@ -578,7 +589,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     if ('functionResponse' in part && part.functionResponse) {
       const response = part.functionResponse;
       let content: string | AnthropicContentBlock[];
-      
+
       if (response.response) {
         // 如果有 response 对象，序列化为 JSON
         content = JSON.stringify(response.response);
@@ -625,16 +636,20 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
 
     for (const tool of geminiTools) {
       // 处理 CallableTool（延迟加载的工具）
-      let actualTool: { functionDeclarations?: Array<{
-        name?: string;
-        description?: string;
-        parametersJsonSchema?: Record<string, unknown>;
-        parameters?: Record<string, unknown>;
-      }> };
+      let actualTool: {
+        functionDeclarations?: Array<{
+          name?: string;
+          description?: string;
+          parametersJsonSchema?: Record<string, unknown>;
+          parameters?: Record<string, unknown>;
+        }>;
+      };
 
       const toolObj = tool as Record<string, unknown>;
       if ('tool' in toolObj && typeof toolObj['tool'] === 'function') {
-        actualTool = await (toolObj['tool'] as () => Promise<typeof actualTool>)();
+        actualTool = await (
+          toolObj['tool'] as () => Promise<typeof actualTool>
+        )();
       } else {
         actualTool = tool as typeof actualTool;
       }
@@ -684,9 +699,13 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
       if (content.type === 'text' && content.text) {
         parts.push({ text: content.text } as Part);
       } else if (content.type === 'thinking' && content.thinking) {
-        const thinkingPart: Part = { text: content.thinking, thought: true } as Part;
+        const thinkingPart: Part = {
+          text: content.thinking,
+          thought: true,
+        } as Part;
         if (content.signature) {
-          (thinkingPart as { thoughtSignature?: string }).thoughtSignature = content.signature;
+          (thinkingPart as { thoughtSignature?: string }).thoughtSignature =
+            content.signature;
         }
         parts.push(thinkingPart);
       } else if (content.type === 'tool_use' && content.name && content.id) {
@@ -720,7 +739,8 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
       usageMetadata: {
         promptTokenCount: response.usage.input_tokens,
         candidatesTokenCount: response.usage.output_tokens,
-        totalTokenCount: response.usage.input_tokens + response.usage.output_tokens,
+        totalTokenCount:
+          response.usage.input_tokens + response.usage.output_tokens,
       },
     };
 
@@ -731,7 +751,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     if (!stopReason) {
       return undefined; // 流式传输中，没有 stop_reason 时返回 undefined
     }
-    
+
     switch (stopReason) {
       case 'end_turn':
         return FinishReason.STOP;
@@ -784,7 +804,12 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
 
       context.duration = Date.now() - startTime;
       const geminiResponse = this.convertVertexAnthropicResponseToGemini(data);
-      await this.telemetryService.logSuccess(context, geminiResponse, body, data);
+      await this.telemetryService.logSuccess(
+        context,
+        geminiResponse,
+        body,
+        data,
+      );
 
       return geminiResponse;
     } catch (error) {
@@ -810,7 +835,8 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
 
     try {
       const url = this.getRequestUrl('streamRawPredict');
-      const baseBody = await this.convertGeminiRequestToVertexAnthropic(request);
+      const baseBody =
+        await this.convertGeminiRequestToVertexAnthropic(request);
       const body = {
         ...baseBody,
         stream: true,
@@ -867,7 +893,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
 
     const lastResponse = responses[responses.length - 1];
     let combinedText = '';
-    
+
     for (const response of responses) {
       if (response.candidates && response.candidates[0]?.content?.parts) {
         for (const part of response.candidates[0].content.parts) {
@@ -913,7 +939,13 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     // 跟踪 content blocks 状态（用于处理 tool_use 和 thinking）
     const blocks = new Map<
       number,
-      { type: string; id?: string; name?: string; inputJson: string; signature: string }
+      {
+        type: string;
+        id?: string;
+        name?: string;
+        inputJson: string;
+        signature: string;
+      }
     >();
 
     try {
@@ -927,7 +959,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
 
         for (const line of lines) {
           const trimmedLine = line.trim();
-          
+
           if (!trimmedLine) {
             currentEvent = '';
             continue;
@@ -954,7 +986,8 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                     messageId = data.message.id ?? messageId;
                     model = data.message.model ?? model;
                     if (data.message.usage) {
-                      cachedTokens = data.message.usage.cache_read_input_tokens ?? 0;
+                      cachedTokens =
+                        data.message.usage.cache_read_input_tokens ?? 0;
                       promptTokens = data.message.usage.input_tokens ?? 0;
                     }
                   }
@@ -976,7 +1009,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                       : '';
 
                   if (this.cliConfig?.getDebugMode() && type === 'tool_use') {
-                    console.debug(
+                    debugLogger.debug(
                       `[VertexAnthropicContentGenerator] Tool use block start:`,
                       JSON.stringify({
                         index,
@@ -1008,7 +1041,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                 case 'content_block_delta': {
                   const deltaType = data.delta?.type;
                   const index = data.index ?? 0;
-                  
+
                   if (deltaType === 'text_delta' && data.delta?.text) {
                     const chunk = this.buildGeminiChunk(
                       { text: data.delta.text },
@@ -1016,32 +1049,44 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                       model,
                     );
                     yield chunk;
-                  } else if (deltaType === 'thinking_delta' && data.delta?.thinking) {
+                  } else if (
+                    deltaType === 'thinking_delta' &&
+                    data.delta?.thinking
+                  ) {
                     const chunk = this.buildGeminiChunk(
                       { text: data.delta.thinking, thought: true },
                       messageId,
                       model,
                     );
                     yield chunk;
-                  } else if (deltaType === 'input_json_delta' && data.delta?.partial_json) {
+                  } else if (
+                    deltaType === 'input_json_delta' &&
+                    data.delta?.partial_json
+                  ) {
                     // 累积 tool_use 的 JSON 输入
                     const blockState = blocks.get(index);
                     if (blockState) {
                       blockState.inputJson += data.delta.partial_json;
                       if (this.cliConfig?.getDebugMode()) {
-                        console.debug(
+                        debugLogger.debug(
                           `[VertexAnthropicContentGenerator] input_json_delta:`,
                           data.delta.partial_json,
                         );
                       }
                     }
-                  } else if (deltaType === 'signature_delta' && data.delta?.signature) {
+                  } else if (
+                    deltaType === 'signature_delta' &&
+                    data.delta?.signature
+                  ) {
                     // 累积 thinking 块的签名
                     const blockState = blocks.get(index);
                     if (blockState) {
                       blockState.signature += data.delta.signature;
                       const chunk = this.buildGeminiChunk(
-                        { thought: true, thoughtSignature: data.delta.signature },
+                        {
+                          thought: true,
+                          thoughtSignature: data.delta.signature,
+                        },
                         messageId,
                         model,
                       );
@@ -1056,10 +1101,13 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                   const index = data.index ?? 0;
                   const blockState = blocks.get(index);
                   if (blockState?.type === 'tool_use') {
-                    const args = this.safeJsonParse(blockState.inputJson || '{}', {});
+                    const args = this.safeJsonParse(
+                      blockState.inputJson || '{}',
+                      {},
+                    );
 
                     if (this.cliConfig?.getDebugMode()) {
-                      console.debug(
+                      debugLogger.debug(
                         `[VertexAnthropicContentGenerator] Tool use block stop:`,
                         JSON.stringify({
                           index,
@@ -1107,7 +1155,8 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                         cachedContentTokenCount: cachedTokens,
                         promptTokenCount: cachedTokens + promptTokens,
                         candidatesTokenCount: completionTokens,
-                        totalTokenCount: cachedTokens + promptTokens + completionTokens,
+                        totalTokenCount:
+                          cachedTokens + promptTokens + completionTokens,
                       },
                     );
                     yield chunk;
@@ -1127,7 +1176,8 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
                         cachedContentTokenCount: cachedTokens,
                         promptTokenCount: cachedTokens + promptTokens,
                         candidatesTokenCount: completionTokens,
-                        totalTokenCount: cachedTokens + promptTokens + completionTokens,
+                        totalTokenCount:
+                          cachedTokens + promptTokens + completionTokens,
                       },
                     );
                     yield chunk;
@@ -1140,7 +1190,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
               }
             } catch (error) {
               if (this.cliConfig?.getDebugMode()) {
-                console.error(
+                debugLogger.error(
                   `[VertexAnthropicContentGenerator] Failed to parse SSE data:`,
                   dataStr,
                   error,
@@ -1200,7 +1250,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
         candidateParts = [part as unknown as Part];
       }
     }
-    const mappedFinishReason = finishReason 
+    const mappedFinishReason = finishReason
       ? this.mapFinishReason(finishReason)
       : undefined;
 

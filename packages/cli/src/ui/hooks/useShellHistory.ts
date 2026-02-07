@@ -7,11 +7,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import {
-  createDebugLogger,
-  isNodeError,
-  Storage,
-} from '@rdmind/rdmind-core';
+import { createDebugLogger, isNodeError, Storage } from '@rdmind/rdmind-core';
 
 const MAX_HISTORY_LENGTH = 100;
 const debugLogger = createDebugLogger('SHELL_HISTORY');

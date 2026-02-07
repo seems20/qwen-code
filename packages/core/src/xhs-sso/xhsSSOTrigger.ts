@@ -10,6 +10,9 @@ import {
   PALLAS_HTTP_BASE,
   RDMIND_SSO_WEB_URL,
 } from '../config/xhsApiConfig.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('xhsSSOTrigger');
 
 /**
  * 触发 SSO 认证流程
@@ -27,8 +30,8 @@ export async function triggerSSOAuth(
   const apiUrl = `${PALLAS_HTTP_BASE}/pallas/rdmind/cli/rdmind-sso-id?socketId=${encodeURIComponent(socketId)}`;
 
   if (debug) {
-    console.debug('[XHS-SSO-Trigger] 步骤1：调用 API 获取 request_sso_id');
-    console.debug('[XHS-SSO-Trigger] API URL:', apiUrl);
+    debugLogger.debug('[XHS-SSO-Trigger] 步骤1：调用 API 获取 request_sso_id');
+    debugLogger.debug('[XHS-SSO-Trigger] API URL:', apiUrl);
   }
 
   // 调用 API 获取 request_sso_id
@@ -76,8 +79,11 @@ export async function triggerSSOAuth(
   }
 
   if (debug) {
-    console.debug('[XHS-SSO-Trigger] ✅ 获取到 request_sso_id:', requestSsoId);
-    console.debug('[XHS-SSO-Trigger] 步骤2：打开浏览器');
+    debugLogger.debug(
+      '[XHS-SSO-Trigger] ✅ 获取到 request_sso_id:',
+      requestSsoId,
+    );
+    debugLogger.debug('[XHS-SSO-Trigger] 步骤2：打开浏览器');
   }
 
   // 构建绑定 URL
@@ -87,15 +93,15 @@ export async function triggerSSOAuth(
   try {
     await openBrowserSecurely(bindUrl);
     if (debug) {
-      console.debug('[XHS-SSO-Trigger] ✅ 浏览器已打开:', bindUrl);
+      debugLogger.debug('[XHS-SSO-Trigger] ✅ 浏览器已打开:', bindUrl);
     }
   } catch (browserError) {
     // 非致命错误，用户可以手动打开
-    console.warn(
+    debugLogger.warn(
       '[XHS-SSO-Trigger] ⚠️ 无法自动打开浏览器，请手动访问:',
       bindUrl,
     );
-    console.warn(
+    debugLogger.warn(
       '[XHS-SSO-Trigger] 错误:',
       browserError instanceof Error
         ? browserError.message

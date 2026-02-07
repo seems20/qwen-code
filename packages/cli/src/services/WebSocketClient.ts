@@ -9,7 +9,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { setSocketId } from './websocketSocketId.js';
-import { ssoAuthEvents, saveSSOCredentials, createDebugLogger } from '@rdmind/rdmind-core';
+import {
+  ssoAuthEvents,
+  saveSSOCredentials,
+  createDebugLogger,
+} from '@rdmind/rdmind-core';
 import { syncPlugins, setDebugMode } from '../core/pluginSync.js';
 
 const debugLogger = createDebugLogger('WEBSOCKET_CLIENT');
@@ -304,7 +308,9 @@ export class WebSocketClient {
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
               // 心跳响应日志只在debug模式下输出，避免日志过多
               if (this.options.debug) {
-                debugLogger.debug(`[ws-send:server_heart_pong] ${serverHeartPong}`);
+                debugLogger.debug(
+                  `[ws-send:server_heart_pong] ${serverHeartPong}`,
+                );
               }
               this.ws.send(serverHeartPong);
             }
@@ -413,7 +419,9 @@ export class WebSocketClient {
 
       // 保存完成后，重新发起 auth 请求，携带新的 rdmind_sso_id
       if (this.options.debug) {
-        debugLogger.debug('[ws] 🔄 重新发送 auth 请求，携带新的 rdmind_sso_id...');
+        debugLogger.debug(
+          '[ws] 🔄 重新发送 auth 请求，携带新的 rdmind_sso_id...',
+        );
       }
       this.sendAuth(this.options.registrationPayload, rdmindSsoId);
     } catch (err) {
@@ -488,7 +496,9 @@ export class WebSocketClient {
     const attempt = this.reconnectAttempts++;
     const delay = Math.min(30_000, retryBaseDelayMs * Math.pow(2, attempt));
     if (this.options.debug) {
-      debugLogger.debug(`[ws] reconnecting in ${delay}ms (attempt ${attempt + 1})`);
+      debugLogger.debug(
+        `[ws] reconnecting in ${delay}ms (attempt ${attempt + 1})`,
+      );
     }
     this.reconnectTimer = setTimeout(() => this.connect(), delay);
   }

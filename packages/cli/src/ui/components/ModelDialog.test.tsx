@@ -11,7 +11,10 @@ import { useKeypress } from '../hooks/useKeypress.js';
 import { DescriptiveRadioButtonSelect } from './shared/DescriptiveRadioButtonSelect.js';
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { SettingsContext } from '../contexts/SettingsContext.js';
-import { UIActionsContext } from '../contexts/UIActionsContext.js';
+import {
+  UIActionsContext,
+  type UIActions,
+} from '../contexts/UIActionsContext.js';
 import type { Config } from '@rdmind/rdmind-core';
 import { AuthType } from '@rdmind/rdmind-core';
 import type { LoadedSettings } from '../../config/settings.js';
@@ -83,7 +86,7 @@ const renderComponent = (
   } as unknown as Config;
 
   const renderResult = render(
-    <UIActionsContext.Provider value={mockUIActions as any}>
+    <UIActionsContext.Provider value={mockUIActions as unknown as UIActions}>
       <SettingsContext.Provider value={mockSettings}>
         <ConfigContext.Provider value={mockConfig}>
           <ModelDialog {...combinedProps} />
@@ -322,7 +325,7 @@ describe('<ModelDialog />', () => {
       refreshStatic: vi.fn(),
     };
     const { rerender } = render(
-      <UIActionsContext.Provider value={mockUIActions as any}>
+      <UIActionsContext.Provider value={mockUIActions as unknown as UIActions}>
         <SettingsContext.Provider value={mockSettings}>
           <ConfigContext.Provider
             value={
@@ -363,7 +366,7 @@ describe('<ModelDialog />', () => {
     } as unknown as Config;
 
     rerender(
-      <UIActionsContext.Provider value={mockUIActions as any}>
+      <UIActionsContext.Provider value={mockUIActions as unknown as UIActions}>
         <SettingsContext.Provider value={mockSettings}>
           <ConfigContext.Provider value={newMockConfig}>
             <ModelDialog onClose={vi.fn()} />

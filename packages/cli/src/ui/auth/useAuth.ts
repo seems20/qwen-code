@@ -420,10 +420,10 @@ export const useAuthCommand = (
       performAuth,
       isProviderManagedModel,
       onAuthError,
-      settings.merged.model?.generationConfig,
       onAuthChange,
       addItem,
       settings,
+      handleAuthFailure,
     ],
   );
 

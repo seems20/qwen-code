@@ -62,6 +62,7 @@ describe('VertexAnthropicContentGenerator', () => {
 
   it('should throw error for embedContent', async () => {
     const generator = new VertexAnthropicContentGenerator(config);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await expect(generator.embedContent({} as any)).rejects.toThrow(
       'Vertex Anthropic does not support embeddings',
     );

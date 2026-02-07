@@ -639,16 +639,16 @@ export async function start_sandbox(
     args.push('--env', `COLORTERM=${process.env['COLORTERM']}`);
   }
 
-    // Pass through IDE mode environment variables
-    for (const envVar of [
-      'RDMIND_CODE_IDE_SERVER_PORT',
-      'RDMIND_CODE_IDE_WORKSPACE_PATH',
-      'TERM_PROGRAM',
-    ]) {
-      if (process.env[envVar]) {
-        args.push('--env', `${envVar}=${process.env[envVar]}`);
-      }
+  // Pass through IDE mode environment variables
+  for (const envVar of [
+    'RDMIND_CODE_IDE_SERVER_PORT',
+    'RDMIND_CODE_IDE_WORKSPACE_PATH',
+    'TERM_PROGRAM',
+  ]) {
+    if (process.env[envVar]) {
+      args.push('--env', `${envVar}=${process.env[envVar]}`);
     }
+  }
 
   // copy VIRTUAL_ENV if under working directory
   // also mount-replace VIRTUAL_ENV directory with <project_settings>/sandbox.venv

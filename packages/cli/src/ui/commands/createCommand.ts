@@ -14,6 +14,9 @@ import { MessageType } from '../types.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { createDebugLogger } from '@rdmind/rdmind-core';
+
+const debugLogger = createDebugLogger('createCommand');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -510,7 +513,7 @@ ${projectName}/
       try {
         fs.rmSync(targetPath, { recursive: true, force: true });
       } catch (cleanupError) {
-        console.warn(
+        debugLogger.warn(
           'Warning: Could not clean up failed project creation:',
           cleanupError,
         );
@@ -734,7 +737,7 @@ ${projectDirectoryName}/
       try {
         fs.rmSync(targetPath, { recursive: true, force: true });
       } catch (cleanupError) {
-        console.warn(
+        debugLogger.warn(
           'Warning: Could not clean up failed project creation:',
           cleanupError,
         );
