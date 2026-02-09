@@ -5,7 +5,7 @@
  */
 
 /**
- * Converter for Gemini CLI extensions to Qwen Code format.
+ * Converter for Gemini extensions to RDMind format.
  */
 
 import * as fs from 'node:fs';
@@ -28,9 +28,9 @@ export interface GeminiExtensionConfig {
 }
 
 /**
- * Converts a Gemini CLI extension config to Qwen Code format.
+ * Converts a Gemini extension config to RDMind format.
  * @param extensionDir Path to the Gemini extension directory
- * @returns Qwen ExtensionConfig
+ * @returns RDMind ExtensionConfig
  */
 export function convertGeminiToQwenConfig(
   extensionDir: string,
@@ -58,7 +58,7 @@ export function convertGeminiToQwenConfig(
 }
 
 /**
- * Converts a complete Gemini extension package to Qwen Code format.
+ * Converts a complete Gemini extension package to RDMind format.
  * Creates a new temporary directory with:
  * 1. Converted rdmind-extension.json
  * 2. Commands converted from TOML to MD

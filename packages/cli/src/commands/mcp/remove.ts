@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// File for 'gemini mcp remove' command
+// File for 'rdmind mcp remove' command
 import type { CommandModule } from 'yargs';
 import { loadSettings, SettingScope } from '../../config/settings.js';
 import { writeStdoutLine } from '../../utils/stdioHelpers.js';
+import { MCPOAuthTokenStorage } from '@rdmind/rdmind-core';
 
 async function removeMcpServer(
   name: string,
@@ -32,25 +33,33 @@ async function removeMcpServer(
 
   settings.setValue(settingsScope, 'mcpServers', mcpServers);
 
+  // Clean up any stored OAuth tokens for this server
+  try {
+    const tokenStorage = new MCPOAuthTokenStorage();
+    await tokenStorage.deleteCredentials(name);
+  } catch {
+    // Token cleanup is best-effort; don't fail the remove operation
+  }
+
   writeStdoutLine(`Server "${name}" removed from ${scope} settings.`);
 }
 
 export const removeCommand: CommandModule = {
   command: 'remove <name>',
-  describe: '移除 MCP 服务',
+  describe: 'Remove a server',
   builder: (yargs) =>
     yargs
-      .usage('使用方法: rdmind mcp remove [options] <name>')
+      .usage('Usage: rdmind mcp remove [options] <name>')
       .positional('name', {
-        describe: 'MCP 服务名称',
+        describe: 'Name of the server',
         type: 'string',
         demandOption: true,
       })
       .option('scope', {
         alias: 's',
-        describe: '配置范围（user 或 project）',
+        describe: 'Configuration scope (user or project)',
         type: 'string',
-        default: 'project',
+        default: 'user',
         choices: ['user', 'project'],
       }),
   handler: async (argv) => {
