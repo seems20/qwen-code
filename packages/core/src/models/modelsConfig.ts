@@ -943,6 +943,17 @@ export class ModelsConfig {
             detail: 'auth refresh (preserved credentials)',
           };
         }
+        // Auto-detect contextWindowSize if not set, so that context usage can be displayed
+        if (!this._generationConfig.contextWindowSize) {
+          this._generationConfig.contextWindowSize = tokenLimit(
+            modelId,
+            'input',
+          );
+          this.generationConfigSources['contextWindowSize'] = {
+            kind: 'computed',
+            detail: 'auto-detected from model',
+          };
+        }
       }
       return;
     }
@@ -965,6 +976,14 @@ export class ModelsConfig {
         this.generationConfigSources['model'] = {
           kind: 'programmatic',
           detail: 'auth refresh (no default model)',
+        };
+      }
+      // Auto-detect contextWindowSize if not set, so that context usage can be displayed
+      if (!this._generationConfig.contextWindowSize) {
+        this._generationConfig.contextWindowSize = tokenLimit(modelId, 'input');
+        this.generationConfigSources['contextWindowSize'] = {
+          kind: 'computed',
+          detail: 'auto-detected from model',
         };
       }
     }
