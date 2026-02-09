@@ -207,7 +207,7 @@ const renderDiffContent = (
     );
   }
 
-  const showLineNumbers = settings?.merged.ui?.showLineNumbers ?? true;
+  const showLineNumbers = settings?.merged.ui?.showLineNumbers ?? false;
 
   const maxLineNumber = Math.max(
     0,
