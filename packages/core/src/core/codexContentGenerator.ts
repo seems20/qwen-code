@@ -41,7 +41,12 @@ interface CodexMessage {
   name?: string;
   arguments?: string;
   call_id?: string;
-  content?: string | Array<{ type: 'input_text'; text: string } | { type: 'input_image'; image_url: string }>;
+  content?:
+    | string
+    | Array<
+        | { type: 'input_text'; text: string }
+        | { type: 'input_image'; image_url: string }
+      >;
   output?: string;
 }
 
@@ -252,7 +257,9 @@ export class CodexContentGenerator implements ContentGenerator {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Codex API request failed: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Codex API request failed: ${response.status} - ${errorText}`,
+      );
     }
 
     return response;
@@ -263,11 +270,15 @@ export class CodexContentGenerator implements ContentGenerator {
     stream = false,
   ): Promise<CodexRequest> {
     const model = extractBaseModel(request.model);
-    const reasoningEffort = extractReasoningEffort(request.model) ||
+    const reasoningEffort =
+      extractReasoningEffort(request.model) ||
       (typeof this.reasoning === 'object' ? this.reasoning?.effort : 'medium');
 
     // 构建输入消息
-    const input = buildCodexInput(request.contents, request.config?.systemInstruction);
+    const input = buildCodexInput(
+      request.contents,
+      request.config?.systemInstruction,
+    );
 
     // 构建请求体
     const codexRequest: CodexRequest = {
@@ -307,7 +318,10 @@ export class CodexContentGenerator implements ContentGenerator {
     let currentEvent: CodexEventType | '' = '';
 
     // 用于累积工具调用参数
-    const toolCallArgs: Map<number, { id?: string; name?: string; args: string }> = new Map();
+    const toolCallArgs: Map<
+      number,
+      { id?: string; name?: string; args: string }
+    > = new Map();
 
     try {
       while (true) {
@@ -426,8 +440,10 @@ export class CodexContentGenerator implements ContentGenerator {
                 promptTokenCount: response.usage.input_tokens,
                 candidatesTokenCount: response.usage.output_tokens,
                 totalTokenCount: response.usage.total_tokens,
-                cachedContentTokenCount: response.usage.input_tokens_details?.cached_tokens,
-                thoughtsTokenCount: response.usage.output_tokens_details?.reasoning_tokens,
+                cachedContentTokenCount:
+                  response.usage.input_tokens_details?.cached_tokens,
+                thoughtsTokenCount:
+                  response.usage.output_tokens_details?.reasoning_tokens,
               }
             : undefined,
         );
@@ -456,7 +472,9 @@ export class CodexContentGenerator implements ContentGenerator {
       context.duration,
       context.userPromptId,
       context.authType,
-      response.usageMetadata as GenerateContentResponseUsageMetadata | undefined,
+      response.usageMetadata as
+        | GenerateContentResponseUsageMetadata
+        | undefined,
     );
     logApiResponse(this.cliConfig, event);
 
@@ -473,7 +491,11 @@ export class CodexContentGenerator implements ContentGenerator {
     if (!this.cliConfig) return;
 
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const apiError = error as { requestID?: string; type?: string; code?: string | number };
+    const apiError = error as {
+      requestID?: string;
+      type?: string;
+      code?: string | number;
+    };
 
     const event = new ApiErrorEvent(
       apiError?.requestID || 'unknown',
@@ -522,7 +544,9 @@ function extractBaseModel(model: string): string {
   return match ? match[1] : model;
 }
 
-function extractReasoningEffort(model: string): 'low' | 'medium' | 'high' | undefined {
+function extractReasoningEffort(
+  model: string,
+): 'low' | 'medium' | 'high' | undefined {
   const match = model.match(/^(.+?)\((\w+)\)$/);
   if (!match) return undefined;
 
@@ -585,7 +609,7 @@ function convertContentToCodexMessages(content: unknown): CodexMessage[] {
 
   // 处理 parts 数组
   if ('parts' in obj && Array.isArray(obj['parts'])) {
-    const parts = obj['parts'] as Array<unknown>;
+    const parts = obj['parts'] as unknown[];
 
     for (const part of parts) {
       if (typeof part !== 'object' || !part) continue;
@@ -625,9 +649,10 @@ function convertContentToCodexMessages(content: unknown): CodexMessage[] {
           response: unknown;
         };
 
-        const output = typeof funcResp.response === 'string'
-          ? funcResp.response
-          : JSON.stringify(funcResp.response);
+        const output =
+          typeof funcResp.response === 'string'
+            ? funcResp.response
+            : JSON.stringify(funcResp.response);
 
         messages.push({
           type: 'function_call_output',
@@ -685,9 +710,7 @@ function convertInlineDataToCodexMessage(inlineData: {
     return {
       role: 'user',
       type: 'message',
-      content: [
-        { type: 'input_image', image_url: dataUrl },
-      ],
+      content: [{ type: 'input_image', image_url: dataUrl }],
     };
   }
 
@@ -733,9 +756,7 @@ function convertFileDataToCodexMessage(fileData: {
     return {
       role: 'user',
       type: 'message',
-      content: [
-        { type: 'input_image', image_url: fileUri },
-      ],
+      content: [{ type: 'input_image', image_url: fileUri }],
     };
   }
 
@@ -798,7 +819,9 @@ function extractTextFromContent(content: unknown): string {
   return '';
 }
 
-async function convertTools(toolList: unknown[] | undefined): Promise<CodexTool[]> {
+async function convertTools(
+  toolList: unknown[] | undefined,
+): Promise<CodexTool[]> {
   if (!toolList || toolList.length === 0) {
     return [];
   }
@@ -825,7 +848,9 @@ async function convertTools(toolList: unknown[] | undefined): Promise<CodexTool[
       if (func.parametersJsonSchema) {
         parameters = func.parametersJsonSchema as Record<string, unknown>;
       } else if (func.parameters) {
-        parameters = convertGeminiSchemaToOpenAI(func.parameters as Record<string, unknown>);
+        parameters = convertGeminiSchemaToOpenAI(
+          func.parameters as Record<string, unknown>,
+        );
       }
 
       tools.push({
@@ -865,18 +890,26 @@ function convertGeminiSchemaToOpenAI(
   return convertTypes(converted) as Record<string, unknown>;
 }
 
-function convertCodexResponseToGemini(response: CodexResponse): GenerateContentResponse {
+function convertCodexResponseToGemini(
+  response: CodexResponse,
+): GenerateContentResponse {
   const parts: Part[] = [];
 
   if (response.output && Array.isArray(response.output)) {
     for (const item of response.output) {
       if (item.type === 'reasoning' && item.summary) {
-        const text = item.summary.map((s) => s.text).filter(Boolean).join('');
+        const text = item.summary
+          .map((s) => s.text)
+          .filter(Boolean)
+          .join('');
         if (text) {
           parts.push({ text, thought: true } as Part);
         }
       } else if (item.type === 'message' && item.content) {
-        const text = item.content.map((c) => c.text).filter(Boolean).join('');
+        const text = item.content
+          .map((c) => c.text)
+          .filter(Boolean)
+          .join('');
         if (text) {
           parts.push({ text });
         }
@@ -906,8 +939,10 @@ function convertCodexResponseToGemini(response: CodexResponse): GenerateContentR
           promptTokenCount: response.usage.input_tokens,
           candidatesTokenCount: response.usage.output_tokens,
           totalTokenCount: response.usage.total_tokens,
-          cachedContentTokenCount: response.usage.input_tokens_details?.cached_tokens,
-          thoughtsTokenCount: response.usage.output_tokens_details?.reasoning_tokens,
+          cachedContentTokenCount:
+            response.usage.input_tokens_details?.cached_tokens,
+          thoughtsTokenCount:
+            response.usage.output_tokens_details?.reasoning_tokens,
         }
       : undefined,
   );

@@ -10,6 +10,9 @@
 export GIT_PAGER=cat
 export PAGER=cat
 
+# Enable pipefail to catch errors in pipelines
+set -o pipefail
+
 # Function to display usage
 usage() {
     echo "Usage: $0 [OPTIONS]"
@@ -26,7 +29,7 @@ SOURCE="unknown"
 while [[ $# -gt 0 ]]; do
     case $1 in
         -s|--source)
-            if [ -z "$2" ] || [[ "$2" == -* ]]; then
+            if [[ -z "$2" ]] || [[ "$2" == -* ]]; then
                 echo "Error: --source requires a value"
                 usage
             fi
@@ -56,16 +59,16 @@ install_nodejs() {
     if command_exists node; then
         NODE_VERSION=$(node --version)
         # Extract major version number (remove 'v' prefix and get first number)
-        NODE_MAJOR_VERSION=$(echo "$NODE_VERSION" | sed 's/v//' | cut -d'.' -f1)
+        NODE_MAJOR_VERSION=$(echo "${NODE_VERSION}" | sed 's/v//' | cut -d'.' -f1) || true
 
         # Check if NODE_MAJOR_VERSION is a valid number
-        if ! [[ "$NODE_MAJOR_VERSION" =~ ^[0-9]+$ ]]; then
-            echo "⚠ Could not parse Node.js version: $NODE_VERSION"
+        if ! [[ "${NODE_MAJOR_VERSION}" =~ ^[0-9]+$ ]]; then
+            echo "⚠ Could not parse Node.js version: ${NODE_VERSION}"
             echo "Installing Node.js 20+..."
             install_nodejs_via_nvm
-        elif [ "$NODE_MAJOR_VERSION" -ge 20 ]; then
-            echo "✓ Node.js is already installed: $NODE_VERSION"
-
+        elif [[ "${NODE_MAJOR_VERSION}" -ge 20 ]]; then
+            echo "✓ Node.js is already installed: ${NODE_VERSION}"
+            
             # Check npm after confirming Node.js exists
             if ! command_exists npm; then
                 echo "⚠ npm not found, installing npm..."
@@ -77,9 +80,8 @@ install_nodejs() {
                     exit 1
                 fi
             else
-                NPM_VERSION=$(npm --version 2>/dev/null)
-                if [ $? -eq 0 ] && [ -n "$NPM_VERSION" ]; then
-                    echo "✓ npm v$NPM_VERSION is available"
+                if NPM_VERSION=$(npm --version 2>/dev/null) && [[ -n "${NPM_VERSION}" ]]; then
+                    echo "✓ npm v${NPM_VERSION} is available"
                 else
                     echo "⚠ npm exists but cannot execute, reinstalling..."
                     if install_npm_only; then
@@ -93,7 +95,7 @@ install_nodejs() {
 
             return 0
         else
-            echo "⚠ Node.js $NODE_VERSION is installed, but RDMind requires Node.js 20+"
+            echo "⚠ Node.js ${NODE_VERSION} is installed, but RDMind requires Node.js 20+"
             echo "Installing Node.js 20+..."
             install_nodejs_via_nvm
         fi
@@ -105,18 +107,19 @@ install_nodejs() {
 
 # Function to check if NVM installation is complete
 check_nvm_complete() {
-    export NVM_DIR="$HOME/.nvm"
+    export NVM_DIR="${HOME}/.nvm"
 
-    if [ ! -d "$NVM_DIR" ]; then
+    if [[ ! -d "${NVM_DIR}" ]]; then
         return 1
     fi
 
-    if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+    if [[ ! -s "${NVM_DIR}/nvm.sh" ]]; then
         echo "⚠ Incomplete NVM: nvm.sh missing"
         return 1
     fi
 
-    if ! \. "$NVM_DIR/nvm.sh" 2>/dev/null; then
+    # shellcheck source=/dev/null
+    if ! \. "${NVM_DIR}/nvm.sh" 2>/dev/null; then
         echo "⚠ Corrupted NVM: cannot load nvm.sh"
         return 1
     fi
@@ -125,29 +128,29 @@ check_nvm_complete() {
         echo "⚠ Incomplete NVM: nvm command unavailable"
         return 1
     fi
-
+    
     return 0
 }
 
 # Function to uninstall NVM
 uninstall_nvm() {
     echo "Uninstalling NVM..."
-    export NVM_DIR="$HOME/.nvm"
+    export NVM_DIR="${HOME}/.nvm"
 
-    if [ -d "$NVM_DIR" ]; then
+    if [[ -d "${NVM_DIR}" ]]; then
         # Try to remove the directory, check for errors
-        if ! rm -rf "$NVM_DIR" 2>/dev/null; then
+        if ! rm -rf "${NVM_DIR}" 2>/dev/null; then
             echo "⚠ Failed to remove NVM directory (permission denied or files in use)"
             echo "  Attempting with elevated permissions..."
             # Try with sudo if available
             if command -v sudo >/dev/null 2>&1; then
-                sudo rm -rf "$NVM_DIR" 2>/dev/null || true
+                sudo rm -rf "${NVM_DIR}" 2>/dev/null || true
             fi
         fi
 
         # Verify removal
-        if [ -d "$NVM_DIR" ]; then
-            echo "⚠ Warning: Could not fully remove NVM directory at $NVM_DIR"
+        if [[ -d "${NVM_DIR}" ]]; then
+            echo "⚠ Warning: Could not fully remove NVM directory at ${NVM_DIR}"
             echo "  Some files may be in use by other processes."
             echo "  Continuing anyway, but installation may fail..."
         else
@@ -156,12 +159,13 @@ uninstall_nvm() {
     fi
 
     # Clean shell configs
-    for config in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.zshrc" "$HOME/.profile"; do
-        if [ -f "$config" ]; then
-            cp "$config" "${config}.bak.$(date +%s)" 2>/dev/null
-            sed -i.tmp '/NVM_DIR/d; /nvm.sh/d; /bash_completion/d' "$config" 2>/dev/null || \
-            sed -i '' '/NVM_DIR/d; /nvm.sh/d; /bash_completion/d' "$config" 2>/dev/null
-            rm -f "${config}.tmp" 2>/dev/null
+    for config in "${HOME}/.bashrc" "${HOME}/.bash_profile" "${HOME}/.zshrc" "${HOME}/.profile"; do
+        if [[ -f "${config}" ]]; then
+            # shellcheck disable=SC2312
+            cp "${config}" "${config}.bak.$(date +%s)" 2>/dev/null
+            sed -i.tmp '/NVM_DIR/d; /nvm.sh/d; /bash_completion/d' "${config}" 2>/dev/null || \
+            sed -i '' '/NVM_DIR/d; /nvm.sh/d; /bash_completion/d' "${config}" 2>/dev/null
+            rm -f "${config}.tmp" 2>/dev/null || true
         fi
     done
 
@@ -178,34 +182,35 @@ install_npm_only() {
     if command_exists curl; then
         echo "Attempting to install npm using: curl -qL https://www.npmjs.com/install.sh | sh"
         if curl -qL https://www.npmjs.com/install.sh | sh; then
-            if command_exists npm && [ -n "$(npm --version 2>/dev/null)" ]; then
-                echo "✓ npm v$(npm --version) installed via direct install script"
+            NPM_VERSION_TMP=$(npm --version 2>/dev/null)
+            if command_exists npm && [[ -n "${NPM_VERSION_TMP}" ]]; then
+                echo "✓ npm v${NPM_VERSION_TMP} installed via direct install script"
                 return 0
             fi
         fi
     else
         echo "curl command not found, proceeding with alternative methods"
     fi
-
+    
     return 1
 }
 
 # Function to install Node.js via nvm
 install_nodejs_via_nvm() {
-    export NVM_DIR="$HOME/.nvm"
+    export NVM_DIR="${HOME}/.nvm"
 
     # Check NVM completeness
-    if [ -d "$NVM_DIR" ]; then
+    if [[ -d "${NVM_DIR}" ]]; then
         if ! check_nvm_complete; then
             echo "Detected incomplete NVM installation"
             uninstall_nvm
             # If directory still exists after uninstall (partial removal), try to clean it
-            if [ -d "$NVM_DIR" ]; then
+            if [[ -d "${NVM_DIR}" ]]; then
                 echo "  Cleaning up residual NVM files..."
                 # Remove everything except we can't delete (probably in use)
-                find "$NVM_DIR" -mindepth 1 -delete 2>/dev/null || true
+                find "${NVM_DIR}" -mindepth 1 -delete 2>/dev/null || true
                 # If still can't remove the directory itself, warn but continue
-                if [ -d "$NVM_DIR" ]; then
+                if [[ -d "${NVM_DIR}" ]]; then
                     echo "  Note: Some NVM files are locked by running processes."
                     echo "  Will attempt to install NVM over existing directory..."
                 fi
@@ -216,7 +221,7 @@ install_nodejs_via_nvm() {
     fi
 
     # Install NVM if needed (either no dir or partial/corrupted)
-    if [ ! -d "$NVM_DIR" ] || [ ! -s "$NVM_DIR/nvm.sh" ]; then
+    if [[ ! -d "${NVM_DIR}" ]] || [[ ! -s "${NVM_DIR}/nvm.sh" ]]; then
         echo "Downloading NVM..."
 
         # Use mktemp for secure temporary file creation
@@ -226,9 +231,9 @@ install_nodejs_via_nvm() {
 
         # Retry mktemp a few times if it fails
         TMP_INSTALL_SCRIPT=""
-        for i in 1 2 3; do
+        for _ in 1 2 3; do
             TMP_INSTALL_SCRIPT=$(mktemp "${TEMP_DIR}/nvm_install.XXXXXXXXXX.sh" 2>/dev/null)
-            if [ -n "$TMP_INSTALL_SCRIPT" ] && [ -f "$TMP_INSTALL_SCRIPT" ]; then
+            if [[ -n "${TMP_INSTALL_SCRIPT}" ]] && [[ -f "${TMP_INSTALL_SCRIPT}" ]]; then
                 break
             fi
             # Wait a bit before retry
@@ -236,32 +241,32 @@ install_nodejs_via_nvm() {
         done
 
         # Fallback if mktemp still fails
-        if [ -z "$TMP_INSTALL_SCRIPT" ]; then
+        if [[ -z "${TMP_INSTALL_SCRIPT}" ]]; then
             TMP_INSTALL_SCRIPT="${TEMP_DIR}/nvm_install_$$_$(date +%s%N).sh"
-            touch "$TMP_INSTALL_SCRIPT" 2>/dev/null || {
+            touch "${TMP_INSTALL_SCRIPT}" 2>/dev/null || {
                 echo "✗ Failed to create temporary file"
                 exit 1
             }
         fi
 
         # Ensure cleanup on exit
-        trap 'rm -f "$TMP_INSTALL_SCRIPT"' EXIT
+        trap 'rm -f "${TMP_INSTALL_SCRIPT}"' EXIT
 
-        if curl -f -s -S -o "$TMP_INSTALL_SCRIPT" "https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/installation/install_nvm.sh"; then
-            if bash "$TMP_INSTALL_SCRIPT"; then
-                rm -f "$TMP_INSTALL_SCRIPT"
+        if curl -f -s -S -o "${TMP_INSTALL_SCRIPT}" "https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/installation/install_nvm.sh"; then
+            if bash "${TMP_INSTALL_SCRIPT}"; then
+                rm -f "${TMP_INSTALL_SCRIPT}"
                 trap - EXIT
                 echo "✓ NVM installed"
             else
                 echo "✗ NVM installation failed"
-                rm -f "$TMP_INSTALL_SCRIPT"
+                rm -f "${TMP_INSTALL_SCRIPT}"
                 trap - EXIT
                 echo "Please install Node.js manually from: https://nodejs.org/"
                 exit 1
             fi
         else
             echo "✗ Failed to download NVM"
-            rm -f "$TMP_INSTALL_SCRIPT"
+            rm -f "${TMP_INSTALL_SCRIPT}"
             trap - EXIT
             echo "Please check your internet connection or install Node.js manually from https://nodejs.org/"
             exit 1
@@ -269,15 +274,17 @@ install_nodejs_via_nvm() {
     fi
 
     # Load NVM
-    if [ -s "$NVM_DIR/nvm.sh" ]; then
-        \. "$NVM_DIR/nvm.sh"
+    if [[ -s "${NVM_DIR}/nvm.sh" ]]; then
+        # shellcheck source=/dev/null
+        \. "${NVM_DIR}/nvm.sh"
     else
         echo "✗ NVM installation failed - nvm.sh not found"
         echo "Please install Node.js manually from https://nodejs.org/"
         exit 1
     fi
 
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    # shellcheck source=/dev/null
+    [[ -s "${NVM_DIR}/bash_completion" ]] && \. "${NVM_DIR}/bash_completion"
 
     # Verify NVM loaded
     if ! command_exists nvm; then
@@ -295,20 +302,19 @@ install_nodejs_via_nvm() {
         echo "✗ Failed to install Node.js 20"
         exit 1
     fi
-
+    
     # Verify Node.js
     if ! command_exists node; then
         echo "✗ Node.js installation verification failed"
         exit 1
     fi
 
-    NODE_VERSION=$(node --version 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "$NODE_VERSION" ]; then
+    if ! NODE_VERSION=$(node --version 2>/dev/null) || [[ -z "${NODE_VERSION}" ]]; then
         echo "✗ Node.js cannot execute properly"
         exit 1
     fi
 
-    echo "✓ Node.js $NODE_VERSION installed"
+    echo "✓ Node.js ${NODE_VERSION} installed"
 
     # Check npm separately
     if ! command_exists npm; then
@@ -324,9 +330,8 @@ install_nodejs_via_nvm() {
             exit 1
         fi
     else
-        NPM_VERSION=$(npm --version 2>/dev/null)
-        if [ $? -eq 0 ] && [ -n "$NPM_VERSION" ]; then
-            echo "✓ npm v$NPM_VERSION installed"
+        if NPM_VERSION=$(npm --version 2>/dev/null) && [[ -n "${NPM_VERSION}" ]]; then
+            echo "✓ npm v${NPM_VERSION} installed"
         else
             echo "⚠ npm exists but cannot execute"
 
@@ -344,12 +349,13 @@ install_nodejs_via_nvm() {
 install_rdmind() {
     if command_exists rdmind; then
         RDMIND_VERSION=$(rdmind --version 2>/dev/null || echo "unknown")
-        echo "✓ RDMind is already installed: $RDMIND_VERSION"
+        echo "✓ RDMind is already installed: ${$RDMIND_VERSION}"
         echo "  Upgrading to the latest version..."
     fi
 
     # Check if running as root
-    if [ "$(id -u)" -eq 0 ]; then
+    USER_ID=$(id -u) || true
+    if [[ "${USER_ID}" -eq 0 ]]; then
         # Running as root, no need for sudo
         NPM_INSTALL_CMD="npm install -g @rdmind/rdmind@latest"
     else
@@ -359,11 +365,11 @@ install_rdmind() {
 
     # Install/Upgrade RDMind globally
     # Note: Don't suppress output to allow sudo password prompt to be visible
-    if $NPM_INSTALL_CMD; then
+    if ${NPM_INSTALL_CMD}; then
         echo "✓ RDMind installed/upgraded successfully!"
 
         # Create/Update source.json only if source parameter was provided
-        if [ "$SOURCE" != "unknown" ]; then
+        if [[ "${SOURCE}" != "unknown" ]]; then
             create_source_json
         else
             echo "  (Skipping source.json creation - no source specified)"
@@ -373,7 +379,7 @@ install_rdmind() {
         if command_exists rdmind; then
             RDMIND_VERSION=$(rdmind --version 2>/dev/null || echo "unknown")
             echo "✓ RDMind is available as 'rdmind' command"
-            echo "  Installed version: $RDMIND_VERSION"
+            echo "  Installed version: ${RDMIND_VERSION}"
         else
             echo "⚠ RDMind installed but not in PATH"
             echo "  You may need to restart your terminal"
@@ -386,21 +392,21 @@ install_rdmind() {
 
 # Function to create source.json
 create_source_json() {
-    RDMIND_DIR="$HOME/.rdmind"
+    RDMIND_DIR="${HOME}/.rdmind"
 
     # Create .rdmind directory if it doesn't exist
-    if [ ! -d "$RDMIND_DIR" ]; then
-        mkdir -p "$RDMIND_DIR"
+    if [[ ! -d "${$RDMIND_DIR}" ]]; then
+        mkdir -p "${$RDMIND_DIR}"
     fi
 
     # Escape special characters in SOURCE for JSON
     # Replace backslashes first, then quotes
-    ESCAPED_SOURCE=$(printf '%s' "$SOURCE" | sed 's/\\/\\\\/g; s/"/\\"/g')
+    ESCAPED_SOURCE=$(printf '%s' "${SOURCE}" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
     # Create source.json file
-    cat > "$RDMIND_DIR/source.json" <<EOF
+    cat > "${$RDMIND_DIR}/source.json" <<EOF
 {
-  "source": "$ESCAPED_SOURCE"
+  "source": "${ESCAPED_SOURCE}"
 }
 EOF
 
@@ -432,21 +438,21 @@ main() {
         echo ""
 
         # Detect user's shell
-        USER_SHELL=$(basename "$SHELL")
+        USER_SHELL=$(basename "${SHELL}")
 
-        if [ "$USER_SHELL" = "zsh" ] && [ -f "$HOME/.zshrc" ]; then
+        if [[ "${USER_SHELL}" = "zsh" ]] && [[ -f "${HOME}/.zshrc" ]]; then
             echo "  source ~/.zshrc"
-        elif [ "$USER_SHELL" = "bash" ]; then
-            if [ -f "$HOME/.bash_profile" ]; then
+        elif [[ "${USER_SHELL}" = "bash" ]]; then
+            if [[ -f "${HOME}/.bash_profile" ]]; then
                 echo "  source ~/.bash_profile"
-            elif [ -f "$HOME/.bashrc" ]; then
+            elif [[ -f "${HOME}/.bashrc" ]]; then
                 echo "  source ~/.bashrc"
             fi
         else
             # Fallback: show all possible options
-            [ -f "$HOME/.zshrc" ] && echo "  source ~/.zshrc"
-            [ -f "$HOME/.bashrc" ] && echo "  source ~/.bashrc"
-            [ -f "$HOME/.bash_profile" ] && echo "  source ~/.bash_profile"
+            [[ -f "${HOME}/.zshrc" ]] && echo "  source ~/.zshrc"
+            [[ -f "${HOME}/.bashrc" ]] && echo "  source ~/.bashrc"
+            [[ -f "${HOME}/.bash_profile" ]] && echo "  source ~/.bash_profile"
         fi
 
         echo ""
@@ -456,3 +462,4 @@ main() {
 
 # Run main function
 main "$@"
+main
