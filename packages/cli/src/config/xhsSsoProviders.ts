@@ -104,12 +104,11 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     description:
       'GPT-5 的一个版本，专为 Codex 中的智能体编程而优化 (推理强度高)',
   },
-  // 暂时注释，待稳定后发布
-  // {
-  //   id: 'claude-opus-4-5@20251101',
-  //   displayName: 'Claude Opus 4.5',
-  //   baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
-  //   contextWindow: '200K',
-  //   description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
-  // },
+  {
+    id: 'claude-opus-4-5@20251101',
+    displayName: 'Claude Opus 4.5',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
+    contextWindow: '200K',
+    description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
+  },
 ];
