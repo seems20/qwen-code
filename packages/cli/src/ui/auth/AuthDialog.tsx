@@ -8,13 +8,19 @@ import type React from 'react';
 import { useState } from 'react';
 import { AuthType } from '@rdmind/rdmind-core';
 import { Box, Text } from 'ink';
+import Link from 'ink-link';
+import { theme } from '../semantic-colors.js';
 import { Colors } from '../colors.js';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { RadioButtonSelect } from '../components/shared/RadioButtonSelect.js';
+import { ApiKeyInput } from '../components/ApiKeyInput.js';
 import { useUIState } from '../contexts/UIStateContext.js';
 import { useUIActions } from '../contexts/UIActionsContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { t } from '../../i18n/index.js';
+
+const MODEL_PROVIDERS_DOCUMENTATION_URL =
+  'https://docs.xiaohongshu.com/doc/6a5a911d1ba237161e6e705e2ce58161';
 
 function parseDefaultAuthType(
   defaultAuthType: string | undefined,
@@ -28,15 +34,25 @@ function parseDefaultAuthType(
   return null;
 }
 
+// Sub-mode types for API-KEY authentication
+type ApiKeySubMode = 'coding-plan' | 'custom';
+
+// View level for navigation
+type ViewLevel = 'main' | 'api-key-sub' | 'api-key-input' | 'custom-info';
+
 export function AuthDialog(): React.JSX.Element {
   const { pendingAuthType, authError } = useUIState();
-  const { handleAuthSelect: onAuthSelect } = useUIActions();
+  const { handleAuthSelect: onAuthSelect, handleCodingPlanSubmit } =
+    useUIActions();
   const config = useConfig();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [_selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [viewLevel, setViewLevel] = useState<ViewLevel>('main');
+  const [apiKeySubModeIndex, setApiKeySubModeIndex] = useState<number>(0);
 
-  const items = [
+  // Main authentication entries
+  const mainItems = [
     {
       key: AuthType.XHS_SSO,
       label: t('小红书 SSO'),
@@ -49,15 +65,29 @@ export function AuthDialog(): React.JSX.Element {
     //   value: AuthType.QWEN_OAUTH,
     // },
     {
-      key: AuthType.USE_OPENAI,
-      label: t('OpenAI'),
-      value: AuthType.USE_OPENAI,
+      key: 'API-KEY',
+      label: t('API-KEY'),
+      value: 'API-KEY' as const,
+    },
+  ];
+
+  // API-KEY sub-mode entries
+  const apiKeySubItems = [
+    {
+      key: 'coding-plan',
+      label: t('Coding Plan'),
+      value: 'coding-plan' as ApiKeySubMode,
+    },
+    {
+      key: 'custom',
+      label: t('Custom'),
+      value: 'custom' as ApiKeySubMode,
     },
   ];
 
   const initialAuthIndex = Math.max(
     0,
-    items.findIndex((item) => {
+    mainItems.findIndex((item) => {
       // Priority 1: pendingAuthType
       if (pendingAuthType) {
         return item.value === pendingAuthType;
@@ -66,6 +96,17 @@ export function AuthDialog(): React.JSX.Element {
       // Priority 2: config.getAuthType() - the source of truth
       const currentAuthType = config.getAuthType();
       if (currentAuthType) {
+        // Map OpenAI / Anthropic / Gemini / VertexAI to 'API-KEY'
+        if (
+          [
+            AuthType.USE_OPENAI,
+            AuthType.USE_ANTHROPIC,
+            AuthType.USE_GEMINI,
+            AuthType.USE_VERTEX_AI,
+          ].includes(currentAuthType)
+        ) {
+          return item.value === 'API-KEY';
+        }
         return item.value === currentAuthType;
       }
 
@@ -82,33 +123,85 @@ export function AuthDialog(): React.JSX.Element {
     }),
   );
 
-  // Qwen OAuth 已隐藏，暂时不需要这些变量
   // const hasApiKey = Boolean(config.getContentGeneratorConfig()?.apiKey);
-  // const currentSelectedAuthType =
-  //   selectedIndex !== null
-  //     ? items[selectedIndex]?.value
-  //     : items[initialAuthIndex]?.value;
+  const currentSelectedAuthType =
+    selectedIndex !== null
+      ? mainItems[selectedIndex]?.value
+      : mainItems[initialAuthIndex]?.value;
 
-  const handleAuthSelect = async (authMethod: AuthType) => {
+  const handleMainSelect = async (
+    value: (typeof mainItems)[number]['value'],
+  ) => {
     setErrorMessage(null);
-    await onAuthSelect(authMethod);
+
+    if (value === 'API-KEY') {
+      // Directly navigate to custom mode info, skipping sub-menu
+      setViewLevel('custom-info');
+      return;
+    }
+
+    // For Qwen OAuth, proceed directly
+    await onAuthSelect(value);
   };
 
-  const handleHighlight = (authMethod: AuthType) => {
-    const index = items.findIndex((item) => item.value === authMethod);
-    setSelectedIndex(index);
+  const handleApiKeySubSelect = async (subMode: ApiKeySubMode) => {
+    setErrorMessage(null);
+
+    if (subMode === 'coding-plan') {
+      setViewLevel('api-key-input');
+    } else {
+      setViewLevel('custom-info');
+    }
+  };
+
+  const handleApiKeyInputSubmit = async (apiKey: string) => {
+    setErrorMessage(null);
+
+    if (!apiKey.trim()) {
+      setErrorMessage(t('API key cannot be empty.'));
+      return;
+    }
+
+    // Submit to parent for processing
+    await handleCodingPlanSubmit(apiKey);
+  };
+
+  const handleGoBack = () => {
+    setErrorMessage(null);
+
+    if (viewLevel === 'api-key-sub') {
+      setViewLevel('main');
+    } else if (viewLevel === 'api-key-input' || viewLevel === 'custom-info') {
+      // Go back to main menu instead of api-key-sub
+      setViewLevel('main');
+    }
   };
 
   useKeypress(
     (key) => {
+      // Handle Enter key for custom-info view to trigger OpenAI config
+      if (key.name === 'return' && viewLevel === 'custom-info') {
+        onAuthSelect(AuthType.USE_OPENAI);
+        return;
+      }
+
       if (key.name === 'escape') {
-        // Prevent exit if there is an error message.
-        // This means they user is not authenticated yet.
+        // Handle Escape based on current view level
+        if (viewLevel === 'api-key-sub') {
+          handleGoBack();
+          return;
+        }
+
+        if (viewLevel === 'api-key-input' || viewLevel === 'custom-info') {
+          handleGoBack();
+          return;
+        }
+
+        // For main view, use existing logic
         if (errorMessage) {
           return;
         }
         if (config.getAuthType() === undefined) {
-          // Prevent exiting if no auth method is set
           setErrorMessage(
             t(
               'You must select an auth method to proceed. Press Ctrl+C again to exit.',
@@ -122,52 +215,208 @@ export function AuthDialog(): React.JSX.Element {
     { isActive: true },
   );
 
-  return (
-    <Box
-      borderStyle="round"
-      borderColor={Colors.Gray}
-      flexDirection="column"
-      padding={1}
-      width="100%"
-    >
-      <Text bold>{t('Get started')}</Text>
+  // Render main auth selection
+  const renderMainView = () => (
+    <>
       <Box marginTop={1}>
         <Text>{t('How would you like to authenticate for this project?')}</Text>
       </Box>
       <Box marginTop={1}>
         <RadioButtonSelect
-          items={items}
+          items={mainItems}
           initialIndex={initialAuthIndex}
-          onSelect={handleAuthSelect}
-          onHighlight={handleHighlight}
+          onSelect={handleMainSelect}
+          onHighlight={(value) => {
+            const index = mainItems.findIndex((item) => item.value === value);
+            setSelectedIndex(index);
+          }}
         />
       </Box>
+      <Box marginTop={1} paddingLeft={2}>
+        <Text color={Colors.Gray}>
+          {currentSelectedAuthType === AuthType.QWEN_OAUTH
+            ? t('Login with QwenChat account to use daily free quota.')
+            : t('Use Xiaohongshu SSO or API Key')}
+        </Text>
+      </Box>
+    </>
+  );
+
+  // Render API-KEY sub-mode selection
+  const renderApiKeySubView = () => (
+    <>
+      <Box marginTop={1}>
+        <Text>{t('Select API-KEY configuration mode:')}</Text>
+      </Box>
+      <Box marginTop={1}>
+        <RadioButtonSelect
+          items={apiKeySubItems}
+          initialIndex={apiKeySubModeIndex}
+          onSelect={handleApiKeySubSelect}
+          onHighlight={(value) => {
+            const index = apiKeySubItems.findIndex(
+              (item) => item.value === value,
+            );
+            setApiKeySubModeIndex(index);
+          }}
+        />
+      </Box>
+      <Box marginTop={1} paddingLeft={2}>
+        <Text color={Colors.Gray}>
+          {apiKeySubItems[apiKeySubModeIndex]?.value === 'coding-plan'
+            ? t("Paste your api key of Bailian Coding Plan and you're all set!")
+            : t(
+                'More instructions about configuring `modelProviders` manually.',
+              )}
+        </Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text color={theme?.text?.secondary}>
+          {t('(Press Enter to configure OpenAI, Escape to go back)')}
+        </Text>
+      </Box>
+    </>
+  );
+
+  // Render API key input for coding-plan mode
+  const renderApiKeyInputView = () => (
+    <Box marginTop={1}>
+      <ApiKeyInput onSubmit={handleApiKeyInputSubmit} onCancel={handleGoBack} />
+    </Box>
+  );
+
+  // Render custom mode info
+  const renderCustomInfoView = () => (
+    <>
+      <Box marginTop={1}>
+        <Text bold>{t('Custom API-KEY Configuration')}</Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text>
+          {t('For advanced users who want to configure models manually.')}
+        </Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text>{t('Please configure your models in settings.json:')}</Text>
+      </Box>
+      <Box marginTop={1} paddingLeft={2}>
+        <Text color={Colors.AccentYellow}>
+          1. {t('Set API key via environment variable (e.g., OPENAI_API_KEY)')}
+        </Text>
+      </Box>
+      <Box marginTop={0} paddingLeft={2}>
+        <Text color={Colors.AccentYellow}>
+          2.{' '}
+          {t(
+            "Add model configuration to modelProviders['openai'] (or other auth types)",
+          )}
+        </Text>
+      </Box>
+      <Box marginTop={0} paddingLeft={2}>
+        <Text color={Colors.AccentYellow}>
+          3.{' '}
+          {t(
+            'Each provider needs: id, envKey (required), plus optional baseUrl, generationConfig',
+          )}
+        </Text>
+      </Box>
+      <Box marginTop={0} paddingLeft={2}>
+        <Text color={Colors.AccentYellow}>
+          4.{' '}
+          {t(
+            'Use /model command to select your preferred model from the configured list',
+          )}
+        </Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text color={theme?.text?.secondary}>
+          {t(
+            'Supported auth types: openai, anthropic, gemini, vertex-ai, etc.',
+          )}
+        </Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text color={theme?.text?.secondary} underline>
+          {t('More instructions please check:')}
+        </Text>
+      </Box>
+      <Box marginTop={0}>
+        <Link url={MODEL_PROVIDERS_DOCUMENTATION_URL} fallback={false}>
+          <Text color={Colors.AccentGreen} underline>
+            {MODEL_PROVIDERS_DOCUMENTATION_URL}
+          </Text>
+        </Link>
+      </Box>
+      <Box marginTop={1}>
+        <Text color={theme?.text?.secondary}>
+          {t('(Press Enter to configure OpenAI, Escape to go back)')}
+        </Text>
+      </Box>
+    </>
+  );
+
+  const getViewTitle = () => {
+    switch (viewLevel) {
+      case 'main':
+        return t('Get started');
+      case 'api-key-sub':
+        return t('API-KEY Configuration');
+      case 'api-key-input':
+        return t('Coding Plan Setup');
+      case 'custom-info':
+        return t('Custom Configuration');
+      default:
+        return t('Get started');
+    }
+  };
+
+  return (
+    <Box
+      borderStyle="round"
+      borderColor={theme?.border?.default}
+      flexDirection="column"
+      padding={1}
+      width="100%"
+    >
+      <Text bold>{getViewTitle()}</Text>
+
+      {viewLevel === 'main' && renderMainView()}
+      {viewLevel === 'api-key-sub' && renderApiKeySubView()}
+      {viewLevel === 'api-key-input' && renderApiKeyInputView()}
+      {viewLevel === 'custom-info' && renderCustomInfoView()}
+
       {(authError || errorMessage) && (
         <Box marginTop={1}>
           <Text color={Colors.AccentRed}>{authError || errorMessage}</Text>
         </Box>
       )}
-      <Box marginTop={1}>
-        <Text color={Colors.AccentPurple}>{t('(Use Enter to Set Auth)')}</Text>
-      </Box>
-      {/* Qwen OAuth 已隐藏，相关提示也隐藏 */}
-      {/* {hasApiKey && currentSelectedAuthType === AuthType.QWEN_OAUTH && (
-        <Box marginTop={1}>
-          <Text color={Colors.Gray}>
-            {t(
-              'Note: Your existing API key in settings.json will not be cleared when using Qwen OAuth. You can switch back to OpenAI authentication later if needed.',
-            )}
-          </Text>
-        </Box>
-      )} */}
-      <Box marginTop={1}>
-        <Text>{t('Welcome to RDMind')}</Text>
-      </Box>
-      <Box marginTop={1}>
-        <Text color={Colors.AccentBlue}>
-          {'https://docs.xiaohongshu.com/doc/03040f132e7201a6b8e95806118a11f3'}
-        </Text>
-      </Box>
+      {viewLevel === 'main' && (
+        <>
+          <Box marginTop={1}>
+            <Text color={Colors.AccentPurple}>
+              {t('(Use Enter to Set Auth)')}
+            </Text>
+          </Box>
+          {/* Qwen OAuth 已隐藏，相关提示也隐藏 */}
+          {/* {hasApiKey && currentSelectedAuthType === AuthType.QWEN_OAUTH && (
+            <Box marginTop={1}>
+              <Text color={Colors.Gray}>
+                {t(
+                  'Note: Your existing API key in settings.json will not be cleared when using Qwen OAuth. You can switch back to OpenAI authentication later if needed.',
+                )}
+              </Text>
+            </Box>
+          )} */}
+          <Box marginTop={1}>
+            <Text>{t('Welcome to RDMind')}</Text>
+          </Box>
+          <Box marginTop={1}>
+            <Text color={Colors.AccentBlue}>
+              {'https://docs.xiaohongshu.com/doc/03040f132e7201a6b8e95806118a11f3'}
+            </Text>
+          </Box>
+        </>
+      )}
     </Box>
   );
 }

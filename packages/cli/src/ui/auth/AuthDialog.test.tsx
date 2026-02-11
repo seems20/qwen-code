@@ -169,9 +169,9 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // Since the auth dialog only shows OpenAI option now,
+      // Since the auth dialog shows API-KEY option now,
       // it won't show GEMINI_API_KEY messages
-      expect(lastFrame()).toContain('OpenAI');
+      expect(lastFrame()).toContain('API-KEY');
     });
 
     it('should not show the GEMINI_API_KEY message if QWEN_DEFAULT_AUTH_TYPE is set to something else', () => {
@@ -257,15 +257,17 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // Since the auth dialog only shows OpenAI option now,
+      // Since the auth dialog shows API-KEY option now,
       // it won't show GEMINI_API_KEY messages
-      expect(lastFrame()).toContain('OpenAI');
+      expect(lastFrame()).toContain('API-KEY');
     });
   });
 
   describe('QWEN_DEFAULT_AUTH_TYPE environment variable', () => {
     it('should select the auth type specified by QWEN_DEFAULT_AUTH_TYPE', () => {
-      process.env['QWEN_DEFAULT_AUTH_TYPE'] = AuthType.USE_OPENAI;
+      // QWEN_OAUTH is the only valid AuthType that can be selected via env var
+      // API-KEY is not an AuthType enum value, so it cannot be selected this way
+      process.env['QWEN_DEFAULT_AUTH_TYPE'] = AuthType.QWEN_OAUTH;
 
       const settings: LoadedSettings = new LoadedSettings(
         {
@@ -302,8 +304,8 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // OpenAI 现在是第 2 项（因为 Qwen OAuth 被隐藏了）
-      expect(lastFrame()).toContain('● 2. OpenAI');
+      // Qwen OAuth is hidden, fallback to first item (XHS SSO)
+      expect(lastFrame()).toContain('● 1. 小红书 SSO');
     });
 
     it('should fall back to default if QWEN_DEFAULT_AUTH_TYPE is not set', () => {
