@@ -1,0 +1,25 @@
+package com.xiaohongshu.rdmind.acp.protocol.domain.tool;
+
+import com.xiaohongshu.rdmind.acp.protocol.jsonrpc.Meta;
+
+public class ToolCallLocation extends Meta {
+    private String path;
+    private Integer line;
+
+    // Getters and setters
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public Integer getLine() {
+        return line;
+    }
+
+    public void setLine(Integer line) {
+        this.line = line;
+    }
+}
