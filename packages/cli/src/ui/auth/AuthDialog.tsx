@@ -42,8 +42,11 @@ type ViewLevel = 'main' | 'api-key-sub' | 'api-key-input' | 'custom-info';
 
 export function AuthDialog(): React.JSX.Element {
   const { pendingAuthType, authError } = useUIState();
-  const { handleAuthSelect: onAuthSelect, handleCodingPlanSubmit } =
-    useUIActions();
+  const {
+    handleAuthSelect: onAuthSelect,
+    handleCodingPlanSubmit,
+    onAuthError,
+  } = useUIActions();
   const config = useConfig();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -75,7 +78,7 @@ export function AuthDialog(): React.JSX.Element {
   const apiKeySubItems = [
     {
       key: 'coding-plan',
-      label: t('Coding Plan'),
+      label: t('Coding Plan (Bailian)'),
       value: 'coding-plan' as ApiKeySubMode,
     },
     {
@@ -133,6 +136,7 @@ export function AuthDialog(): React.JSX.Element {
     value: (typeof mainItems)[number]['value'],
   ) => {
     setErrorMessage(null);
+    onAuthError(null);
 
     if (value === 'API-KEY') {
       // Directly navigate to custom mode info, skipping sub-menu
@@ -146,6 +150,7 @@ export function AuthDialog(): React.JSX.Element {
 
   const handleApiKeySubSelect = async (subMode: ApiKeySubMode) => {
     setErrorMessage(null);
+    onAuthError(null);
 
     if (subMode === 'coding-plan') {
       setViewLevel('api-key-input');
@@ -168,6 +173,7 @@ export function AuthDialog(): React.JSX.Element {
 
   const handleGoBack = () => {
     setErrorMessage(null);
+    onAuthError(null);
 
     if (viewLevel === 'api-key-sub') {
       setViewLevel('main');
