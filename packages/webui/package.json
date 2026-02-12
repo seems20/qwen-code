@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/webui",
-  "version": "0.2.5-alpha.1",
+  "version": "0.2.5",
   "description": "Shared UI components for RDMind packages",
   "type": "module",
   "main": "./dist/index.cjs",

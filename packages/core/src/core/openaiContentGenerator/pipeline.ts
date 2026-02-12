@@ -51,10 +51,10 @@ export class ContentGenerationPipeline {
       false,
       effectiveModel,
       async (openaiRequest) => {
-        // Enable interleaved thinking for GLM-4.7
+        // Enable interleaved thinking for GLM-5
         const extraBody = this.contentGeneratorConfig.model
           ?.toLowerCase()
-          .includes('glm-4.7')
+          .includes('glm-5')
           ? {
               thinking: {
                 type: 'enabled' as const,
@@ -91,10 +91,10 @@ export class ContentGenerationPipeline {
       true,
       effectiveModel,
       async (openaiRequest, context) => {
-        // Enable interleaved thinking for GLM-4.7
+        // Enable interleaved thinking for GLM-5
         const extraBody = this.contentGeneratorConfig.model
           ?.toLowerCase()
-          .includes('glm-4.7')
+          .includes('glm-5')
           ? {
               thinking: {
                 type: 'enabled' as const,
@@ -359,7 +359,7 @@ export class ContentGenerationPipeline {
     // For example, across common providers and models:
     //
     //   - deepseek-reasoner   — thinking is enabled by default and cannot be disabled
-    //   - glm-4.7             — thinking is enabled by default; can be disabled via `extra_body.thinking.enabled`
+    //   - glm-5               — thinking is enabled by default; can be disabled via `extra_body.thinking.enabled`
     //   - kimi-k2-thinking    — thinking is enabled by default and cannot be disabled
     //   - gpt-5.x series      — thinking is enabled by default; can be disabled via `reasoning.effort`
     //   - qwen3 series        — model-dependent; can be manually disabled via `extra_body.enable_thinking`
