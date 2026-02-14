@@ -10,7 +10,6 @@ import { AuthType } from '@rdmind/rdmind-core';
 import { Box, Text } from 'ink';
 import Link from 'ink-link';
 import { theme } from '../semantic-colors.js';
-import { Colors } from '../colors.js';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { RadioButtonSelect } from '../components/shared/RadioButtonSelect.js';
 import { ApiKeyInput } from '../components/ApiKeyInput.js';
@@ -177,6 +176,8 @@ export function AuthDialog(): React.JSX.Element {
 
     if (viewLevel === 'api-key-sub') {
       setViewLevel('main');
+      // Reset selectedIndex to ensure UI syncs with initialAuthIndex
+      setSelectedIndex(null);
     } else if (viewLevel === 'api-key-input' || viewLevel === 'custom-info') {
       // Go back to main menu instead of api-key-sub
       setViewLevel('main');
@@ -239,7 +240,7 @@ export function AuthDialog(): React.JSX.Element {
         />
       </Box>
       <Box marginTop={1} paddingLeft={2}>
-        <Text color={Colors.Gray}>
+        <Text color={theme.text.secondary}>
           {currentSelectedAuthType === AuthType.QWEN_OAUTH
             ? t('Login with QwenChat account to use daily free quota.')
             : t('Use Xiaohongshu SSO or API Key')}
@@ -268,7 +269,7 @@ export function AuthDialog(): React.JSX.Element {
         />
       </Box>
       <Box marginTop={1} paddingLeft={2}>
-        <Text color={Colors.Gray}>
+        <Text color={theme.text.secondary}>
           {apiKeySubItems[apiKeySubModeIndex]?.value === 'coding-plan'
             ? t("Paste your api key of Bailian Coding Plan and you're all set!")
             : t(
@@ -306,12 +307,12 @@ export function AuthDialog(): React.JSX.Element {
         <Text>{t('Please configure your models in settings.json:')}</Text>
       </Box>
       <Box marginTop={1} paddingLeft={2}>
-        <Text color={Colors.AccentYellow}>
+        <Text color={theme.status.warning}>
           1. {t('Set API key via environment variable (e.g., OPENAI_API_KEY)')}
         </Text>
       </Box>
       <Box marginTop={0} paddingLeft={2}>
-        <Text color={Colors.AccentYellow}>
+        <Text color={theme.status.warning}>
           2.{' '}
           {t(
             "Add model configuration to modelProviders['openai'] (or other auth types)",
@@ -319,7 +320,7 @@ export function AuthDialog(): React.JSX.Element {
         </Text>
       </Box>
       <Box marginTop={0} paddingLeft={2}>
-        <Text color={Colors.AccentYellow}>
+        <Text color={theme.status.warning}>
           3.{' '}
           {t(
             'Each provider needs: id, envKey (required), plus optional baseUrl, generationConfig',
@@ -327,7 +328,7 @@ export function AuthDialog(): React.JSX.Element {
         </Text>
       </Box>
       <Box marginTop={0} paddingLeft={2}>
-        <Text color={Colors.AccentYellow}>
+        <Text color={theme.status.warning}>
           4.{' '}
           {t(
             'Use /model command to select your preferred model from the configured list',
@@ -348,7 +349,7 @@ export function AuthDialog(): React.JSX.Element {
       </Box>
       <Box marginTop={0}>
         <Link url={MODEL_PROVIDERS_DOCUMENTATION_URL} fallback={false}>
-          <Text color={Colors.AccentGreen} underline>
+          <Text color={theme.status.success} underline>
             {MODEL_PROVIDERS_DOCUMENTATION_URL}
           </Text>
         </Link>
@@ -393,20 +394,20 @@ export function AuthDialog(): React.JSX.Element {
 
       {(authError || errorMessage) && (
         <Box marginTop={1}>
-          <Text color={Colors.AccentRed}>{authError || errorMessage}</Text>
+          <Text color={theme.status.error}>{authError || errorMessage}</Text>
         </Box>
       )}
       {viewLevel === 'main' && (
         <>
           <Box marginTop={1}>
-            <Text color={Colors.AccentPurple}>
+            <Text color={theme.text.accent}>
               {t('(Use Enter to Set Auth)')}
             </Text>
           </Box>
           {/* Qwen OAuth 已隐藏，相关提示也隐藏 */}
           {/* {hasApiKey && currentSelectedAuthType === AuthType.QWEN_OAUTH && (
             <Box marginTop={1}>
-              <Text color={Colors.Gray}>
+              <Text color={theme?.text?.secondary}>
                 {t(
                   'Note: Your existing API key in settings.json will not be cleared when using Qwen OAuth. You can switch back to OpenAI authentication later if needed.',
                 )}
@@ -417,7 +418,7 @@ export function AuthDialog(): React.JSX.Element {
             <Text>{t('Welcome to RDMind')}</Text>
           </Box>
           <Box marginTop={1}>
-            <Text color={Colors.AccentBlue}>
+            <Text color={theme.text.link}>
               {'https://docs.xiaohongshu.com/doc/03040f132e7201a6b8e95806118a11f3'}
             </Text>
           </Box>

@@ -54,6 +54,29 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Function to fix npm global directory permissions
+fix_npm_permissions() {
+    echo "Fixing npm global directory permissions..."
+
+    # Get the actual npm global directory
+    NPM_GLOBAL_DIR=$(npm config get prefix 2>/dev/null)
+    if [[ -z "${NPM_GLOBAL_DIR}" ]] || [[ "${NPM_GLOBAL_DIR}" == *"error"* ]]; then
+        # Fallback to default if npm config fails
+        NPM_GLOBAL_DIR="${HOME}/.npm-global"
+        echo "Warning: Could not determine npm prefix, using fallback: ${NPM_GLOBAL_DIR}"
+    fi
+
+    # 1. Change ownership of the entire npm global directory to current user
+    #    Using only user ownership without specifying a group for cross-platform compatibility
+    sudo chown -R "$(whoami)" "${NPM_GLOBAL_DIR}" 2>/dev/null || true
+
+    # 2. Fix directory permissions (ensure user has full read/write/execute permissions)
+    chmod -R u+rwX "${NPM_GLOBAL_DIR}" 2>/dev/null || true
+
+    # 3. Specifically fix parent directory permissions (to prevent mkdir failures)
+    chmod u+rwx "${NPM_GLOBAL_DIR}" "${NPM_GLOBAL_DIR}/lib" "${NPM_GLOBAL_DIR}/lib/node_modules" 2>/dev/null || true
+}
+
 # Function to check and install Node.js
 install_nodejs() {
     if command_exists node; then
@@ -68,7 +91,7 @@ install_nodejs() {
             install_nodejs_via_nvm
         elif [[ "${NODE_MAJOR_VERSION}" -ge 20 ]]; then
             echo "✓ Node.js is already installed: ${NODE_VERSION}"
-            
+
             # Check npm after confirming Node.js exists
             if ! command_exists npm; then
                 echo "⚠ npm not found, installing npm..."
@@ -91,6 +114,11 @@ install_nodejs() {
                         exit 1
                     fi
                 fi
+            fi
+
+            # Check if npm global directory has permission issues
+            if ! npm config get prefix >/dev/null 2>&1; then
+                fix_npm_permissions
             fi
 
             return 0
@@ -128,7 +156,7 @@ check_nvm_complete() {
         echo "⚠ Incomplete NVM: nvm command unavailable"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -191,7 +219,7 @@ install_npm_only() {
     else
         echo "curl command not found, proceeding with alternative methods"
     fi
-    
+
     return 1
 }
 
@@ -302,7 +330,7 @@ install_nodejs_via_nvm() {
         echo "✗ Failed to install Node.js 20"
         exit 1
     fi
-    
+
     # Verify Node.js
     if ! command_exists node; then
         echo "✗ Node.js installation verification failed"
@@ -349,44 +377,80 @@ install_nodejs_via_nvm() {
 install_rdmind() {
     if command_exists rdmind; then
         RDMIND_VERSION=$(rdmind --version 2>/dev/null || echo "unknown")
-        echo "✓ RDMind is already installed: ${$RDMIND_VERSION}"
+        echo "✓ RDMind is already installed: ${RDMIND_VERSION}"
         echo "  Upgrading to the latest version..."
     fi
 
-    # Check if running as root
-    USER_ID=$(id -u) || true
-    if [[ "${USER_ID}" -eq 0 ]]; then
-        # Running as root, no need for sudo
-        NPM_INSTALL_CMD="npm install -g @rdmind/rdmind@latest"
-    else
-        # Not root, use sudo
-        NPM_INSTALL_CMD="sudo npm install -g @rdmind/rdmind@latest"
+    # Check if .npmrc contains incompatible settings for nvm
+    if [[ -f "${HOME}/.npmrc" ]]; then
+        if grep -q "prefix\|globalconfig" "${HOME}/.npmrc"; then
+            echo "⚠ Found incompatible settings in ~/.npmrc for NVM"
+            echo "  Creating temporary backup and removing incompatible settings..."
+
+            # Backup .npmrc file
+            cp "${HOME}/.npmrc" "${HOME}/.npmrc.backup.before.rdmind.install"
+
+            # Create temporary .npmrc without incompatible settings
+            grep -v -E '^(prefix|globalconfig)' "${HOME}/.npmrc" > "${HOME}/.npmrc.temp.for.rdmind.install"
+
+            # Use the temporary .npmrc
+            mv "${HOME}/.npmrc" "${HOME}/.npmrc.original"
+            mv "${HOME}/.npmrc.temp.for.rdmind.install" "${HOME}/.npmrc"
+
+            # Remember to restore later
+            RESTORE_NPMRC=true
+        fi
     fi
 
-    # Install/Upgrade RDMind globally
-    # Note: Don't suppress output to allow sudo password prompt to be visible
-    if ${NPM_INSTALL_CMD}; then
+    echo "  Attempting to install RDMind with current user permissions..."
+    if npm install -g @rdmind/rdmind@latest 2>/dev/null; then
         echo "✓ RDMind installed/upgraded successfully!"
-
-        # Create/Update source.json only if source parameter was provided
-        if [[ "${SOURCE}" != "unknown" ]]; then
-            create_source_json
-        else
-            echo "  (Skipping source.json creation - no source specified)"
-        fi
-
-        # Verify installation
-        if command_exists rdmind; then
-            RDMIND_VERSION=$(rdmind --version 2>/dev/null || echo "unknown")
-            echo "✓ RDMind is available as 'rdmind' command"
-            echo "  Installed version: ${RDMIND_VERSION}"
-        else
-            echo "⚠ RDMind installed but not in PATH"
-            echo "  You may need to restart your terminal"
-        fi
     else
-        echo "✗ Failed to install RDMind"
-        exit 1
+        # Installation failed, likely due to permissions
+        echo "  Installation failed with user permissions, attempting to fix permissions..."
+
+        # Fix npm global directory permissions
+        fix_npm_permissions
+
+        # Try again after fixing permissions
+        if npm install -g @rdmind/rdmind@latest 2>/dev/null; then
+            echo "✓ RDMind installed/upgraded successfully after permission fix!"
+        else
+            # Both attempts failed
+            echo "✗ Failed to install RDMind even after permission fix"
+            echo "  Please check your system permissions or contact support"
+            # Restore .npmrc if we backed it up
+            if [[ "${RESTORE_NPMRC}" = true ]]; then
+                mv "${HOME}/.npmrc" "${HOME}/.npmrc.temp.after.failed.install"
+                mv "${HOME}/.npmrc.original" "${HOME}/.npmrc"
+                echo "  Restored original ~/.npmrc file"
+            fi
+            exit 1
+        fi
+    fi
+
+    # Restore original .npmrc file if we modified it
+    if [[ "${RESTORE_NPMRC}" = true ]]; then
+        mv "${HOME}/.npmrc" "${HOME}/.npmrc.temp.after.successful.install"
+        mv "${HOME}/.npmrc.original" "${HOME}/.npmrc"
+        echo "  Restored original ~/.npmrc file"
+    fi
+
+    # Create/Update source.json only if source parameter was provided
+    if [[ "${SOURCE}" != "unknown" ]]; then
+        create_source_json
+    else
+        echo "  (Skipping source.json creation - no source specified)"
+    fi
+
+    # Verify installation
+    if command_exists rdmind; then
+        RDMIND_VERSION=$(rdmind --version 2>/dev/null || echo "unknown")
+        echo "✓ RDMind is available as 'rdmind' command"
+        echo "  Installed version: ${RDMIND_VERSION}"
+    else
+        echo "⚠ RDMind installed but not in PATH"
+        echo "  You may need to restart your terminal"
     fi
 }
 
@@ -395,8 +459,8 @@ create_source_json() {
     RDMIND_DIR="${HOME}/.rdmind"
 
     # Create .rdmind directory if it doesn't exist
-    if [[ ! -d "${$RDMIND_DIR}" ]]; then
-        mkdir -p "${$RDMIND_DIR}"
+    if [[ ! -d "${RDMIND_DIR}" ]]; then
+        mkdir -p "${RDMIND_DIR}"
     fi
 
     # Escape special characters in SOURCE for JSON
@@ -404,7 +468,7 @@ create_source_json() {
     ESCAPED_SOURCE=$(printf '%s' "${SOURCE}" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
     # Create source.json file
-    cat > "${$RDMIND_DIR}/source.json" <<EOF
+    cat > "${RDMIND_DIR}/source.json" <<EOF
 {
   "source": "${ESCAPED_SOURCE}"
 }
@@ -415,6 +479,9 @@ EOF
 
 # Main execution
 main() {
+    # Initialize variables
+    RESTORE_NPMRC=false
+
     # Step 1: Check and install Node.js
     install_nodejs
     echo ""
@@ -462,4 +529,3 @@ main() {
 
 # Run main function
 main "$@"
-main
