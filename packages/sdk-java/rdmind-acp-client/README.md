@@ -71,7 +71,7 @@ public void testSession() throws AgentInitializeException, SessionNewException, 
                     public void onToolCallSessionUpdate(ToolCallSessionUpdate sessionUpdate) {
                         logger.info("工具调用请求: {}", sessionUpdate);
                     }
-                    
+
                     // 其他回调方法请参考 API 文档
                 }));
     } finally {

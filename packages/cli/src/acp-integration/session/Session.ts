@@ -523,7 +523,7 @@ export class Session implements SessionContext {
         return errorResponse(
           new Error(
             `Plan mode is active. The tool "${fc.name}" cannot be executed because it modifies the system. ` +
-            'Please use the exit_plan_mode tool to present your plan and exit plan mode before making changes.',
+              'Please use the exit_plan_mode tool to present your plan and exit plan mode before making changes.',
           ),
         );
       }

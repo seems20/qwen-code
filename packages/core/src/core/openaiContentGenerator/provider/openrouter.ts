@@ -25,7 +25,7 @@ export class OpenRouterOpenAICompatibleProvider extends DefaultOpenAICompatibleP
     return {
       ...baseHeaders,
       'HTTP-Referer': 'https://github.com/QwenLM/qwen-code.git',
-      'X-Title': 'RDMind',
+      'X-OpenRouter-Title': 'Qwen Code',
     };
   }
 }

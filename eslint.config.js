@@ -28,6 +28,7 @@ export default tseslint.config(
       'dist/**',
       'docs-site/.next/**',
       'docs-site/out/**',
+      'packages/sdk-java/**',
     ],
   },
   eslint.configs.recommended,

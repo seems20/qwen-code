@@ -438,7 +438,9 @@ export function AuthDialog(): React.JSX.Element {
           </Box>
           <Box marginTop={1}>
             <Text color={theme.text.link}>
-              {'https://docs.xiaohongshu.com/doc/03040f132e7201a6b8e95806118a11f3'}
+              {
+                'https://docs.xiaohongshu.com/doc/03040f132e7201a6b8e95806118a11f3'
+              }
             </Text>
           </Box>
         </>

@@ -282,21 +282,27 @@ SDK 提供了针对不同场景的异常类型：
 ## 常见问题排查 (FAQ / Troubleshooting)
 
 ### Q: 我需要单独安装 RDMind CLI 吗？
+
 A: 是的，该 SDK 需要系统路径中存在 `rdmind` 命令，或者在 `TransportOptions` 中明确指定其绝对路径。
 
 ### Q: 支持哪些 Java 版本？
+
 A: 需要 Java 1.8 或更高版本。
 
 ### Q: 如何处理长耗时请求？
+
 A: SDK 包含超时工具。你可以通过 `TransportOptions` 配置轮次和消息的超时时间。
 
 ### Q: 为什么有些工具不执行？
+
 A: 这可能是由于权限模式。检查你的 `permissionMode` 设置，并考虑使用 `allowedTools` 预批准特定工具。
 
 ### Q: 如何恢复之前的会话？
+
 A: 使用 `TransportOptions` 中的 `setResumeSessionId()` 方法。
 
 ### Q: 我可以为 CLI 进程自定义环境变量吗？
+
 A: 可以，使用 `TransportOptions` 中的 `setEnv()` 方法。
 
 ## 许可证 (License)

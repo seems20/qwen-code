@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {
-  SubagentConfig,
-  McpToolProgressData,
-} from '@rdmind/rdmind-core';
+import type { SubagentConfig, McpToolProgressData } from '@rdmind/rdmind-core';
 
 /**
  * Annotation for attaching metadata to content blocks

@@ -67,7 +67,8 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     displayName: 'glm-5',
     baseUrl: 'https://runway.devops.xiaohongshu.com/openai/zhipu/paas/v4/',
     contextWindow: '200K',
-    description: '智谱新一代的旗舰基座模型，面向 Agentic Engineering 打造，对齐 Claude Opus 4.5',
+    description:
+      '智谱新一代的旗舰基座模型，面向 Agentic Engineering 打造，对齐 Claude Opus 4.5',
   },
   {
     id: 'kimi-k2.5',
