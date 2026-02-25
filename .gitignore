@@ -1,8 +1,7 @@
 # API keys and secrets
 .env
 .env~
-.knowledge
-!packages/cli/.knowledge
+
 # gemini-cli settings
 # We want to keep the .gemini in the root of the repo and ignore any .gemini
 # in subdirectories. In our root .gemini we want to allow for version control
@@ -53,6 +52,8 @@ packages/vscode-ide-companion/*.vsix
 
 # RDMind Configs
 .rdmind/
+!.rdmind/commands/
+!.rdmind/skills/
 logs/
 # GHA credentials
 gha-creds-*.json
