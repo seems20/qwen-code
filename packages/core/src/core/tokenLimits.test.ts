@@ -115,6 +115,12 @@ describe('tokenLimit', () => {
     it('should return the correct limit for Gemini 2.0 Flash', () => {
       expect(tokenLimit('gemini-2.0-flash')).toBe(1048576);
     });
+    it('should return the correct limit for Gemini 3 Pro and Flash', () => {
+      expect(tokenLimit('gemini-3-pro')).toBe(1048576);
+      expect(tokenLimit('gemini-3-flash')).toBe(1048576);
+      expect(tokenLimit('gemini-3.1-pro-preview')).toBe(1048576);
+      expect(tokenLimit('gemini-3.1-flash-preview')).toBe(1048576);
+    });
   });
 
   describe('OpenAI', () => {

@@ -412,6 +412,22 @@ describe('Model-specific tool call formats', () => {
     expect(prompt).toMatchSnapshot();
   });
 
+  it('should include special mandates for gemini-3.1-pro-preview model', () => {
+    vi.mocked(isGitRepository).mockReturnValue(false);
+    const prompt = getCoreSystemPrompt(undefined, 'gemini-3.1-pro-preview');
+
+    // Should contain the tool explanation requirement for Gemini 3.1
+    expect(prompt).toContain('Do not call tools in silence');
+    expect(prompt).toContain(
+      'You must provide to the user very short and concise natural explanation (one sentence) before calling tools',
+    );
+
+    // Should NOT contain "No Chitchat" rule for Gemini 3.1
+    expect(prompt).not.toContain('No Chitchat');
+
+    expect(prompt).toMatchSnapshot();
+  });
+
   it('should include "No Chitchat" rule for non-gemini-3-pro-preview models', () => {
     vi.mocked(isGitRepository).mockReturnValue(false);
     const prompt = getCoreSystemPrompt(undefined, 'gpt-4');

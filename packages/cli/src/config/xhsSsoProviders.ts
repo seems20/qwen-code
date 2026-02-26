@@ -49,6 +49,20 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     description: 'Google 迄今为止最智能的模型(思考时间长)',
   },
   {
+    id: 'gemini-3.1-pro-preview(low)',
+    displayName: 'gemini-3.1-pro-preview(low)',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+    contextWindow: '1M',
+    description: '3 Pro 系列在性能、行为和智能方面的下一代改进版本(思考时间短)',
+  },
+  {
+    id: 'gemini-3.1-pro-preview(high)',
+    displayName: 'gemini-3.1-pro-preview(high)',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
+    contextWindow: '1M',
+    description: '3 Pro 系列在性能、行为和智能方面的下一代改进版本(思考时间长)',
+  },
+  {
     id: 'gemini-3-flash-preview(low)',
     displayName: 'gemini-3-flash-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
@@ -86,15 +100,6 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
   //   contextWindow: '272K',
   //   description:
   //     'GPT-5 的一个版本，专为 Codex 中的智能体编程而优化 (推理强度低)',
-  // },
-  // {
-  //   id: 'gpt-5-codex(medium)',
-  //   displayName: 'GPT-5-Codex(medium)',
-  //   baseUrl:
-  //     'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
-  //   contextWindow: '272K',
-  //   description:
-  //     'GPT-5 的一个版本，专为 Codex 中的智能体编程而优化 (推理强度中)',
   // },
   // {
   //   id: 'gpt-5-codex(high)',
