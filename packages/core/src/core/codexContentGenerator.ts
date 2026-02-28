@@ -67,7 +67,7 @@ interface CodexRequest {
   top_p?: number;
   reasoning?: {
     effort: 'low' | 'medium' | 'high';
-    summary?: 'none' | 'concise' | 'detailed';
+    summary?: 'concise' | 'detailed';
   };
   text?: {
     verbosity?: 'low' | 'medium' | 'high';

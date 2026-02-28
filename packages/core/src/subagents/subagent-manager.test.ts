@@ -954,13 +954,11 @@ System prompt 3`);
     it('should list subagents from both levels', async () => {
       const subagents = await manager.listSubagents();
 
-      expect(subagents).toHaveLength(5); // agent1 (project takes precedence), agent2, agent3, changelog, general-purpose (built-in)
+      expect(subagents).toHaveLength(3); // agent1 (project takes precedence), agent2, agent3
       expect(subagents.map((s) => s.name)).toEqual([
         'agent1',
         'agent2',
         'agent3',
-        'general-purpose',
-        'changelog',
       ]);
     });
 
@@ -987,13 +985,7 @@ System prompt 3`);
       });
 
       const names = subagents.map((s) => s.name);
-      expect(names).toEqual([
-        'agent1',
-        'agent2',
-        'agent3',
-        'changelog',
-        'general-purpose',
-      ]);
+      expect(names).toEqual(['agent1', 'agent2', 'agent3']);
     });
 
     it('should handle empty directories', async () => {
@@ -1004,12 +996,7 @@ System prompt 3`);
 
       const subagents = await manager.listSubagents();
 
-      expect(subagents).toHaveLength(2); // Only built-in agents remain: changelog, general-purpose
-      expect(subagents.map((s) => s.name)).toEqual([
-        'general-purpose',
-        'changelog',
-      ]);
-      expect(subagents.every((s) => s.level === 'builtin')).toBe(true);
+      expect(subagents).toHaveLength(0);
     });
 
     it('should handle directory read errors', async () => {
@@ -1019,12 +1006,7 @@ System prompt 3`);
 
       const subagents = await manager.listSubagents();
 
-      expect(subagents).toHaveLength(2); // Only built-in agents remain: changelog, general-purpose
-      expect(subagents.map((s) => s.name)).toEqual([
-        'general-purpose',
-        'changelog',
-      ]);
-      expect(subagents.every((s) => s.level === 'builtin')).toBe(true);
+      expect(subagents).toHaveLength(0);
     });
   });
 

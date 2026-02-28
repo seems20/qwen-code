@@ -94,21 +94,21 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
   },
   {
     id: 'gpt-5.3-codex(low)',
-    displayName: 'GPT-5.3-Codex(low)',
+    displayName: 'gpt-5.3-codex(low)',
     baseUrl:
       'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
     contextWindow: '272K',
     description:
-      'GPT-5.3 的一个版本，专为 Codex 中的智能体编程而优化 (推理强度低)',
+      'OpenAI 迄今为止最强大的代理式编码模型 (推理强度低)',
   },
   {
     id: 'gpt-5.3-codex(high)',
-    displayName: 'GPT-5.3-Codex(high)',
+    displayName: 'gpt-5.3-codex(high)',
     baseUrl:
       'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
     contextWindow: '272K',
     description:
-      'GPT-5.3 的一个版本，专为 Codex 中的智能体编程而优化 (推理强度高)',
+      'OpenAI 迄今为止最强大的代理式编码模型 (推理强度高)',
   },
   {
     id: 'claude-opus-4-5@20251101',
