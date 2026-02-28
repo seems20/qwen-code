@@ -60,7 +60,7 @@ describe('ShellTool', () => {
         .fn()
         .mockReturnValue(createMockWorkspaceContext('/test/dir')),
       storage: {
-        getUserSkillsDir: vi.fn().mockReturnValue('/test/dir/.qwen/skills'),
+        getUserSkillsDir: vi.fn().mockReturnValue('/test/dir/.rdmind/skills'),
       },
       getGeminiClient: vi.fn(),
       getModel: vi.fn().mockReturnValue('test-model'),
@@ -150,7 +150,7 @@ describe('ShellTool', () => {
       expect(() =>
         shellTool.build({
           command: 'ls',
-          directory: '/test/dir/.qwen/skills/my-skill',
+          directory: '/test/dir/.rdmind/skills/my-skill',
           is_background: false,
         }),
       ).toThrow(
@@ -162,7 +162,7 @@ describe('ShellTool', () => {
       expect(() =>
         shellTool.build({
           command: 'ls',
-          directory: '/test/dir/.qwen/skills',
+          directory: '/test/dir/.rdmind/skills',
           is_background: false,
         }),
       ).toThrow(
@@ -174,7 +174,7 @@ describe('ShellTool', () => {
       expect(() =>
         shellTool.build({
           command: 'ls',
-          directory: '/test/dir/.qwen/skills/../skills/my-skill',
+          directory: '/test/dir/.rdmind/skills/../skills/my-skill',
           is_background: false,
         }),
       ).toThrow(
