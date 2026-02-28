@@ -539,7 +539,7 @@ export class CodexContentGenerator implements ContentGenerator {
 // ============================================================================
 
 function extractBaseModel(model: string): string {
-  // 处理 model(effort) 格式，如 gpt-5-codex(high)
+  // 处理 model(effort) 格式，如 gpt-5.3-codex(high)
   const match = model.match(/^(.+?)\((\w+)\)$/);
   return match ? match[1] : model;
 }

@@ -37,7 +37,7 @@ Foundry V1 协议与 OpenAI 标准 Chat API 有显著差异，采用更具任务
   "id": "res_...",
   "object": "model.response",
   "created": 123456789,
-  "model": "gpt-5-codex",
+  "model": "gpt-5.3-codex",
   "status": "completed",
   "output": [
     {

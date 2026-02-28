@@ -39,7 +39,7 @@ export async function fetchModelKey(modelName: string): Promise<string> {
   try {
     // 如果是 gemini 开头的模型或 codex 模型，需要先做预处理，去除思考等级后缀
     // 例如 gemini-3-pro-preview(low) -> gemini-3-pro-preview
-    // 或 gpt-5-codex(high) -> gpt-5-codex
+    // 或 gpt-5.3-codex(high) -> gpt-5.3-codex
     let processedModelName = modelName;
     const modelNameLower = modelName.toLowerCase();
     if (
