@@ -233,7 +233,7 @@ const SETTINGS_SCHEMA = {
         label: 'Language: UI',
         category: 'General',
         requiresRestart: true,
-        default: 'auto',
+        default: 'zh',
         description:
           'The language for the user interface. Use "auto" to detect from system settings. ' +
           'You can also use custom language codes (e.g., "es", "fr") by placing JS language files ' +
@@ -246,7 +246,7 @@ const SETTINGS_SCHEMA = {
         label: 'Language: Model',
         category: 'General',
         requiresRestart: true,
-        default: 'auto',
+        default: '中文',
         description:
           'The language for LLM output. Use "auto" to detect from system settings, ' +
           'or set a specific language.',
