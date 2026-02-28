@@ -205,6 +205,25 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
  */
 const OUTPUT_PATTERNS: Array<[RegExp, TokenCount]> = [
   // -------------------
+  // OpenAI / Codex
+  // -------------------
+  // GPT-5.3 Codex: 128K max output tokens
+  [/^gpt-?(?:5\.3|5)-codex(?:\(.*\))?.*$/, LIMITS['128k']],
+  [/^.*codex.*$/, LIMITS['128k']],
+
+  // -------------------
+  // Google Gemini
+  // -------------------
+  // Gemini series: 64K max output tokens
+  [/^gemini-.*$/, LIMITS['64k']],
+
+  // -------------------
+  // Moonshot / Kimi
+  // -------------------
+  // Kimi-k2.5: 64K max output tokens
+  [/^kimi-k2\.5.*$/, LIMITS['64k']],
+
+  // -------------------
   // Alibaba / Qwen - DashScope Models
   // -------------------
   // Qwen3-Coder-Plus: 65,536 max output tokens

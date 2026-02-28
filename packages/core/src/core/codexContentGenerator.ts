@@ -291,7 +291,7 @@ export class CodexContentGenerator implements ContentGenerator {
       max_output_tokens: this.samplingParams?.max_tokens,
       reasoning: {
         effort: reasoningEffort as 'low' | 'medium' | 'high',
-        summary: 'detailed',
+        summary: 'none',
       },
       text: {
         verbosity: 'medium',

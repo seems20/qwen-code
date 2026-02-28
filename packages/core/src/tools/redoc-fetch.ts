@@ -30,6 +30,8 @@ const REDOC_URL_PATTERN =
   /^https:\/\/docs\.xiaohongshu\.com\/doc\/([a-f0-9]+)$/;
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 30000; // 30秒超时
 const MAX_IMAGE_SIZE_MB = 20; // 最大图片大小
+const REDOC_PERMISSION_DOC_URL =
+  'https://docs.xiaohongshu.com/doc/f41a8036eb3f98a2ce0ec26c2dbb8e91';
 
 /**
  * RedocFetch 工具的参数接口
@@ -593,6 +595,20 @@ class RedocFetchToolInvocation extends BaseToolInvocation<
     return confirmationDetails;
   }
 
+  private formatUserFriendlyError(error: Error): string {
+    const rawMessage = error.message || '';
+
+    if (rawMessage.includes('does not contain content field in data')) {
+      return [
+        `无法读取 Redoc 文档：${this.params.url}`,
+        '可能原因：当前文档尚未向 RDMind 开通访问权限。',
+        `请先按指引为文档添加 RDMind 权限：${REDOC_PERMISSION_DOC_URL}`,
+      ].join('\n');
+    }
+
+    return `Error during Redoc fetch for ${this.params.url}: ${rawMessage}`;
+  }
+
   async execute(signal: AbortSignal): Promise<ToolResult> {
     const docId = this.extractDocIdFromUrl(this.params.url);
     if (!docId) {
@@ -670,7 +686,7 @@ ${imageInfo}
       };
     } catch (e) {
       const error = e as Error;
-      const errorMessage = `Error during Redoc fetch for ${this.params.url}: ${error.message}`;
+      const errorMessage = this.formatUserFriendlyError(error);
       debugLogger.error(`[RedocFetchTool] ${errorMessage}`, error);
       return {
         llmContent: `Error: ${errorMessage}`,

@@ -92,6 +92,44 @@ describe('RedocFetchTool', () => {
     });
   });
 
+  describe('错误提示友好化', () => {
+    it('content 字段缺失时应提示添加 RDMind 权限', () => {
+      const tool = new RedocFetchTool(mockConfig);
+      const invocation = tool.build({
+        url: 'https://docs.xiaohongshu.com/doc/fefc99fb9aaa0bf065432cf88cd42431',
+        prompt: 'test',
+      }) as unknown as {
+        formatUserFriendlyError: (error: Error) => string;
+      };
+
+      const message = invocation.formatUserFriendlyError(
+        new Error('Redoc API response does not contain content field in data'),
+      );
+
+      expect(message).toContain('尚未向 RDMind 开通访问权限');
+      expect(message).toContain(
+        'https://docs.xiaohongshu.com/doc/f41a8036eb3f98a2ce0ec26c2dbb8e91',
+      );
+    });
+
+    it('其他错误应保持原有错误上下文', () => {
+      const tool = new RedocFetchTool(mockConfig);
+      const invocation = tool.build({
+        url: 'https://docs.xiaohongshu.com/doc/fefc99fb9aaa0bf065432cf88cd42431',
+        prompt: 'test',
+      }) as unknown as {
+        formatUserFriendlyError: (error: Error) => string;
+      };
+
+      const message = invocation.formatUserFriendlyError(
+        new Error('network timeout'),
+      );
+
+      expect(message).toContain('Error during Redoc fetch for');
+      expect(message).toContain('network timeout');
+    });
+  });
+
   // 注意：这个工具依赖外部 API，真正的功能测试需要：
   // 1. 真实的 API 调用（集成测试）
   // 2. 有效的文档 ID

@@ -74,7 +74,7 @@ console.log(`📌 当前版本: ${currentVersion}`);
 
 // 步骤 1: 更新版本号
 console.log('\n═══════════════════════════════════════════════════════════');
-console.log('📦 步骤 1/6: 更新版本号');
+console.log('📦 步骤 1/5: 更新版本号');
 console.log('═══════════════════════════════════════════════════════════');
 run(`node ${resolve(__dirname, 'version.js')} ${versionArg}`);
 
@@ -84,42 +84,35 @@ console.log(`\n✅ 版本号已更新: ${currentVersion} → ${newVersion}`);
 
 // 步骤 2: 清理旧的构建文件
 console.log('\n═══════════════════════════════════════════════════════════');
-console.log('🧹 步骤 2/6: 清理旧的构建文件');
+console.log('🧹 步骤 2/5: 清理旧的构建文件');
 console.log('═══════════════════════════════════════════════════════════');
 run('npm run clean');
 console.log('\n✅ 清理完成');
 
 // 步骤 2.5: 重新安装依赖（因为 clean 删除了 node_modules）
 console.log('\n═══════════════════════════════════════════════════════════');
-console.log('📦 步骤 2.5/6: 重新安装依赖');
+console.log('📦 步骤 2.5/5: 重新安装依赖');
 console.log('═══════════════════════════════════════════════════════════');
 run('npm install');
 console.log('\n✅ 依赖安装完成');
 
-// 步骤 2.6: 构建 web-templates（esbuild 需要它的预构建产物）
-console.log('\n═══════════════════════════════════════════════════════════');
-console.log('📦 步骤 2.6/6: 构建 web-templates');
-console.log('═══════════════════════════════════════════════════════════');
-run('npm run build --workspace=packages/web-templates');
-console.log('\n✅ web-templates 构建完成');
-
 // 步骤 3: 打包项目 (bundle)
 console.log('\n═══════════════════════════════════════════════════════════');
-console.log('📦 步骤 3/6: 打包项目 (esbuild)');
+console.log('📦 步骤 3/5: 打包项目 (esbuild)');
 console.log('═══════════════════════════════════════════════════════════');
 run('npm run bundle');
 console.log('\n✅ 打包完成');
 
 // 步骤 4: 准备发布包
 console.log('\n═══════════════════════════════════════════════════════════');
-console.log('📋 步骤 4/6: 准备发布包元数据');
+console.log('📋 步骤 4/5: 准备发布包元数据');
 console.log('═══════════════════════════════════════════════════════════');
 run('npm run prepare:package');
 console.log('\n✅ 发布包准备完成');
 
 // 步骤 5: 发布到 npm（从 dist 目录）
 console.log('\n═══════════════════════════════════════════════════════════');
-console.log(`📤 步骤 5/6: 发布到 npm (tag: ${publishTag})`);
+console.log(`📤 步骤 5/5: 发布到 npm (tag: ${publishTag})`);
 console.log('═══════════════════════════════════════════════════════════');
 
 const publishCommand =
