@@ -19,9 +19,9 @@
 
 import { execSync } from 'node:child_process';
 import {
-  chmodSync,
   existsSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -85,56 +85,25 @@ if (!image.length) {
   );
 }
 
-// Build in dependency order to ensure packages are built before their dependents
-// This is the same order as defined in build.js
-const buildOrder = [
-  'packages/test-utils',
-  'packages/core',
-  'packages/cli',
-  'packages/webui',
-  'packages/sdk-typescript',
-  'packages/vscode-ide-companion',
-];
-
 if (!argv.s) {
   execSync('npm install', { stdio: 'inherit' });
-  // Build in dependency order instead of using --workspaces
-  for (const workspace of buildOrder) {
-    execSync(`npm run build --workspace=${workspace}`, {
-      stdio: 'inherit',
-    });
+  execSync('npm run build', { stdio: 'inherit' });
+
+  console.log('bundling...');
+  execSync('npm run bundle', { stdio: 'inherit' });
+
+  console.log('preparing package...');
+  execSync('npm run prepare:package', { stdio: 'inherit' });
+
+  console.log('packing...');
+  const distDir = join(process.cwd(), 'dist');
+  for (const f of readdirSync(distDir)) {
+    if (f.endsWith('.tgz')) {
+      rmSync(join(distDir, f), { force: true });
+    }
   }
+  execSync('npm pack', { stdio: 'ignore', cwd: distDir });
 }
-
-console.log('packing @rdmind/rdmind ...');
-const cliPackageDir = join('packages', 'cli');
-rmSync(join(cliPackageDir, 'dist', 'rdmind-rdmind-*.tgz'), { force: true });
-execSync(`npm pack -w @rdmind/rdmind --pack-destination ./packages/cli/dist`, {
-  stdio: 'ignore',
-});
-
-console.log('packing @rdmind/rdmind-core ...');
-const corePackageDir = join('packages', 'core');
-rmSync(join(corePackageDir, 'dist', 'rdmind-rdmind-core-*.tgz'), {
-  force: true,
-});
-execSync(
-  `npm pack -w @rdmind/rdmind-core --pack-destination ./packages/core/dist`,
-  { stdio: 'ignore' },
-);
-
-const packageVersion = JSON.parse(
-  readFileSync(join(process.cwd(), 'package.json'), 'utf-8'),
-).version;
-
-chmodSync(
-  join(cliPackageDir, 'dist', `rdmind-rdmind-${packageVersion}.tgz`),
-  0o755,
-);
-chmodSync(
-  join(corePackageDir, 'dist', `rdmind-rdmind-core-${packageVersion}.tgz`),
-  0o755,
-);
 
 const buildStdout = process.env.VERBOSE ? 'inherit' : 'ignore';
 

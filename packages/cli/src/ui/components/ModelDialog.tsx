@@ -11,6 +11,7 @@ import {
   AuthType,
   ModelSlashCommandEvent,
   logModelSlashCommand,
+  MAINLINE_CODER_MODEL,
   type AvailableModel as CoreAvailableModel,
   type ContentGeneratorConfig,
   type ContentGeneratorConfigSource,
@@ -25,7 +26,6 @@ import { ConfigContext } from '../contexts/ConfigContext.js';
 import { UIStateContext, type UIState } from '../contexts/UIStateContext.js';
 import { useUIActions } from '../contexts/UIActionsContext.js';
 import { useSettings, SettingsContext } from '../contexts/SettingsContext.js';
-import { MAINLINE_CODER } from '../models/availableModels.js';
 import { OpenAIKeyPrompt } from './OpenAIKeyPrompt.js';
 import { XhsSsoModelConfigFlow } from './XhsSsoModelConfigFlow.js';
 import { SettingScope } from '../../config/settings.js';
@@ -403,7 +403,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     [availableModelEntries],
   );
 
-  const preferredModelId = config?.getModel() || MAINLINE_CODER;
+  const preferredModelId = config?.getModel() || MAINLINE_CODER_MODEL;
   // Check if current model is a runtime model
   // Runtime snapshot ID is already in $runtime|${authType}|${modelId} format
   const activeRuntimeSnapshot = config?.getActiveRuntimeModelSnapshot?.();

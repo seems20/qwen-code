@@ -505,7 +505,7 @@ describe('modelConfigUtils', () => {
       );
     });
 
-    it('should log warnings from resolveModelConfig', () => {
+    it('should return warnings from resolveModelConfig', () => {
       const argv = {};
       const settings = makeMockSettings();
       const selectedAuthType = AuthType.USE_OPENAI;
@@ -520,14 +520,13 @@ describe('modelConfigUtils', () => {
         warnings: ['Warning 1', 'Warning 2'],
       });
 
-      resolveCliGenerationConfig({
+      const result = resolveCliGenerationConfig({
         argv,
         settings,
         selectedAuthType,
       });
 
-      expect(mockWriteStderrLine).toHaveBeenCalledWith('Warning 1');
-      expect(mockWriteStderrLine).toHaveBeenCalledWith('Warning 2');
+      expect(result.warnings).toEqual(['Warning 1', 'Warning 2']);
     });
 
     it('should use custom env when provided', () => {

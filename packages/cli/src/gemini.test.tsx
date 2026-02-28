@@ -179,6 +179,7 @@ describe('gemini.tsx main function', () => {
         getProjectRoot: () => '/',
         getOutputFormat: () => OutputFormat.TEXT,
         getSessionId: () => 'test-session-id',
+        getWarnings: () => [],
       } as unknown as Config;
     });
     vi.mocked(loadSettings).mockReturnValue({
@@ -344,6 +345,7 @@ describe('gemini.tsx main function', () => {
       getInputFormat: () => 'stream-json',
       getContentGeneratorConfig: () => ({ authType: 'test-auth' }),
       getSessionId: () => 'test-session-id',
+      getWarnings: () => [],
     } as unknown as Config;
 
     vi.mocked(loadCliConfig).mockResolvedValue(configStub);
@@ -442,6 +444,7 @@ describe('gemini.tsx main function kitty protocol', () => {
       getScreenReader: () => false,
       getGeminiMdFileCount: () => 0,
       getSessionId: () => 'test-session-id',
+      getWarnings: () => [],
     } as unknown as Config);
     vi.mocked(loadSettings).mockReturnValue({
       errors: [],
@@ -487,7 +490,6 @@ describe('gemini.tsx main function kitty protocol', () => {
       googleSearchEngineId: undefined,
       webSearchDefault: undefined,
       screenReader: undefined,
-      vlmSwitchMode: undefined,
       inputFormat: undefined,
       outputFormat: undefined,
       includePartialMessages: undefined,

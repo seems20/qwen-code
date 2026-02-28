@@ -5,7 +5,7 @@
  */
 
 import type { ExportSessionData } from '../types.js';
-import { HTML_TEMPLATE } from './htmlTemplate.js';
+import { EXPORT_HTML_TEMPLATE as HTML_TEMPLATE } from '@rdmind/web-templates';
 
 /**
  * Escapes JSON for safe embedding in HTML.
