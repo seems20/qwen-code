@@ -14,9 +14,9 @@ import type {
 
 // Mock dependencies
 vi.mock('@rdmind/rdmind-core', async () => {
-  const actual = await vi.importActual<
-    typeof import('@rdmind/rdmind-core')
-  >('@rdmind/rdmind-core');
+  const actual = await vi.importActual<typeof import('@rdmind/rdmind-core')>(
+    '@rdmind/rdmind-core',
+  );
   return {
     ...actual,
     read: vi.fn(),

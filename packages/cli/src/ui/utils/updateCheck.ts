@@ -9,6 +9,7 @@ import updateNotifier from 'update-notifier';
 import semver from 'semver';
 import { getPackageJson } from '../../utils/package.js';
 import { createDebugLogger } from '@rdmind/rdmind-core';
+import { t } from '../../i18n/index.js';
 
 const debugLogger = createDebugLogger('UPDATE_CHECK');
 
@@ -78,7 +79,10 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
       );
 
       if (bestUpdate && semver.gt(bestUpdate.latest, currentVersion)) {
-        const message = `A new version of RDMind is available! ${currentVersion} → ${bestUpdate.latest}`;
+        const message = t(
+          'A new version of RDMind is available! {{currentVersion}} → {{latestVersion}}',
+          { currentVersion, latestVersion: bestUpdate.latest },
+        );
         return {
           message,
           update: { ...bestUpdate, current: currentVersion },
@@ -88,7 +92,10 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
       const updateInfo = await createNotifier('latest').fetchInfo();
 
       if (updateInfo && semver.gt(updateInfo.latest, currentVersion)) {
-        const message = `RDMind update available! ${currentVersion} → ${updateInfo.latest}`;
+        const message = t(
+          'RDMind update available! {{currentVersion}} → {{latestVersion}}',
+          { currentVersion, latestVersion: updateInfo.latest },
+        );
         return {
           message,
           update: { ...updateInfo, current: currentVersion },

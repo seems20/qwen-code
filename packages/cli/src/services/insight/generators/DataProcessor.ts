@@ -6,10 +6,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import {
-  read as readJsonlFile,
-  createDebugLogger,
-} from '@rdmind/rdmind-core';
+import { read as readJsonlFile, createDebugLogger } from '@rdmind/rdmind-core';
 import pLimit from 'p-limit';
 import type {
   InsightData,

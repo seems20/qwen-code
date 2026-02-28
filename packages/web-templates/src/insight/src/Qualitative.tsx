@@ -578,7 +578,9 @@ export function Improvements({
       {/* RDMind.md Additions */}
       {Array.isArray(improvements.rdmind_md_additions) &&
         improvements.rdmind_md_additions.length > 0 && (
-          <RDMindMdAdditionsSection additions={improvements.rdmind_md_additions} />
+          <RDMindMdAdditionsSection
+            additions={improvements.rdmind_md_additions}
+          />
         )}
 
       <p className="text-xs text-slate-500 mb-3">
