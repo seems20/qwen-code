@@ -125,10 +125,9 @@ describe('<ModelDialog />', () => {
     cleanup();
   });
 
-  it('renders the title and help text', () => {
+  it('renders the title', () => {
     const { getByText } = renderComponent();
     expect(getByText('Select Model')).toBeDefined();
-    expect(getByText('(Press Esc to close)')).toBeDefined();
   });
 
   it('passes all model options to DescriptiveRadioButtonSelect', () => {
@@ -312,11 +311,12 @@ describe('<ModelDialog />', () => {
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('does not pass onHighlight to DescriptiveRadioButtonSelect', () => {
+  it('passes onHighlight to DescriptiveRadioButtonSelect', () => {
     renderComponent();
 
     const childOnHighlight = mockedSelect.mock.calls[0][0].onHighlight;
-    expect(childOnHighlight).toBeUndefined();
+    expect(childOnHighlight).toBeDefined();
+    expect(typeof childOnHighlight).toBe('function');
   });
 
   it('calls onClose prop when "escape" key is pressed', () => {

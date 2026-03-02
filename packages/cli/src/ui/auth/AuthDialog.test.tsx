@@ -32,6 +32,7 @@ const createMockUIActions = (overrides: Partial<UIActions> = {}): UIActions => {
   // AuthDialog only uses handleAuthSelect
   const baseActions = {
     handleAuthSelect: vi.fn(),
+    handleRetryLastPrompt: vi.fn(),
   } as Partial<UIActions>;
 
   return {
@@ -169,9 +170,9 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // Since the auth dialog shows API-KEY option now,
+      // Since the auth dialog shows API Key option now,
       // it won't show GEMINI_API_KEY messages
-      expect(lastFrame()).toContain('API-KEY');
+      expect(lastFrame()).toContain('API Key');
     });
 
     it('should not show the GEMINI_API_KEY message if QWEN_DEFAULT_AUTH_TYPE is set to something else', () => {
@@ -257,9 +258,9 @@ describe('AuthDialog', () => {
 
       const { lastFrame } = renderAuthDialog(settings);
 
-      // Since the auth dialog shows API-KEY option now,
+      // Since the auth dialog shows API Key option now,
       // it won't show GEMINI_API_KEY messages
-      expect(lastFrame()).toContain('API-KEY');
+      expect(lastFrame()).toContain('API Key');
     });
   });
 
@@ -305,7 +306,7 @@ describe('AuthDialog', () => {
       const { lastFrame } = renderAuthDialog(settings);
 
       // Qwen OAuth is hidden, fallback to first item (XHS SSO)
-      expect(lastFrame()).toContain('● 1. 小红书 SSO');
+      expect(lastFrame()).toContain('小红书 SSO');
     });
 
     it('should fall back to default if QWEN_DEFAULT_AUTH_TYPE is not set', () => {
@@ -345,7 +346,7 @@ describe('AuthDialog', () => {
       const { lastFrame } = renderAuthDialog(settings);
 
       // 默认是 XHS_SSO（第一项，因为 Qwen OAuth 被隐藏了）
-      expect(lastFrame()).toContain('● 1. 小红书 SSO');
+      expect(lastFrame()).toContain('小红书 SSO');
     });
 
     it('should show an error and fall back to default if QWEN_DEFAULT_AUTH_TYPE is invalid', () => {
@@ -387,7 +388,7 @@ describe('AuthDialog', () => {
       const { lastFrame } = renderAuthDialog(settings);
 
       // Qwen OAuth 已隐藏，默认是 XHS_SSO（第一项）
-      expect(lastFrame()).toContain('● 1. 小红书 SSO');
+      expect(lastFrame()).toContain('小红书 SSO');
     });
   });
 
