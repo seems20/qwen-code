@@ -19,7 +19,9 @@ describe('BuiltinAgentRegistry', () => {
 
   describe('getBuiltinAgent', () => {
     it('should return null for any name when no builtin agents are configured', () => {
-      expect(BuiltinAgentRegistry.getBuiltinAgent('general-purpose')).toBeNull();
+      expect(
+        BuiltinAgentRegistry.getBuiltinAgent('general-purpose'),
+      ).toBeNull();
       expect(BuiltinAgentRegistry.getBuiltinAgent('changelog')).toBeNull();
       expect(BuiltinAgentRegistry.getBuiltinAgent('invalid')).toBeNull();
       expect(BuiltinAgentRegistry.getBuiltinAgent('')).toBeNull();
@@ -28,7 +30,9 @@ describe('BuiltinAgentRegistry', () => {
 
   describe('isBuiltinAgent', () => {
     it('should return false for all names when no builtin agents are configured', () => {
-      expect(BuiltinAgentRegistry.isBuiltinAgent('general-purpose')).toBe(false);
+      expect(BuiltinAgentRegistry.isBuiltinAgent('general-purpose')).toBe(
+        false,
+      );
       expect(BuiltinAgentRegistry.isBuiltinAgent('changelog')).toBe(false);
       expect(BuiltinAgentRegistry.isBuiltinAgent('invalid')).toBe(false);
       expect(BuiltinAgentRegistry.isBuiltinAgent('')).toBe(false);

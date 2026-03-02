@@ -25,42 +25,42 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     displayName: 'gemini-3-pro-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
     contextWindow: '1M',
-    description: 'Google 迄今为止最智能的模型(思考时间短)',
+    description: 'Google 迄今为止最智能的模型 (推理强度低)',
   },
   {
     id: 'gemini-3-pro-preview(high)',
     displayName: 'gemini-3-pro-preview(high)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
     contextWindow: '1M',
-    description: 'Google 迄今为止最智能的模型(思考时间长)',
+    description: 'Google 迄今为止最智能的模型 (推理强度高)',
   },
   {
     id: 'gemini-3.1-pro-preview(low)',
     displayName: 'gemini-3.1-pro-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
     contextWindow: '1M',
-    description: '3 Pro 系列在性能、行为和智能方面的下一代改进版本(思考时间短)',
+    description: '3 Pro 系列在性能、行为和智能方面的下一代改进版本 (推理强度低)',
   },
   {
     id: 'gemini-3.1-pro-preview(high)',
     displayName: 'gemini-3.1-pro-preview(high)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
     contextWindow: '1M',
-    description: '3 Pro 系列在性能、行为和智能方面的下一代改进版本(思考时间长)',
+    description: '3 Pro 系列在性能、行为和智能方面的下一代改进版本 (推理强度高)',
   },
   {
     id: 'gemini-3-flash-preview(low)',
     displayName: 'gemini-3-flash-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
     contextWindow: '1M',
-    description: 'Google 高速智能模型(思考时间短)',
+    description: 'Google 高速智能模型 (推理强度低)',
   },
   {
     id: 'gemini-3-flash-preview(high)',
     displayName: 'gemini-3-flash-preview(high)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
     contextWindow: '1M',
-    description: 'Google 高速智能模型(思考时间长)',
+    description: 'Google 高速智能模型 (推理强度高)',
   },
   {
     id: 'glm-5',
@@ -84,8 +84,7 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     baseUrl:
       'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
     contextWindow: '272K',
-    description:
-      'OpenAI 迄今为止最强大的代理式编码模型 (推理强度中)',
+    description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度中)',
   },
   {
     id: 'gpt-5.3-codex(high)',
@@ -93,16 +92,15 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     baseUrl:
       'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
     contextWindow: '272K',
-    description:
-      'OpenAI 迄今为止最强大的代理式编码模型 (推理强度高)',
+    description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度高)',
   },
-  {
-    id: 'claude-opus-4-5@20251101',
-    displayName: 'Claude Opus 4.5',
-    baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
-    contextWindow: '200K',
-    description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
-  },
+  // {
+  //   id: 'claude-opus-4-5@20251101',
+  //   displayName: 'Claude Opus 4.5',
+  //   baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
+  //   contextWindow: '200K',
+  //   description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
+  // },
   {
     id: 'qwen3-coder-480b-a35b-instruct',
     displayName: 'qwen3-coder-480b-a35b-instruct',

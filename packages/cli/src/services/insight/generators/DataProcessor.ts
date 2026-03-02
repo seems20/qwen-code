@@ -335,14 +335,20 @@ export class DataProcessor {
 
     facets.forEach((facet) => {
       // Aggregate satisfaction
-      Object.entries(facet.user_satisfaction_counts).forEach(([sat, count]) => {
-        satisfactionAgg[sat] = (satisfactionAgg[sat] || 0) + count;
-      });
+      if (facet.user_satisfaction_counts) {
+        Object.entries(facet.user_satisfaction_counts).forEach(
+          ([sat, count]) => {
+            satisfactionAgg[sat] = (satisfactionAgg[sat] || 0) + count;
+          },
+        );
+      }
 
       // Aggregate friction
-      Object.entries(facet.friction_counts).forEach(([fric, count]) => {
-        frictionAgg[fric] = (frictionAgg[fric] || 0) + count;
-      });
+      if (facet.friction_counts) {
+        Object.entries(facet.friction_counts).forEach(([fric, count]) => {
+          frictionAgg[fric] = (frictionAgg[fric] || 0) + count;
+        });
+      }
 
       // Aggregate primary success
       if (facet.primary_success && facet.primary_success !== 'none') {
@@ -356,9 +362,11 @@ export class DataProcessor {
       }
 
       // Aggregate goals
-      Object.entries(facet.goal_categories).forEach(([goal, count]) => {
-        goalsAgg[goal] = (goalsAgg[goal] || 0) + count;
-      });
+      if (facet.goal_categories) {
+        Object.entries(facet.goal_categories).forEach(([goal, count]) => {
+          goalsAgg[goal] = (goalsAgg[goal] || 0) + count;
+        });
+      }
     });
 
     return {
@@ -685,22 +693,32 @@ export class DataProcessor {
 
     facets.forEach((facet) => {
       // Aggregate goals
-      Object.entries(facet.goal_categories).forEach(([goal, count]) => {
-        goalsAgg[goal] = (goalsAgg[goal] || 0) + count;
-      });
+      if (facet.goal_categories) {
+        Object.entries(facet.goal_categories).forEach(([goal, count]) => {
+          goalsAgg[goal] = (goalsAgg[goal] || 0) + count;
+        });
+      }
 
       // Aggregate outcomes
-      outcomesAgg[facet.outcome] = (outcomesAgg[facet.outcome] || 0) + 1;
+      if (facet.outcome) {
+        outcomesAgg[facet.outcome] = (outcomesAgg[facet.outcome] || 0) + 1;
+      }
 
       // Aggregate satisfaction
-      Object.entries(facet.user_satisfaction_counts).forEach(([sat, count]) => {
-        satisfactionAgg[sat] = (satisfactionAgg[sat] || 0) + count;
-      });
+      if (facet.user_satisfaction_counts) {
+        Object.entries(facet.user_satisfaction_counts).forEach(
+          ([sat, count]) => {
+            satisfactionAgg[sat] = (satisfactionAgg[sat] || 0) + count;
+          },
+        );
+      }
 
       // Aggregate friction
-      Object.entries(facet.friction_counts).forEach(([fric, count]) => {
-        frictionAgg[fric] = (frictionAgg[fric] || 0) + count;
-      });
+      if (facet.friction_counts) {
+        Object.entries(facet.friction_counts).forEach(([fric, count]) => {
+          frictionAgg[fric] = (frictionAgg[fric] || 0) + count;
+        });
+      }
 
       // Aggregate success (primary_success)
       if (facet.primary_success && facet.primary_success !== 'none') {
