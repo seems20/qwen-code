@@ -1155,6 +1155,8 @@ export default {
     'You can switch permission mode quickly with Shift+Tab or /approval-mode.',
   'You can switch permission mode quickly with Tab or /approval-mode.':
     'You can switch permission mode quickly with Tab or /approval-mode.',
+  'Try /insight to generate personalized insights from your chat history.':
+    'Try /insight to generate personalized insights from your chat history.',
   'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.':
     'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.',
   'Try asking RDMind to help you commit code.':

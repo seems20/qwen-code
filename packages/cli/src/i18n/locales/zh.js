@@ -1095,6 +1095,8 @@ export default {
     'RDMind 可以读懂 REDoc，注意不要上传涉及用户隐私和核心算法的文档。',
   'If you find RDMind useful, feel free to recommend it to your colleagues~':
     '如果觉得 RDMind 好用，欢迎向同事推荐~',
+  'Try /insight to generate personalized insights from your chat history.':
+    '试试 /insight，从聊天记录中生成个性化洞察。',
 
   // ============================================================================
   // Exit Screen / Stats
