@@ -21,20 +21,6 @@ export interface XhsSsoModel {
  */
 export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
-    id: 'qwen3-coder-plus',
-    displayName: 'qwen3-coder-plus',
-    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/qwen/v1',
-    contextWindow: '1M',
-    description: '基于 Qwen3 的闭源代码生成模型',
-  },
-  {
-    id: 'qwen3-coder-480b-a35b-instruct',
-    displayName: 'qwen3-coder-480b-a35b-instruct',
-    baseUrl: 'https://maas.devops.xiaohongshu.com/v1',
-    contextWindow: '256k',
-    description: 'QuickSilver 平台部署版本',
-  },
-  {
     id: 'gemini-3-pro-preview(low)',
     displayName: 'gemini-3-pro-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
@@ -93,13 +79,13 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
       '在 Agent、代码、视觉理解及一系列通用智能任务上取得开源 SoTA 表现',
   },
   {
-    id: 'gpt-5.3-codex(low)',
-    displayName: 'gpt-5.3-codex(low)',
+    id: 'gpt-5.3-codex(medium)',
+    displayName: 'gpt-5.3-codex(medium)',
     baseUrl:
       'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
     contextWindow: '272K',
     description:
-      'OpenAI 迄今为止最强大的代理式编码模型 (推理强度低)',
+      'OpenAI 迄今为止最强大的代理式编码模型 (推理强度中)',
   },
   {
     id: 'gpt-5.3-codex(high)',
@@ -116,5 +102,12 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
     contextWindow: '200K',
     description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
+  },
+  {
+    id: 'qwen3-coder-480b-a35b-instruct',
+    displayName: 'qwen3-coder-480b-a35b-instruct',
+    baseUrl: 'https://maas.devops.xiaohongshu.com/v1',
+    contextWindow: '256k',
+    description: 'QuickSilver 平台部署版本',
   },
 ];

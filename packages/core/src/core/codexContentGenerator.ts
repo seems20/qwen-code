@@ -383,11 +383,7 @@ export class CodexContentGenerator implements ContentGenerator {
   ): GenerateContentResponse | null {
     switch (event) {
       case 'response.reasoning_summary_text.delta': {
-        const text = data.delta;
-        if (!text) return null;
-        return createGeminiResponse(data.item_id || 'unknown', [
-          { text, thought: true } as Part,
-        ]);
+        return null;
       }
 
       case 'response.output_text.delta': {
@@ -897,15 +893,11 @@ function convertCodexResponseToGemini(
 
   if (response.output && Array.isArray(response.output)) {
     for (const item of response.output) {
-      if (item.type === 'reasoning' && item.summary) {
-        const text = item.summary
-          .map((s) => s.text)
-          .filter(Boolean)
-          .join('');
-        if (text) {
-          parts.push({ text, thought: true } as Part);
-        }
-      } else if (item.type === 'message' && item.content) {
+      if (item.type === 'reasoning') {
+        continue;
+      }
+
+      if (item.type === 'message' && item.content) {
         const text = item.content
           .map((c) => c.text)
           .filter(Boolean)
