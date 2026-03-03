@@ -18,7 +18,7 @@ import { useTerminalSize } from '../hooks/useTerminalSize.js';
  * Simplified representation of authentication method shown to users.
  */
 export enum AuthDisplayType {
-  XHS_SSO = 'XHS SSO',
+  XHS_SSO = 'xhs-sso',
   QWEN_OAUTH = 'Qwen OAuth',
   CODING_PLAN = 'Coding Plan',
   API_KEY = 'API Key',

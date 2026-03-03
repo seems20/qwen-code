@@ -94,13 +94,13 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     contextWindow: '272K',
     description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度高)',
   },
-  // {
-  //   id: 'claude-opus-4-5@20251101',
-  //   displayName: 'Claude Opus 4.5',
-  //   baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
-  //   contextWindow: '200K',
-  //   description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
-  // },
+  {
+    id: 'claude-opus-4-5@20251101',
+    displayName: 'Claude Opus 4.5',
+    baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
+    contextWindow: '200K',
+    description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
+  },
   {
     id: 'qwen3-coder-480b-a35b-instruct',
     displayName: 'qwen3-coder-480b-a35b-instruct',

@@ -143,10 +143,45 @@ export function getCoreSystemPrompt(
     model?.toLowerCase().includes('gemini-3.1-pro-preview') ||
     model?.toLowerCase().includes('gemini-3-flash-preview');
 
+  // Check if current model is gpt-5.3-codex
+  const isGpt53Codex = model?.toLowerCase().includes('gpt-5.3-codex');
+
   const mandatesVariant = isGemini3
     ? `
 
 - **Do not call tools in silence:** You must provide to the user very short and concise natural explanation (one sentence) before calling tools.`
+    : ``;
+
+  const codexFinalAnswerInstructionsVariant = isGpt53Codex
+    ? `
+
+## Final answer instructions
+- Balance conciseness to not overwhelm the user with appropriate detail for the request. Do not narrate abstractly; explain what you are doing and why.
+- Do not begin responses with conversational interjections or meta commentary. Avoid openers such as acknowledgements (“Done —”, “Got it”, “Great question, ”) or framing phrases.
+- The user does not see command execution outputs. When asked to show the output of a command (e.g. \`git show\`), relay the important details in your answer or summarize the key lines so the user understands the result.
+- Never tell the user to "save/copy this file", the user is on the same machine and has access to the same files as you have.
+- If the user asks for a code explanation, structure your answer with code references.
+- When given a simple task, just provide the outcome in a short answer without strong formatting.
+- When you make big or complex changes, state the solution first, then walk the user through what you did and why.
+- For casual chit-chat, just chat.
+- If you weren't able to do something, for example run tests, tell the user.
+- If there are natural next steps the user may want to take, suggest them at the end of your response. Do not make suggestions if there are no natural next steps. When suggesting multiple options, use numeric lists for the suggestions so the user can quickly respond with a single number.`
+    : ``;
+
+  const codexIntermediaryUpdatesVariant = isGpt53Codex
+    ? `
+
+## Intermediary updates
+- User updates are short updates while you are working, they are NOT final answers.
+- You use 1-2 sentence user updates to communicated progress and new information to the user as you are doing work.
+- Do not begin responses with conversational interjections or meta commentary. Avoid openers such as acknowledgements (“Done —”, “Got it”, “Great question, ”) or framing phrases.
+- You provide user updates frequently, every 20s.
+- Before exploring or doing substantial work, you start with a user update acknowledging the request and explaining your first step. You should include your understanding of the user request and explain what you will do. Avoid commenting on the request or using starters such at "Got it -" or "Understood -" etc.
+- When exploring, e.g. searching, reading files you provide user updates as you go, every 20s, explaining what context you are gathering and what you've learned. Vary your sentence structure when providing these updates to avoid sounding repetitive - in particular, don't start each sentence the same way.
+- After you have sufficient context, and the work is substantial you provide a longer plan (this is the only user update that may be longer than 2 sentences and can contain formatting).
+- Before performing file edits of any kind, you provide updates explaining what edits you are making.
+- As you are thinking, you very frequently provide updates even if not taking any actions, informing the user of your progress. You interrupt your thinking and send multiple updates in a row if thinking for more than 100 words.
+- Tone of your updates MUST match your personality.`
     : ``;
 
   const basePrompt = systemMdEnabled
@@ -285,6 +320,9 @@ IMPORTANT: Always use the ${ToolNames.TODO_WRITE} tool to plan and track tasks t
 ## Interaction Details
 - **Help Command:** The user can use '/help' to display help information.
 - **Feedback:** To report a bug or provide feedback, please use the /bug command.
+
+${codexFinalAnswerInstructionsVariant}
+${codexIntermediaryUpdatesVariant}
 
 ${(function () {
   // Determine sandbox status based on environment variables
