@@ -22,7 +22,7 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
       ).toBe(true);
     });
 
-    it('should return false for other Xiaohongshu domain paths', () => {
+    it('should return true for other Xiaohongshu domain paths', () => {
       const config: ContentGeneratorConfig = {
         model: 'test-model',
         baseUrl: 'https://maas.devops.xiaohongshu.com/other-service/v1',
@@ -31,7 +31,7 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
 
       expect(
         XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config),
-      ).toBe(false);
+      ).toBe(true);
     });
 
     it('should return false for non-Xiaohongshu URLs', () => {
@@ -114,13 +114,13 @@ describe('XiaohongshuOpenAICompatibleProvider', () => {
       );
 
       const request = {
-        model: 'Qwen3-Coder-480B-A35B-Instruct',
+        model: 'Test-Model-Name-With-Uppercase',
         messages: [{ role: 'user' as const, content: 'Hello' }],
       };
 
       const result = provider.buildRequest(request, 'test-prompt-id');
 
-      expect(result.model).toBe('qwen3-coder-480b-a35b-instruct');
+      expect(result.model).toBe('test-model-name-with-uppercase');
       expect(result.messages).toEqual(request.messages);
     });
 

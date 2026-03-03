@@ -8,7 +8,8 @@ import fs from 'node:fs/promises';
 import * as os from 'node:os';
 import path from 'node:path';
 import { canUseRipgrep } from '@rdmind/rdmind-core';
-import { isL4Repository } from './l4RepositoryAutoSwitch.js';
+// [暂停自动切换] L4仓库检测已临时禁用 - 取消导入
+// import { isL4Repository } from './l4RepositoryAutoSwitch.js';
 
 type WarningCheckOptions = {
   workspaceRoot: string;
@@ -80,30 +81,32 @@ const ripgrepAvailabilityCheck: WarningCheck = {
   },
 };
 
-const l4RepositoryCheck: WarningCheck = {
-  id: 'l4-repository',
-  check: async (options: WarningCheckOptions) => {
-    try {
-      // 调用接口判断是否是L4仓库
-      const isL4Repo = await isL4Repository(options.workspaceRoot);
-
-      if (isL4Repo) {
-        return 'L4等级仓库，为您切换到QS平台模型';
-      }
-
-      return null;
-    } catch (_err: unknown) {
-      return null;
-    }
-  },
-};
+// [暂停自动切换] L4仓库检测已临时禁用 - 注释掉检查定义
+// const l4RepositoryCheck: WarningCheck = {
+//   id: 'l4-repository',
+//   check: async (options: WarningCheckOptions) => {
+//     try {
+//       // 调用接口判断是否是L4仓库
+//       const isL4Repo = await isL4Repository(options.workspaceRoot);
+// 
+//       if (isL4Repo) {
+//         return 'L4等级仓库，为您切换到QS平台模型';
+//       }
+// 
+//       return null;
+//     } catch (_err: unknown) {
+//       return null;
+//     }
+//   },
+// };
 
 // All warning checks
 const WARNING_CHECKS: readonly WarningCheck[] = [
   homeDirectoryCheck,
   rootDirectoryCheck,
   ripgrepAvailabilityCheck,
-  l4RepositoryCheck,
+  // [暂停自动切换] L4仓库检测已临时禁用
+  // l4RepositoryCheck,
 ];
 
 export async function getUserStartupWarnings(

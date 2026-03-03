@@ -33,10 +33,7 @@ export class XiaohongshuOpenAICompatibleProvider
     if (!baseUrl) {
       return false;
     }
-    return (
-      baseUrl ===
-      'https://maas.devops.xiaohongshu.com/snsexperienceai-q3coder480ba35b-inst/v1'
-    );
+    return baseUrl.startsWith('https://maas.devops.xiaohongshu.com/');
   }
 
   buildHeaders(): Record<string, string | undefined> {
@@ -91,9 +88,6 @@ export class XiaohongshuOpenAICompatibleProvider
   }
 
   getDefaultGenerationConfig(): GenerateContentConfig {
-    return {
-      temperature: 0.7,
-      topP: 0.8,
-    };
+    return {};
   }
 }

@@ -102,9 +102,9 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
   },
   {
-    id: 'qwen3-coder-480b-a35b-instruct',
-    displayName: 'qwen3-coder-480b-a35b-instruct',
-    baseUrl: 'https://maas.devops.xiaohongshu.com/v1',
+    id: 'Kimi-K2.5',
+    displayName: 'Kimi-K2.5',
+    baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-kimi25-service/v1',
     contextWindow: '256k',
     description: 'QuickSilver 平台部署版本',
   },

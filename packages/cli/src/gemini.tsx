@@ -446,32 +446,33 @@ export async function main() {
     ];
 
     // 检查是否是 L4 仓库，如果是则自动切换
-    const { isL4Repository, autoSwitchToQSModel } = await import(
-      './utils/l4RepositoryAutoSwitch.js'
-    );
-    try {
-      const isL4Repo = await isL4Repository(process.cwd());
-      if (isL4Repo) {
-        if (config.getDebugMode()) {
-          debugLogger.debug(
-            '[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型',
-          );
-        }
-        await autoSwitchToQSModel(config, settings);
-        if (config.getDebugMode()) {
-          debugLogger.debug('[L4Repository] 成功切换到 QS 平台模型');
-        }
-      }
-    } catch (error) {
-      // 如果检测或切换失败，将错误添加到警告中
-      const errorMsg = `L4仓库检测或切换失败: ${
-        error instanceof Error ? error.message : String(error)
-      }`;
-      startupWarnings.push(errorMsg);
-      if (config.getDebugMode()) {
-        debugLogger.error('[L4Repository]', errorMsg, error);
-      }
-    }
+    // [暂停自动切换] L4仓库自动切换逻辑已临时禁用
+    // const { isL4Repository, autoSwitchToQSModel } = await import(
+    //   './utils/l4RepositoryAutoSwitch.js'
+    // );
+    // try {
+    //   const isL4Repo = await isL4Repository(process.cwd());
+    //   if (isL4Repo) {
+    //     if (config.getDebugMode()) {
+    //       debugLogger.debug(
+    //         '[L4Repository] 检测到 L4 仓库，开始自动切换到 QS 平台模型',
+    //       );
+    //     }
+    //     await autoSwitchToQSModel(config, settings);
+    //     if (config.getDebugMode()) {
+    //       debugLogger.debug('[L4Repository] 成功切换到 QS 平台模型');
+    //     }
+    //   }
+    // } catch (error) {
+    //   // 如果检测或切换失败，将错误添加到警告中
+    //   const errorMsg = `L4仓库检测或切换失败: ${
+    //     error instanceof Error ? error.message : String(error)
+    //   }`;
+    //   startupWarnings.push(errorMsg);
+    //   if (config.getDebugMode()) {
+    //     debugLogger.error('[L4Repository]', errorMsg, error);
+    //   }
+    // }
 
     // 记录会话开始事件（统一在所有模式下调用一次）
     const { logSessionStart } = await import('@rdmind/rdmind-core');
