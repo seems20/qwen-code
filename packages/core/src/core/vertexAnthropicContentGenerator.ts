@@ -18,7 +18,9 @@ import {
 import type {
   ContentGenerator,
   ContentGeneratorConfig,
+  InputModalities,
 } from './contentGenerator.js';
+import { defaultModalities } from './modalityDefaults.js';
 import type { Config } from '../config/config.js';
 import {
   EnhancedErrorHandler,
@@ -253,6 +255,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
   private readonly apiKey: string;
   private readonly samplingParams?: ContentGeneratorConfig['samplingParams'];
   private readonly reasoning?: ContentGeneratorConfig['reasoning'];
+  private readonly modalities: InputModalities;
   private readonly cliConfig?: Config;
   private telemetryService: TelemetryService;
   private errorHandler: ErrorHandler;
@@ -262,6 +265,7 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     this.apiKey = config.apiKey || '';
     this.samplingParams = config.samplingParams;
     this.reasoning = config.reasoning;
+    this.modalities = config.modalities ?? defaultModalities(config.model);
     this.cliConfig = cliConfig;
 
     if (!this.apiKey) {
@@ -527,9 +531,15 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
     // 处理内联数据（图片、PDF 等）
     if (part.inlineData?.mimeType && part.inlineData?.data) {
       const mimeType = part.inlineData.mimeType;
+      const displayName = part.inlineData.displayName || mimeType;
 
-      // 支持的图片类型
       if (this.isSupportedImageMimeType(mimeType)) {
+        if (!this.modalities.image) {
+          return {
+            type: 'text',
+            text: this.unsupportedModalityHint('image', displayName),
+          };
+        }
         return {
           type: 'image',
           source: {
@@ -544,8 +554,13 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
         };
       }
 
-      // PDF 文档
       if (mimeType === 'application/pdf') {
+        if (!this.modalities.pdf) {
+          return {
+            type: 'text',
+            text: this.unsupportedModalityHint('pdf', displayName),
+          };
+        }
         return {
           type: 'document',
           source: {
@@ -556,19 +571,60 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
         };
       }
 
-      // 不支持的类型，添加提示文本
-      const displayName = part.inlineData.displayName
-        ? ` (${part.inlineData.displayName})`
-        : '';
+      if (mimeType.startsWith('audio/')) {
+        if (!this.modalities.audio) {
+          return {
+            type: 'text',
+            text: this.unsupportedModalityHint('audio', displayName),
+          };
+        }
+      }
+
+      if (mimeType.startsWith('video/')) {
+        if (!this.modalities.video) {
+          return {
+            type: 'text',
+            text: this.unsupportedModalityHint('video', displayName),
+          };
+        }
+      }
+
       return {
         type: 'text',
-        text: `[Unsupported media type: ${mimeType}${displayName}]`,
+        text: `[Unsupported media type: ${mimeType} (${displayName})]`,
       };
     }
 
-    // 处理文件 URL（如果有的话）
+    // 处理文件 URL
     if (part.fileData?.mimeType && part.fileData?.fileUri) {
-      // Anthropic 不直接支持 URL，添加提示
+      const fileDisplayName = part.fileData.displayName || part.fileData.fileUri;
+      const fileMimeType = part.fileData.mimeType;
+
+      if (fileMimeType.startsWith('image/') && !this.modalities.image) {
+        return {
+          type: 'text',
+          text: this.unsupportedModalityHint('image', fileDisplayName),
+        };
+      }
+      if (fileMimeType === 'application/pdf' && !this.modalities.pdf) {
+        return {
+          type: 'text',
+          text: this.unsupportedModalityHint('pdf', fileDisplayName),
+        };
+      }
+      if (fileMimeType.startsWith('audio/') && !this.modalities.audio) {
+        return {
+          type: 'text',
+          text: this.unsupportedModalityHint('audio', fileDisplayName),
+        };
+      }
+      if (fileMimeType.startsWith('video/') && !this.modalities.video) {
+        return {
+          type: 'text',
+          text: this.unsupportedModalityHint('video', fileDisplayName),
+        };
+      }
+
       return {
         type: 'text',
         text: `[External file reference: ${part.fileData.fileUri}]`,
@@ -619,6 +675,16 @@ export class VertexAnthropicContentGenerator implements ContentGenerator {
       mimeType === 'image/gif' ||
       mimeType === 'image/webp'
     );
+  }
+
+  private unsupportedModalityHint(
+    modality: string,
+    displayName: string,
+  ): string {
+    if (modality === 'pdf') {
+      return `[Unsupported pdf file: "${displayName}". This model does not support PDF input directly. The read_file tool cannot extract PDF content either. To extract text from the PDF file, try using skills if applicable, or guide user to install pdf skill by running this slash command:\n/extensions install https://github.com/anthropics/skills:document-skills]`;
+    }
+    return `[Unsupported ${modality} file: "${displayName}". This model does not support ${modality} input. The read_file tool cannot process this type of file either. To handle this file, try using skills if applicable, or any tools installed at system wide, or let the user know you cannot process this type of file.]`;
   }
 
   /**

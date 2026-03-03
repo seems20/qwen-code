@@ -19,7 +19,9 @@ import {
 import type {
   ContentGenerator,
   ContentGeneratorConfig,
+  InputModalities,
 } from './contentGenerator.js';
+import { defaultModalities } from './modalityDefaults.js';
 import type { Config } from '../config/config.js';
 import {
   EnhancedErrorHandler,
@@ -138,6 +140,7 @@ export class CodexContentGenerator implements ContentGenerator {
   private readonly apiKey: string;
   private readonly samplingParams?: ContentGeneratorConfig['samplingParams'];
   private readonly reasoning?: ContentGeneratorConfig['reasoning'];
+  private readonly modalities: InputModalities;
   private readonly cliConfig?: Config;
   private readonly errorHandler: ErrorHandler;
   private readonly logger: OpenAILogger;
@@ -147,6 +150,7 @@ export class CodexContentGenerator implements ContentGenerator {
     this.apiKey = config.apiKey || '';
     this.samplingParams = config.samplingParams;
     this.reasoning = config.reasoning;
+    this.modalities = config.modalities ?? defaultModalities(config.model);
     this.cliConfig = cliConfig;
 
     if (!this.apiKey) {
@@ -278,6 +282,7 @@ export class CodexContentGenerator implements ContentGenerator {
     const input = buildCodexInput(
       request.contents,
       request.config?.systemInstruction,
+      this.modalities,
     );
 
     // 构建请求体
@@ -555,7 +560,8 @@ function extractReasoningEffort(
 
 function buildCodexInput(
   contents: unknown,
-  systemInstruction?: unknown,
+  systemInstruction: unknown | undefined,
+  modalities: InputModalities,
 ): string | CodexMessage[] {
   const messages: CodexMessage[] = [];
 
@@ -570,7 +576,7 @@ function buildCodexInput(
   // 处理内容
   const contentsArray = Array.isArray(contents) ? contents : [contents];
   for (const content of contentsArray) {
-    const codexMessages = convertContentToCodexMessages(content);
+    const codexMessages = convertContentToCodexMessages(content, modalities);
     messages.push(...codexMessages);
   }
 
@@ -585,7 +591,7 @@ function buildCodexInput(
   return messages;
 }
 
-function convertContentToCodexMessages(content: unknown): CodexMessage[] {
+function convertContentToCodexMessages(content: unknown, modalities: InputModalities): CodexMessage[] {
   const messages: CodexMessage[] = [];
 
   if (!content) return messages;
@@ -664,7 +670,7 @@ function convertContentToCodexMessages(content: unknown): CodexMessage[] {
           data: string;
           displayName?: string;
         };
-        const mediaMsg = convertInlineDataToCodexMessage(inlineData);
+        const mediaMsg = convertInlineDataToCodexMessage(inlineData, modalities);
         if (mediaMsg) {
           messages.push(mediaMsg);
         }
@@ -677,7 +683,7 @@ function convertContentToCodexMessages(content: unknown): CodexMessage[] {
           fileUri: string;
           displayName?: string;
         };
-        const mediaMsg = convertFileDataToCodexMessage(fileData);
+        const mediaMsg = convertFileDataToCodexMessage(fileData, modalities);
         if (mediaMsg) {
           messages.push(mediaMsg);
         }
@@ -693,16 +699,26 @@ function convertContentToCodexMessages(content: unknown): CodexMessage[] {
  * 注意：Codex 只支持 'message', 'function_call', 'function_call_output' 等类型
  * 图像通过 message 类型的 content 数组传递
  */
-function convertInlineDataToCodexMessage(inlineData: {
-  mimeType: string;
-  data: string;
-  displayName?: string;
-}): CodexMessage | null {
+function convertInlineDataToCodexMessage(
+  inlineData: {
+    mimeType: string;
+    data: string;
+    displayName?: string;
+  },
+  modalities: InputModalities,
+): CodexMessage | null {
   const mimeType = inlineData.mimeType;
   const dataUrl = `data:${mimeType};base64,${inlineData.data}`;
+  const displayName = inlineData.displayName || mimeType;
 
-  // 图像类型 - 使用 message 类型，content 为数组格式
   if (mimeType.startsWith('image/')) {
+    if (!modalities.image) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('image', displayName),
+      };
+    }
     return {
       role: 'user',
       type: 'message',
@@ -710,8 +726,14 @@ function convertInlineDataToCodexMessage(inlineData: {
     };
   }
 
-  // PDF 文件 - Codex 可能不支持直接传递 PDF，转换为文本提示
   if (mimeType === 'application/pdf') {
+    if (!modalities.pdf) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('pdf', displayName),
+      };
+    }
     return {
       role: 'user',
       type: 'message',
@@ -719,8 +741,14 @@ function convertInlineDataToCodexMessage(inlineData: {
     };
   }
 
-  // 音频类型 - Codex 可能不支持直接传递音频，转换为文本提示
   if (mimeType.startsWith('audio/')) {
+    if (!modalities.audio) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('audio', displayName),
+      };
+    }
     return {
       role: 'user',
       type: 'message',
@@ -728,7 +756,16 @@ function convertInlineDataToCodexMessage(inlineData: {
     };
   }
 
-  // 不支持的类型，转换为文本提示
+  if (mimeType.startsWith('video/')) {
+    if (!modalities.video) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('video', displayName),
+      };
+    }
+  }
+
   return {
     role: 'user',
     type: 'message',
@@ -736,19 +773,39 @@ function convertInlineDataToCodexMessage(inlineData: {
   };
 }
 
+function unsupportedModalityHint(
+  modality: string,
+  displayName: string,
+): string {
+  if (modality === 'pdf') {
+    return `[Unsupported pdf file: "${displayName}". This model does not support PDF input directly. The read_file tool cannot extract PDF content either. To extract text from the PDF file, try using skills if applicable, or guide user to install pdf skill by running this slash command:\n/extensions install https://github.com/anthropics/skills:document-skills]`;
+  }
+  return `[Unsupported ${modality} file: "${displayName}". This model does not support ${modality} input. The read_file tool cannot process this type of file either. To handle this file, try using skills if applicable, or any tools installed at system wide, or let the user know you cannot process this type of file.]`;
+}
+
 /**
  * 将 fileData 转换为 Codex 消息格式
  */
-function convertFileDataToCodexMessage(fileData: {
-  mimeType: string;
-  fileUri: string;
-  displayName?: string;
-}): CodexMessage | null {
+function convertFileDataToCodexMessage(
+  fileData: {
+    mimeType: string;
+    fileUri: string;
+    displayName?: string;
+  },
+  modalities: InputModalities,
+): CodexMessage | null {
   const mimeType = fileData.mimeType;
   const fileUri = fileData.fileUri;
+  const displayName = fileData.displayName || mimeType;
 
-  // 图像类型 - 使用 message 类型，content 为数组格式
   if (mimeType.startsWith('image/')) {
+    if (!modalities.image) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('image', displayName),
+      };
+    }
     return {
       role: 'user',
       type: 'message',
@@ -756,8 +813,14 @@ function convertFileDataToCodexMessage(fileData: {
     };
   }
 
-  // PDF 文件
   if (mimeType === 'application/pdf') {
+    if (!modalities.pdf) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('pdf', displayName),
+      };
+    }
     return {
       role: 'user',
       type: 'message',
@@ -765,8 +828,14 @@ function convertFileDataToCodexMessage(fileData: {
     };
   }
 
-  // 音频类型
   if (mimeType.startsWith('audio/')) {
+    if (!modalities.audio) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('audio', displayName),
+      };
+    }
     return {
       role: 'user',
       type: 'message',
@@ -774,7 +843,16 @@ function convertFileDataToCodexMessage(fileData: {
     };
   }
 
-  // 不支持的类型，转换为文本提示
+  if (mimeType.startsWith('video/')) {
+    if (!modalities.video) {
+      return {
+        role: 'user',
+        type: 'message',
+        content: unsupportedModalityHint('video', displayName),
+      };
+    }
+  }
+
   return {
     role: 'user',
     type: 'message',

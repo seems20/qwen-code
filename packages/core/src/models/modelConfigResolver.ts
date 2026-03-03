@@ -42,6 +42,7 @@ import {
   QWEN_OAUTH_ALLOWED_MODELS,
   MODEL_GENERATION_CONFIG_FIELDS,
 } from './constants.js';
+import { defaultModalities } from '../core/modalityDefaults.js';
 import type { ModelConfig as ModelProviderConfig } from './types.js';
 export {
   validateModelConfig,
@@ -249,7 +250,7 @@ export function resolveModelConfig(
     settings?.generationConfig,
     modelProvider?.generationConfig,
     authType,
-    modelProvider?.id,
+    modelProvider?.id ?? modelResult.value,
     sources,
   );
 
@@ -434,6 +435,12 @@ function resolveGenerationConfig(
       (result as any)[field] = settingsConfig[field];
       sources[field] = settingsSource(`model.generationConfig.${field}`);
     }
+  }
+
+  // modalities fallback: auto-detect from model name when not explicitly configured
+  if (result.modalities === undefined && modelId) {
+    result.modalities = defaultModalities(modelId);
+    sources['modalities'] = computedSource('auto-detected from model');
   }
 
   return result;
