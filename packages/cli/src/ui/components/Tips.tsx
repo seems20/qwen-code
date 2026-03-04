@@ -23,6 +23,7 @@ const startupTips: Tip[] = [
     : 'You can switch permission mode quickly with Shift+Tab or /approval-mode.',
   'RDMind now supports custom commands, sub-agents, skills and other features. Check the documentation for usage help.',
   'Try asking RDMind to help you commit code.',
+  'Based on model support, RDMind can process image, PDF, and video inputs.',
   'RDMind can read REDoc. Please do not upload documents involving user privacy and core algorithms.',
   'If you find RDMind useful, feel free to recommend it to your colleagues~',
   {

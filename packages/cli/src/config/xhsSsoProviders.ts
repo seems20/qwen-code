@@ -21,20 +21,6 @@ export interface XhsSsoModel {
  */
 export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
-    id: 'gemini-3-pro-preview(low)',
-    displayName: 'gemini-3-pro-preview(low)',
-    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
-    contextWindow: '1M',
-    description: 'Google 迄今为止最智能的模型 (推理强度低)',
-  },
-  {
-    id: 'gemini-3-pro-preview(high)',
-    displayName: 'gemini-3-pro-preview(high)',
-    baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
-    contextWindow: '1M',
-    description: 'Google 迄今为止最智能的模型 (推理强度高)',
-  },
-  {
     id: 'gemini-3.1-pro-preview(low)',
     displayName: 'gemini-3.1-pro-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
