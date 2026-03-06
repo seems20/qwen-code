@@ -118,6 +118,7 @@ vi.mock('../tools/memoryTool', () => ({
   MemoryTool: createToolMock('save_memory'),
   setGeminiMdFilename: vi.fn(),
   getCurrentGeminiMdFilename: vi.fn(() => 'RDMind.md'), // Mock the original filename
+  getAllGeminiMdFilenames: vi.fn(() => ['RDMind.md', 'AGENTS.md']),
   DEFAULT_CONTEXT_FILENAME: 'RDMind.md',
   QWEN_CONFIG_DIR: '.rdmind',
 }));
