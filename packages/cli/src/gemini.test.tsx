@@ -191,6 +191,7 @@ describe('gemini.tsx main function', () => {
       },
       setValue: vi.fn(),
       forScope: () => ({ settings: {}, originalSettings: {}, path: '' }),
+      migrationWarnings: [],
     } as never);
     try {
       await main();
@@ -263,7 +264,7 @@ describe('gemini.tsx main function', () => {
       'isRaw',
     );
     Object.defineProperty(process.stdin, 'isTTY', {
-      value: true,
+      value: false, // 在 stream-json 模式下应为 false
       configurable: true,
     });
     Object.defineProperty(process.stdin, 'isRaw', {
@@ -323,6 +324,7 @@ describe('gemini.tsx main function', () => {
       },
       setValue: vi.fn(),
       forScope: () => ({ settings: {}, originalSettings: {}, path: '' }),
+      migrationWarnings: [],
     } as never);
 
     vi.mocked(parseArguments).mockResolvedValue({
@@ -346,6 +348,8 @@ describe('gemini.tsx main function', () => {
       getContentGeneratorConfig: () => ({ authType: 'test-auth' }),
       getSessionId: () => 'test-session-id',
       getWarnings: () => [],
+      getUsageStatisticsEnabled: () => true,
+      getOutputFormat: () => OutputFormat.TEXT,
     } as unknown as Config;
 
     vi.mocked(loadCliConfig).mockResolvedValue(configStub);
@@ -445,6 +449,7 @@ describe('gemini.tsx main function kitty protocol', () => {
       getGeminiMdFileCount: () => 0,
       getSessionId: () => 'test-session-id',
       getWarnings: () => [],
+      getUsageStatisticsEnabled: () => true,
     } as unknown as Config);
     vi.mocked(loadSettings).mockReturnValue({
       errors: [],
@@ -455,6 +460,7 @@ describe('gemini.tsx main function kitty protocol', () => {
       },
       setValue: vi.fn(),
       forScope: () => ({ settings: {}, originalSettings: {}, path: '' }),
+      migrationWarnings: [],
     } as never);
     vi.mocked(parseArguments).mockResolvedValue({
       model: undefined,
