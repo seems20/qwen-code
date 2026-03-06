@@ -824,7 +824,7 @@ const SETTINGS_SCHEMA = {
             requiresRestart: true,
             default: true,
             description:
-              'Use node-pty for an interactive shell experience. Allows input to interactive commands (e.g., sudo password prompts). Fallback to child_process still applies.',
+              'Use node-pty for an interactive shell experience. Falls back to child_process if PTY is unavailable.',
             showInDialog: true,
           },
           pager: {
