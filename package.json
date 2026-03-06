@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.2.8-alpha.5",
+  "version": "0.2.8-alpha.6",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.2.8-alpha.5"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.2.8-alpha.6"
   },
   "scripts": {
     "start": "cross-env node scripts/start.js",
@@ -54,7 +54,6 @@
     "telemetry": "node scripts/telemetry.js",
     "check:lockfile": "node scripts/check-lockfile.js",
     "clean": "node scripts/clean.js",
-    "changelog": "nohup rdmind -y -p \"记录changelog，使用subagent\" > /dev/null &",
     "pre-commit": "node scripts/pre-commit.js"
   },
   "overrides": {

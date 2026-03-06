@@ -260,7 +260,7 @@
         "skipLoopDetection": {
           "description": "Disable all loop detection checks (streaming and LLM).",
           "type": "boolean",
-          "default": false
+          "default": true
         },
         "skipStartupContext": {
           "description": "Avoid sending the workspace startup context at the beginning of each session.",

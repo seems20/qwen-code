@@ -51,7 +51,7 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
     id: 'glm-5',
     displayName: 'glm-5',
-    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/zhipu/paas/v4/',
+    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/zhipu/paas/v4',
     contextWindow: '200K',
     description:
       '智谱新一代的旗舰基座模型，面向 Agentic Engineering 打造，对齐 Claude Opus 4.5',
@@ -93,5 +93,13 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-kimi25-service/v1',
     contextWindow: '256k',
     description: 'QuickSilver 平台部署版本',
+  },
+  {
+    id: 'qwen3.5-plus',
+    displayName: 'qwen3.5-plus',
+    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/qwen/v1',
+    contextWindow: '1M',
+    description:
+      'Qwen3.5原生视觉语言系列Plus模型，基于混合架构设计实现了更高的推理效率',
   },
 ];
