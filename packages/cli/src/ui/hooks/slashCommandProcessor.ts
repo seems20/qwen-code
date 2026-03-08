@@ -79,6 +79,7 @@ interface SlashCommandProcessorActions {
   addConfirmUpdateExtensionRequest: (request: ConfirmationRequest) => void;
   openSubagentCreateDialog: () => void;
   openAgentsManagerDialog: () => void;
+  openMcpDialog: () => void;
 }
 
 /**
@@ -473,6 +474,9 @@ export const useSlashCommandProcessor = (
                       return { type: 'handled' };
                     case 'subagent_list':
                       actions.openAgentsManagerDialog();
+                      return { type: 'handled' };
+                    case 'mcp':
+                      actions.openMcpDialog();
                       return { type: 'handled' };
                     case 'approval-mode':
                       actions.openApprovalModeDialog();
