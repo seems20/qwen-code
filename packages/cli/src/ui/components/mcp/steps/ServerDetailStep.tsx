@@ -156,7 +156,7 @@ export const ServerDetailStep: React.FC<ServerDetailStepProps> = ({
           </Box>
           <Box>
             <Text>
-              {server.toolCount > 0 ? t('tools') : ''}
+              {server.toolCount > 0 ? t('Tools').toLowerCase() : ''}
               {server.toolCount > 0 && server.promptCount > 0 ? ', ' : ''}
               {server.promptCount > 0 ? t('prompts') : ''}
             </Text>

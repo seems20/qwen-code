@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/rdmind",
-  "version": "0.2.8-alpha.6",
+  "version": "0.2.8-alpha.7",
   "description": "RDMind",
   "type": "module",
   "main": "dist/index.js",
@@ -35,9 +35,10 @@
     "access": "public"
   },
   "config": {
-    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.2.8-alpha.6"
+    "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.2.8-alpha.7"
   },
   "dependencies": {
+    "@agentclientprotocol/sdk": "^0.14.1",
     "@google/genai": "1.30.0",
     "@iarna/toml": "^2.2.5",
     "@modelcontextprotocol/sdk": "^1.25.1",
@@ -103,10 +104,10 @@
     "@teddyzhu/clipboard": "^0.0.5",
     "@teddyzhu/clipboard-darwin-arm64": "0.0.5",
     "@teddyzhu/clipboard-darwin-x64": "0.0.5",
-    "@teddyzhu/clipboard-linux-x64-gnu": "0.0.5",
     "@teddyzhu/clipboard-linux-arm64-gnu": "0.0.5",
-    "@teddyzhu/clipboard-win32-x64-msvc": "0.0.5",
-    "@teddyzhu/clipboard-win32-arm64-msvc": "0.0.5"
+    "@teddyzhu/clipboard-linux-x64-gnu": "0.0.5",
+    "@teddyzhu/clipboard-win32-arm64-msvc": "0.0.5",
+    "@teddyzhu/clipboard-win32-x64-msvc": "0.0.5"
   },
   "engines": {
     "node": ">=20"

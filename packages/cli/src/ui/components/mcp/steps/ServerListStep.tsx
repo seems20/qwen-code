@@ -176,7 +176,7 @@ export const ServerListStep: React.FC<ServerListStepProps> = ({
       {servers.some((s) => s.status === 'disconnected') && (
         <Box>
           <Text color={theme.status.warning}>
-            ※ {t('Run qwen --debug to see error logs')}
+            ※ {t('Run rdmind --debug to see error logs')}
           </Text>
         </Box>
       )}

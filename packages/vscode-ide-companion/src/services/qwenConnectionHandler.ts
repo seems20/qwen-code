@@ -15,15 +15,23 @@ import { isAuthenticationRequiredError } from '../utils/authErrors.js';
 import { authMethod } from '../types/acpTypes.js';
 import {
   extractModelInfoFromNewSessionResult,
+  extractSessionModeState,
   extractSessionModelState,
 } from '../utils/acpModelInfo.js';
-import type { ModelInfo } from '../types/acpTypes.js';
+import type { ModelInfo } from '@agentclientprotocol/sdk';
+import type { ApprovalModeValue } from '../types/approvalModeValueTypes.js';
 
 export interface QwenConnectionResult {
   sessionCreated: boolean;
   requiresAuth: boolean;
   modelInfo?: ModelInfo;
   availableModels?: ModelInfo[];
+  currentModeId?: ApprovalModeValue;
+  availableModes?: Array<{
+    id: ApprovalModeValue;
+    name: string;
+    description: string;
+  }>;
 }
 
 /**
@@ -53,6 +61,14 @@ export class QwenConnectionHandler {
     let requiresAuth = false;
     let modelInfo: ModelInfo | undefined;
     let availableModels: ModelInfo[] | undefined;
+    let currentModeId: ApprovalModeValue | undefined;
+    let availableModes:
+      | Array<{
+          id: ApprovalModeValue;
+          name: string;
+          description: string;
+        }>
+      | undefined;
 
     // Build extra CLI arguments (only essential parameters)
     const extraArgs: string[] = [];
@@ -95,6 +111,9 @@ export class QwenConnectionHandler {
             availableModels.map((m) => m.modelId),
           );
         }
+        const modeState = extractSessionModeState(newSessionResult);
+        currentModeId = modeState?.currentModeId;
+        availableModes = modeState?.availableModes;
 
         console.log('[AgentManager] New session created successfully');
         sessionCreated = true;
@@ -122,7 +141,14 @@ export class QwenConnectionHandler {
     console.log(`\n========================================`);
     console.log(`[AgentManager] ✅ CONNECT() COMPLETED SUCCESSFULLY`);
     console.log(`========================================\n`);
-    return { sessionCreated, requiresAuth, modelInfo, availableModels };
+    return {
+      sessionCreated,
+      requiresAuth,
+      modelInfo,
+      availableModels,
+      currentModeId,
+      availableModes,
+    };
   }
 
   /**

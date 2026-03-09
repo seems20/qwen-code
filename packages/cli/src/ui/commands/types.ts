@@ -148,6 +148,7 @@ export interface OpenDialogActionReturn {
     | 'subagent_list'
     | 'approval-mode'
     | 'resume'
+    | 'extensions_manage'
     | 'mcp';
 }
 
