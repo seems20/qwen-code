@@ -60,7 +60,9 @@ describe('ShellTool', () => {
         .fn()
         .mockReturnValue(createMockWorkspaceContext('/test/dir')),
       storage: {
-        getUserSkillsDir: vi.fn().mockReturnValue('/test/dir/.rdmind/skills'),
+        getUserSkillsDirs: vi
+          .fn()
+          .mockReturnValue(['/test/dir/.rdmind/skills', '/test/dir/.qwen/skills']),
       },
       getGeminiClient: vi.fn(),
       getModel: vi.fn().mockReturnValue('test-model'),

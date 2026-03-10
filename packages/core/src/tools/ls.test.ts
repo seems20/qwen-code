@@ -42,7 +42,7 @@ describe('LSTool', () => {
         respectRdmindIgnore: true,
       }),
       storage: {
-        getUserSkillsDir: () => userSkillsBase,
+        getUserSkillsDirs: () => [userSkillsBase],
       },
     } as unknown as Config;
 
