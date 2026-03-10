@@ -74,6 +74,7 @@ interface CodexRequest {
   text?: {
     verbosity?: 'low' | 'medium' | 'high';
   };
+  truncation?: 'auto' | 'disabled';
   store?: boolean;
   tools?: CodexTool[];
 }
@@ -109,9 +110,11 @@ interface CodexResponse {
 type CodexEventType =
   | 'response.reasoning_summary_text.delta'
   | 'response.output_text.delta'
-  | 'response.tool_calls.delta'
+  | 'response.function_call_arguments.delta'
   | 'response.output_item.done'
-  | 'response.completed';
+  | 'response.completed'
+  | 'response.incomplete'
+  | 'response.failed';
 
 interface CodexStreamEvent {
   event: CodexEventType;
@@ -295,6 +298,7 @@ export class CodexContentGenerator implements ContentGenerator {
       input,
       stream,
       store: true,
+      truncation: 'auto',
       temperature: this.samplingParams?.temperature ?? 1,
       top_p: this.samplingParams?.top_p,
       max_output_tokens: this.samplingParams?.max_tokens,
@@ -401,7 +405,7 @@ export class CodexContentGenerator implements ContentGenerator {
         return createGeminiResponse(data.item_id || 'unknown', [{ text }]);
       }
 
-      case 'response.tool_calls.delta': {
+      case 'response.function_call_arguments.delta': {
         const index = data.tool_call_index ?? 0;
         const current = toolCallArgs.get(index) || { args: '' };
 
@@ -410,25 +414,33 @@ export class CodexContentGenerator implements ContentGenerator {
         if (data.delta) current.args += data.delta;
 
         toolCallArgs.set(index, current);
-        return null; // 工具调用增量不立即返回
+        return null;
       }
 
       case 'response.output_item.done': {
         const item = data.item;
-        if (item?.type === 'function_call' && item.arguments) {
-          try {
-            const args = JSON.parse(item.arguments);
-            return createGeminiResponse(data.item_id || 'unknown', [
-              {
-                functionCall: {
-                  id: item.call_id || item.id || `call_${Date.now()}`,
-                  name: item.name || 'unknown',
-                  args,
+        if (item?.type === 'function_call') {
+          const index = data.tool_call_index ?? 0;
+          const accumulated = toolCallArgs.get(index);
+          const rawArgs = item.arguments || accumulated?.args;
+          if (rawArgs) {
+            try {
+              const args = JSON.parse(rawArgs);
+              const callId =
+                item.call_id ||
+                item.id ||
+                accumulated?.id ||
+                `call_${Date.now()}`;
+              const name = item.name || accumulated?.name || 'unknown';
+              toolCallArgs.delete(index);
+              return createGeminiResponse(data.item_id || 'unknown', [
+                {
+                  functionCall: { id: callId, name, args },
                 },
-              },
-            ]);
-          } catch {
-            // JSON 解析失败，忽略
+              ]);
+            } catch {
+              // JSON 解析失败，忽略
+            }
           }
         }
         return null;
@@ -436,10 +448,51 @@ export class CodexContentGenerator implements ContentGenerator {
 
       case 'response.completed': {
         const response = data.response;
+        const finishReason = mapCodexStatusToFinishReason(response?.status);
         return createGeminiResponse(
           response?.id || 'final',
           [],
-          FinishReason.STOP,
+          finishReason,
+          response?.usage
+            ? {
+                promptTokenCount: response.usage.input_tokens,
+                candidatesTokenCount: response.usage.output_tokens,
+                totalTokenCount: response.usage.total_tokens,
+                cachedContentTokenCount:
+                  response.usage.input_tokens_details?.cached_tokens,
+                thoughtsTokenCount:
+                  response.usage.output_tokens_details?.reasoning_tokens,
+              }
+            : undefined,
+        );
+      }
+
+      case 'response.incomplete': {
+        const response = data.response;
+        return createGeminiResponse(
+          response?.id || 'final',
+          [],
+          FinishReason.MAX_TOKENS,
+          response?.usage
+            ? {
+                promptTokenCount: response.usage.input_tokens,
+                candidatesTokenCount: response.usage.output_tokens,
+                totalTokenCount: response.usage.total_tokens,
+                cachedContentTokenCount:
+                  response.usage.input_tokens_details?.cached_tokens,
+                thoughtsTokenCount:
+                  response.usage.output_tokens_details?.reasoning_tokens,
+              }
+            : undefined,
+        );
+      }
+
+      case 'response.failed': {
+        const response = data.response;
+        return createGeminiResponse(
+          response?.id || 'final',
+          [],
+          FinishReason.FINISH_REASON_UNSPECIFIED,
           response?.usage
             ? {
                 promptTokenCount: response.usage.input_tokens,
@@ -970,6 +1023,22 @@ function convertGeminiSchemaToOpenAI(
   return convertTypes(converted) as Record<string, unknown>;
 }
 
+function mapCodexStatusToFinishReason(
+  status: string | undefined,
+): FinishReason {
+  switch (status) {
+    case 'completed':
+      return FinishReason.STOP;
+    case 'incomplete':
+      return FinishReason.MAX_TOKENS;
+    case 'failed':
+    case 'cancelled':
+      return FinishReason.FINISH_REASON_UNSPECIFIED;
+    default:
+      return FinishReason.STOP;
+  }
+}
+
 function convertCodexResponseToGemini(
   response: CodexResponse,
 ): GenerateContentResponse {
@@ -1006,10 +1075,12 @@ function convertCodexResponseToGemini(
     }
   }
 
+  const finishReason = mapCodexStatusToFinishReason(response.status);
+
   return createGeminiResponse(
     response.id,
     parts,
-    FinishReason.STOP,
+    finishReason,
     response.usage
       ? {
           promptTokenCount: response.usage.input_tokens,
