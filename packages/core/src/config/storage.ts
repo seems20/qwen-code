@@ -16,6 +16,7 @@ export const SKILL_PROVIDER_CONFIG_DIRS = [
   '.rdmind',
   '.qwen',
   '.agent',
+  '.agents',
   '.claude',
   '.cursor',
   '.codex',
