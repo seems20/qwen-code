@@ -21,6 +21,29 @@ export interface XhsSsoModel {
  */
 export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
+    id: 'gpt-5.4',
+    displayName: 'gpt-5.4',
+    baseUrl: 'https://runway.devops.rednote.life/openai',
+    contextWindow: '272K',
+    description: '用于处理复杂专业工作的前沿模型',
+  },
+  {
+    id: 'gpt-5.3-codex(medium)',
+    displayName: 'gpt-5.3-codex(medium)',
+    baseUrl:
+      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
+    contextWindow: '272K',
+    description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度中)',
+  },
+  {
+    id: 'gpt-5.3-codex(high)',
+    displayName: 'gpt-5.3-codex(high)',
+    baseUrl:
+      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
+    contextWindow: '272K',
+    description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度高)',
+  },
+  {
     id: 'gemini-3.1-pro-preview(low)',
     displayName: 'gemini-3.1-pro-preview(low)',
     baseUrl: 'https://runway.devops.rednote.life/openai/google/v1',
@@ -49,14 +72,6 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     description: 'Google 高速智能模型 (推理强度高)',
   },
   {
-    id: 'glm-5',
-    displayName: 'glm-5',
-    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/zhipu/paas/v4',
-    contextWindow: '200K',
-    description:
-      '智谱新一代的旗舰基座模型，面向 Agentic Engineering 打造，对齐 Claude Opus 4.5',
-  },
-  {
     id: 'kimi-k2.5',
     displayName: 'kimi-k2.5',
     baseUrl: 'https://runway.devops.xiaohongshu.com/openai/moonshot/v1',
@@ -65,20 +80,20 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
       '在 Agent、代码、视觉理解及一系列通用智能任务上取得开源 SoTA 表现',
   },
   {
-    id: 'gpt-5.3-codex(medium)',
-    displayName: 'gpt-5.3-codex(medium)',
-    baseUrl:
-      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
-    contextWindow: '272K',
-    description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度中)',
+    id: 'qwen3.5-plus',
+    displayName: 'qwen3.5-plus',
+    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/qwen/v1',
+    contextWindow: '1M',
+    description:
+      'Qwen3.5原生视觉语言系列Plus模型，基于混合架构设计实现了更高的推理效率',
   },
   {
-    id: 'gpt-5.3-codex(high)',
-    displayName: 'gpt-5.3-codex(high)',
-    baseUrl:
-      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
-    contextWindow: '272K',
-    description: 'OpenAI 迄今为止最强大的代理式编码模型 (推理强度高)',
+    id: 'glm-5',
+    displayName: 'glm-5',
+    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/zhipu/paas/v4',
+    contextWindow: '200K',
+    description:
+      '智谱新一代的旗舰基座模型，面向 Agentic Engineering 打造，对齐 Claude Opus 4.5',
   },
   {
     id: 'claude-opus-4-5@20251101',
@@ -93,13 +108,5 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     baseUrl: 'https://maas.devops.xiaohongshu.com/snsexperienceai-kimi25-service/v1',
     contextWindow: '256k',
     description: 'QuickSilver 平台部署版本',
-  },
-  {
-    id: 'qwen3.5-plus',
-    displayName: 'qwen3.5-plus',
-    baseUrl: 'https://runway.devops.xiaohongshu.com/openai/qwen/v1',
-    contextWindow: '1M',
-    description:
-      'Qwen3.5原生视觉语言系列Plus模型，基于混合架构设计实现了更高的推理效率',
   },
 ];

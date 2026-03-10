@@ -88,6 +88,8 @@ const PATTERNS: Array<[RegExp, TokenCount]> = [
   // -------------------
   // OpenAI
   // -------------------
+  [/^gpt-5\.3-codex/, LIMITS['272k']], // GPT-5.3-codex: 272K
+  [/^gpt-5\.4/, LIMITS['272k']], // GPT-5.4: 272K
   [/^gpt-5/, LIMITS['400k']], // GPT-5.x: 400K
   [/^gpt-/, LIMITS['128k']], // GPT fallback (4o, 4.1, etc.): 128K
   [/^o\d/, LIMITS['200k']], // o-series (o3, o4-mini, etc.): 200K
