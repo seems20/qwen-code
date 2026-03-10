@@ -3,6 +3,7 @@ export { DashScopeOpenAICompatibleProvider } from './dashscope.js';
 export { DeepSeekOpenAICompatibleProvider } from './deepseek.js';
 export { OpenRouterOpenAICompatibleProvider } from './openrouter.js';
 export { XiaohongshuOpenAICompatibleProvider } from './xiaohongshuqs.js';
+export { RunwayOpenAICompatibleProvider } from './runway.js';
 export { DefaultOpenAICompatibleProvider } from './default.js';
 export type {
   OpenAICompatibleProvider,

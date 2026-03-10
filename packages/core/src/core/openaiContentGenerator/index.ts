@@ -16,6 +16,7 @@ import {
   ModelScopeOpenAICompatibleProvider,
   OpenRouterOpenAICompatibleProvider,
   XiaohongshuOpenAICompatibleProvider,
+  RunwayOpenAICompatibleProvider,
   type OpenAICompatibleProvider,
   DefaultOpenAICompatibleProvider,
 } from './provider/index.js';
@@ -29,6 +30,7 @@ export {
   DeepSeekOpenAICompatibleProvider,
   OpenRouterOpenAICompatibleProvider,
   XiaohongshuOpenAICompatibleProvider,
+  RunwayOpenAICompatibleProvider,
 } from './provider/index.js';
 
 export { OpenAIContentConverter } from './converter.js';
@@ -76,6 +78,14 @@ export function determineProvider(
   // Check for Xiaohongshu provider
   if (XiaohongshuOpenAICompatibleProvider.isXiaohongshuProvider(config)) {
     return new XiaohongshuOpenAICompatibleProvider(
+      contentGeneratorConfig,
+      cliConfig,
+    );
+  }
+
+  // Check for Runway provider
+  if (RunwayOpenAICompatibleProvider.isRunwayProvider(config)) {
+    return new RunwayOpenAICompatibleProvider(
       contentGeneratorConfig,
       cliConfig,
     );

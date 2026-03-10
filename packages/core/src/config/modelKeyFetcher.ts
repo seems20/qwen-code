@@ -44,14 +44,15 @@ export async function fetchModelKey(modelName: string): Promise<string> {
     const modelNameLower = modelName.toLowerCase();
     if (
       modelNameLower.startsWith('gemini') ||
-      modelNameLower.includes('codex')
+      modelNameLower.includes('codex') ||
+      modelNameLower.startsWith('gpt-5.4')
     ) {
       // 匹配并去除括号内的思考等级后缀，例如 (low)、(high) 等
       const match = modelName.match(/^(.+?)\(\w+\)$/);
       if (match) {
         processedModelName = match[1];
         logger.debug(
-          `${modelNameLower.startsWith('gemini') ? 'gemini' : 'codex'} 模型预处理: ${modelName} -> ${processedModelName}`,
+          `${modelNameLower.startsWith('gemini') ? 'gemini' : modelNameLower.includes('codex') ? 'codex' : 'gpt-5.4'} 模型预处理: ${modelName} -> ${processedModelName}`,
         );
       }
     }

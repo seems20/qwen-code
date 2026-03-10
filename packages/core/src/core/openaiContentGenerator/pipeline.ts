@@ -15,6 +15,21 @@ import type { OpenAICompatibleProvider } from './provider/index.js';
 import { OpenAIContentConverter } from './converter.js';
 import type { ErrorHandler, RequestContext } from './errorHandler.js';
 
+function buildProviderExtraBody(model: string): Record<string, unknown> | undefined {
+  const modelLower = model.toLowerCase();
+
+  if (modelLower.includes('glm-5')) {
+    return {
+      thinking: {
+        type: 'enabled' as const,
+        clear_thinking: false,
+      },
+    };
+  }
+
+  return undefined;
+}
+
 /**
  * Error thrown when the API returns an error embedded as stream content
  * instead of a proper HTTP error. Some providers (e.g., certain OpenAI-compatible
@@ -66,17 +81,7 @@ export class ContentGenerationPipeline {
       false,
       effectiveModel,
       async (openaiRequest) => {
-        // Enable interleaved thinking for GLM-5
-        const extraBody = this.contentGeneratorConfig.model
-          ?.toLowerCase()
-          .includes('glm-5')
-          ? {
-              thinking: {
-                type: 'enabled' as const,
-                clear_thinking: false, // Enable preserved/interleaved thinking
-              },
-            }
-          : undefined;
+        const extraBody = buildProviderExtraBody(this.contentGeneratorConfig.model);
 
         const openaiResponse = (await this.client.chat.completions.create(
           openaiRequest,
@@ -107,17 +112,7 @@ export class ContentGenerationPipeline {
       true,
       effectiveModel,
       async (openaiRequest, context) => {
-        // Enable interleaved thinking for GLM-5
-        const extraBody = this.contentGeneratorConfig.model
-          ?.toLowerCase()
-          .includes('glm-5')
-          ? {
-              thinking: {
-                type: 'enabled' as const,
-                clear_thinking: false, // Enable preserved/interleaved thinking
-              },
-            }
-          : undefined;
+        const extraBody = buildProviderExtraBody(this.contentGeneratorConfig.model);
 
         // Stage 1: Create OpenAI stream
         const stream = (await this.client.chat.completions.create(

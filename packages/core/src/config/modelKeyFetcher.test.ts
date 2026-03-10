@@ -137,5 +137,31 @@ describe('modelKeyFetcher', () => {
         10000,
       );
     });
+
+    it.each(['gpt-5.4(none)', 'gpt-5.4(xhigh)'])(
+      'should strip effort suffix for %s',
+      async (modelName) => {
+        const mockResponse = {
+          ok: true,
+          json: async () => ({
+            success: true,
+            msg: '成功',
+            data: {
+              api_key: 'gpt-5.4-key',
+            },
+            code: 0,
+          }),
+        };
+        vi.mocked(fetchWithTimeout).mockResolvedValue(mockResponse as Response);
+
+        const key = await fetchModelKey(modelName);
+
+        expect(key).toBe('gpt-5.4-key');
+        expect(fetchWithTimeout).toHaveBeenCalledWith(
+          'https://athena-next.devops.xiaohongshu.com/api/media/model/key?model_name=gpt-5.4',
+          10000,
+        );
+      },
+    );
   });
 });

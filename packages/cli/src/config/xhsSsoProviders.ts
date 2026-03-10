@@ -21,12 +21,28 @@ export interface XhsSsoModel {
  */
 export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
-    id: 'gpt-5.4',
-    displayName: 'gpt-5.4',
+    id: 'gpt-5.4(none)',
+    displayName: 'gpt-5.4(none)',
     baseUrl: 'https://runway.devops.rednote.life/openai',
     contextWindow: '272K',
-    description: '用于处理复杂专业工作的前沿模型',
+    description: '用于处理复杂专业工作的前沿模型 (不启用推理)',
   },
+  // {
+  //   id: 'gpt-5.4(medium)',
+  //   displayName: 'gpt-5.4(medium)',
+  //   baseUrl:
+  //     'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
+  //   contextWindow: '272K',
+  //   description: '用于处理复杂专业工作的前沿模型 (推理强度中)',
+  // },
+  // {
+  //   id: 'gpt-5.4(xhigh)',
+  //   displayName: 'gpt-5.4(xhigh)',
+  //   baseUrl:
+  //     'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
+  //   contextWindow: '272K',
+  //   description: '用于处理复杂专业工作的前沿模型 (推理强度极高)',
+  // },
   {
     id: 'gpt-5.3-codex(medium)',
     displayName: 'gpt-5.3-codex(medium)',
