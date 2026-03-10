@@ -140,16 +140,18 @@ export class CodexContentGenerator implements ContentGenerator {
   private readonly apiKey: string;
   private readonly samplingParams?: ContentGeneratorConfig['samplingParams'];
   private readonly reasoning?: ContentGeneratorConfig['reasoning'];
+  private readonly enableOpenAILogging: boolean;
   private readonly modalities: InputModalities;
   private readonly cliConfig?: Config;
   private readonly errorHandler: ErrorHandler;
-  private readonly logger: OpenAILogger;
+  private readonly logger?: OpenAILogger;
 
   constructor(config: ContentGeneratorConfig, cliConfig?: Config) {
     this.baseUrl = config.baseUrl || '';
     this.apiKey = config.apiKey || '';
     this.samplingParams = config.samplingParams;
     this.reasoning = config.reasoning;
+    this.enableOpenAILogging = config.enableOpenAILogging ?? false;
     this.modalities = config.modalities ?? defaultModalities(config.model);
     this.cliConfig = cliConfig;
 
@@ -161,7 +163,9 @@ export class CodexContentGenerator implements ContentGenerator {
     }
 
     this.errorHandler = new EnhancedErrorHandler(() => false);
-    this.logger = new OpenAILogger(config.openAILoggingDir);
+    if (this.enableOpenAILogging) {
+      this.logger = new OpenAILogger(config.openAILoggingDir);
+    }
   }
 
   // ============================================================================
@@ -479,7 +483,7 @@ export class CodexContentGenerator implements ContentGenerator {
     );
     logApiResponse(this.cliConfig, event);
 
-    if (request && rawResponse) {
+    if (this.enableOpenAILogging && this.logger && request && rawResponse) {
       await this.logger.logInteraction(request, rawResponse);
     }
   }
@@ -510,7 +514,7 @@ export class CodexContentGenerator implements ContentGenerator {
     );
     logApiError(this.cliConfig, event);
 
-    if (request) {
+    if (this.enableOpenAILogging && this.logger && request) {
       await this.logger.logInteraction(request, undefined, error as Error);
     }
   }
@@ -531,7 +535,9 @@ export class CodexContentGenerator implements ContentGenerator {
     );
     logApiResponse(this.cliConfig, event);
 
-    await this.logger.logInteraction(request, { streamed: true });
+    if (this.enableOpenAILogging && this.logger) {
+      await this.logger.logInteraction(request, { streamed: true });
+    }
   }
 }
 
