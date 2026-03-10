@@ -145,7 +145,7 @@ export default {
     '未发现 ID 为 {{sessionId}} 的已保存会话。请运行不带 ID 的 `rdmind --resume` 以从现有会话中选择。',
   'Clear conversation history and free up context': '清除对话历史并释放上下文',
   'Compresses the context by replacing it with a summary.':
-    '通过用摘要替换来压缩上下文',
+    '通过摘要替换来压缩上下文',
   'open full RDMind documentation in your browser':
     '在浏览器中打开完整的 RDMind 文档',
   'Configuration not available.': '配置不可用',
