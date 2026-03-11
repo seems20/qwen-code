@@ -68,7 +68,7 @@ interface CodexRequest {
   temperature?: number;
   top_p?: number;
   reasoning?: {
-    effort: 'low' | 'medium' | 'high';
+    effort: 'none' | 'low' | 'medium' | 'high' | 'xhigh';
     summary?: 'concise' | 'detailed';
   };
   text?: {
@@ -303,7 +303,7 @@ export class CodexContentGenerator implements ContentGenerator {
       top_p: this.samplingParams?.top_p,
       max_output_tokens: this.samplingParams?.max_tokens,
       reasoning: {
-        effort: reasoningEffort as 'low' | 'medium' | 'high',
+        effort: reasoningEffort as 'none' | 'low' | 'medium' | 'high' | 'xhigh',
         summary: 'concise',
       },
       text: {
@@ -330,6 +330,33 @@ export class CodexContentGenerator implements ContentGenerator {
     let buffer = '';
     let currentEvent: CodexEventType | '' = '';
 
+    // 诊断信息：用于记录流式请求的日志（含上游 error 事件，便于排查 429/no_capacity 等）
+    const streamDiag: {
+      eventTypes: string[];
+      totalLines: number;
+      skippedLines: number;
+      firstRawChunk: string;
+      lastRawDataSnippet: string;
+      finalEventType: string;
+      finalStatus: string;
+      finalOutputTypes: string[];
+      finalOutputSummary: Array<{ type: string; contentTypes?: string[] }>;
+      /** 上游 SSE error 事件：code / message，便于像 429 no_capacity 一样直接看出原因 */
+      streamErrors: Array<{ code: string; message: string }>;
+    } = {
+      eventTypes: [],
+      totalLines: 0,
+      skippedLines: 0,
+      firstRawChunk: '',
+      lastRawDataSnippet: '',
+      finalEventType: '',
+      finalStatus: '',
+      finalOutputTypes: [],
+      finalOutputSummary: [],
+      streamErrors: [],
+    };
+
+    let streamFinished = false;
     // 用于累积工具调用参数
     const toolCallArgs: Map<
       number,
@@ -337,17 +364,24 @@ export class CodexContentGenerator implements ContentGenerator {
     > = new Map();
 
     try {
-      while (true) {
+      let isFirstChunk = true;
+      while (!streamFinished) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
+        const chunk = decoder.decode(value, { stream: true });
+        if (isFirstChunk) {
+          streamDiag.firstRawChunk = chunk.slice(0, 500);
+          isFirstChunk = false;
+        }
+        buffer += chunk;
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
 
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed) continue;
+          streamDiag.totalLines++;
 
           // 解析事件类型
           if (trimmed.startsWith('event: ')) {
@@ -358,10 +392,50 @@ export class CodexContentGenerator implements ContentGenerator {
           // 解析数据
           if (trimmed.startsWith('data: ')) {
             const dataStr = trimmed.slice(6).trim();
-            if (dataStr === '[DONE]') return;
+            if (dataStr === '[DONE]') {
+              streamFinished = true;
+              break;
+            }
 
             try {
               const data = JSON.parse(dataStr);
+              streamDiag.lastRawDataSnippet = dataStr.slice(0, 1000);
+              const eventType = currentEvent || (data as { type?: string }).type || '';
+              if (eventType && !streamDiag.eventTypes.includes(eventType)) {
+                streamDiag.eventTypes.push(eventType);
+              }
+              if (
+                eventType === 'response.completed' ||
+                eventType === 'response.incomplete' ||
+                eventType === 'response.failed'
+              ) {
+                const finalResponse = data.response as CodexResponse | undefined;
+                streamDiag.finalEventType = eventType;
+                streamDiag.finalStatus = finalResponse?.status ?? '';
+                streamDiag.finalOutputTypes =
+                  finalResponse?.output?.map((item) => item.type) ?? [];
+                streamDiag.finalOutputSummary =
+                  finalResponse?.output?.map((item) => ({
+                    type: item.type,
+                    contentTypes: item.content?.map((c) => c.type),
+                  })) ?? [];
+              }
+              if (eventType === 'error') {
+                const errPayload = data as Record<string, unknown>;
+                const nested = errPayload['error'] as
+                  | { code?: string; type?: string; message?: string }
+                  | undefined;
+                const code =
+                  (errPayload['code'] as string) ||
+                  nested?.code ||
+                  nested?.type ||
+                  'unknown';
+                const message =
+                  (errPayload['message'] as string) ||
+                  nested?.message ||
+                  JSON.stringify(data);
+                streamDiag.streamErrors.push({ code, message });
+              }
               const response = this.handleStreamEvent(
                 currentEvent,
                 data,
@@ -373,13 +447,15 @@ export class CodexContentGenerator implements ContentGenerator {
             } catch {
               // 忽略解析错误
             }
+          } else {
+            streamDiag.skippedLines++;
           }
         }
       }
 
       // 流结束，记录成功日志
       context.duration = Date.now() - context.startTime;
-      await this.logStreamingSuccess(context, request);
+      await this.logStreamingSuccess(context, request, streamDiag);
     } catch (error) {
       context.duration = Date.now() - context.startTime;
       await this.logError(context, error, request);
@@ -575,6 +651,7 @@ export class CodexContentGenerator implements ContentGenerator {
   private async logStreamingSuccess(
     context: RequestContext,
     request: unknown,
+    diagnostics?: Record<string, unknown>,
   ): Promise<void> {
     if (!this.cliConfig) return;
 
@@ -589,7 +666,10 @@ export class CodexContentGenerator implements ContentGenerator {
     logApiResponse(this.cliConfig, event);
 
     if (this.enableOpenAILogging && this.logger) {
-      await this.logger.logInteraction(request, { streamed: true });
+      await this.logger.logInteraction(request, {
+        streamed: true,
+        ...(diagnostics ?? {}),
+      });
     }
   }
 }
@@ -606,12 +686,18 @@ function extractBaseModel(model: string): string {
 
 function extractReasoningEffort(
   model: string,
-): 'low' | 'medium' | 'high' | undefined {
+): 'none' | 'low' | 'medium' | 'high' | 'xhigh' | undefined {
   const match = model.match(/^(.+?)\((\w+)\)$/);
   if (!match) return undefined;
 
   const level = match[2].toLowerCase();
-  if (level === 'low' || level === 'medium' || level === 'high') {
+  if (
+    level === 'none' ||
+    level === 'low' ||
+    level === 'medium' ||
+    level === 'high' ||
+    level === 'xhigh'
+  ) {
     return level;
   }
   return undefined;

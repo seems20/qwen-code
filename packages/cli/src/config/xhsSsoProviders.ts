@@ -23,26 +23,27 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
   {
     id: 'gpt-5.4(none)',
     displayName: 'gpt-5.4(none)',
-    baseUrl: 'https://runway.devops.rednote.life/openai',
+    baseUrl:
+      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
     contextWindow: '272K',
     description: '用于处理复杂专业工作的前沿模型 (不启用推理)',
   },
-  // {
-  //   id: 'gpt-5.4(medium)',
-  //   displayName: 'gpt-5.4(medium)',
-  //   baseUrl:
-  //     'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
-  //   contextWindow: '272K',
-  //   description: '用于处理复杂专业工作的前沿模型 (推理强度中)',
-  // },
-  // {
-  //   id: 'gpt-5.4(xhigh)',
-  //   displayName: 'gpt-5.4(xhigh)',
-  //   baseUrl:
-  //     'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
-  //   contextWindow: '272K',
-  //   description: '用于处理复杂专业工作的前沿模型 (推理强度极高)',
-  // },
+  {
+    id: 'gpt-5.4(medium)',
+    displayName: 'gpt-5.4(medium)',
+    baseUrl:
+      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
+    contextWindow: '272K',
+    description: '用于处理复杂专业工作的前沿模型 (推理强度中)',
+  },
+  {
+    id: 'gpt-5.4(xhigh)',
+    displayName: 'gpt-5.4(xhigh)',
+    baseUrl:
+      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
+    contextWindow: '272K',
+    description: '用于处理复杂专业工作的前沿模型 (推理强度极高)',
+  },
   {
     id: 'gpt-5.3-codex(medium)',
     displayName: 'gpt-5.3-codex(medium)',
@@ -111,13 +112,13 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     description:
       '智谱新一代的旗舰基座模型，面向 Agentic Engineering 打造，对齐 Claude Opus 4.5',
   },
-  {
-    id: 'claude-opus-4-5@20251101',
-    displayName: 'Claude Opus 4.5',
-    baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
-    contextWindow: '200K',
-    description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
-  },
+  // {
+  //   id: 'claude-opus-4-5@20251101',
+  //   displayName: 'Claude Opus 4.5',
+  //   baseUrl: 'https://runway.devops.rednote.life/openai/google/anthropic/v1',
+  //   contextWindow: '200K',
+  //   description: 'Anthropic 最强大的模型，擅长复杂推理和代码生成',
+  // },
   {
     id: 'Kimi-K2.5',
     displayName: 'Kimi-K2.5',

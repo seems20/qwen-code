@@ -366,9 +366,9 @@ export async function createContentGenerator(
         generatorConfig,
         config,
       );
-    } else if (model.includes('codex')) {
-      // 使用专门为 Codex 系列实现的 ContentGenerator
-      // 它遵循 Microsoft Chat Response 协议
+    } else if (model.includes('codex') || model.startsWith('gpt-5.4')) {
+      // 使用 Responses API 的 ContentGenerator
+      // 支持 Codex 系列和 gpt-5.4 系列模型
       const { CodexContentGenerator } = await import(
         './codexContentGenerator.js'
       );
