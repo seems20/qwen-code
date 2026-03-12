@@ -83,7 +83,7 @@ describe('<Header />', () => {
 
   it('renders with border around info panel', () => {
     const { lastFrame } = render(<Header {...defaultProps} />);
-    expect(lastFrame()).toContain('╭');
-    expect(lastFrame()).toContain('╯');
+    expect(lastFrame()).toContain('┌');
+    expect(lastFrame()).toContain('┐');
   });
 });

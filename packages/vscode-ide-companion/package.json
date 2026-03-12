@@ -20,55 +20,55 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onView:qwen-code.chatView.sidebar",
-    "onView:qwen-code.chatView.secondary",
-    "onCommand:qwen-code.openChat",
-    "onCommand:qwen-code.focusChat",
-    "onCommand:qwen-code.newConversation",
-    "onCommand:qwen-code.showLogs"
+    "onView:rdmind-code.chatView.sidebar",
+    "onView:rdmind-code.chatView.secondary",
+    "onCommand:rdmind-code.openChat",
+    "onCommand:rdmind-code.focusChat",
+    "onCommand:rdmind-code.newConversation",
+    "onCommand:rdmind-code.showLogs"
   ],
   "contributes": {
     "jsonValidation": [
       {
-        "fileMatch": "**/.qwen/settings.json",
+        "fileMatch": "**/.rdmind/settings.json",
         "url": "./schemas/settings.schema.json"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "qwen-code-sidebar",
-          "title": "Qwen Code",
+          "id": "rdmind-code-sidebar",
+          "title": "RDMind",
           "icon": "assets/sidebar-icon.svg",
-          "when": "qwen-code:doesNotSupportSecondarySidebar"
+          "when": "rdmind-code:doesNotSupportSecondarySidebar"
         }
       ],
       "secondarySidebar": [
         {
-          "id": "qwen-code-secondary",
-          "title": "Qwen Code",
+          "id": "rdmind-code-secondary",
+          "title": "RDMind",
           "icon": "assets/sidebar-icon.svg",
-          "when": "!qwen-code:doesNotSupportSecondarySidebar"
+          "when": "!rdmind-code:doesNotSupportSecondarySidebar"
         }
       ]
     },
     "views": {
-      "qwen-code-sidebar": [
+      "rdmind-code-sidebar": [
         {
           "type": "webview",
-          "id": "qwen-code.chatView.sidebar",
-          "name": "Qwen Code",
+          "id": "rdmind-code.chatView.sidebar",
+          "name": "RDMind",
           "icon": "assets/sidebar-icon.svg",
-          "when": "qwen-code:doesNotSupportSecondarySidebar"
+          "when": "rdmind-code:doesNotSupportSecondarySidebar"
         }
       ],
-      "qwen-code-secondary": [
+      "rdmind-code-secondary": [
         {
           "type": "webview",
-          "id": "qwen-code.chatView.secondary",
-          "name": "Qwen Code",
+          "id": "rdmind-code.chatView.secondary",
+          "name": "RDMind",
           "icon": "assets/sidebar-icon.svg",
-          "when": "!qwen-code:doesNotSupportSecondarySidebar"
+          "when": "!rdmind-code:doesNotSupportSecondarySidebar"
         }
       ]
     },

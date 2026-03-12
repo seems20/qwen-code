@@ -1039,7 +1039,8 @@ export const useGeminiStream = (
             // Show retry info if available (rate-limit / throttling errors)
             if (event.retryInfo) {
               startRetryCountdown(event.retryInfo);
-            } else if (!pendingRetryCountdownItemRef.current) {
+            } else {
+              // The retry attempt is starting now, so any prior retry UI is stale.
               clearRetryCountdown();
             }
             break;
@@ -1080,7 +1081,6 @@ export const useGeminiStream = (
       setThought,
       pendingHistoryItemRef,
       setPendingHistoryItem,
-      pendingRetryCountdownItemRef,
     ],
   );
 
@@ -1306,24 +1306,13 @@ export const useGeminiStream = (
       return;
     }
 
-    // Commit the error to history (without hint) before clearing
-    const errorItem = pendingRetryErrorItemRef.current;
-    if (errorItem) {
-      addItem({ type: errorItem.type, text: errorItem.text }, Date.now());
-    }
     clearRetryCountdown();
 
     await submitQuery(lastPrompt, {
       isContinuation: false,
       skipPreparation: true,
     });
-  }, [
-    streamingState,
-    addItem,
-    clearRetryCountdown,
-    submitQuery,
-    pendingRetryErrorItemRef,
-  ]);
+  }, [streamingState, addItem, clearRetryCountdown, submitQuery]);
 
   const handleApprovalModeChange = useCallback(
     async (newApprovalMode: ApprovalMode) => {

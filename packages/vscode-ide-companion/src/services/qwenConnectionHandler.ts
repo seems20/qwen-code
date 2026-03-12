@@ -18,6 +18,7 @@ import {
   extractSessionModeState,
   extractSessionModelState,
 } from '../utils/acpModelInfo.js';
+import { getErrorMessage } from '../utils/errorMessage.js';
 import type { ModelInfo } from '@agentclientprotocol/sdk';
 import type { ApprovalModeValue } from '../types/approvalModeValueTypes.js';
 
@@ -165,6 +166,8 @@ export class QwenConnectionHandler {
     authMethod: string,
     autoAuthenticate: boolean,
   ): Promise<unknown> {
+    let lastError: unknown;
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(
@@ -174,8 +177,8 @@ export class QwenConnectionHandler {
         console.log('[AgentManager] Session created successfully');
         return res;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
+        lastError = error;
+        const errorMessage = getErrorMessage(error);
         console.error(
           `[AgentManager] Session creation attempt ${attempt} failed:`,
           errorMessage,
@@ -216,15 +219,17 @@ export class QwenConnectionHandler {
         }
 
         if (attempt === maxRetries) {
-          throw new Error(
-            `Session creation failed after ${maxRetries} attempts: ${errorMessage}`,
-          );
+          throw error;
         }
 
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
         console.log(`[AgentManager] Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
+    }
+
+    if (lastError !== undefined) {
+      throw lastError;
     }
 
     throw new Error('Session creation failed unexpectedly');
