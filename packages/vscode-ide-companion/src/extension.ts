@@ -14,7 +14,9 @@ import {
   IDE_DEFINITIONS,
   type IdeInfo,
 } from '@rdmind/rdmind-core/src/ide/detect-ide.js';
-import { WebViewProvider } from './webview/WebViewProvider.js';
+import { WebViewProvider } from './webview/providers/WebViewProvider.js';
+import { ChatProviderRegistry } from './webview/providers/ChatProviderRegistry.js';
+import { registerChatViewProviders } from './webview/providers/chatViewRegistration.js';
 import { registerNewCommands } from './commands/index.js';
 import { ReadonlyFileSystemProvider } from './services/readonlyFileSystemProvider.js';
 import { isWindows } from './utils/platform.js';
@@ -35,7 +37,7 @@ const HIDE_INSTALLATION_GREETING_IDES: ReadonlySet<IdeInfo['name']> = new Set([
 
 let ideServer: IDEServer;
 let logger: vscode.OutputChannel;
-let webViewProviders: WebViewProvider[] = []; // Track multiple chat tabs
+let chatProviderRegistry: ChatProviderRegistry<WebViewProvider> | null = null;
 
 let log: (message: string) => void = () => {};
 
@@ -125,17 +127,25 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   log('Readonly file system provider registered');
 
+  chatProviderRegistry = new ChatProviderRegistry(
+    () => new WebViewProvider(context, context.extensionUri),
+  );
+
   const diffContentProvider = new DiffContentProvider();
   const diffManager = new DiffManager(
     log,
     diffContentProvider,
-    // Delay when any chat tab has a pending permission drawer
-    () => webViewProviders.some((p) => p.hasPendingPermission()),
-    // Suppress diffs when active mode is auto or yolo in any chat tab
+    // Delay when any chat surface has a pending permission drawer
+    () =>
+      chatProviderRegistry
+        ?.getPermissionAwareProviders()
+        .some((p) => p.hasPendingPermission()) ?? false,
+    // Suppress diffs when active mode is auto or yolo in any chat surface
     () => {
-      const providers = webViewProviders.filter(
-        (p) => typeof p.shouldSuppressDiff === 'function',
-      );
+      const providers =
+        chatProviderRegistry
+          ?.getPermissionAwareProviders()
+          .filter((p) => typeof p.shouldSuppressDiff === 'function') ?? [];
       if (providers.length === 0) {
         return false;
       }
@@ -144,11 +154,16 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   // Helper function to create a new WebView provider instance
-  const createWebViewProvider = (): WebViewProvider => {
-    const provider = new WebViewProvider(context, context.extensionUri);
-    webViewProviders.push(provider);
-    return provider;
-  };
+  const createWebViewProvider = (): WebViewProvider =>
+    chatProviderRegistry!.createEditorProvider();
+
+  const createViewProvider = (): WebViewProvider =>
+    chatProviderRegistry!.createViewProvider();
+
+  const supportsSecondarySidebar = registerChatViewProviders({
+    context,
+    createViewProvider,
+  });
 
   // Register WebView panel serializer for persistence across reloads
   context.subscriptions.push(
@@ -192,8 +207,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context,
     log,
     diffManager,
-    () => webViewProviders,
+    () => chatProviderRegistry?.getEditorProviders() ?? [],
     createWebViewProvider,
+    logger,
+    supportsSecondarySidebar,
   );
 
   context.subscriptions.push(
@@ -206,46 +223,42 @@ export async function activate(context: vscode.ExtensionContext) {
       DIFF_SCHEME,
       diffContentProvider,
     ),
-    (vscode.commands.registerCommand(
-      'rdmind.diff.accept',
-      (uri?: vscode.Uri) => {
-        const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
-        if (docUri && docUri.scheme === DIFF_SCHEME) {
-          diffManager.acceptDiff(docUri);
-        }
-        // If WebView is requesting permission, actively select an allow option (prefer once)
-        try {
-          for (const provider of webViewProviders) {
-            if (provider?.hasPendingPermission()) {
-              provider.respondToPendingPermission('allow');
-            }
+    vscode.commands.registerCommand('rdmind.diff.accept', (uri?: vscode.Uri) => {
+      const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
+      if (docUri && docUri.scheme === DIFF_SCHEME) {
+        diffManager.acceptDiff(docUri);
+      }
+      // If any chat surface is requesting permission, actively select allow (prefer once)
+      try {
+        for (const provider of chatProviderRegistry?.getPermissionAwareProviders() ??
+          []) {
+          if (provider?.hasPendingPermission()) {
+            provider.respondToPendingPermission('allow');
           }
-        } catch (err) {
-          console.warn('[Extension] Auto-allow on diff.accept failed:', err);
         }
-        console.log('[Extension] Diff accepted');
-      },
-    ),
-    vscode.commands.registerCommand(
-      'rdmind.diff.cancel',
-      (uri?: vscode.Uri) => {
-        const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
-        if (docUri && docUri.scheme === DIFF_SCHEME) {
-          diffManager.cancelDiff(docUri);
-        }
-        // If WebView is requesting permission, actively select reject/cancel
-        try {
-          for (const provider of webViewProviders) {
-            if (provider?.hasPendingPermission()) {
-              provider.respondToPendingPermission('cancel');
-            }
+      } catch (err) {
+        console.warn('[Extension] Auto-allow on diff.accept failed:', err);
+      }
+      console.log('[Extension] Diff accepted');
+    }),
+    vscode.commands.registerCommand('rdmind.diff.cancel', (uri?: vscode.Uri) => {
+      const docUri = uri ?? vscode.window.activeTextEditor?.document.uri;
+      if (docUri && docUri.scheme === DIFF_SCHEME) {
+        diffManager.cancelDiff(docUri);
+      }
+      // If any chat surface is requesting permission, actively select reject/cancel
+      try {
+        for (const provider of chatProviderRegistry?.getPermissionAwareProviders() ??
+          []) {
+          if (provider?.hasPendingPermission()) {
+            provider.respondToPendingPermission('cancel');
           }
-        } catch (err) {
-          console.warn('[Extension] Auto-reject on diff.cancel failed:', err);
         }
-        console.log('[Extension] Diff cancelled');
-      },
-    )),
+      } catch (err) {
+        console.warn('[Extension] Auto-reject on diff.cancel failed:', err);
+      }
+      console.log('[Extension] Diff cancelled');
+    }),
     vscode.commands.registerCommand('rdmind.diff.closeAll', async () => {
       try {
         await diffManager.closeAll();
@@ -370,11 +383,8 @@ export async function deactivate(): Promise<void> {
     if (ideServer) {
       await ideServer.stop();
     }
-    // Dispose all WebView providers
-    webViewProviders.forEach((provider) => {
-      provider.dispose();
-    });
-    webViewProviders = [];
+    chatProviderRegistry?.disposeAll();
+    chatProviderRegistry = null;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     log(`Failed to stop IDE server during deactivation: ${message}`);

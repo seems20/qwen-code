@@ -19,7 +19,13 @@
     "ide companion"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onView:qwen-code.chatView.sidebar",
+    "onView:qwen-code.chatView.secondary",
+    "onCommand:qwen-code.openChat",
+    "onCommand:qwen-code.focusChat",
+    "onCommand:qwen-code.newConversation",
+    "onCommand:qwen-code.showLogs"
   ],
   "contributes": {
     "jsonValidation": [
@@ -28,6 +34,44 @@
         "url": "./schemas/settings.schema.json"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "qwen-code-sidebar",
+          "title": "Qwen Code",
+          "icon": "assets/sidebar-icon.svg",
+          "when": "qwen-code:doesNotSupportSecondarySidebar"
+        }
+      ],
+      "secondarySidebar": [
+        {
+          "id": "qwen-code-secondary",
+          "title": "Qwen Code",
+          "icon": "assets/sidebar-icon.svg",
+          "when": "!qwen-code:doesNotSupportSecondarySidebar"
+        }
+      ]
+    },
+    "views": {
+      "qwen-code-sidebar": [
+        {
+          "type": "webview",
+          "id": "qwen-code.chatView.sidebar",
+          "name": "Qwen Code",
+          "icon": "assets/sidebar-icon.svg",
+          "when": "qwen-code:doesNotSupportSecondarySidebar"
+        }
+      ],
+      "qwen-code-secondary": [
+        {
+          "type": "webview",
+          "id": "qwen-code.chatView.secondary",
+          "name": "Qwen Code",
+          "icon": "assets/sidebar-icon.svg",
+          "when": "!qwen-code:doesNotSupportSecondarySidebar"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "rdmind-diff-editable"
@@ -60,6 +104,18 @@
       {
         "command": "rdmind-code.login",
         "title": "RDMind: Login"
+      },
+      {
+        "command": "rdmind-code.focusChat",
+        "title": "RDMind: Focus Chat View"
+      },
+      {
+        "command": "rdmind-code.newConversation",
+        "title": "RDMind: New Conversation"
+      },
+      {
+        "command": "rdmind-code.showLogs",
+        "title": "RDMind: Show Logs"
       }
     ],
     "menus": {
@@ -104,6 +160,11 @@
         "command": "rdmind.diff.accept",
         "key": "cmd+s",
         "when": "rdmind.diff.isVisible"
+      },
+      {
+        "command": "rdmind-code.focusChat",
+        "key": "ctrl+shift+l",
+        "mac": "cmd+shift+l"
       }
     ]
   },
