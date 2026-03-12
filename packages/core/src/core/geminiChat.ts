@@ -664,6 +664,26 @@ export class GeminiChat {
       if (thoughtContentPart && thoughtSignature) {
         thoughtContentPart.thoughtSignature = thoughtSignature;
       }
+
+      const codexReasoningItem = allModelParts.find(
+        (part) =>
+          part &&
+          typeof part === 'object' &&
+          'thought' in part &&
+          part.thought &&
+          'codexReasoningItem' in part,
+      ) as
+        | (Part & {
+            codexReasoningItem?: unknown;
+          })
+        | undefined;
+      if (thoughtContentPart && codexReasoningItem?.codexReasoningItem) {
+        (
+          thoughtContentPart as Part & {
+            codexReasoningItem?: unknown;
+          }
+        ).codexReasoningItem = codexReasoningItem.codexReasoningItem;
+      }
     }
 
     const contentParts = allModelParts.filter((part) => !part.thought);

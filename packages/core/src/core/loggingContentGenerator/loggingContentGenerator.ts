@@ -364,6 +364,11 @@ export class LoggingContentGenerator implements ContentGenerator {
               ...(part.thoughtSignature
                 ? { thoughtSignature: part.thoughtSignature }
                 : {}),
+              ...(
+                'codexReasoningItem' in part && part.codexReasoningItem
+                  ? { codexReasoningItem: part.codexReasoningItem }
+                  : {}
+              ),
             });
           }
           continue;

@@ -138,7 +138,7 @@ describe('modelKeyFetcher', () => {
       );
     });
 
-    it.each(['gpt-5.4(none)', 'gpt-5.4(xhigh)'])(
+    it.each(['gpt-5.4(none)'])(
       'should strip effort suffix for %s',
       async (modelName) => {
         const mockResponse = {

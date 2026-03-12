@@ -37,14 +37,6 @@ export const XHS_SSO_MODELS: XhsSsoModel[] = [
     description: '用于处理复杂专业工作的前沿模型 (推理强度中)',
   },
   {
-    id: 'gpt-5.4(xhigh)',
-    displayName: 'gpt-5.4(xhigh)',
-    baseUrl:
-      'https://runway.devops.rednote.life/openai/v1/responses?api-version=v1',
-    contextWindow: '272K',
-    description: '用于处理复杂专业工作的前沿模型 (推理强度极高)',
-  },
-  {
     id: 'gpt-5.3-codex(medium)',
     displayName: 'gpt-5.3-codex(medium)',
     baseUrl:

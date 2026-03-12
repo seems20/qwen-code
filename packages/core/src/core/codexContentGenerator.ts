@@ -37,9 +37,21 @@ import type { GenerateContentResponseUsageMetadata } from '@google/genai';
 // Codex API 类型定义 (Microsoft AI Foundry Create Response Protocol)
 // ============================================================================
 
+type CodexSummaryItem = {
+  type: 'summary_text';
+  text: string;
+  [key: string]: unknown;
+};
+
+type CodexReasoningTextContent = {
+  [key: string]: unknown;
+};
+
 interface CodexMessage {
   role?: 'user' | 'assistant' | 'developer';
-  type?: 'function_call' | 'function_call_output' | 'message';
+  type?: 'function_call' | 'function_call_output' | 'message' | 'reasoning';
+  id?: string;
+  status?: string | null;
   name?: string;
   arguments?: string;
   call_id?: string;
@@ -48,8 +60,11 @@ interface CodexMessage {
     | Array<
         | { type: 'input_text'; text: string }
         | { type: 'input_image'; image_url: string }
+        | CodexReasoningTextContent
       >;
   output?: string;
+  summary?: CodexSummaryItem[];
+  encrypted_content?: string | null;
 }
 
 interface CodexTool {
@@ -76,6 +91,7 @@ interface CodexRequest {
   };
   truncation?: 'auto' | 'disabled';
   store?: boolean;
+  include?: string[];
   tools?: CodexTool[];
 }
 
@@ -98,11 +114,13 @@ interface CodexResponse {
   output?: Array<{
     type: 'message' | 'reasoning' | 'function_call';
     id?: string;
+    status?: string | null;
     call_id?: string;
     name?: string;
     arguments?: string;
-    content?: Array<{ type: 'text'; text: string }>;
-    summary?: Array<{ text: string }>;
+    content?: Array<{ type: 'text'; text: string } | CodexReasoningTextContent>;
+    summary?: CodexSummaryItem[];
+    encrypted_content?: string | null;
   }>;
 }
 
@@ -257,14 +275,25 @@ export class CodexContentGenerator implements ContentGenerator {
   }
 
   private async fetchApi(request: CodexRequest): Promise<Response> {
-    const response = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': this.apiKey,
-      },
-      body: JSON.stringify(request),
-    });
+    let response: Response;
+    try {
+      response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey,
+        },
+        body: JSON.stringify(request),
+      });
+    } catch (err) {
+      const cause = err instanceof Error ? err.cause : undefined;
+      const code = cause && typeof cause === 'object' && 'code' in cause ? (cause as { code?: string }).code : undefined;
+      const msg = cause instanceof Error ? cause.message : String(cause ?? err);
+      throw new Error(
+        `Codex API network error: fetch failed (${code ?? 'unknown'}). ${msg}`,
+        { cause: err },
+      );
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -297,7 +326,8 @@ export class CodexContentGenerator implements ContentGenerator {
       model,
       input,
       stream,
-      store: true,
+      store: false,
+      include: ['reasoning.encrypted_content'],
       truncation: 'auto',
       temperature: this.samplingParams?.temperature ?? 1,
       top_p: this.samplingParams?.top_p,
@@ -362,6 +392,11 @@ export class CodexContentGenerator implements ContentGenerator {
       number,
       { id?: string; name?: string; args: string }
     > = new Map();
+    const streamState = {
+      sawReasoningSummaryTextDelta: false,
+      sawOutputTextDelta: false,
+      sawFunctionCallChunk: false,
+    };
 
     try {
       let isFirstChunk = true;
@@ -417,7 +452,13 @@ export class CodexContentGenerator implements ContentGenerator {
                 streamDiag.finalOutputSummary =
                   finalResponse?.output?.map((item) => ({
                     type: item.type,
-                    contentTypes: item.content?.map((c) => c.type),
+                    contentTypes: item.content
+                      ?.map((c) =>
+                        typeof c === 'object' && c && 'type' in c
+                          ? c.type
+                          : undefined,
+                      )
+                      .filter((type): type is string => typeof type === 'string'),
                   })) ?? [];
               }
               if (eventType === 'error') {
@@ -440,6 +481,7 @@ export class CodexContentGenerator implements ContentGenerator {
                 currentEvent,
                 data,
                 toolCallArgs,
+                streamState,
               );
               if (response) {
                 yield response;
@@ -469,15 +511,29 @@ export class CodexContentGenerator implements ContentGenerator {
     event: CodexEventType | '',
     data: CodexStreamEvent['data'],
     toolCallArgs: Map<number, { id?: string; name?: string; args: string }>,
+    streamState: {
+      sawReasoningSummaryTextDelta: boolean;
+      sawOutputTextDelta: boolean;
+      sawFunctionCallChunk: boolean;
+    },
   ): GenerateContentResponse | null {
     switch (event) {
       case 'response.reasoning_summary_text.delta': {
-        return null;
+        const text = data.delta;
+        if (!text) return null;
+        streamState.sawReasoningSummaryTextDelta = true;
+        return createGeminiResponse(data.item_id || 'unknown', [
+          {
+            text,
+            thought: true,
+          },
+        ]);
       }
 
       case 'response.output_text.delta': {
         const text = data.delta;
         if (!text) return null;
+        streamState.sawOutputTextDelta = true;
         return createGeminiResponse(data.item_id || 'unknown', [{ text }]);
       }
 
@@ -509,6 +565,7 @@ export class CodexContentGenerator implements ContentGenerator {
                 `call_${Date.now()}`;
               const name = item.name || accumulated?.name || 'unknown';
               toolCallArgs.delete(index);
+              streamState.sawFunctionCallChunk = true;
               return createGeminiResponse(data.item_id || 'unknown', [
                 {
                   functionCall: { id: callId, name, args },
@@ -524,62 +581,29 @@ export class CodexContentGenerator implements ContentGenerator {
 
       case 'response.completed': {
         const response = data.response;
-        const finishReason = mapCodexStatusToFinishReason(response?.status);
-        return createGeminiResponse(
-          response?.id || 'final',
-          [],
-          finishReason,
-          response?.usage
-            ? {
-                promptTokenCount: response.usage.input_tokens,
-                candidatesTokenCount: response.usage.output_tokens,
-                totalTokenCount: response.usage.total_tokens,
-                cachedContentTokenCount:
-                  response.usage.input_tokens_details?.cached_tokens,
-                thoughtsTokenCount:
-                  response.usage.output_tokens_details?.reasoning_tokens,
-              }
-            : undefined,
-        );
+        if (response) {
+          return finalizeStreamResponse(response, streamState);
+        }
+        return createGeminiResponse('final', []);
       }
 
       case 'response.incomplete': {
         const response = data.response;
-        return createGeminiResponse(
-          response?.id || 'final',
-          [],
-          FinishReason.MAX_TOKENS,
-          response?.usage
-            ? {
-                promptTokenCount: response.usage.input_tokens,
-                candidatesTokenCount: response.usage.output_tokens,
-                totalTokenCount: response.usage.total_tokens,
-                cachedContentTokenCount:
-                  response.usage.input_tokens_details?.cached_tokens,
-                thoughtsTokenCount:
-                  response.usage.output_tokens_details?.reasoning_tokens,
-              }
-            : undefined,
-        );
+        if (response) {
+          return finalizeStreamResponse(response, streamState);
+        }
+        return createGeminiResponse('final', [], FinishReason.MAX_TOKENS);
       }
 
       case 'response.failed': {
         const response = data.response;
+        if (response) {
+          return finalizeStreamResponse(response, streamState);
+        }
         return createGeminiResponse(
-          response?.id || 'final',
+          'final',
           [],
           FinishReason.FINISH_REASON_UNSPECIFIED,
-          response?.usage
-            ? {
-                promptTokenCount: response.usage.input_tokens,
-                candidatesTokenCount: response.usage.output_tokens,
-                totalTokenCount: response.usage.total_tokens,
-                cachedContentTokenCount:
-                  response.usage.input_tokens_details?.cached_tokens,
-                thoughtsTokenCount:
-                  response.usage.output_tokens_details?.reasoning_tokens,
-              }
-            : undefined,
         );
       }
 
@@ -736,8 +760,77 @@ function buildCodexInput(
   return messages;
 }
 
-function convertContentToCodexMessages(content: unknown, modalities: InputModalities): CodexMessage[] {
+function convertContentToCodexMessages(
+  content: unknown,
+  modalities: InputModalities,
+): CodexMessage[] {
   const messages: CodexMessage[] = [];
+
+  const convertCodexReasoningItem = (
+    rawItem: unknown,
+    fallbackText: string,
+    fallbackSignature?: string,
+  ): CodexMessage | null => {
+    if (!rawItem || typeof rawItem !== 'object') {
+      if (!fallbackSignature) {
+        return null;
+      }
+      return {
+        type: 'reasoning',
+        summary: [{ type: 'summary_text', text: fallbackText }],
+        encrypted_content: fallbackSignature,
+      };
+    }
+
+    const raw = rawItem as Record<string, unknown>;
+    const type = raw['type'];
+    if (type !== 'reasoning') {
+      return null;
+    }
+
+    const normalized: CodexMessage = {
+      type: 'reasoning',
+      id: typeof raw['id'] === 'string' ? raw['id'] : undefined,
+      status:
+        typeof raw['status'] === 'string' || raw['status'] === null
+          ? (raw['status'] as string | null)
+          : undefined,
+      encrypted_content:
+        typeof raw['encrypted_content'] === 'string' ||
+        raw['encrypted_content'] === null
+          ? (raw['encrypted_content'] as string | null)
+          : fallbackSignature,
+    };
+
+    if (Array.isArray(raw['summary'])) {
+      normalized.summary = raw['summary']
+        .filter(
+          (summaryItem): summaryItem is Record<string, unknown> =>
+            typeof summaryItem === 'object' && summaryItem !== null,
+        )
+        .map((summaryItem) => ({
+          ...summaryItem,
+          type:
+            summaryItem['type'] === 'summary_text'
+              ? 'summary_text'
+              : 'summary_text',
+          text:
+            typeof summaryItem['text'] === 'string' ? summaryItem['text'] : '',
+        }));
+    }
+
+    if (Array.isArray(raw['content'])) {
+      normalized.content = raw['content']
+        .filter((contentItem) => typeof contentItem === 'object' && contentItem)
+        .map((contentItem) => ({ ...(contentItem as Record<string, unknown>) }));
+    }
+
+    if (!normalized.summary || normalized.summary.length === 0) {
+      normalized.summary = [{ type: 'summary_text', text: fallbackText }];
+    }
+
+    return normalized;
+  };
 
   if (!content) return messages;
 
@@ -763,11 +856,29 @@ function convertContentToCodexMessages(content: unknown, modalities: InputModali
 
       const partObj = part as Record<string, unknown>;
 
-      // 处理文本内容
+      // 处理文本内容 / reasoning 续传
       if ('text' in partObj && typeof partObj['text'] === 'string') {
         const text = partObj['text'];
-        // 忽略 thought 类型的文本（推理内容）
-        if (!partObj['thought']) {
+        const isThought = Boolean(partObj['thought']);
+        const thoughtSignature =
+          typeof partObj['thoughtSignature'] === 'string'
+            ? partObj['thoughtSignature']
+            : undefined;
+        const codexReasoningItem =
+          'codexReasoningItem' in partObj ? partObj['codexReasoningItem'] : undefined;
+
+        if (isThought) {
+          if (role === 'assistant') {
+            const reasoningMessage = convertCodexReasoningItem(
+              codexReasoningItem,
+              text,
+              thoughtSignature,
+            );
+            if (reasoningMessage) {
+              messages.push(reasoningMessage);
+            }
+          }
+        } else {
           messages.push({ role, content: text });
         }
       }
@@ -1125,6 +1236,55 @@ function mapCodexStatusToFinishReason(
   }
 }
 
+function finalizeStreamResponse(
+  response: CodexResponse,
+  streamState: {
+    sawReasoningSummaryTextDelta: boolean;
+    sawOutputTextDelta: boolean;
+    sawFunctionCallChunk: boolean;
+  },
+): GenerateContentResponse {
+  const finalResponse = convertCodexResponseToGemini(response);
+  const shouldKeepThoughtPartsOnly =
+    streamState.sawOutputTextDelta || streamState.sawFunctionCallChunk;
+
+  if (!finalResponse.candidates?.length) {
+    return finalResponse;
+  }
+
+  finalResponse.candidates = [
+    {
+      ...(finalResponse.candidates[0] || {
+        index: 0,
+        content: { role: 'model', parts: [] },
+        safetyRatings: [],
+      }),
+      content: {
+        role: 'model',
+        parts:
+          finalResponse.candidates[0]?.content?.parts?.flatMap((part) => {
+            if (shouldKeepThoughtPartsOnly && !part.thought) {
+              return [];
+            }
+
+            if (streamState.sawReasoningSummaryTextDelta && part.thought) {
+              return [
+                {
+                  ...part,
+                  text: '',
+                },
+              ];
+            }
+
+            return [part];
+          }) || [],
+      },
+    },
+  ];
+
+  return finalResponse;
+}
+
 function convertCodexResponseToGemini(
   response: CodexResponse,
 ): GenerateContentResponse {
@@ -1133,6 +1293,35 @@ function convertCodexResponseToGemini(
   if (response.output && Array.isArray(response.output)) {
     for (const item of response.output) {
       if (item.type === 'reasoning') {
+        const summaryText =
+          item.summary
+            ?.map((summaryItem) => summaryItem.text)
+            .filter(Boolean)
+            .join('') || '';
+        if (summaryText || item.encrypted_content) {
+          const thoughtPart: Part & {
+            codexReasoningItem?: CodexMessage;
+          } = {
+            text: summaryText,
+            thought: true,
+          };
+          if (item.encrypted_content) {
+            thoughtPart.thoughtSignature = item.encrypted_content;
+          }
+          thoughtPart.codexReasoningItem = {
+            type: 'reasoning',
+            id: item.id,
+            status: item.status,
+            content: Array.isArray(item.content)
+              ? item.content.map((contentItem) => ({
+                  ...(contentItem as Record<string, unknown>),
+                }))
+              : undefined,
+            summary: item.summary?.map((summaryItem) => ({ ...summaryItem })),
+            encrypted_content: item.encrypted_content,
+          };
+          parts.push(thoughtPart);
+        }
         continue;
       }
 

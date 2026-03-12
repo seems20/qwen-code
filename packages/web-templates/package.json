@@ -1,6 +1,6 @@
 {
   "name": "@rdmind/web-templates",
-  "version": "0.2.8-alpha.13",
+  "version": "0.2.8",
   "description": "Web templates bundled as embeddable JS/CSS strings",
   "repository": {
     "type": "git",
