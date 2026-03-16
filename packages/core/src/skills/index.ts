@@ -11,9 +11,13 @@
  * users to define reusable skill configurations that can be loaded by the
  * model via a dedicated Skills tool.
  *
- * Skills are stored as directories in `.rdmind/skills/` (project-level) or
- * `~/.rdmind/skills/` (user-level), with each directory containing a SKILL.md
- * file with YAML frontmatter for metadata.
+ * Skills are stored as directories containing a SKILL.md file with YAML
+ * frontmatter for metadata. They can be loaded from four levels
+ * (precedence: project > user > extension > bundled):
+ * - Project-level: `.rdmind/skills/` (and compatible provider dirs)
+ * - User-level: `~/.rdmind/skills/` (and compatible provider dirs)
+ * - Extension-level: provided by installed extensions
+ * - Bundled: built-in skills shipped with rdmind
  */
 
 // Core types and interfaces

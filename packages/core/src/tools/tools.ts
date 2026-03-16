@@ -526,6 +526,7 @@ export interface PlanResultDisplay {
   type: 'plan_summary';
   message: string;
   plan: string;
+  rejected?: boolean;
 }
 
 export interface ToolEditConfirmationDetails {

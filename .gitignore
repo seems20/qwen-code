@@ -57,6 +57,7 @@ packages/vscode-ide-companion/*.vsix
 .rdmind/
 !.rdmind/commands/
 !.rdmind/skills/
+!.rdmind/skills/**
 logs/
 # GHA credentials
 gha-creds-*.json

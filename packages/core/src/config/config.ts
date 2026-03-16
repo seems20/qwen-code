@@ -97,6 +97,7 @@ import {
 // Utils
 import { shouldAttemptBrowserLaunch } from '../utils/browser.js';
 import { FileExclusions } from '../utils/ignorePatterns.js';
+import { shouldDefaultToNodePty } from '../utils/shell-utils.js';
 import { WorkspaceContext } from '../utils/workspaceContext.js';
 import { isToolEnabled, type ToolName } from '../utils/tool-utils.js';
 import { getErrorMessage } from '../utils/errors.js';
@@ -193,10 +194,6 @@ export interface BugCommandSettings {
 
 export interface ChatCompressionSettings {
   contextPercentageThreshold?: number;
-}
-
-export interface SummarizeToolOutputSettings {
-  tokenBudget?: number;
 }
 
 export interface TelemetrySettings {
@@ -339,7 +336,6 @@ export interface ConfigParameters {
   allowedMcpServers?: string[];
   excludedMcpServers?: string[];
   noBrowser?: boolean;
-  summarizeToolOutput?: Record<string, SummarizeToolOutputSettings>;
   folderTrustFeature?: boolean;
   folderTrust?: boolean;
   ideMode?: boolean;
@@ -375,7 +371,6 @@ export interface ConfigParameters {
   skipLoopDetection?: boolean;
   truncateToolOutputThreshold?: number;
   truncateToolOutputLines?: number;
-  enableToolOutputTruncation?: boolean;
   eventEmitter?: EventEmitter;
   output?: OutputSettings;
   inputFormat?: InputFormat;
@@ -498,9 +493,6 @@ export class Config {
   private readonly listExtensions: boolean;
   private readonly overrideExtensions?: string[];
 
-  private readonly summarizeToolOutput:
-    | Record<string, SummarizeToolOutputSettings>
-    | undefined;
   private readonly cliVersion?: string;
   private readonly experimentalZedIntegration: boolean = false;
   private readonly chatRecordingEnabled: boolean;
@@ -530,7 +522,6 @@ export class Config {
   private readonly fileExclusions: FileExclusions;
   private readonly truncateToolOutputThreshold: number;
   private readonly truncateToolOutputLines: number;
-  private readonly enableToolOutputTruncation: boolean;
   private readonly eventEmitter?: EventEmitter;
   private readonly channel: string | undefined;
   private readonly defaultFileEncoding: FileEncodingType;
@@ -614,7 +605,6 @@ export class Config {
     this.listExtensions = params.listExtensions ?? false;
     this.overrideExtensions = params.overrideExtensions;
     this.noBrowser = params.noBrowser ?? false;
-    this.summarizeToolOutput = params.summarizeToolOutput;
     this.folderTrustFeature = params.folderTrustFeature ?? false;
     this.folderTrust = params.folderTrust ?? false;
     this.ideMode = params.ideMode ?? false;
@@ -637,7 +627,8 @@ export class Config {
     this.webSearch = params.webSearch;
     this.useRipgrep = params.useRipgrep ?? true;
     this.useBuiltinRipgrep = params.useBuiltinRipgrep ?? true;
-    this.shouldUseNodePtyShell = params.shouldUseNodePtyShell ?? true;
+    this.shouldUseNodePtyShell =
+      params.shouldUseNodePtyShell ?? shouldDefaultToNodePty();
     this.skipNextSpeakerCheck = params.skipNextSpeakerCheck ?? true;
     this.shellExecutionConfig = {
       terminalWidth: params.shellExecutionConfig?.terminalWidth ?? 80,
@@ -650,7 +641,6 @@ export class Config {
       DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD;
     this.truncateToolOutputLines =
       params.truncateToolOutputLines ?? DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES;
-    this.enableToolOutputTruncation = params.enableToolOutputTruncation ?? true;
     this.channel = params.channel;
     this.defaultFileEncoding = params.defaultFileEncoding ?? FileEncoding.UTF8;
     this.storage = new Storage(this.targetDir);
@@ -1598,12 +1588,6 @@ export class Config {
     return this.getNoBrowser() || !shouldAttemptBrowserLaunch();
   }
 
-  getSummarizeToolOutputConfig():
-    | Record<string, SummarizeToolOutputSettings>
-    | undefined {
-    return this.summarizeToolOutput;
-  }
-
   // Web search provider configuration
   getWebSearchConfig() {
     return this.webSearch;
@@ -1732,15 +1716,8 @@ export class Config {
     return this.skipStartupContext;
   }
 
-  getEnableToolOutputTruncation(): boolean {
-    return this.enableToolOutputTruncation;
-  }
-
   getTruncateToolOutputThreshold(): number {
-    if (
-      !this.enableToolOutputTruncation ||
-      this.truncateToolOutputThreshold <= 0
-    ) {
+    if (this.truncateToolOutputThreshold <= 0) {
       return Number.POSITIVE_INFINITY;
     }
 
@@ -1748,7 +1725,7 @@ export class Config {
   }
 
   getTruncateToolOutputLines(): number {
-    if (!this.enableToolOutputTruncation || this.truncateToolOutputLines <= 0) {
+    if (this.truncateToolOutputLines <= 0) {
       return Number.POSITIVE_INFINITY;
     }
 

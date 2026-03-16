@@ -211,6 +211,7 @@ export enum CommandKind {
   FILE = 'file',
   MARKDOWN = 'markdown',
   MCP_PROMPT = 'mcp-prompt',
+  SKILL = 'skill',
 }
 
 export interface CommandCompletionItem {

@@ -7,6 +7,7 @@
 export const SERVICE_NAME = 'rdmind';
 
 export const EVENT_USER_PROMPT = 'rdmind.user_prompt';
+export const EVENT_USER_RETRY = 'rdmind.user_retry';
 export const EVENT_TOOL_CALL = 'rdmind.tool_call';
 export const EVENT_API_REQUEST = 'rdmind.api_request';
 export const EVENT_API_ERROR = 'rdmind.api_error';

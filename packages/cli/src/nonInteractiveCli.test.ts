@@ -20,6 +20,7 @@ import {
   uiTelemetryService,
   FatalInputError,
   ApprovalMode,
+  SendMessageType,
 } from '@rdmind/rdmind-core';
 import type { Part } from '@google/genai';
 import { runNonInteractive } from './nonInteractiveCli.js';
@@ -249,7 +250,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Test input' }],
       expect.any(AbortSignal),
       'prompt-id-1',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
     expect(processStdoutSpy).toHaveBeenCalledWith('Hello World');
     expect(mockShutdownTelemetry).toHaveBeenCalled();
@@ -299,21 +300,21 @@ describe('runNonInteractive', () => {
         outputUpdateHandler: expect.any(Function),
       }),
     );
-    // Verify first call has isContinuation: false
+    // Verify first call has type: UserQuery
     expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
       1,
       [{ text: 'Use a tool' }],
       expect.any(AbortSignal),
       'prompt-id-2',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
-    // Verify second call (after tool execution) has isContinuation: true
+    // Verify second call (after tool execution) has type: ToolResult
     expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
       2,
       [{ text: 'Tool response' }],
       expect.any(AbortSignal),
       'prompt-id-2',
-      { isContinuation: true },
+      { type: SendMessageType.ToolResult },
     );
     expect(processStdoutSpy).toHaveBeenCalledWith('Final answer');
   });
@@ -382,7 +383,7 @@ describe('runNonInteractive', () => {
       ],
       expect.any(AbortSignal),
       'prompt-id-3',
-      { isContinuation: true },
+      { type: SendMessageType.ToolResult },
     );
     expect(processStdoutSpy).toHaveBeenCalledWith('Sorry, let me try again.');
   });
@@ -506,7 +507,7 @@ describe('runNonInteractive', () => {
       processedParts,
       expect.any(AbortSignal),
       'prompt-id-7',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
 
     // 6. Assert the final output is correct
@@ -538,7 +539,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Test input' }],
       expect.any(AbortSignal),
       'prompt-id-1',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
 
     // JSON adapter emits array of messages, last one is result with stats
@@ -693,7 +694,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Empty response test' }],
       expect.any(AbortSignal),
       'prompt-id-empty',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
 
     // JSON adapter emits array of messages, last one is result with stats
@@ -880,7 +881,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Prompt from command' }],
       expect.any(AbortSignal),
       'prompt-id-slash',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
 
     expect(processStdoutSpy).toHaveBeenCalledWith('Response from command');
@@ -940,7 +941,7 @@ describe('runNonInteractive', () => {
       [{ text: '/unknowncommand' }],
       expect.any(AbortSignal),
       'prompt-id-unknown',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
 
     expect(processStdoutSpy).toHaveBeenCalledWith('Response to unknown');
@@ -1298,7 +1299,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Message from stream-json input' }],
       expect.any(AbortSignal),
       'prompt-envelope',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
   });
 
@@ -1774,7 +1775,7 @@ describe('runNonInteractive', () => {
       [{ text: 'Simple string content' }],
       expect.any(AbortSignal),
       'prompt-string-content',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
 
     // UserMessage with array of text blocks
@@ -1807,7 +1808,7 @@ describe('runNonInteractive', () => {
       [{ text: 'First part' }, { text: 'Second part' }],
       expect.any(AbortSignal),
       'prompt-blocks-content',
-      { isContinuation: false },
+      { type: SendMessageType.UserQuery },
     );
   });
 });

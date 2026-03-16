@@ -393,7 +393,7 @@ export class DataProcessor {
     const generate = async <T>(
       promptTemplate: string,
       schema: Record<string, unknown>,
-    ): Promise<T> => {
+    ): Promise<T | undefined> => {
       const prompt = `${promptTemplate}\n\n${commonData}`;
       try {
         const result = await this.config.getBaseLlmClient().generateJson({
@@ -405,7 +405,7 @@ export class DataProcessor {
         return result as T;
       } catch (error) {
         logger.error('Failed to generate insight:', error);
-        throw error;
+        return undefined;
       }
     };
 
